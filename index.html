@@ -40,7 +40,47 @@ body{
   color:var(--text); font-family:var(--ui); font-size:17px; line-height:1.5; min-height:100vh;
   -webkit-tap-highlight-color:transparent;
 }
+body::before{content:""; position:fixed; inset:-20% -20% auto -20%; height:70vh; z-index:-2; pointer-events:none;
+  background:radial-gradient(45% 45% at 20% 25%, rgba(124,92,255,.45), transparent 70%),
+             radial-gradient(40% 40% at 80% 15%, rgba(47,168,255,.38), transparent 70%),
+             radial-gradient(45% 45% at 60% 60%, rgba(255,95,162,.30), transparent 70%);
+  filter:blur(40px); animation:aurora 18s ease-in-out infinite alternate}
+body::after{content:""; position:fixed; inset:auto -20% -25% -20%; height:55vh; z-index:-2; pointer-events:none;
+  background:radial-gradient(40% 40% at 30% 70%, rgba(15,184,161,.32), transparent 70%),
+             radial-gradient(40% 40% at 75% 60%, rgba(255,176,32,.30), transparent 70%);
+  filter:blur(46px); animation:aurora 22s ease-in-out infinite alternate-reverse}
+@keyframes aurora{0%{transform:translate3d(-4%,-2%,0) scale(1)}50%{transform:translate3d(5%,3%,0) scale(1.12)}100%{transform:translate3d(-2%,4%,0) scale(1.05)}}
 .wrap{max-width:560px; margin:0 auto; padding:12px 14px 124px}
+.wrap>*{animation:rise .5s cubic-bezier(.2,.8,.3,1) both}
+.wrap>*:nth-child(2){animation-delay:.05s} .wrap>*:nth-child(3){animation-delay:.1s}
+.wrap>*:nth-child(4){animation-delay:.15s} .wrap>*:nth-child(5){animation-delay:.2s}
+.wrap>*:nth-child(6){animation-delay:.25s} .wrap>*:nth-child(7){animation-delay:.3s}
+@keyframes rise{from{opacity:0; transform:translateY(18px) scale(.98)}to{opacity:1; transform:none}}
+@keyframes popin{from{opacity:0; transform:scale(.8)}to{opacity:1; transform:none}}
+@keyframes shake{10%,90%{transform:translateX(-3px)}20%,80%{transform:translateX(5px)}30%,50%,70%{transform:translateX(-8px)}40%,60%{transform:translateX(8px)}}
+.shake{animation:shake .5s both}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.pulse{animation:pulse 1.8s ease-in-out infinite}
+.ring{position:relative; width:170px; height:170px; margin:4px auto 6px}
+.ring svg{width:100%; height:100%; transform:rotate(-90deg)}
+.ring circle{fill:none; stroke-width:13; stroke-linecap:round}
+.ring .bg{stroke:rgba(255,255,255,.22)}
+.ring .fg{stroke:#fff; stroke-dasharray:327; stroke-dashoffset:327; transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.3,1)}
+.ring-t{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center}
+.ring-t b{font-family:var(--display); font-size:38px; line-height:1}
+.ring-t i{font-style:normal; font-size:14px; font-weight:700; opacity:.9}
+.podium{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; align-items:end; margin:8px 0 4px}
+.pod{border-radius:16px 16px 0 0; padding:10px 6px 12px; text-align:center; color:#fff; animation:rise .6s both}
+.pod span{display:block; font-size:24px}
+.pod b{display:block; font-size:14px; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.pod i{font-style:normal; font-size:12px; opacity:.92}
+.pod.p1{background:linear-gradient(160deg,#FFD75E,#FF9A2E); height:130px; animation-delay:.1s}
+.pod.p2{background:linear-gradient(160deg,#D9DEF0,#9AA3C7); height:106px}
+.pod.p3{background:linear-gradient(160deg,#F0B98C,#C67C4E); height:92px; animation-delay:.2s}
+.nav button{transition:transform .18s, background .25s, color .25s}
+.nav button.on{transform:translateY(-3px)}
+.nav button.on span{animation:popin .3s both}
+.appbar .ava{animation:popin .4s both}
 .appbar{position:sticky; top:8px; z-index:5; display:flex; align-items:center; gap:11px; background:var(--card); border-radius:20px; padding:9px 13px; margin-bottom:14px; box-shadow:0 4px 0 var(--shade)}
 .ava{width:42px; height:42px; border-radius:14px; background:linear-gradient(140deg,var(--violet),var(--sky)); color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-weight:800; font-size:19px}
 .ttl b{display:block; font-family:var(--display); font-size:18px; line-height:1.15}
@@ -740,14 +780,33 @@ function register(){
 function leagueCard(){
   const wb=weekBoard(), wp=wb.findIndex(x=>x.me)+1, my=S.week.my;
   const pct=Math.min(100,Math.round(my/WEEK_GOAL*100));
-  return `<section class="league"><div class="lg-top"><h3>🏆 Haftalik liga</h3><span class="lg-timer">${timeLeft()}</span></div>
+  return `<section class="league"><div class="lg-top"><h3>🏆 Haftalik liga</h3><span class="lg-timer" id="lgt">${timeLeft()}</span></div>
     <div class="lg-note">${weekendNow()?"Yangi liga dushanbada boshlanadi":"Dushanba–juma 12:00 · natijalar juma 12:00 da"}</div>
     ${online()?lbHTML(wb)+`<div class="gap ${wp===1?"up":"down"}">${wp===1?"Siz yetakchisiz — ushlab turing!":`Birinchi o'ringacha ${wb[0].xp-wb[wp-1].xp} XP`}</div>`
-    :`<div class="goal"><div class="goal-n">${my} / ${WEEK_GOAL} XP</div>
-       <div class="goal-bar"><i style="width:${pct}%"></i></div>
+    :`<div class="goal"><div class="ring">
+        <svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" id="ringfg" cx="60" cy="60" r="52"/></svg>
+        <div class="ring-t"><b id="ringn">0</b><i>/ ${WEEK_GOAL} XP</i></div></div>
        <div class="goal-t">${my>=WEEK_GOAL?"Maqsad bajarildi — juma kuni 🏆 +400 XP":"Haftalik maqsadgacha "+(WEEK_GOAL-my)+" XP"}</div></div>
      <div class="lg-note">${S.lastWeekXp?`O'tgan hafta: ${S.lastWeekXp} XP — ${my>S.lastWeekXp?"hozir oldindasiz 💪":"hozir orqadasiz"}`:"👥 Sheriklar qo'shilganda shu yerda ular bilan poyga bo'ladi"}</div>`}
   </section>`;
+}
+function countUp(el,to,ms){
+  if(!el) return; const t=+to||0, st=performance.now();
+  const step=n=>{ const p=Math.min(1,(n-st)/(ms||900)); el.textContent=Math.round(t*(1-Math.pow(1-p,3))); if(p<1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function animate(){
+  const r=document.getElementById("ringfg"), n=document.getElementById("ringn");
+  if(r){ const pct=Math.min(100,S.week.my/WEEK_GOAL*100);
+    requestAnimationFrame(()=>{ r.style.strokeDashoffset=327-327*pct/100; });
+    countUp(n,S.week.my,1100); }
+  const xp=document.querySelector(".xpchip");
+  if(xp){ const v=S.xp; xp.innerHTML="⚡ <span id='xpn'>0</span>"; countUp(document.getElementById("xpn"),v,900); }
+  clearInterval(window._tick);
+  window._tick=setInterval(()=>{
+    const a=document.getElementById("lgt"); if(a) a.textContent=timeLeft();
+    const b=document.getElementById("dlt"); if(b){ const l=deadlineLeft(); if(l) b.textContent="17:00 gacha "+l+" qoldi"; }
+  },1000);
 }
 function scrMain(){
   const d=dayState(), wb=weekBoard(), wp=wb.findIndex(x=>x.me)+1;
@@ -756,7 +815,7 @@ function scrMain(){
   shell(`
   ${overtake.length?`<div class="alert">⚠️ Siz ${overtake[0]}-o'rindan ${overtake[1]}-o'ringa tushdingiz. Raqobatchilar siz yo'qligingizda ishladi!</div>`:""}
   <section class="dl ${d.k}"><div class="dl-l"><b>${d.k==="done"?"✅ Bugun bajarildi":d.k==="missed"?"❌ Qoldirib yuborildi":d.k==="off"?"☕ Dam olish kuni":"⏰ Bugungi mashq"}</b>
-    <i>${d.txt}</i></div><div class="dl-r">${S.streak}<span>kun</span></div></section>
+    <i id="dlt">${d.txt}</i></div><div class="dl-r ${S.streak>0?"pulse":""}">${S.streak}<span>kun</span></div></section>
   ${leagueCard()}
   <div class="duo">
     <div><div class="n">${dm}/15</div><div class="small">bugungi to'g'ri javob${S.daily.got?"<br>🎯 +120 olindi":"<br>maqsad: +120 XP"}</div></div>
@@ -777,13 +836,19 @@ function scrMain(){
   document.getElementById("blz").onclick=()=>startBlitz(open);
   document.getElementById("err").onclick=startErrs;
   document.getElementById("gft").onclick=openGift;
-  overtake=[];
+  overtake=[]; animate();
 }
 /* ---------- reyting ---------- */
 function scrRating(){
   const wb=weekBoard(), wp=wb.findIndex(x=>x.me)+1, b=board(), p=place();
   shell(`
   ${leagueCard()}
+  ${wb.length>1?`<section class="card"><h3>Hafta yetakchilari</h3>
+    <div class="podium">
+      <div class="pod p2"><span>🥈</span><b>${wb[1]?wb[1].name:"—"}</b><i>${wb[1]?wb[1].xp+" XP":""}</i></div>
+      <div class="pod p1"><span>🥇</span><b>${wb[0].name}</b><i>${wb[0].xp} XP</i></div>
+      <div class="pod p3"><span>🥉</span><b>${wb[2]?wb[2].name:"—"}</b><i>${wb[2]?wb[2].xp+" XP":""}</i></div>
+    </div></section>`:""}
   <section class="card"><h3>Haftalik sovrinlar</h3>
     <div class="prizes">${online()?"🏆 1-o'rin +400 XP · 🥈 +200 · 🥉 +100 · 🎗️ +40"
       :"🏆 600 XP maqsad +400 · 🥈 360 XP dan +150 · 🎗️ ishtirok +50"}</div>
@@ -798,6 +863,7 @@ function scrRating(){
     <li>Har kuni mashq <b>17:00 gacha</b> bajarilishi kerak — keyin kun qoldirilgan hisoblanadi va seriya uziladi.</li>
     <li>Kunlik natijalar faqat o'zingizga ko'rinadi.</li>
     <li>Juma 12:00 dagi yakuniy jadval barcha ishtirokchilarga ko'rinadi.</li></ul></section>`,"rate");
+  animate();
 }
 /* ---------- bosqichlar ---------- */
 function scrStages(){
@@ -1143,6 +1209,7 @@ function check(){
     if(t.id){ S.errs[t.id]=true; persist(); }
     if(!r.retried.has(t.k)){r.retried.add(t.k); r.queue.push(t);}
     if(navigator.vibrate)try{navigator.vibrate(120);}catch(e){}
+    card.classList.add("shake"); setTimeout(()=>card.classList.remove("shake"),600);
     document.getElementById("fb").innerHTML=`<div class="explain bad"><b>Unchalik emas — keling, tushunib olamiz</b>${right}${t.e}</div>`;
   }
   const last=r.i>=r.queue.length-1;
