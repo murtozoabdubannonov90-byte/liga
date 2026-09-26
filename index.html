@@ -3009,7 +3009,10 @@ async function pullPlayers(force){
   lastPull=Date.now();
   try{ const rows=await rpc("liga_results",{p_id:S.pid||null});
     S.lastRes=rows&&rows.length?{id:rows[0].week_id,rows:rows.map(x=>({n:x.name,x:x.week_xp,me:x.is_me}))}:null;
-    S.pcount=await rpc("liga_count",{}); persist();
+    S.pcount=await rpc("liga_count",{});
+    const mem=await rpc("liga_members",{p_id:S.pid||null}); S.members=(mem||[]).map(x=>({n:x.name,me:x.is_me}));
+    if(S.adminPin){ try{ S.adminRows=await rpc("liga_admin_list",{p_pin:S.adminPin}); }catch(e){ S.adminRows=null; } }
+    persist();
     if(TAB==="main") scrMain(); else if(TAB==="rate") scrRating(); }catch(e){}
 }
 async function sync(){ if(syncing)return; syncing=true; await pushMe(); await pullPlayers(true); syncing=false; }
@@ -3228,6 +3231,19 @@ function shell(html,tab){
   dock.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>({main:scrMain,rate:scrRating,stage:scrStages,prof:scrProfile})[b.dataset.t]());
   window.scrollTo(0,0);
 }
+/* sheriklar: ismlar hammaga, XP faqat adminga (hafta davomida) */
+function mateHTML(){
+  const cur=weekId();
+  if(S.adminPin&&S.adminRows&&S.adminRows.length){
+    const L=S.adminRows.map(p=>({n:((p.first_name||"")+" "+(p.last_name||"").slice(0,1)+".").trim(),x:p.week_id===cur?p.week_xp:0,me:p.id===S.pid}))
+      .sort((a,b)=>b.x-a.x);
+    return `<h3 style="margin:14px 0 8px">👥 Sheriklar <span style="font-size:13px;opacity:.85">· faqat sizga ko'rinadi</span></h3><div class="lb">${L.map((x,k)=>`<div class="row ${x.me?"me":""}">
+      <span class="pos">${["🥇","🥈","🥉"][k]||k+1}</span><span class="who">${x.me?"🧑":"👤"} ${esc(x.n)}</span><span class="xp">${x.me?S.week.my:x.x} XP</span></div>`).join("")}</div>`;
+  }
+  const M=S.members||[]; if(!M.length) return "";
+  return `<h3 style="margin:14px 0 8px">👥 Sheriklar (${M.length})</h3><div class="lb">${M.map(x=>`<div class="row ${x.me?"me":""}">
+    <span class="pos">${x.me?"🧑":"👤"}</span><span class="who">${esc(x.n)}</span><span class="xp">${x.me?S.week.my+" XP":"🔒"}</span></div>`).join("")}</div>`;
+}
 function lbHTML(list){
   const m=["🥇","🥈","🥉","4","5","6","7","8","9"];
   return `<div class="lb">${list.map((x,k)=>`<div class="row ${x.me?"me":""}"><span class="pos">${m[k]}</span>
@@ -3273,6 +3289,7 @@ function leagueCard(){
         <div class="ring-t"><b id="ringn">0</b><i>/ ${WEEK_GOAL} XP</i></div></div>
        <div class="goal-t">${my>=WEEK_GOAL?"Maqsad bajarildi — juma kuni 🏆 +400 XP":"Haftalik maqsadgacha "+(WEEK_GOAL-my)+" XP"}</div></div>
      <div class="lg-note">${S.lastWeekXp?`O'tgan hafta: ${S.lastWeekXp} XP — ${my>S.lastWeekXp?"hozir oldindasiz 💪":"hozir orqadasiz"}`:"🔒 Sheriklaringiz natijasi juma 12:00 gacha yashirin"}</div>`}
+    ${mateHTML()}
   </section>`;
 }
 function countUp(el,to,ms){
