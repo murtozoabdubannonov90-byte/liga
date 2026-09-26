@@ -111,6 +111,11 @@ body::after{content:""; position:fixed; inset:auto -20% -25% -20%; height:55vh; 
 .goal-bar i{display:block; height:100%; background:#fff; border-radius:8px; transition:width .6s}
 .goal-t{font-size:14px; font-weight:700}
 .tmr{background:linear-gradient(135deg,var(--coral),var(--pink)); color:#fff; font-weight:800; border-radius:999px; padding:5px 13px}
+.tmr.low{animation:pulse 1s infinite}
+.adm{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--bg);border-radius:16px;padding:10px 12px;margin-bottom:8px}
+.adm b{display:block;font-family:var(--display);font-size:16px}.adm i{font-style:normal;font-size:12.5px;color:var(--muted);font-weight:600;display:block;line-height:1.35}
+.del{border:0;border-radius:12px;padding:8px 12px;font-weight:800;color:#fff;background:var(--bad)}
+@keyframes pulse{50%{opacity:.55}}
 .week7{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; text-align:center}
 .week7 span{border-radius:12px; padding:10px 0; font-size:12px; font-weight:800; background:var(--bg); color:var(--muted)}
 .week7 .d{background:var(--ok); color:#fff} .week7 .m{background:var(--bad); color:#fff}
@@ -291,16 +296,16 @@ addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); deferredPrompt=e
 const A={
 "0130":"Mashina va uskunalar","0230":"Mashina va uskunalar eskirishi","0820":"Asosiy vositalarni xarid qilish",
 "1010":"Xomashyo va materiallar","2010":"Asosiy ishlab chiqarish","2810":"Ombordagi tayyor mahsulot","2910":"Ombordagi tovarlar",
-"4010":"Xaridorlardan olinadigan schyotlar","4310":"Yetkazib beruvchilarga berilgan bo'naklar","4410":"Budjetga bo'naklar (kirim QQS)","4610":"Ta'sischilar qarzi (ustav kapital)",
-"5010":"Kassa (so'm)","5110":"Hisob-kitob schyoti","5210":"Valyuta schyoti",
+"4010":"Xaridorlardan olinadigan schyotlar","4220":"Xizmat safarlari uchun berilgan bo'naklar","4310":"Yetkazib beruvchilarga berilgan bo'naklar",
+"4410":"Budjetga bo'naklar (kirim QQS)","4610":"Ta'sischilar qarzi (ustav kapital)","4730":"Moddiy zararni qoplash bo'yicha xodimlar qarzi",
+"5010":"Kassa (so'm)","5110":"Hisob-kitob schyoti","5210":"Valyuta schyoti","5910":"Kamomad va qimmatliklar buzilishidan zararlar",
 "6010":"Mol yetkazib beruvchilarga qarz","6310":"Xaridorlardan olingan bo'naklar","6410":"Budjetga to'lovlar bo'yicha qarz",
-"6610":"Dividendlar bo'yicha qarz","6710":"Xodimlar bilan mehnat haqi hisobi","6810":"Sug'urta va boshqa ushlanmalar",
-"6910":"Boshqa kreditorlik qarzlari","7810":"Uzoq muddatli bank kreditlari","6810k":"",
-"8330":"Ustav kapital (ulushlar)","8710":"Taqsimlanmagan foyda",
-"9020":"Tovar sotishdan daromad","9120":"Sotilgan tovarlar tannarxi","9310":"Asosiy vositalarni sotishdan daromad",
-"9410":"Sotish xarajatlari","9420":"Ma'muriy xarajatlar","9430":"Boshqa operatsion xarajatlar",
+"6610":"Dividendlar bo'yicha qarz","6710":"Xodimlar bilan mehnat haqi hisobi","6810":"Qisqa muddatli bank kreditlari","6920":"Hisoblangan foizlar",
+"7810":"Uzoq muddatli bank kreditlari","8330":"Ustav kapital (ulushlar)","8710":"Taqsimlanmagan foyda",
+"9020":"Tovar sotishdan daromad","9120":"Sotilgan tovarlar tannarxi","9210":"Asosiy vositalarning chiqib ketishi","9310":"Asosiy vositalar chiqib ketishidan foyda",
+"9390":"Boshqa operatsion daromadlar","9410":"Sotish xarajatlari","9420":"Ma'muriy xarajatlar","9430":"Boshqa operatsion xarajatlar",
+"9540":"Valyuta kursi farqidan daromadlar","9610":"Foiz ko'rinishidagi xarajatlar","9620":"Valyuta kursi farqidan zararlar",
 "9810":"Foyda solig'i xarajati","9910":"Yakuniy moliyaviy natija"};
-delete A["6810k"];
 const fmt=n=>n.toLocaleString("ru-RU").replace(/\u00a0/g," ");
 
 /* ---------------- bosqichlar ---------------- */
@@ -455,6 +460,102 @@ const STAGES=[
 ],
 "a": 2,
 "e": "BHMS 21 — xo'jalik yurituvchi subyektlar moliyaviy-xo'jalik faoliyatining buxgalteriya hisobi schyotlari rejasi."
+},
+{
+"t": "mc",
+"q": "Qaysi hisobvaraq KONTR-AKTIV (aktivni kamaytiruvchi) hisoblanadi?",
+"o": [
+"0130",
+"0230",
+"2910",
+"5110"
+],
+"a": 1,
+"e": "0230 — uskunalar eskirishi. Aktiv bo'limida, lekin qoldig'i kreditda turadi va 0130 qiymatini kamaytiradi."
+},
+{
+"t": "mc",
+"q": "Xaridordan tovar uchun olingan bo'nak qaysi hisobvaraqda?",
+"o": [
+"4010",
+"4310",
+"6310",
+"9020"
+],
+"a": 2,
+"e": "6310 — xaridorlardan olingan bo'naklar: tovar hali berilmagan, demak bu majburiyat (passiv)."
+},
+{
+"t": "mc",
+"q": "Yetkazib beruvchiga berilgan bo'nak qaysi hisobvaraqda?",
+"o": [
+"6010",
+"4310",
+"6310",
+"5110"
+],
+"a": 1,
+"e": "4310 — yetkazib beruvchilarga berilgan bo'naklar. Bu debitorlik — aktiv."
+},
+{
+"t": "mc",
+"q": "Qisqa muddatli (1 yilgacha) bank krediti qaysi hisobvaraqda?",
+"o": [
+"7810",
+"6810",
+"5110",
+"8330"
+],
+"a": 1,
+"e": "6810 — qisqa muddatli bank kreditlari. 7810 — uzoq muddatli."
+},
+{
+"t": "mc",
+"q": "Ishlab chiqarilib omborga topshirilgan mahsulot qayerda?",
+"o": [
+"2010",
+"2810",
+"2910",
+"9010"
+],
+"a": 1,
+"e": "2810 — ombordagi tayyor mahsulot. 2910 — sotib olingan tovarlar, 2010 — tugallanmagan ishlab chiqarish."
+},
+{
+"t": "mc",
+"q": "Budjetga to'lanadigan soliqlar bo'yicha qarz qaysi hisobvaraqda?",
+"o": [
+"4410",
+"6410",
+"9810",
+"5110"
+],
+"a": 1,
+"e": "6410 — budjetga to'lovlar bo'yicha qarz. 4410 — budjetga bo'naklar (masalan, kirim QQS)."
+},
+{
+"t": "mc",
+"q": "Qaysi qator to'liq PASSIV hisobvaraqlardan iborat?",
+"o": [
+"5010, 5110, 2910",
+"6010, 6710, 8330",
+"4010, 4310, 6010",
+"0130, 0230, 8710"
+],
+"a": 1,
+"e": "6010 (qarz), 6710 (oylik qarzi), 8330 (ustav kapital) — hammasi passiv."
+},
+{
+"t": "mc",
+"q": "Tugallanmagan ishlab chiqarish xarajatlari qaysi hisobvaraqda yig'iladi?",
+"o": [
+"2010",
+"2810",
+"9120",
+"1010"
+],
+"a": 0,
+"e": "2010 — asosiy ishlab chiqarish: xomashyo, ish haqi, amortizatsiya shu yerda yig'ilib, keyin 2810 ga o'tadi."
 }
 ]
 },
@@ -612,6 +713,99 @@ const STAGES=[
 "q": "Ustav kapital 100 000 000. Ta'sischi pul bilan 70 000 000 va uskuna bilan 20 000 000 kiritdi. Yana qancha qarzi qoldi?",
 "a": 10000000,
 "e": "100 − 70 − 20 = 10 mln. 4610 da 10 000 000 so'm debet qoldiq."
+},
+{
+"t": "pv",
+"q": "Bankdan 6 oyga qisqa muddatli kredit olindi.",
+"dt": "5110",
+"kt": "6810",
+"o": [
+"4010",
+"6010",
+"8330",
+"7810",
+"5110",
+"6810"
+],
+"e": "Pul keldi (Dt 5110), qisqa muddatli qarz (Kt 6810). 1 yildan ortiq bo'lsa — 7810."
+},
+{
+"t": "pv",
+"q": "Uzoq muddatli kreditning bir qismi bankka qaytarildi.",
+"dt": "7810",
+"kt": "5110",
+"o": [
+"9610",
+"6010",
+"6810",
+"5110",
+"5010",
+"7810"
+],
+"e": "Qarz kamaydi (Dt 7810), bank kamaydi (Kt 5110)."
+},
+{
+"t": "pv",
+"q": "Kredit bo'yicha oylik foiz hisoblandi (hali to'lanmagan).",
+"dt": "9610",
+"kt": "6920",
+"o": [
+"6920",
+"5110",
+"9420",
+"9610",
+"6410",
+"7810"
+],
+"e": "Foiz — moliyaviy xarajat (Dt 9610), to'lanadigan foiz (Kt 6920)."
+},
+{
+"t": "pv",
+"q": "Xodimga xizmat safari uchun kassadan pul berildi.",
+"dt": "4220",
+"kt": "5010",
+"o": [
+"4220",
+"6010",
+"6710",
+"5010",
+"9420",
+"5110"
+],
+"e": "Hisobdor shaxsga bo'nak (Dt 4220), kassa kamaydi (Kt 5010)."
+},
+{
+"t": "pv",
+"q": "Safar hisobotiga ko'ra xarajatlar (mehmonxona, yo'l) tan olindi.",
+"dt": "9420",
+"kt": "4220",
+"o": [
+"6710",
+"9420",
+"4220",
+"2910",
+"9410",
+"5010"
+],
+"e": "Xarajat (Dt 9420), berilgan bo'nak yopildi (Kt 4220)."
+},
+{
+"t": "calc",
+"q": "Ustav kapital 100 000 000. Ta'sischi pul bilan 45 000 000, uskuna bilan 30 000 000, yana tovar bilan 15 000 000 kiritdi. Qarzi qancha qoldi?",
+"a": 10000000,
+"e": "100 − 45 − 30 − 15 = 10 000 000 so'm (4610 debet qoldig'i)."
+},
+{
+"t": "calc",
+"q": "5010: oy boshi 800 000. Debet oborot 12 400 000, kredit oborot 11 900 000. Oy oxiri qoldig'i?",
+"a": 1300000,
+"e": "800 000 + 12 400 000 − 11 900 000 = 1 300 000 so'm."
+},
+{
+"t": "calc",
+"q": "6010 (passiv): oy boshi 25 000 000 kredit qoldiq. Oy davomida yangi fakturalar 40 000 000, to'lovlar 52 000 000. Oy oxiri qarz?",
+"a": 13000000,
+"e": "Passivda: boshlang'ich + Kt oborot − Dt oborot = 25 + 40 − 52 = 13 000 000 so'm."
 }
 ]
 },
@@ -760,6 +954,75 @@ const STAGES=[
 ],
 "a": 1,
 "e": "Fakturada QQS bo'lmasa, hisobga olinadigan QQS ham yo'q. Tovar to'lov summasida kirim qilinadi."
+},
+{
+"t": "calc",
+"q": "Tovar QQSsiz 18 500 000, yetkazish xizmati QQSsiz 1 500 000 (ikkalasi QQS 12%). Jami kirim QQS?",
+"a": 2400000,
+"e": "(18 500 000 + 1 500 000) × 12% = 2 400 000 so'm."
+},
+{
+"t": "calc",
+"q": "Tovar 20 000 000 (QQSsiz), yetkazish 1 500 000 tovar qiymatiga qo'shiladi. 500 dona. 1 dona tannarxi?",
+"a": 43000,
+"e": "(20 000 000 + 1 500 000) ÷ 500 = 43 000 so'm."
+},
+{
+"t": "calc",
+"q": "Yetkazib beruvchiga 11 200 000 bo'nak berilgan edi. Tovar 15 680 000 (QQS bilan) keldi. Yana qancha to'lash kerak?",
+"a": 4480000,
+"e": "15 680 000 − 11 200 000 = 4 480 000 so'm."
+},
+{
+"t": "pv",
+"q": "Tovar kelgach, yetkazib beruvchiga berilgan bo'nak hisobga olindi.",
+"dt": "6010",
+"kt": "4310",
+"o": [
+"4010",
+"5110",
+"4310",
+"6310",
+"2910",
+"6010"
+],
+"e": "Qarz bo'nak hisobiga yopildi (Dt 6010), bo'nak ham yopildi (Kt 4310)."
+},
+{
+"t": "calc",
+"q": "Faktura QQS bilan 78 400 000. QQSsiz qiymati?",
+"a": 70000000,
+"e": "78 400 000 × 100 / 112 = 70 000 000 so'm."
+},
+{
+"t": "mc",
+"q": "Tovar QQS bilan 22 400 000. Uni 2910 ga qanday summada kirim qilasiz (firma QQS to'lovchi)?",
+"o": [
+"22 400 000",
+"20 000 000",
+"19 712 000",
+"2 400 000"
+],
+"a": 1,
+"e": "QQS to'lovchi uchun QQS alohida (4410), tovar QQSsiz: 22 400 000 × 100/112 = 20 000 000."
+},
+{
+"t": "mc",
+"q": "Qaysi hujjat kirim QQSni hisobga olishga asos bo'LMAYDI?",
+"o": [
+"Elektron hisob-faktura",
+"Import bo'yicha bojxona yuk deklaratsiyasi (QQS to'langan)",
+"Naqd to'lov bo'yicha oddiy chek (fakturasiz)",
+"Soliq agenti sifatida to'langan QQS hujjati"
+],
+"a": 2,
+"e": "Kirim QQS hisob-faktura, import deklaratsiyasi yoki soliq agenti to'lovi asosida hisobga olinadi. Fakturasiz chek bilan olinmaydi."
+},
+{
+"t": "calc",
+"q": "Oy davomida xarid: 3 ta faktura QQS bilan 5 600 000, 11 200 000 va 7 840 000. Jami kirim QQS?",
+"a": 2640000,
+"e": "Jami 24 640 000 × 12/112 = 2 640 000 so'm."
 }
 ]
 },
@@ -899,6 +1162,63 @@ const STAGES=[
 "q": "Kirim QQS 3 000 000, chiqim QQS 2 100 000. Oy yakunida QQS bo'yicha natija (so'mda, ortiqcha kirim QQS summasi)?",
 "a": 900000,
 "e": "Kirim chiqimdan katta: 3 000 000 − 2 100 000 = 900 000 so'm keyingi davrga o'tadi yoki qaytarishga so'raladi (SK 274-modda)."
+},
+{
+"t": "calc",
+"q": "Tovar tannarxi 4 000 000, ustama 25%. QQS 12% bilan sotuv narxi?",
+"a": 5600000,
+"e": "4 000 000 × 1,25 = 5 000 000; × 1,12 = 5 600 000 so'm."
+},
+{
+"t": "calc",
+"q": "Sotuv QQS bilan 33 600 000, tannarx 21 000 000, yetkazish xarajati 1 200 000. Sotishdan foyda?",
+"a": 7800000,
+"e": "Daromad 30 000 000 − 21 000 000 − 1 200 000 = 7 800 000 so'm."
+},
+{
+"t": "pv",
+"q": "Xaridordan olingan bo'nak tovar jo'natilgach hisobga olindi.",
+"dt": "6310",
+"kt": "4010",
+"o": [
+"6010",
+"9020",
+"4310",
+"4010",
+"6310",
+"5110"
+],
+"e": "Bo'nak majburiyati yopildi (Dt 6310), xaridor qarzi kamaydi (Kt 4010)."
+},
+{
+"t": "calc",
+"q": "Oy: sotuv QQS bilan 67 200 000, xarid QQS bilan 44 800 000. To'lanadigan QQS?",
+"a": 2400000,
+"e": "Chiqim 7 200 000 − kirim 4 800 000 = 2 400 000 so'm."
+},
+{
+"t": "calc",
+"q": "O'rtacha narx usuli: 100 dona × 50 000 va 300 dona × 58 000 keldi. 1 donaning o'rtacha tannarxi?",
+"a": 56000,
+"e": "(5 000 000 + 17 400 000) ÷ 400 = 56 000 so'm."
+},
+{
+"t": "calc",
+"q": "Tovarning o'rtacha tannarxi 56 000 so'm. 250 dona sotildi. Sotilgan tovar tannarxi?",
+"a": 14000000,
+"e": "250 × 56 000 = 14 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "FIFO: 100 dona × 50 000 (birinchi), 300 dona × 58 000. 250 dona sotildi. Tannarx?",
+"a": 13700000,
+"e": "Avval 100 × 50 000 = 5 000 000, keyin 150 × 58 000 = 8 700 000. Jami 13 700 000 so'm."
+},
+{
+"t": "calc",
+"q": "Oy: chiqim QQS 5 400 000, kirim QQS 6 100 000, o'tgan oydan o'tgan ortiqcha kirim QQS 900 000. Budjetga qancha to'lanadi?",
+"a": 0,
+"e": "Kirim (6 100 000 + 900 000) chiqimdan katta — to'lov 0. Ortiqcha 1 600 000 keyingi oyga o'tadi."
 }
 ]
 },
@@ -1035,6 +1355,60 @@ const STAGES=[
 "q": "Oylik 8 000 000, JShDS ushlandi, yana sud qarori bo'yicha 500 000 ushlandi. Qo'lga qancha?",
 "a": 6540000,
 "e": "8 000 000 − 960 000 − 500 000 = 6 540 000 so'm."
+},
+{
+"t": "calc",
+"q": "Oylik 9 500 000. JShDS 12% va ijtimoiy soliq 12%. Firmaning ish haqi bo'yicha jami xarajati?",
+"a": 10640000,
+"e": "9 500 000 + 1 140 000 ijtimoiy soliq = 10 640 000 so'm. JShDS xodim oyligidan ushlanadi, firmaga qo'shimcha xarajat emas."
+},
+{
+"t": "calc",
+"q": "Xodim 22 ish kunidan 16 kun ishladi, oklad 11 000 000. Hisoblangan ish haqi?",
+"a": 8000000,
+"e": "11 000 000 ÷ 22 × 16 = 8 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Oylik 12 000 000, oy boshida 3 000 000 avans berilgan. JShDS ushlangach, oy oxirida yana qancha to'lanadi?",
+"a": 7560000,
+"e": "12 000 000 − 1 440 000 − 3 000 000 = 7 560 000 so'm."
+},
+{
+"t": "calc",
+"q": "Qo'lga 7 040 000 so'm tegishi kerak (JShDS 12%). Qancha hisoblash kerak?",
+"a": 8000000,
+"e": "7 040 000 ÷ 0,88 = 8 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Mukofot 2 500 000 so'm berildi. JShDS va ijtimoiy soliq birgalikda budjetga qancha?",
+"a": 600000,
+"e": "JShDS 300 000 + ijtimoiy soliq 300 000 = 600 000 so'm."
+},
+{
+"t": "calc",
+"q": "Budjet tashkilotida ish haqi fondi 40 000 000. Ijtimoiy soliq?",
+"a": 10000000,
+"e": "Budjet tashkilotlari uchun 25%: 10 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Ish haqi eng kam miqdorining 2 barobari (1-sentabr 2026 dan) qancha?",
+"a": 2720000,
+"e": "1 360 000 × 2 = 2 720 000 so'm. Ba'zi imtiyozlar o'rtacha oylik shu darajadan past bo'lmasligini talab qiladi."
+},
+{
+"t": "mc",
+"q": "Ijtimoiy soliq xodimning ish haqidan ushlanadimi?",
+"o": [
+"Ha, 12% ushlanadi",
+"Yo'q — firma o'z hisobidan to'laydi",
+"Faqat yarmi ushlanadi",
+"Faqat budjet tashkilotlarida"
+],
+"a": 1,
+"e": "Ijtimoiy soliq — ish beruvchining xarajati. Xodimdan faqat JShDS ushlanadi."
 }
 ]
 },
@@ -1177,6 +1551,78 @@ const STAGES=[
 ],
 "a": 1,
 "e": "SK 306-modda — amortizatsiya xarajatlari. 258 — QQS, 381 — JShDS, 415 — mol-mulk solig'i stavkalari."
+},
+{
+"t": "calc",
+"q": "Uskuna 72 000 000, muddat 6 yil. Aprel oyida foydalanishga topshirildi, amortizatsiya keyingi oydan. Birinchi yil (dekabrgacha) amortizatsiya?",
+"a": 8000000,
+"e": "Oylik 1 000 000. May–dekabr 8 oy = 8 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Uskuna 90 000 000, tugatish qiymati 9 000 000, muddat 9 yil. 3 yildan keyin qoldiq qiymati?",
+"a": 63000000,
+"e": "Yillik 9 000 000; 3 yilda 27 000 000. 90 − 27 = 63 000 000 so'm."
+},
+{
+"t": "pv",
+"q": "Eskirgan uskuna sotuvga chiqarildi — boshlang'ich qiymati hisobdan chiqarildi.",
+"dt": "9210",
+"kt": "0130",
+"o": [
+"0130",
+"9210",
+"4010",
+"9310",
+"0230",
+"9430"
+],
+"e": "Chiqib ketish hisobiga boshlang'ich qiymat (Dt 9210 — Kt 0130)."
+},
+{
+"t": "pv",
+"q": "Sotilgan uskunaning to'plangan eskirishi hisobdan chiqarildi.",
+"dt": "0230",
+"kt": "9210",
+"o": [
+"4010",
+"9420",
+"0130",
+"9210",
+"0230",
+"9310"
+],
+"e": "Eskirish yopildi (Dt 0230), chiqib ketish qiymatini kamaytiradi (Kt 9210)."
+},
+{
+"t": "calc",
+"q": "Uskuna: boshlang'ich 50 000 000, eskirish 35 000 000. 20 000 000 (QQSsiz) ga sotildi. Foyda qancha?",
+"a": 5000000,
+"e": "Qoldiq 15 000 000. 20 − 15 = 5 000 000 so'm foyda (9310)."
+},
+{
+"t": "calc",
+"q": "Kamayib boruvchi qoldiq usuli, stavka 40%. Uskuna 25 000 000. 2-yil amortizatsiyasi?",
+"a": 6000000,
+"e": "1-yil 10 000 000; qoldiq 15 000 000; 2-yil 15 000 000 × 40% = 6 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Bino 1 200 000 000, muddat 20 yil. Oylik amortizatsiya?",
+"a": 5000000,
+"e": "1 200 000 000 ÷ 20 = 60 000 000 yiliga; ÷ 12 = 5 000 000 so'm."
+},
+{
+"t": "mc",
+"q": "Uskuna ta'mirlandi, lekin uning quvvati yoki muddati oshmadi. Xarajat qayerga?",
+"o": [
+"0130 qiymatiga qo'shiladi",
+"Davr xarajati (9420/2010)",
+"8330 ga",
+"4310 ga"
+],
+"a": 1,
+"e": "Oddiy ta'mir — joriy xarajat. Faqat modernizatsiya (quvvat yoki muddat oshsa) qiymatni oshiradi."
 }
 ]
 },
@@ -1312,6 +1758,90 @@ const STAGES=[
 "q": "Mol-mulkning o'rtacha yillik qiymati 800 000 000 so'm, stavka 1,5%. Yillik mol-mulk solig'i?",
 "a": 12000000,
 "e": "800 000 000 × 1,5% = 12 000 000 so'm."
+},
+{
+"t": "mc",
+"q": "Soliqlar va yig'imlarning turlari SKning qaysi moddasida sanab o'tilgan?",
+"o": [
+"16-modda",
+"17-modda",
+"81-modda",
+"136-modda"
+],
+"a": 1,
+"e": "17-modda — soliqlar va yig'imlarning turlari. 16 — «Soliqlar va yig'imlar» umumiy tushunchasi."
+},
+{
+"t": "mc",
+"q": "Tovar (xizmat) realizatsiyasi bo'yicha aylanma (QQS bazasi) qaysi moddada?",
+"o": [
+"239-modda",
+"258-modda",
+"266-modda",
+"304-modda"
+],
+"a": 0,
+"e": "239-modda — tovarlarni (xizmatlarni) realizatsiya qilish bo'yicha aylanma."
+},
+{
+"t": "mc",
+"q": "To'langan QQS summalarini hisobga olish (zachet) qaysi moddada?",
+"o": [
+"258-modda",
+"264-modda",
+"266-modda",
+"274-modda"
+],
+"a": 2,
+"e": "266 — hisobga olish; 264 — nol stavka; 274 — QQSni qaytarish."
+},
+{
+"t": "mc",
+"q": "Foyda solig'ida hisobga olinmaydigan daromadlar qaysi moddada?",
+"o": [
+"304-modda",
+"306-modda",
+"317-modda",
+"337-modda"
+],
+"a": 0,
+"e": "304 — soliqqa tortishda hisobga olinmaydigan daromadlar; 317 — chegirilmaydigan xarajatlar."
+},
+{
+"t": "mc",
+"q": "JShDS to'lovchilari kimlar ekani qaysi moddada?",
+"o": [
+"364-modda",
+"369-modda",
+"381-modda",
+"397-modda"
+],
+"a": 0,
+"e": "364 — soliq to'lovchilar; 369 — kiritilmaydigan daromadlar; 397 — yillik deklaratsiya tartibi."
+},
+{
+"t": "mc",
+"q": "Ijtimoiy soliqni hisoblash, hisobot va to'lash tartibi qaysi moddada?",
+"o": [
+"405-modda",
+"407-modda",
+"409-modda",
+"412-modda"
+],
+"a": 1,
+"e": "407 — hisoblash, hisobot va to'lash tartibi; 405 — stavkalar; 412 — mol-mulk solig'i bazasi."
+},
+{
+"t": "calc",
+"q": "Mol-mulk yil boshida 700 mln, yil oxirida 900 mln (o'rtacha — ikkalasining yarmi). Stavka 1,5%. Soliq?",
+"a": 12000000,
+"e": "O'rtacha 800 000 000 × 1,5% = 12 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Aylanma soliq to'lovchi: yillik tushum 780 000 000, stavka 4%. Oyiga o'rtacha qancha soliq?",
+"a": 2600000,
+"e": "780 000 000 × 4% = 31 200 000 yiliga; ÷ 12 = 2 600 000 so'm."
 }
 ]
 },
@@ -1465,6 +1995,102 @@ const STAGES=[
 ],
 "a": 1,
 "e": "100-modda — soliq to'lashni kechiktirish yoki bo'lib-bo'lib to'lash shartlari."
+},
+{
+"t": "mc",
+"q": "Foyda solig'i bo'yicha oylik bo'nak to'lovlari kimlar uchun majburiy (2026 taqvimiga ko'ra)?",
+"o": [
+"Barcha firmalar",
+"O'tgan yil daromadi 20 mlrd so'mdan oshganlar",
+"Faqat banklar",
+"Aylanma soliq to'lovchilar"
+],
+"a": 1,
+"e": "Yirik (o'tgan yilgi daromadi 20 mlrd so'mdan ortiq) to'lovchilar oylik bo'nak to'laydi, qolganlari chorak natijasi bo'yicha."
+},
+{
+"t": "mc",
+"q": "Martdagi ish haqi bo'yicha JShDS hisoboti va to'lovi qachongacha?",
+"o": [
+"10-aprel",
+"15-aprel",
+"20-aprel",
+"25-aprel"
+],
+"a": 1,
+"e": "Keyingi oyning 15-sanasi."
+},
+{
+"t": "mc",
+"q": "Mart uchun QQS hisoboti va to'lovi qachongacha?",
+"o": [
+"15-aprel",
+"20-aprel",
+"25-aprel",
+"31-mart"
+],
+"a": 1,
+"e": "Keyingi oyning 20-sanasi."
+},
+{
+"t": "mc",
+"q": "Soliq hisobotlari aylanmasi: qaysi juftlik to'g'ri?",
+"o": [
+"JShDS — 20-sana, QQS — 15-sana",
+"JShDS — 15-sana, QQS — 20-sana",
+"Ikkalasi 25-sana",
+"Ikkalasi 10-sana"
+],
+"a": 1,
+"e": "JShDS va ijtimoiy soliq — 15-sana; QQS va aylanma soliq — 20-sana."
+},
+{
+"t": "mc",
+"q": "Tovar-moddiy zaxiralar hisobi qaysi BHMSda?",
+"o": [
+"BHMS 4",
+"BHMS 5",
+"BHMS 21",
+"BHMS 1"
+],
+"a": 0,
+"e": "BHMS 4 — tovar-moddiy zaxiralar."
+},
+{
+"t": "mc",
+"q": "Inventarizatsiyani o'tkazish tartibi qaysi BHMSda?",
+"o": [
+"BHMS 7",
+"BHMS 9",
+"BHMS 19",
+"BHMS 21"
+],
+"a": 2,
+"e": "BHMS 19 — inventarizatsiyani tashkil etish va o'tkazish."
+},
+{
+"t": "mc",
+"q": "Nomoddiy aktivlar hisobi qaysi BHMSda?",
+"o": [
+"BHMS 5",
+"BHMS 7",
+"BHMS 4",
+"BHMS 19"
+],
+"a": 1,
+"e": "BHMS 7 — nomoddiy aktivlar."
+},
+{
+"t": "mc",
+"q": "2026 o'zgarishi: bir oyda bir nechta soliq hisoboti kechiktirilsa, jarima qanday?",
+"o": [
+"Har bir hisobot uchun alohida",
+"Bitta jarima qo'llanadi",
+"Jarima yo'q",
+"Faqat penya"
+],
+"a": 1,
+"e": "2026-yildan bir oyda kechiktirilgan bir nechta hisobot uchun bitta jarima qo'llanadi (kichik biznes uchun jarimalar yumshatildi)."
 }
 ]
 },
@@ -1582,6 +2208,108 @@ const STAGES=[
 ],
 "a": 1,
 "e": "2026-yil 1-yanvardan 2029-yil 1-yanvargacha — 1%."
+},
+{
+"t": "mc",
+"q": "Kino va serial ishlab chiqaruvchilar (daromadning 80%+) uchun 2026–2030 yillardagi imtiyoz?",
+"o": [
+"QQS 0%",
+"Foyda solig'idan ozod, ijtimoiy soliq 1%",
+"Mol-mulk solig'idan ozod",
+"JShDS 5%"
+],
+"a": 1,
+"e": "2026-yil 1-yanvardan 2030-yil 1-yanvargacha: foyda solig'idan ozod va ijtimoiy soliq 1%."
+},
+{
+"t": "mc",
+"q": "Elektromobil quvvatlash stansiyalari uchun (2028-yilgacha) imtiyoz?",
+"o": [
+"QQSdan ozod",
+"Mol-mulk va yer solig'i 1%, daromadning 50%+ quvvatlashdan bo'lsa foyda solig'idan ozod",
+"Faqat ijtimoiy soliq 0%",
+"Imtiyoz yo'q"
+],
+"a": 1,
+"e": "Mol-mulk va yer solig'i 1%; quvvatlash daromadi 50% dan ortiq bo'lsa — foyda solig'idan ozod."
+},
+{
+"t": "mc",
+"q": "Qadoqlangan meva-sabzavot ishlab chiqaruvchilarga foyda va ijtimoiy soliq 1% qanday shartda?",
+"o": [
+"Xodimi 10 tadan ko'p bo'lsa",
+"O'rtacha ish haqi eng kam miqdorning 2 barobaridan kam bo'lmasa va qadoqlangan mahsulot daromadning 50%+ bo'lsa",
+"Faqat eksport qilsa",
+"Ustav kapitali 1 mlrd dan ortiq bo'lsa"
+],
+"a": 1,
+"e": "Shartlar: ish haqi ≥ 2 × eng kam oylik va qadoqlangan mahsulot daromadning kamida 50%."
+},
+{
+"t": "mc",
+"q": "Umumiy daromadga kiritilmaydigan (JShDS solinmaydigan) daromadlar qaysi moddada?",
+"o": [
+"364-modda",
+"369-modda",
+"377-modda",
+"387-modda"
+],
+"a": 1,
+"e": "369-modda — jami daromadga kiritilmaydigan daromadlar."
+},
+{
+"t": "mc",
+"q": "Soliqdan ozod qilishni qo'llash xususiyatlari (foyda solig'i bo'yicha) qaysi moddada?",
+"o": [
+"304-modda",
+"337-modda",
+"354-modda",
+"357-modda"
+],
+"a": 3,
+"e": "357-modda — soliqdan ozod qilishni qo'llash xususiyatlari."
+},
+{
+"t": "calc",
+"q": "Ozod aylanma 40 mln, soliq solinadigan aylanma 60 mln. Umumiy kirim QQS 5 000 000. Proporsional usulda hisobga olinadigan qismi?",
+"a": 3000000,
+"e": "Soliq solinadigan ulush 60%. 5 000 000 × 60% = 3 000 000 so'm hisobga olinadi."
+},
+{
+"t": "calc",
+"q": "Ozod aylanma 40 mln, soliq solinadigan 60 mln, umumiy kirim QQS 5 000 000. Hisobga OLINMAYDIGAN (xarajatga o'tadigan) qismi?",
+"a": 2000000,
+"e": "5 000 000 × 40% = 2 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Tekstil klasteri: ish haqi fondi 120 000 000. Ijtimoiy soliq 12% o'rniga 1%. Oylik tejam?",
+"a": 13200000,
+"e": "14 400 000 − 1 200 000 = 13 200 000 so'm."
+},
+{
+"t": "mc",
+"q": "2026-yildan qaysi faoliyat aylanmadan olinadigan soliq rejimidan chiqarildi?",
+"o": [
+"Novvoyxonalar",
+"Zargarlik buyumlari ishlab chiqaruvchilar",
+"Sartaroshxonalar",
+"Taksi"
+],
+"a": 1,
+"e": "2026 o'zgarishi: zargarlik ishlab chiqaruvchilar soddalashtirilgan rejimdan chiqarildi."
+},
+{
+"t": "mc",
+"q": "QQS bo'yicha 0% stavkada ishlaydigan eksportchi kirim QQSni qaytarish uchun qaysi moddaga tayanadi?",
+"o": [
+"258-modda",
+"266-modda",
+"274-modda",
+"317-modda"
+],
+"a": 2,
+"e": "274-modda — soliqni qaytarish (QQS ortiqchasini qaytarish)."
 }
 ]
 },
@@ -1705,6 +2433,114 @@ const STAGES=[
 ],
 "a": 1,
 "e": "2026-yildan YaTT va o'zini o'zi band qilganlar uchun 1% yagona stavka; qat'iy belgilangan soliq bekor qilindi."
+},
+{
+"t": "mc",
+"q": "Soliq kodeksi qachondan kuchga kirgan?",
+"o": [
+"2019-yil 30-dekabr",
+"2020-yil 1-yanvar",
+"2021-yil 1-yanvar",
+"2018-yil 29-iyun"
+],
+"a": 1,
+"e": "O'RQ-599 2019-yil 30-dekabrda imzolangan, 2020-yil 1-yanvardan kuchga kirgan."
+},
+{
+"t": "mc",
+"q": "PQ-4611 qarori qaysi sanada qabul qilingan?",
+"o": [
+"24.02.2020",
+"30.12.2019",
+"28.01.2022",
+"13.04.2016"
+],
+"a": 0,
+"e": "PQ-4611 — 2020-yil 24-fevral."
+},
+{
+"t": "mc",
+"q": "PF-5468 konsepsiyasi qaysi yili qabul qilingan?",
+"o": [
+"2016",
+"2018",
+"2019",
+"2022"
+],
+"a": 1,
+"e": "PF-5468 — 2018-yil 29-iyun."
+},
+{
+"t": "mc",
+"q": "PF-158 farmoni qachon imzolangan?",
+"o": [
+"28.01.2022",
+"11.09.2023",
+"24.02.2020",
+"29.06.2018"
+],
+"a": 1,
+"e": "«O'zbekiston — 2030» strategiyasi — 2023-yil 11-sentabr, PF-158."
+},
+{
+"t": "mc",
+"q": "2026-yil 1-iyuldan pensiya hisoblashning bazaviy miqdori?",
+"o": [
+"440 000",
+"471 000",
+"504 000",
+"412 000"
+],
+"a": 2,
+"e": "1-iyuldan PHBM 504 000 so'm (avval 471 000)."
+},
+{
+"t": "calc",
+"q": "Jarima 3 BHM. 1-sentabr 2026 gacha BHM 412 000, keyin 440 000. Jarima 20-sentabrda qo'llanganda summa?",
+"a": 1320000,
+"e": "20-sentabrda amaldagi BHM 440 000 × 3 = 1 320 000 so'm."
+},
+{
+"t": "calc",
+"q": "Eng kam oylik 1 271 000 dan 1 360 000 ga oshdi. Necha so'mga oshgan?",
+"a": 89000,
+"e": "1 360 000 − 1 271 000 = 89 000 so'm (~7%)."
+},
+{
+"t": "mc",
+"q": "2026 o'zgarishi (SK 158-modda): soliq tekshiruvi materiallari qanday ko'rib chiqilishi mumkin?",
+"o": [
+"Faqat sudda",
+"Videokonferensiya orqali",
+"Faqat pochta orqali",
+"Ko'rib chiqilmaydi"
+],
+"a": 1,
+"e": "2026-yildan tekshiruv materiallarini videokonferensiya orqali ko'rib chiqish imkoni berildi, yozuv shaxsiy kabinetga yuboriladi."
+},
+{
+"t": "mc",
+"q": "2026 o'zgarishi: onlayn-NKT/terminal qoidasini birinchi marta buzganda nima bo'ladi (SK 159-1)?",
+"o": [
+"Darhol jarima",
+"Rasmiy ogohlantirish va 3 kun ichida tuzatish imkoni",
+"Faoliyat to'xtatiladi",
+"Hech narsa"
+],
+"a": 1,
+"e": "Birinchi buzilishda ogohlantirish beriladi, 3 kunda tuzatilmasa — sayyor tekshiruv."
+},
+{
+"t": "mc",
+"q": "Soliq to'lovchi operatsiyalarini to'xtatib turish to'g'risidagi qarorni bekor qilish tartibi qaysi moddada?",
+"o": [
+"100-modda",
+"112-modda",
+"138-modda",
+"81-modda"
+],
+"a": 1,
+"e": "112-modda — operatsiyalarni to'xtatib turish haqidagi qarorni bekor qilish tartibi."
 }
 ]
 },
@@ -1850,6 +2686,81 @@ const STAGES=[
 "q": "Yillik foyda solig'i 18 000 000. Yil davomida choraklar bo'yicha 12 000 000 to'langan. Yil yakunida yana qancha to'lanadi?",
 "a": 6000000,
 "e": "18 000 000 − 12 000 000 = 6 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Daromad 850 mln, tannarx 520 mln, sotish xarajatlari 60 mln, ma'muriy 90 mln, kredit foizi 20 mln. Soliqqacha foyda?",
+"a": 160000000,
+"e": "850 − 520 − 60 − 90 − 20 = 160 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Soliqqacha foyda 160 mln, ichida chegirilmaydigan jarimalar 10 mln. Foyda solig'i 15%?",
+"a": 25500000,
+"e": "Soliq bazasi 170 000 000 × 15% = 25 500 000 so'm."
+},
+{
+"t": "calc",
+"q": "Buxgalteriya foydasi 160 000 000, foyda solig'i 25 500 000. Sof foyda?",
+"a": 134500000,
+"e": "160 000 000 − 25 500 000 = 134 500 000 so'm."
+},
+{
+"t": "calc",
+"q": "Sof foyda 134 500 000. Uning 40% i dividendga ajratildi. Dividend jami?",
+"a": 53800000,
+"e": "134 500 000 × 40% = 53 800 000 so'm."
+},
+{
+"t": "calc",
+"q": "53 800 000 dividend 2 ta teng ulushli jismoniy shaxs ta'sischiga. Bittasi qo'liga qancha oladi (JShDS 5%)?",
+"a": 25555000,
+"e": "26 900 000 × 95% = 25 555 000 so'm."
+},
+{
+"t": "pv",
+"q": "Ta'sischiga to'lanadigan dividenddan JShDS ushlandi.",
+"dt": "6610",
+"kt": "6410",
+"o": [
+"5110",
+"9810",
+"8710",
+"6610",
+"6710",
+"6410"
+],
+"e": "Dividend qarzi kamaydi (Dt 6610), budjetga qarz (Kt 6410)."
+},
+{
+"t": "pv",
+"q": "Taqsimlanmagan foyda hisobidan ustav kapital oshirildi.",
+"dt": "8710",
+"kt": "8330",
+"o": [
+"9910",
+"8330",
+"6610",
+"4610",
+"8710",
+"5110"
+],
+"e": "Foyda kapitallashtirildi: Dt 8710 — Kt 8330."
+},
+{
+"t": "pv",
+"q": "Inventarizatsiyada ortiqcha tovar aniqlandi va kirim qilindi.",
+"dt": "2910",
+"kt": "9390",
+"o": [
+"2910",
+"5910",
+"4730",
+"6010",
+"9020",
+"9390"
+],
+"e": "Tovar ko'paydi (Dt 2910), boshqa operatsion daromad (Kt 9390)."
 }
 ]
 },
@@ -1961,11 +2872,91 @@ const STAGES=[
 ],
 "a": 2,
 "e": "136-modda — soliq nazorati shakllari; 138 — kameral tekshiruv."
+},
+{
+"t": "pv",
+"q": "Inventarizatsiyada tovar kamomadi aniqlandi.",
+"dt": "5910",
+"kt": "2910",
+"o": [
+"4730",
+"9430",
+"5910",
+"9120",
+"2910",
+"6010"
+],
+"e": "Kamomad avval 5910 ga yig'iladi (Dt 5910 — Kt 2910)."
+},
+{
+"t": "pv",
+"q": "Kamomad aybdor moddiy javobgar xodimga yuklandi.",
+"dt": "4730",
+"kt": "5910",
+"o": [
+"4730",
+"9430",
+"6710",
+"2910",
+"5910",
+"5010"
+],
+"e": "Xodim qarzdor bo'ldi (Dt 4730), kamomad yopildi (Kt 5910)."
+},
+{
+"t": "pv",
+"q": "Valyuta schyotida kurs farqidan daromad aniqlandi.",
+"dt": "5210",
+"kt": "9540",
+"o": [
+"5110",
+"6010",
+"9540",
+"9390",
+"5210",
+"9620"
+],
+"e": "Valyuta qoldig'i qayta baholandi (Dt 5210), kurs farqidan daromad (Kt 9540)."
+},
+{
+"t": "calc",
+"q": "Valyuta schyotida 10 000 AQSh dollari. Kurs 12 600 dan 12 750 ga oshdi. Kurs farqi daromadi?",
+"a": 1500000,
+"e": "10 000 × 150 = 1 500 000 so'm."
+},
+{
+"t": "calc",
+"q": "Aylanma soliq to'lovchi: yil boshidan daromad 940 mln. Oktabrda 85 mln tushdi. Chegaradan (1 mlrd) qancha oshdi?",
+"a": 25000000,
+"e": "940 + 85 = 1 025 mln. Chegaradan 25 000 000 so'm oshdi — umumiy tizimga o'tish kerak."
+},
+{
+"t": "calc",
+"q": "Kirim QQS 9,6 mln, chiqim QQS 14,4 mln, ozod aylanma yo'q. Yana 1,2 mln kirim QQS fakturasi xato (rad etilgan). To'lanadigan QQS?",
+"a": 6000000,
+"e": "Hisobga olinadigan kirim 8 400 000. 14 400 000 − 8 400 000 = 6 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Ish haqi fondi 60 mln (budjetdan tashqari firma). JShDS + ijtimoiy soliq + xodimlar qo'liga jami — firma kassasidan chiqadigan summa?",
+"a": 67200000,
+"e": "Xodimlar 52,8 mln + JShDS 7,2 mln + ijtimoiy soliq 7,2 mln = 67 200 000 so'm."
+},
+{
+"t": "mc",
+"q": "Kameral tekshiruvda hisobotda xato topildi. Soliq to'lovchi nima qilishi kerak?",
+"o": [
+"Hech narsa",
+"Aniqlashtirilgan (tuzatilgan) hisobot topshirish va farqni to'lash",
+"Firmani yopish",
+"Keyingi yilga qoldirish"
+],
+"a": 1,
+"e": "Xatoni aniqlashtirilgan hisobot bilan tuzatish va qo'shimcha soliqni to'lash kerak — shunda jarima yengillashadi."
 }
 ]
 }
 ];
-
 const RANKS=[[0,"Stajyor"],[200,"Kichik hisobchi"],[500,"Hisobchi"],[900,"Bosh hisobchi o'rinbosari"],[1400,"Bosh buxgalter"],[2000,"Moliya direktori"],[2800,"Provodka ustozi"]];
 const RIVALS=[];   // jonli sheriklar qo'shilganda shu yerga tushadi
 const TASKMAP={};
@@ -1992,44 +2983,33 @@ const MAXP=7;
 let players=[];
 let syncing=false, lastPull=0;
 function sHead(){ return {apikey:S.key,Authorization:"Bearer "+S.key,"Content-Type":"application/json"}; }
-async function apiGet(q){
-  const r=await fetch(SUPA_URL+"/rest/v1/safari_players?"+q,{headers:sHead()});
-  if(!r.ok) throw new Error(await r.text()); return r.json();
-}
-async function apiPost(body){
-  const r=await fetch(SUPA_URL+"/rest/v1/safari_players",{method:"POST",
-    headers:Object.assign(sHead(),{Prefer:"return=representation"}),body:JSON.stringify(body)});
-  if(!r.ok) throw new Error(await r.text()); return r.json();
-}
-async function apiPatch(id,body){
-  const r=await fetch(SUPA_URL+"/rest/v1/safari_players?id=eq."+id,{method:"PATCH",
-    headers:Object.assign(sHead(),{Prefer:"return=representation"}),body:JSON.stringify(body)});
-  if(!r.ok) throw new Error(await r.text()); return r.json();
+async function rpc(fn,args){
+  const r=await fetch(SUPA_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:sHead(),body:JSON.stringify(args||{})});
+  const t=await r.text(); if(!r.ok) throw new Error(t); return t?JSON.parse(t):null;
 }
 async function joinServer(){
   if(!S.key) return {ok:false,msg:"Server kaliti kiritilmagan"};
   try{
-    const ex=await apiGet("select=*&phone=eq."+encodeURIComponent(S.user.phone));
-    if(ex.length){ S.pid=ex[0].id; persist(); await pushMe(); return {ok:true,msg:"Hisobingiz tiklandi"}; }
-    const all=await apiGet("select=id");
-    if(all.length>=MAXP) return {ok:false,msg:"Joylar to'ldi ("+MAXP+"/"+MAXP+")"};
-    const row=await apiPost({first_name:S.user.first,last_name:S.user.last,phone:S.user.phone,
-      xp:S.xp,week_xp:S.week.my,week_id:S.week.id,stages:Object.keys(S.stars).length,streak:S.streak});
-    S.pid=row[0].id; persist(); return {ok:true,msg:"Ligaga qo'shildingiz"};
+    const had=S.pid;
+    const id=await rpc("liga_join",{p_first:S.user.first,p_last:S.user.last,p_phone:S.user.phone});
+    S.pid=id; persist(); await pushMe();
+    return {ok:true,msg:had===id?"Hisobingiz tiklandi":"Ligaga qo'shildingiz"};
   }catch(e){ const m=String(e.message||e);
     return {ok:false,msg:/safari_full/.test(m)?"Joylar to'ldi (7/7)":"Serverga ulanmadi",detail:m.slice(0,200)}; }
 }
 async function pushMe(){
   if(!S.key||!S.pid) return;
-  try{ await apiPatch(S.pid,{xp:S.xp,week_xp:S.week.my,week_id:S.week.id,
-    stages:Object.keys(S.stars).length,streak:S.streak,last_active:new Date().toISOString(),
-    first_name:S.user.first,last_name:S.user.last}); }catch(e){}
+  try{ await rpc("liga_push",{p_id:S.pid,p_xp:S.xp,p_week_xp:S.week.my,p_week_id:S.week.id,
+    p_stages:Object.keys(S.stars).length,p_streak:S.streak,p_first:S.user.first,p_last:S.user.last}); }catch(e){}
 }
+/* boshqalarning natijasi faqat juma 12:00 dan keyin — tugagan hafta jadvali */
 async function pullPlayers(force){
   if(!S.key) return;
   if(!force&&Date.now()-lastPull<45000) return;
   lastPull=Date.now();
-  try{ players=await apiGet("select=*&order=xp.desc"); S.pcount=players.length; persist();
+  try{ const rows=await rpc("liga_results",{p_id:S.pid||null});
+    S.lastRes=rows&&rows.length?{id:rows[0].week_id,rows:rows.map(x=>({n:x.name,x:x.week_xp,me:x.is_me}))}:null;
+    S.pcount=await rpc("liga_count",{}); persist();
     if(TAB==="main") scrMain(); else if(TAB==="rate") scrRating(); }catch(e){}
 }
 async function sync(){ if(syncing)return; syncing=true; await pushMe(); await pullPlayers(true); syncing=false; }
@@ -2051,6 +3031,8 @@ if(!S.errs) S.errs={};
 if(typeof S.shield!=="number") S.shield=0;
 if(typeof S.blitz!=="number") S.blitz=0;
 if(!S.key) S.key=DEFAULT_KEY;                       // liga serveri tayyor holda ulangan
+if(!S.wkfix1){ const wd=new Date().getDay();            // yangi qoida: dam olish kunidagi XP ligaga kirmaydi
+  if(S.week&&S.week.id===weekId()&&(wd===6||wd===0)) S.week.my=0; S.wkfix1=true; }
 function persist(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} syncSW(); }
 
 /* ---------------- haftalik liga: juma kuni tugaydi ---------------- */
@@ -2076,13 +3058,15 @@ function timeLeft(){
 }
 function weekendNow(){ const n=new Date(), d=n.getDay();
   return d===6||d===0||(d===5&&n.getHours()>=12); }
-function weekBoard(){
-  if(players.length) return players.map(p=>({name:p.first_name+" "+(p.last_name||"").slice(0,1)+".",
-    emoji:p.id===S.pid?"🧑":"👤",xp:(p.week_id===S.week.id?p.week_xp:0),me:p.id===S.pid}))
-    .sort((a,b)=>b.xp-a.xp);
-  return [{name:S.name||"Siz",emoji:"🧑",xp:S.week.my,me:true}];
+function weekBoard(){ return [{name:S.name||"Siz",emoji:"🧑",xp:S.week.my,me:true}]; }
+function lastResHTML(){
+  const L=S.lastRes; if(!L||!L.rows.length) return "";
+  const m=["🥇","🥈","🥉"];
+  return `<div class="lb">${L.rows.map((x,k)=>`<div class="row ${x.me?"me":""}"><span class="pos">${m[k]||k+1}</span>
+    <span class="who">${x.me?"🧑":"👤"} ${esc(x.n)}</span><span class="xp">${x.x} XP</span></div>`).join("")}</div>`;
 }
-function online(){ return players.length>1; }
+const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
+function online(){ return false; }
 function addXP(n){ S.xp+=n; S.week.my+=n; }
 function d0(p){ return p+"-o'rin"; }
 function checkWeek(){
@@ -2117,12 +3101,7 @@ function simulate(){
   persist();
   return after>before?[before,after]:[];
 }
-function board(){
-  if(players.length) return players.map(p=>({id:p.id,name:p.first_name+" "+(p.last_name||"").slice(0,1)+".",
-    emoji:p.id===S.pid?"🧑":"👤",tag:p.stages+" bosqich · "+p.streak+" kun seriya",xp:p.xp,me:p.id===S.pid}))
-    .sort((a,b)=>b.xp-a.xp);
-  return [{id:"me",name:S.name||"Siz",emoji:"🧑",tag:"Bu — siz",xp:S.xp,me:true}];
-}
+function board(){ return [{id:"me",name:S.name||"Siz",emoji:"🧑",tag:"Bu — siz",xp:S.xp,me:true}]; }
 function place(){ return board().findIndex(x=>x.me)+1; }
 
 /* ---------------- yordamchilar ---------------- */
@@ -2141,6 +3120,8 @@ function award(id){ if(S.ach.includes(id))return; S.ach.push(id); addXP(60); per
 const DEADLINE=17;                          // har kuni soat 17:00 gacha
 const dstr=d=>d.toISOString().slice(0,10);
 const isWorkday=d=>d.getDay()>=1&&d.getDay()<=5;
+const isWeekend=()=>{const d=new Date().getDay(); return d===0||d===6;};
+const WKMSG="Shanba va yakshanba ish kunlari savollari yopiq — qo'shimcha mashq qiling";
 function deadlineLeft(){
   const n=new Date(), t=new Date(); t.setHours(DEADLINE,0,0,0);
   const ms=t-n; if(ms<=0) return null;
@@ -2169,7 +3150,7 @@ function sweepDays(){                        // bajarilmagan kunlarni "qoldirilg
 }
 function dayState(){                         // bugungi holat
   const now=new Date(), t=today();
-  if(!isWorkday(now)) return {k:"off",txt:"Dam olish kuni — mashq ixtiyoriy"};
+  if(!isWorkday(now)) return {k:"off",txt:"Dam olish kuni — faqat qo'shimcha mashq (XP berilmaydi)"};
   const st=S.days[t];
   if(st==="done") return {k:"done",txt:"Bugungi mashq bajarildi ✅"};
   if(st==="shield") return {k:"done",txt:"🛡️ Qalqon ishlatildi — seriya saqlandi"};
@@ -2198,9 +3179,7 @@ function dailyTick(ok){
 }
 /* eslatma matni */
 function remText(){
-  const b=board(), p=place(), lead=b[0];
-  return p===1 ? "Siz 1-o'rindasiz ("+S.xp+" XP). Ortdagilar yaqinlashyapti — bugun ham mashq qiling!"
-    : lead.name+" 1-o'rinda ("+lead.xp+" XP), siz "+p+"-o'rindasiz ("+S.xp+" XP). Farq: "+(lead.xp-S.xp)+" XP.";
+  return "Bugungi mashq hali bajarilmagan. Soat 17:00 gacha bajaring — sizda "+S.week.my+" XP (bu hafta).";
 }
 function syncSW(){}
 function notify(body){
@@ -2281,13 +3260,13 @@ function leagueCard(){
   const wb=weekBoard(), wp=wb.findIndex(x=>x.me)+1, my=S.week.my;
   const pct=Math.min(100,Math.round(my/WEEK_GOAL*100));
   return `<section class="league"><div class="lg-top"><h3>🏆 Haftalik liga</h3><span class="lg-timer" id="lgt">${timeLeft()}</span></div>
-    <div class="lg-note">${weekendNow()?"Yangi liga dushanbada boshlanadi":"Dushanba–juma 12:00 · natijalar juma 12:00 da"}</div>
+    <div class="lg-note">${weekendNow()?"Yangi liga dushanbada boshlanadi":"Dushanba–juma 12:00 · jadval juma 12:00 da ochiladi"}</div>
     ${online()?lbHTML(wb)+`<div class="gap ${wp===1?"up":"down"}">${wp===1?"Siz yetakchisiz — ushlab turing!":`Birinchi o'ringacha ${wb[0].xp-wb[wp-1].xp} XP`}</div>`
     :`<div class="goal"><div class="ring">
         <svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="52"/><circle class="fg" id="ringfg" cx="60" cy="60" r="52"/></svg>
         <div class="ring-t"><b id="ringn">0</b><i>/ ${WEEK_GOAL} XP</i></div></div>
        <div class="goal-t">${my>=WEEK_GOAL?"Maqsad bajarildi — juma kuni 🏆 +400 XP":"Haftalik maqsadgacha "+(WEEK_GOAL-my)+" XP"}</div></div>
-     <div class="lg-note">${S.lastWeekXp?`O'tgan hafta: ${S.lastWeekXp} XP — ${my>S.lastWeekXp?"hozir oldindasiz 💪":"hozir orqadasiz"}`:"👥 Sheriklar qo'shilganda shu yerda ular bilan poyga bo'ladi"}</div>`}
+     <div class="lg-note">${S.lastWeekXp?`O'tgan hafta: ${S.lastWeekXp} XP — ${my>S.lastWeekXp?"hozir oldindasiz 💪":"hozir orqadasiz"}`:"🔒 Sheriklaringiz natijasi juma 12:00 gacha yashirin"}</div>`}
   </section>`;
 }
 function countUp(el,to,ms){
@@ -2311,7 +3290,8 @@ function animate(){
 function scrMain(){
   const d=dayState(), wb=weekBoard(), wp=wb.findIndex(x=>x.me)+1;
   const dm=S.daily.d===today()?S.daily.n:0, ns=nextStage();
-  const cta=ns!==null?`${STAGES[ns].icon} ${ns+1}-bosqich: ${STAGES[ns].title}`:"🎯 Kunlik mashq";
+  const wk=isWeekend();
+  const cta=wk?"📘 Qo'shimcha mashq":(ns!==null?`${STAGES[ns].icon} ${ns+1}-bosqich: ${STAGES[ns].title}`:"🎯 Kunlik mashq");
   shell(`
   ${overtake.length?`<div class="alert">⚠️ Siz ${overtake[0]}-o'rindan ${overtake[1]}-o'ringa tushdingiz. Raqobatchilar siz yo'qligingizda ishladi!</div>`:""}
   <section class="dl ${d.k}"><div class="dl-l"><b>${d.k==="done"?"✅ Bugun bajarildi":d.k==="missed"?"❌ Qoldirib yuborildi":d.k==="off"?"☕ Dam olish kuni":"⏰ Bugungi mashq"}</b>
@@ -2321,17 +3301,18 @@ function scrMain(){
     <div><div class="n">${dm}/15</div><div class="small">bugungi to'g'ri javob${S.daily.got?"<br>🎯 +120 olindi":"<br>maqsad: +120 XP"}</div></div>
     <div><div class="n">${Object.keys(S.stars).length}/${STAGES.length}</div><div class="small">yakunlangan bosqich</div></div>
   </div>
-  <div class="privacy">🔒 Kunlik natijalar faqat sizga ko'rinadi · 👥 juma 12:00 dagi liga natijasi hammaga</div>
-  <section class="card cta"><h3>${d.k==="open"?"Bugungi mashqni bajaring":"Davom eting"}</h3>
+  <div class="privacy">🔒 Natijangiz faqat sizga ko'rinadi · 👥 liga jadvali juma 12:00 da hammaga ochiladi</div>
+  <section class="card cta"><h3>${wk?"Dam olish kuni — o'zingiz uchun mashq":d.k==="open"?"Bugungi mashqni bajaring":"Davom eting"}</h3>
+    ${wk?`<p class="small">Shanba va yakshanba bosqichlar, kunlik mashq va blits yopiq. Qo'shimcha mashq ligaga XP bermaydi — faqat bilim uchun.</p>`:""}
     <button class="btn" id="go">${cta}</button>
     <div class="acts">
-      <button class="act" id="dly"><span>🎯</span>Kunlik mashq<i>10 savol</i></button>
-      <button class="act" id="blz"><span>⚡</span>Blits<i>60 soniya · rekord ${S.blitz||0}</i></button>
+      <button class="act ${wk?"dim":""}" id="dly"><span>🎯</span>Kunlik mashq<i>10 savol</i></button>
+      <button class="act ${wk?"dim":""}" id="blz"><span>⚡</span>Blits<i>60 soniya · rekord ${S.blitz||0}</i></button>
       <button class="act ${Object.keys(S.errs).length?"":"dim"}" id="err"><span>📕</span>Xato daftari<i>${Object.keys(S.errs).length} ta savol</i></button>
       <button class="act ${giftReady()?"gift":"dim"}" id="gft"><span>🎁</span>Kunlik sovg'a<i>${giftDone()?"ertaga yana":giftReady()?"savolga javob bering":giftCorrect()+"/"+GIFT_NEED+" to'g'ri javob"}</i></button>
     </div></section>`,"main");
   const open=STAGES.map((x,i)=>i).filter(unlocked);
-  document.getElementById("go").onclick=()=>ns!==null?intro(ns):startDaily(open);
+  document.getElementById("go").onclick=()=>wk?startPractice(open):(ns!==null?intro(ns):startDaily(open));
   document.getElementById("dly").onclick=()=>startDaily(open);
   document.getElementById("blz").onclick=()=>startBlitz(open);
   document.getElementById("err").onclick=startErrs;
@@ -2340,41 +3321,40 @@ function scrMain(){
 }
 /* ---------- reyting ---------- */
 function scrRating(){
-  const wb=weekBoard(), wp=wb.findIndex(x=>x.me)+1, b=board(), p=place();
+  const b=board(), L=S.lastRes;
   shell(`
   ${leagueCard()}
-  ${wb.length>1?`<section class="card"><h3>Hafta yetakchilari</h3>
-    <div class="podium">
-      <div class="pod p2"><span>🥈</span><b>${wb[1]?wb[1].name:"—"}</b><i>${wb[1]?wb[1].xp+" XP":""}</i></div>
-      <div class="pod p1"><span>🥇</span><b>${wb[0].name}</b><i>${wb[0].xp} XP</i></div>
-      <div class="pod p3"><span>🥉</span><b>${wb[2]?wb[2].name:"—"}</b><i>${wb[2]?wb[2].xp+" XP":""}</i></div>
-    </div></section>`:""}
-  <section class="card"><h3>Haftalik sovrinlar</h3>
-    <div class="prizes">${online()?"🏆 1-o'rin +400 XP · 🥈 +200 · 🥉 +100 · 🎗️ +40"
-      :"🏆 600 XP maqsad +400 · 🥈 360 XP dan +150 · 🎗️ ishtirok +50"}</div>
-    <p class="small" style="margin-top:10px">Sheriklar qo'shilgach sovrinlar o'rin bo'yicha beriladi.</p></section>
-  <section class="card"><h3>Shaxsiy natijalar</h3>${lbHTML(b)}
+  <section class="card"><h3>🏁 O'tgan hafta natijalari</h3>
+    ${L&&L.rows.length?`<p class="small" style="margin:0 0 10px">Juma 12:00 dagi yakuniy jadval</p>${lastResHTML()}`
+      :`<p class="small">Hali yakunlangan hafta yo'q. Birinchi jadval juma soat 12:00 da ochiladi.</p>`}</section>
+  <section class="card"><h3>Haftalik sovg'a</h3>
+    <div class="prizes">🏆 600 XP maqsad +400 · 🥈 360 XP dan +150 · 🎗️ ishtirok +50</div></section>
+  <section class="card"><h3>Mening natijam</h3>${lbHTML(b)}
     <div class="duo" style="margin-top:12px"><div><div class="n">${S.blitz||0}</div><div class="small">blits rekordi</div></div>
     <div><div class="n">${S.lastWeekXp||0}</div><div class="small">o'tgan hafta XP</div></div></div></section>
   <section class="card"><h3>Kuboklar</h3><div class="cups"><span>🏆 ${S.cups[0]}</span><span>🥈 ${S.cups[1]}</span><span>🥉 ${S.cups[2]}</span>
     <span class="small">${S.leagues||0} ta liga o'ynaldi</span></div></section>
   <section class="card"><h3>Liga qoidalari</h3><ul class="rules">
     <li>Liga dushanba kuni boshlanadi, <b>juma soat 12:00</b> da tugaydi.</li>
-    <li>Har kuni mashq <b>17:00 gacha</b> bajarilishi kerak — keyin kun qoldirilgan hisoblanadi va seriya uziladi.</li>
-    <li>Kunlik natijalar faqat o'zingizga ko'rinadi.</li>
-    <li>Juma 12:00 dagi yakuniy jadval barcha ishtirokchilarga ko'rinadi.</li></ul></section>`,"rate");
+    <li>Har kuni mashq <b>17:00 gacha</b> bajarilishi kerak — keyin kun qoldirilgan hisoblanadi.</li>
+    <li>Har savolga <b>1 daqiqa</b>. Xato javobning sababi darhol ko'rsatiladi.</li>
+    <li>Shanba va yakshanba — faqat qo'shimcha mashq, ligaga XP qo'shilmaydi.</li>
+    <li>Natijangizni hafta davomida faqat o'zingiz ko'rasiz. Jadval <b>juma 12:00</b> da hammaga ochiladi.</li></ul></section>`,"rate");
   animate();
 }
 /* ---------- bosqichlar ---------- */
 function scrStages(){
   shell(`<ol class="path">${STAGES.map((st,i)=>{const sc=S.stars[i]||0,op=unlocked(i);
     return `<li class="stage ${sc?"done":""}"><div class="num">${i+1}</div>
-    <button ${op?"":"disabled"} data-s="${i}"><h3>${st.icon} ${st.title}</h3>
-    <div class="meta"><span>${op?st.tasks.length+" vazifa":"🔒 Yopiq"}</span><span class="stars">${starStr(sc)}</span></div></button></li>`;}).join("")}</ol>
-    <section class="card"><h3>Kunlik mashq</h3><p class="small">Ochilgan bosqichlardan 10 ta tasodifiy savol.</p>
-    <button class="btn" id="dly">🎯 Boshlash</button></section>`,"stage");
+    <button ${op&&!isWeekend()?"":"disabled"} data-s="${i}"><h3>${st.icon} ${st.title}</h3>
+    <div class="meta"><span>${!op?"🔒 Yopiq":isWeekend()?"☕ Dushanbadan":st.tasks.length+" vazifa"}</span><span class="stars">${starStr(sc)}</span></div></button></li>`;}).join("")}</ol>
+    ${isWeekend()?`<section class="card"><h3>📘 Qo'shimcha mashq</h3><p class="small">Dam olish kuni: ochilgan bosqichlardan 10 ta savol, faqat o'zingiz uchun (XP berilmaydi).</p>
+    <button class="btn" id="prc">📘 Boshlash</button></section>`
+    :`<section class="card"><h3>Kunlik mashq</h3><p class="small">Ochilgan bosqichlardan 10 ta tasodifiy savol.</p>
+    <button class="btn" id="dly">🎯 Boshlash</button></section>`}`,"stage");
   app.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>intro(+b.dataset.s));
-  document.getElementById("dly").onclick=()=>startDaily(STAGES.map((x,i)=>i).filter(unlocked));
+  const dl=document.getElementById("dly"); if(dl) dl.onclick=()=>startDaily(STAGES.map((x,i)=>i).filter(unlocked));
+  const pr=document.getElementById("prc"); if(pr) pr.onclick=()=>startPractice(STAGES.map((x,i)=>i).filter(unlocked));
 }
 /* ---------- profil ---------- */
 function scrProfile(){
@@ -2406,12 +3386,14 @@ function scrProfile(){
   <section class="card"><h3>Sozlamalar</h3>
     <button class="btn ghost" id="inst">📲 Telefonga o'rnatish</button>
     <button class="btn ghost" id="set">🔔 Eslatma va sozlamalar</button>
+    <button class="btn ghost" id="adm">🛡️ ${S.adminPin?"Admin panel":"Admin kirish"}</button>
     ${Object.keys(S.stars).length===STAGES.length?`<button class="btn ghost" id="cert">🏅 Sertifikat</button>`:""}</section>`,"prof");
   document.getElementById("srv").onclick=scrServer;
   document.getElementById("buy").onclick=buyShield;
   document.getElementById("errb").onclick=startErrs;
   document.getElementById("inst").onclick=install;
   document.getElementById("set").onclick=settings;
+  document.getElementById("adm").onclick=()=>S.adminPin?scrAdmin():adminLogin();
   const c=document.getElementById("cert"); if(c) c.onclick=cert;
 }
 function home(){ sweepDays(); if(!S.user.first) return register(); scrMain(); }
@@ -2423,11 +3405,11 @@ function leagueResult(){
     <h2>Haftalik liga yakunlandi!</h2>
     <p class="story">${d.pos===1?"Tabriklaymiz — siz g'olib bo'ldingiz!":d.txt+" — "+d.pos+"-o'rin"}</p>
     <div class="stats"><span class="pill">🎁 +${d.xp} XP</span>${d.pos<=3?`<span class="pill">${d.cup} kubok javoningizda</span>`:""}</div>
-    <div class="card"><div class="lb">${d.board.map((x,k)=>`<div class="row ${x.me?"me":""}">
-      <span class="pos">${["🥇","🥈","🥉","4"][k]}</span><span class="who">${x.n}</span><span class="xp">${x.x} XP</span></div>`).join("")}</div></div>
+    <div class="card"><h3>Yakuniy jadval</h3><div id="lres">${lastResHTML()||`<p class="small">Jadval yuklanmoqda...</p>`}</div></div>
     <p class="small">Yangi liga boshlandi — hisob noldan. Keyingi juma yana yakunlanadi.</p></section>`;
   setDock(`<button class="btn" id="g">Yangi ligani boshlash</button>`);
   document.getElementById("g").onclick=home; coins(); window.scrollTo(0,0);
+  pullPlayers(true).then(()=>{ const el=document.getElementById("lres"); if(el) el.innerHTML=lastResHTML()||`<p class="small">Jadval hali tayyor emas.</p>`; });
 }
 function scrServer(){
   setDock(null);
@@ -2458,14 +3440,58 @@ function scrServer(){
   document.getElementById("diag").onclick=async()=>{
     st.textContent="Tekshirilmoqda...";
     try{
-      const r=await fetch(SUPA_URL+"/rest/v1/safari_players?select=id&limit=1",{headers:sHead()});
+      const r=await fetch(SUPA_URL+"/rest/v1/rpc/liga_count",{method:"POST",headers:sHead(),body:"{}"});
       const t=await r.text();
-      st.innerHTML=r.ok?`✅ Server javob berdi (${r.status}). Ma'lumot: ${t.slice(0,60)}`
+      st.innerHTML=r.ok?`✅ Server javob berdi. Ishtirokchilar: ${t.slice(0,6)} / 7`
         :`❌ Xato ${r.status}: <span style="font-size:12px">${t.slice(0,160).replace(/</g,"&lt;")}</span>`;
     }catch(e){ st.innerHTML=`❌ Ulanib bo'lmadi: <span style="font-size:12px">${String(e.message).slice(0,160)}</span>`; }
   };
   document.getElementById("ref").onclick=async()=>{ await pullPlayers(true); document.getElementById("cnt").textContent=(S.pcount||1)+" / 7"; toast("Yangilandi"); };
   window.scrollTo(0,0);
+}
+/* ---------------- admin ---------------- */
+function adminLogin(){
+  app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Admin</span></div>
+  <section class="sheet set"><h2>🛡️ Admin kirish</h2>
+  <p class="small">Faqat liga administratori uchun. PIN kodni kiriting.</p>
+  <label for="pin">PIN kod</label><input id="pin" type="password" inputmode="numeric" autocomplete="off">
+  <p class="small" id="st" style="color:var(--bad);min-height:22px"></p></section>`;
+  app.querySelector(".back").onclick=scrProfile;
+  setDock(`<button class="btn" id="go">Kirish</button>`);
+  document.getElementById("go").onclick=async()=>{
+    const pin=document.getElementById("pin").value.trim(), st=document.getElementById("st");
+    if(!pin) return st.textContent="PIN kiriting";
+    st.textContent="Tekshirilmoqda...";
+    try{ await rpc("liga_admin_list",{p_pin:pin}); S.adminPin=pin; persist(); toast("Admin rejimi yoqildi"); scrAdmin(); }
+    catch(e){ st.textContent=/not_admin/.test(String(e.message))?"PIN noto'g'ri":"Serverga ulanmadi"; }
+  };
+  window.scrollTo(0,0);
+}
+async function scrAdmin(){
+  setDock(null);
+  app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Admin panel</span></div>
+  <section class="sheet"><h2>🛡️ Ishtirokchilar</h2><p class="small">Barcha natijalar faqat sizga ko'rinadi.</p><div id="al"><p class="small">Yuklanmoqda...</p></div></section>
+  <section class="card"><h3>🏁 O'tgan hafta jadvali</h3>${lastResHTML()||`<p class="small">Hali yakunlangan hafta yo'q.</p>`}</section>
+  <section class="card"><button class="btn ghost" id="out">Admin rejimidan chiqish</button></section>`;
+  app.querySelector(".back").onclick=scrProfile;
+  document.getElementById("out").onclick=()=>{ S.adminPin=""; persist(); scrProfile(); };
+  let rows;
+  try{ rows=await rpc("liga_admin_list",{p_pin:S.adminPin}); }
+  catch(e){ if(/not_admin/.test(String(e.message))){ S.adminPin=""; persist(); toast("PIN eskirgan — qayta kiring"); return adminLogin(); }
+    document.getElementById("al").innerHTML=`<p class="small">Serverga ulanmadi</p>`; return; }
+  const cur=weekId(), dt=v=>v?new Date(v).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"—";
+  rows.sort((a,b)=>((b.week_id===cur?b.week_xp:0)-(a.week_id===cur?a.week_xp:0))||(b.xp-a.xp));
+  const el=document.getElementById("al");
+  el.innerHTML=`<p class="small" style="margin:0 0 10px">${rows.length} / 7 ishtirokchi</p>`+rows.map(p=>`<div class="adm"><div>
+      <b>${esc((p.first_name||"")+" "+(p.last_name||"")).trim()||"(ismsiz)"}${p.id===S.pid?" · siz":""}</b>
+      <i>📞 ${esc(p.phone||"—")} · faol: ${dt(p.last_active)}</i>
+      <i>⚡ bu hafta ${p.week_id===cur?p.week_xp:0} XP · jami ${p.xp} XP · ${p.stages} bosqich · ${p.streak} kun</i></div>
+      ${p.id===S.pid?"":`<button class="del" data-id="${p.id}" data-n="${esc(p.first_name||"(ismsiz)")}">O'chirish</button>`}</div>`).join("");
+  el.querySelectorAll(".del").forEach(b=>b.onclick=async()=>{
+    if(!confirm(b.dataset.n+" ligadan o'chirilsinmi? Uning natijalari ham o'chadi.")) return;
+    try{ await rpc("liga_admin_delete",{p_pin:S.adminPin,p_id:b.dataset.id}); toast("O'chirildi"); scrAdmin(); }
+    catch(e){ toast("O'chirib bo'lmadi"); }
+  });
 }
 function install(){
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -2540,6 +3566,7 @@ function cert(){
 /* ---------------- bosqich ---------------- */
 let run=null;
 function intro(si){
+  if(isWeekend()) return toast(WKMSG);
   const s=STAGES[si];
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">${si+1}-bosqich</span></div>
   <article class="sheet"><h2>${s.icon} ${s.title}</h2><p class="story">${s.story}</p>
@@ -2547,17 +3574,18 @@ function intro(si){
   ${s.example?`<div class="example"><div class="small">${s.example.t}</div>
     <div class="r"><span>Dt ${s.example.dt}</span><span>Kt ${s.example.kt}</span></div>
     <div class="small">${A[s.example.dt]} ⟵ ${A[s.example.kt]}</div></div>`:""}
-  <p class="small">❤️ 3 ta jon. Xato savol oxirida yana qaytadi. ${s.tasks.length} ta vazifa.</p></article>`;
+  <p class="small">❤️ 5 ta jon · ⏱ har savolga 1 daqiqa · ${s.tasks.length} ta vazifa. Xato javobning sababi va to'g'ri javobi darhol ko'rsatiladi.</p></article>`;
   app.querySelector(".back").onclick=home;
   setDock(`<button class="btn" id="go">Boshlash</button>`);
   document.getElementById("go").onclick=()=>{
     const tasks=STAGES[si].tasks.map((t,k)=>({...t,k}));
-    run={mode:"stage",si,queue:tasks,total:tasks.length,i:0,lives:3,combo:0,mistakes:0,marks:tasks.map(()=>""),retried:new Set(),earned:0};
+    run={mode:"stage",si,queue:tasks,total:tasks.length,i:0,lives:5,combo:0,mistakes:0,marks:tasks.map(()=>""),retried:new Set(),earned:0};
     task();
   };
   window.scrollTo(0,0);
 }
 function startBlitz(open){
+  if(isWeekend()) return toast(WKMSG);
   let pool=[]; open.forEach(i=>STAGES[i].tasks.forEach(t=>pool.push(t)));
   pool=shuffle(pool).slice(0,40).map((t,k)=>({...t,k}));
   run={mode:"blitz",si:null,queue:pool,total:pool.length,i:0,lives:99,combo:0,mistakes:0,
@@ -2568,7 +3596,7 @@ function startErrs(){
   const ids=Object.keys(S.errs);
   if(!ids.length){ toast("Xato daftari bo'sh — zo'r!"); return; }
   const pool=shuffle(ids.map(id=>TASKMAP[id]).filter(Boolean)).slice(0,12).map((t,k)=>({...t,k}));
-  run={mode:"errs",si:null,queue:pool,total:pool.length,i:0,lives:5,combo:0,mistakes:0,
+  run={mode:"errs",noXP:isWeekend(),si:null,queue:pool,total:pool.length,i:0,lives:isWeekend()?99:5,combo:0,mistakes:0,
     marks:pool.map(()=>""),retried:new Set(),earned:0};
   task();
 }
@@ -2577,6 +3605,7 @@ function giftDone(){ return S.gift===today(); }
 function giftCorrect(){ return S.daily.d===today()?S.daily.n:0; }
 function giftReady(){ return !giftDone()&&giftCorrect()>=GIFT_NEED; }
 function openGift(){
+  if(isWeekend()) return toast(WKMSG);
   if(giftDone()) return toast("Bugungi sovg'a olingan — ertaga yana");
   if(giftCorrect()<GIFT_NEED) return toast("Avval "+(GIFT_NEED-giftCorrect())+" ta to'g'ri javob bering");
   const open=STAGES.map((x,i)=>i).filter(unlocked);
@@ -2601,7 +3630,14 @@ function buyShield(){
   if(S.xp<300) return toast("Qalqon uchun 300 XP kerak");
   S.xp-=300; S.shield++; persist(); toast("🛡️ Qalqon olindi! Bir kunni saqlaydi"); scrProfile();
 }
+function startPractice(open){
+  let pool=[]; open.forEach(i=>STAGES[i].tasks.forEach(t=>pool.push(t)));
+  pool=shuffle(pool).slice(0,10).map((t,k)=>({...t,k}));
+  run={mode:"practice",noXP:true,si:null,queue:pool,total:pool.length,i:0,lives:99,combo:0,mistakes:0,marks:pool.map(()=>""),retried:new Set(),earned:0};
+  task();
+}
 function startDaily(open){
+  if(isWeekend()) return toast(WKMSG);
   let pool=[]; open.forEach(i=>STAGES[i].tasks.forEach(t=>pool.push(t)));
   pool=shuffle(pool).slice(0,10).map((t,k)=>({...t,k}));
   run={mode:"daily",si:null,queue:pool,total:pool.length,i:0,lives:5,combo:0,mistakes:0,marks:pool.map(()=>""),retried:new Set(),earned:0};
@@ -2615,12 +3651,21 @@ function task(){
   const retry=r.i>=r.total;
   app.innerHTML=`<div class="bar"><button class="back">✕</button>
     ${r.mode==="blitz"?`<span class="tmr" id="tmr">⏱ 60</span><span class="pill">✅ ${r.right}</span>`
-      :`<span class="hearts">${"❤️".repeat(r.lives)}${"🤍".repeat((r.mode==="daily"||r.mode==="errs"?5:3)-r.lives)}</span>`}<span class="spacer"></span>
+      :`${r.lives<50?`<span class="hearts">${"❤️".repeat(Math.max(0,r.lives))}${"🤍".repeat(Math.max(0,(r.mode==="gift"?1:5)-r.lives))}</span>`:""}<span class="tmr" id="qt">⏱ 60</span>`}<span class="spacer"></span>
     ${r.combo>=2?`<span class="combo">🔥 ×${r.combo}</span>`:""}<span class="pill">⚡ ${S.xp+r.earned}</span></div>
   <div class="progress">${r.marks.map((m,k)=>`<span class="${m||(k===t.k?"now":"")}"></span>`).join("")}</div>
-  <article class="sheet task" id="card"><div class="kind">${({daily:"Kunlik mashq · ",blitz:"⚡ Blits · ",errs:"📕 Xato daftari · ",gift:"🎁 Sovg'a savoli · "})[r.mode]||""}${kind}${retry?" — takroriy":""}</div>
+  <article class="sheet task" id="card"><div class="kind">${({daily:"Kunlik mashq · ",blitz:"⚡ Blits · ",errs:"📕 Xato daftari · ",gift:"🎁 Sovg'a savoli · ",practice:"📘 Qo'shimcha mashq · "})[r.mode]||""}${kind}</div>
   <p class="q">${t.q}</p><div id="body"></div><div id="fb"></div></article>`;
   app.querySelector(".back").onclick=()=>{ if(confirm("Chiqasizmi? Natija saqlanmaydi.")){ clearInterval(r.tick); home(); } };
+  if(r.mode!=="blitz"){
+    clearInterval(r.tick); r.timedOut=false; r.qEnd=Date.now()+QSEC*1000;
+    r.tick=setInterval(()=>{
+      if(run!==r||r.answered){ clearInterval(r.tick); return; }
+      const left=Math.max(0,Math.ceil((r.qEnd-Date.now())/1000));
+      const el=document.getElementById("qt"); if(el){ el.textContent="⏱ "+left; el.classList.toggle("low",left<=10); }
+      if(left<=0){ clearInterval(r.tick); r.timedOut=true; check(); }
+    },250);
+  }
   if(r.mode==="blitz"){
     clearInterval(r.tick);
     r.tick=setInterval(()=>{
@@ -2674,43 +3719,47 @@ function task(){
   }
   window.scrollTo(0,0);
 }
+const QSEC=60;                                // har savolga 1 daqiqa
 function btn(on){ setDock(`<button class="btn" id="chk" ${on?"":"disabled"}>Tekshirish</button>`); document.getElementById("chk").onclick=check; }
 
 function check(){
   const r=run,t=r.queue[r.i]; if(r.answered)return; r.answered=true;
+  if(r.mode!=="blitz") clearInterval(r.tick);
   let ok=false,right="";
   const body=document.getElementById("body");
   if(t.t==="mc"){ ok=r.pick===r.ans;
-    body.querySelectorAll(".opt").forEach((b,k)=>{ if(k===r.ans)b.classList.add("right"); else if(k===r.pick)b.classList.add("wrong"); }); }
+    body.querySelectorAll(".opt").forEach((b,k)=>{ if(k===r.ans)b.classList.add("right"); else if(k===r.pick)b.classList.add("wrong"); });
+    right=`To'g'ri javob: <b style="display:inline">${r.opts[r.ans].x}</b><br>`; }
   if(t.t==="pv"){ ok=r.slots.dt===t.dt&&r.slots.kt===t.kt;
     body.querySelectorAll(".slot").forEach(s=>{const side=s.dataset.side; s.classList.remove("active");
       s.classList.add(r.slots[side]===t[side]?"right":"wrong");});
     right=`To'g'ri provodka: <b style="display:inline">Dt ${t.dt} — Kt ${t.kt}</b><br>`; }
-  if(t.t==="calc"){ const v=+document.getElementById("num").value.replace(/\D/g,""); ok=v===t.a;
+  if(t.t==="calc"){ const raw=document.getElementById("num").value.replace(/\D/g,""); ok=raw!==""&&+raw===t.a;
     document.getElementById("num").disabled=true;
     right=`To'g'ri javob: <b style="display:inline">${fmt(t.a)} ${t.unit||"so'm"}</b><br>`; }
+  if(r.timedOut) ok=false;
   const card=document.getElementById("card"), st=document.createElement("div");
   st.className="stamp "+(ok?"ok":"bad"); st.textContent=ok?"TO'G'RI":"XATO"; card.appendChild(st);
   if(ok){
     r.combo++;
-    let g=(r.i>=r.total?5:(r.mode==="daily"?8:10)); if(r.combo>=3)g+=5; if(r.combo>=7)g+=5;
+    let g=r.noXP?0:(r.mode==="daily"?8:10); if(!r.noXP){ if(r.combo>=3)g+=5; if(r.combo>=7)g+=5; }
     r.earned+=g; if(r.marks[t.k]!=="bad")r.marks[t.k]="ok";
+    if(!r.noXP){
     if(r.combo===3)toast("🔥 3 ketma-ket! +5 bonus");
     if(r.combo===5){toast("🚀 5 ketma-ket!");award("combo5");}
     if(r.combo===7)toast("💎 7 ketma-ket! +10 bonus");
     if(r.combo===10)award("combo10");
-    dailyTick(true);
+    dailyTick(true); }
     if(r.mode==="blitz") r.right++;
     if(t.id&&S.errs[t.id]&&(r.mode==="errs"||r.mode==="daily")){ delete S.errs[t.id]; persist(); }
     const p=["Barakalla!","Aniq hisob!","Balans joyida!","Zo'r!","Professional daraja!","Inspektor ham rozi!"];
-    document.getElementById("fb").innerHTML=`<div class="explain ok"><b>${p[Math.floor(Math.random()*p.length)]} +${g} XP</b>${t.e}</div>`;
+    document.getElementById("fb").innerHTML=`<div class="explain ok"><b>${p[Math.floor(Math.random()*p.length)]}${g?" +"+g+" XP":""}</b>${t.e}</div>`;
   } else {
     r.combo=0; if(r.mode!=="blitz") r.lives--; r.mistakes++; r.marks[t.k]="bad";
     if(t.id){ S.errs[t.id]=true; persist(); }
-    if(!r.retried.has(t.k)){r.retried.add(t.k); r.queue.push(t);}
     if(navigator.vibrate)try{navigator.vibrate(120);}catch(e){}
     card.classList.add("shake"); setTimeout(()=>card.classList.remove("shake"),600);
-    document.getElementById("fb").innerHTML=`<div class="explain bad"><b>Unchalik emas — keling, tushunib olamiz</b>${right}${t.e}</div>`;
+    document.getElementById("fb").innerHTML=`<div class="explain bad"><b>${r.timedOut?"⏱ Vaqt tugadi — javobni ko'rib oling":"Xato — sababini tushunib olamiz"}</b>${right}<span style="display:block;margin-top:6px"><b style="display:inline">Nega:</b> ${t.e}</span></div>`;
   }
   const last=r.i>=r.queue.length-1;
   if(r.mode==="gift"){
@@ -2743,9 +3792,20 @@ function finish(passed){
     document.getElementById("a").onclick=()=>startBlitz(STAGES.map((x,i)=>i).filter(unlocked));
     document.getElementById("b").onclick=home; window.scrollTo(0,0); return;
   }
+  if(r.noXP){
+    const okn=r.marks.filter(m=>m==="ok").length;
+    persist();
+    app.innerHTML=`<section class="sheet result"><div style="font-size:60px">📘</div>
+      <h2>Qo'shimcha mashq yakunlandi</h2>
+      <div class="stats"><span class="pill">✅ ${okn} to'g'ri</span><span class="pill">❌ ${r.mistakes} xato</span></div>
+      <p class="small">Bu mashq faqat o'zingiz uchun — ligaga XP qo'shilmaydi. Xato savollar «Xato daftari»da saqlandi.</p></section>`;
+    setDock(`<div class="two"><button class="btn" id="a">Yana mashq</button><button class="btn ghost" id="b">Asosiy</button></div>`);
+    document.getElementById("a").onclick=()=>r.mode==="errs"?startErrs():startPractice(STAGES.map((x,i)=>i).filter(unlocked));
+    document.getElementById("b").onclick=home; window.scrollTo(0,0); return;
+  }
   const posBefore=place();
   if(passed){
-    const stars=r.mistakes===0?3:(r.mistakes===1?2:1);
+    const stars=r.mistakes===0?3:(r.mistakes<=2?2:1);
     let bonus=r.mode==="stage"?stars*30:70;
     addXP(r.earned+bonus);
     if(r.mode==="stage"){
@@ -2766,10 +3826,9 @@ function finish(passed){
       <div class="stats"><span class="pill">⚡ +${r.earned+bonus+dayBonus} XP</span>
         <span class="pill">❌ ${r.mistakes} xato</span><span class="pill">🔥 ${S.streak} kun</span></div>
       ${dayBonus?`<p class="small">Kunlik seriya bonusi: +${dayBonus} XP</p>`:""}
-      <div class="card" style="margin:14px 0 0"><h3>Reyting</h3><div class="lb">
-        ${b.map((x,k)=>`<div class="row ${x.me?"me":""}"><span class="pos">${["🥇","🥈","🥉","4"][k]}</span>
-        <span class="who">${x.emoji} ${x.name}</span><span class="xp">${x.xp} XP</span></div>`).join("")}</div>
-        <div class="gap ${moved>0?"up":(above?"down":"up")}">${moved>0?`${moved} pog'ona ko'tarildingiz! 🎉`:(above?`${above.name}gacha ${above.xp-me.xp} XP qoldi.`:"Siz yetakchisiz — ushlab turing!")}</div></div>
+      <div class="card" style="margin:14px 0 0"><h3>Bu hafta</h3>
+        <div class="rank-top"><b>⚡ ${S.week.my} XP</b><span class="pill">🏁 ${timeLeft()}</span></div>
+        <p class="small" style="margin-top:8px">🔒 Boshqalarning natijasi yashirin — liga jadvali juma 12:00 da ochiladi.</p></div>
     </section>`;
     coins();
     const nx=r.mode==="stage"&&r.si+1<STAGES.length&&unlocked(r.si+1);
@@ -2782,7 +3841,7 @@ function finish(passed){
     app.innerHTML=`<section class="sheet result"><div class="big-stars">🤍🤍🤍</div>
       <h2>Jonlar tugadi</h2><p>Har bir bosh buxgalter ham shu yerdan o'tgan. Nazariyani ko'rib, qayta urinib ko'ring.</p>
       <div class="stats"><span class="pill">✅ ${r.marks.filter(m=>m==="ok").length} to'g'ri</span><span class="pill">❌ ${r.mistakes} xato</span></div>
-      <p class="small">${b[0].me?"Siz hali yetakchisiz.":b[0].name+" hozir 1-o'rinda ("+b[0].xp+" XP)."}</p></section>`;
+      <p class="small">Xato savollarning sababi yuqorida ko'rsatildi — «Xato daftari»da qayta mashq qilishingiz mumkin.</p></section>`;
     setDock(`<div class="two"><button class="btn" id="a">Qayta boshlash</button><button class="btn ghost" id="b">Xaritaga</button></div>`);
     document.getElementById("a").onclick=()=>r.mode==="stage"?intro(r.si):home();
     document.getElementById("b").onclick=home;

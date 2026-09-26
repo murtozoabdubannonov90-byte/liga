@@ -31,23 +31,12 @@ async function toGroups(text: string) {
 }
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-// Tugagan hafta id'si: shu juma 12:00 (Toshkent) = 07:00Z, app'dagi weekId() bilan bir xil
-function lastWeekId(now = new Date()) {
-  const t = new Date(now.getTime() + 5 * 3600e3); // Toshkent vaqti
-  const back = (t.getUTCDay() - 5 + 7) % 7;
-  const f = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate() - back, 7, 0));
-  if (f.getTime() > now.getTime()) f.setUTCDate(f.getUTCDate() - 7);
-  return f.toISOString().slice(0, 16);
-}
 async function resultsText() {
-  const wid = lastWeekId();
-  const { data } = await db.from("safari_players").select("first_name,last_name,week_xp")
-    .eq("week_id", wid).gt("week_xp", 0).order("week_xp", { ascending: false });
+  const { data } = await db.rpc("liga_results", { p_id: null });
   if (!data?.length) return "🏁 <b>Hafta yakunlandi</b>\n\nBu hafta hech kim ball to'plamadi. Yangi haftada kuchliroq boshlaymiz!";
   const medal = ["🥇", "🥈", "🥉"];
-  const rows = data.map((p, i) =>
-    `${medal[i] ?? `${i + 1}.`} ${esc(p.first_name ?? "")} ${esc((p.last_name ?? "").slice(0, 1))}. — <b>${p.week_xp} XP</b>`);
-  return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\nG'olibni tabriklaymiz! Yangi hafta boshlandi — ilovani oching 👇`;
+  const rows = data.map((p: any, i: number) => `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b>`);
+  return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\nG'olibni tabriklaymiz! Yangi hafta dushanba boshlanadi 👇`;
 }
 
 async function onUpdate(u: any) {
@@ -57,7 +46,7 @@ async function onUpdate(u: any) {
     if (st === "member" || st === "administrator") {
       await db.from("liga_bot_chats").upsert({ chat_id: cm.chat.id, title: cm.chat.title, active: true });
       await tg("sendMessage", { chat_id: cm.chat.id, parse_mode: "HTML", reply_markup: openBot,
-        text: "👋 Salom, buxgalterlar!\n\n<b>Hisobchi Liga</b> — haftalik musobaqa:\n• har kuni soat <b>17:00</b> gacha kunlik mashq;\n• liga dushanbadan <b>juma 12:00</b> gacha;\n• natijalar juma kuni shu guruhga chiqadi.\n\nBoshlash uchun pastdagi tugmani bosing." });
+        text: "👋 Salom, buxgalterlar!\n\n<b>Hisobchi Liga</b> — haftalik musobaqa:\n• har kuni soat <b>17:00</b> gacha kunlik mashq;\n• liga dushanbadan <b>juma 12:00</b> gacha;\n• hafta davomida natijangizni faqat o'zingiz ko'rasiz;\n• yakuniy jadval juma 12:00 da shu guruhga chiqadi;\n• shanba-yakshanba — faqat qo'shimcha mashq.\n\nBoshlash uchun pastdagi tugmani bosing." });
     } else if (st === "left" || st === "kicked") {
       await db.from("liga_bot_chats").update({ active: false }).eq("chat_id", cm.chat.id);
     }
@@ -81,7 +70,7 @@ async function onUpdate(u: any) {
     await tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML", text: await resultsText(), reply_markup: priv ? openApp : openBot });
   } else if (cmd === "/qoida") {
     await tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML",
-      text: "📋 <b>Qoidalar</b>\n• Kunlik mashq — har kuni soat 17:00 gacha, aks holda kun qoldirilgan hisoblanadi.\n• Liga — dushanbadan juma 12:00 gacha.\n• Kunlik natijangizni faqat o'zingiz ko'rasiz.\n• Hafta yakunidagi natija juma 12:00 da hammaga e'lon qilinadi." });
+      text: "📋 <b>Qoidalar</b>\n• Kunlik mashq — har kuni soat 17:00 gacha, aks holda kun qoldirilgan hisoblanadi.\n• Liga — dushanbadan juma 12:00 gacha.\n• Har savolga 1 daqiqa. Xato bo'lsa, sababi va to'g'ri javob darhol ko'rsatiladi.\n• Shanba-yakshanba — faqat qo'shimcha mashq, ligaga XP qo'shilmaydi.\n• Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Yakuniy jadval juma 12:00 da hammaga e'lon qilinadi." });
   }
 }
 
@@ -101,7 +90,7 @@ async function onCron(action: string) {
     };
   }
   if (action === "monday") { await toGroups("🌅 <b>Yangi liga haftasi boshlandi!</b>\n\nJuma 12:00 gacha eng ko'p XP to'plagan g'olib bo'ladi. Bugungi mashqni 17:00 gacha bajaring 💪"); return { ok: true }; }
-  if (action === "remind") { await toGroups("⏰ <b>Eslatma:</b> kunlik mashqqa <b>1 soat</b> qoldi — soat 17:00 gacha bajaring, seriyangiz uzilmasin!"); return { ok: true }; }
+  if (action === "remind") { await toGroups("⏰ <b>Eslatma:</b> kunlik mashqqa <b>1 soat</b> qoldi — soat 17:00 gacha bajaring, seriyangiz uzilmasin! Har savolga 1 daqiqa ⏱"); return { ok: true }; }
   if (action === "results") { await toGroups(await resultsText()); return { ok: true }; }
   if (action === "status") return { webhook: await tg("getWebhookInfo", {}), groups: await groups() };
   return { error: "unknown action" };
