@@ -36,7 +36,8 @@ async function resultsText() {
   if (!data?.length) return "🏁 <b>Hafta yakunlandi</b>\n\nBu hafta hech kim ball to'plamadi. Yangi haftada kuchliroq boshlaymiz!";
   const medal = ["🥇", "🥈", "🥉"];
   const rows = data.map((p: any, i: number) => `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b>`);
-  return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\nG'olibni tabriklaymiz! Yangi hafta dushanba boshlanadi 👇`;
+  const win = data[0];
+  return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\n🏆 G'olib: <b>${esc(win.name ?? "")}</b> — tabriklaymiz!\nYangi hafta dushanba soat 08:00 da boshlanadi 👇`;
 }
 
 async function onUpdate(u: any) {
@@ -74,6 +75,25 @@ async function onUpdate(u: any) {
   }
 }
 
+const TITLES = ["Birinchi ish kuni","Firma tug'iladi","Tovar keldi","Birinchi savdo","Ish haqi kuni","Yangi uskuna",
+  "Soliqlar xaritasi","Hisobotlar taqvimi","Imtiyozlar","Qonun va qarorlar","Yil yakuni","Boss: soliq tekshiruvi"];
+// Toshkent sanasi (UTC+5)
+function tzDate(d = new Date()) { const t = new Date(d.getTime() + 5 * 3600e3); return new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate())); }
+// bugun ochiladigan bosqich (1-bosqich — 28.09.2026 dushanba, har ish kuni +1)
+function todayStage(): number | null {
+  const start = Date.UTC(2026, 8, 28), today = tzDate();
+  if (today.getTime() < start) return null;
+  let n = 0; const d = new Date(start);
+  while (d.getTime() < today.getTime()) { d.setUTCDate(d.getUTCDate() + 1); const w = d.getUTCDay(); if (w >= 1 && w <= 5) n++; }
+  return n < TITLES.length ? n : null;
+}
+// bir kunda bir xil xabar ikki marta ketmasin
+async function once(tag: string) {
+  const key = `sent_${tag}_${tzDate().toISOString().slice(0, 10)}`;
+  const { error } = await db.from("liga_bot_config").insert({ key, value: new Date().toISOString() });
+  return !error;
+}
+
 async function onCron(action: string) {
   if (action === "setup") {
     const url = `${SB_URL}/functions/v1/liga-bot`;
@@ -89,10 +109,42 @@ async function onCron(action: string) {
       me: await tg("getMe", {}),
     };
   }
-  if (action === "monday") { await toGroups("🌅 <b>Yangi liga haftasi boshlandi!</b>\n\nJuma 12:00 gacha eng ko'p XP to'plagan g'olib bo'ladi. Bugungi mashqni 17:00 gacha bajaring 💪"); return { ok: true }; }
-  if (action === "remind") { await toGroups("⏰ <b>Eslatma:</b> kunlik mashqqa <b>1 soat</b> qoldi — soat 17:00 gacha bajaring, seriyangiz uzilmasin! Har savolga 1 daqiqa ⏱"); return { ok: true }; }
-  if (action === "results") { await toGroups(await resultsText()); return { ok: true }; }
-  if (action === "status") return { webhook: await tg("getWebhookInfo", {}), groups: await groups() };
+  const w = tzDate().getUTCDay();
+  if (action === "day_start") {
+    if (w < 1 || w > 5) return { skip: "weekend" };
+    if (!(await once("day_start"))) return { skip: "already" };
+    const si = todayStage();
+    const stage = si === null ? "" : `\n📚 Bugun <b>${si + 1}-bosqich: ${TITLES[si]}</b> ochildi (20 savol).`;
+    const head = w === 1
+      ? "🚀 <b>Yangi liga haftasi boshlandi!</b>\n\nLiga bugundan <b>juma soat 12:00</b> gacha davom etadi."
+      : "☀️ <b>Bugungi o'yin boshlandi!</b>";
+    await toGroups(`${head}${stage}\n⏰ Kunlik mashqni <b>soat 17:00</b> gacha bajaring.\n⏱ Har savolga 1 daqiqa.\n\nOmad, buxgalterlar! 💪`);
+    return { ok: true, stage: si };
+  }
+  if (action === "remind") {
+    if (w < 1 || w > 5 || !(await once("remind"))) return { skip: true };
+    await toGroups("⏰ <b>Eslatma:</b> bugungi o'yin tugashiga <b>1 soat</b> qoldi — soat 17:00 gacha bajaring, seriyangiz uzilmasin!");
+    return { ok: true };
+  }
+  if (action === "day_end") {
+    if (w < 1 || w > 5 || !(await once("day_end"))) return { skip: true };
+    const tail = w === 5 ? "Haftalik liga natijalari yuqorida e'lon qilindi. Yangi hafta dushanba soat 08:00 da boshlanadi." :
+      w === 4 ? "Ertaga — haftaning oxirgi kuni. Liga <b>juma 12:00</b> da yakunlanadi va natijalar shu guruhga chiqadi." :
+      "Ertaga soat 08:00 da yangi bosqich ochiladi. Liga natijalari <b>juma 12:00</b> da e'lon qilinadi.";
+    await toGroups(`🔔 <b>Bugungi o'yin tugadi!</b>\n\nSoat 17:00 dan keyin bajarilgan mashq kunlik seriyaga kirmaydi.\n${tail}`);
+    return { ok: true };
+  }
+  if (action === "friday_warn") {
+    if (w !== 5 || !(await once("friday_warn"))) return { skip: true };
+    await toGroups("⏳ <b>Liga tugashiga 1 soat qoldi!</b>\n\nSoat 12:00 da haftalik liga yakunlanadi. Oxirgi imkoniyat — ballaringizni oshiring! 🔥");
+    return { ok: true };
+  }
+  if (action === "results" || action === "league_end") {
+    if (!(await once("league_end"))) return { skip: true };
+    await toGroups("🏁 <b>Haftalik liga tugadi!</b>\n\n" + (await resultsText()).replace(/^🏁 <b>[^<]*<\/b>\n\n/, ""));
+    return { ok: true };
+  }
+  if (action === "status") return { webhook: await tg("getWebhookInfo", {}), groups: await groups(), stage: todayStage() };
   return { error: "unknown action" };
 }
 
