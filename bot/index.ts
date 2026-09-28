@@ -37,7 +37,7 @@ async function resultsText() {
   const medal = ["🥇", "🥈", "🥉"];
   const rows = data.map((p: any, i: number) => `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b>`);
   const win = data[0];
-  return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\n🏆 G'olib: <b>${esc(win.name ?? "")}</b> — tabriklaymiz!\nYangi hafta dushanba soat 08:00 da boshlanadi 👇`;
+  return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\n🏆 G'olib: <b>${esc(win.name ?? "")}</b> — tabriklaymiz!\nYangi hafta dushanba soat 09:00 da boshlanadi 👇`;
 }
 
 async function onUpdate(u: any) {
@@ -128,9 +128,9 @@ async function onCron(action: string) {
   }
   if (action === "day_end") {
     if (w < 1 || w > 5 || !(await once("day_end"))) return { skip: true };
-    const tail = w === 5 ? "Haftalik liga natijalari yuqorida e'lon qilindi. Yangi hafta dushanba soat 08:00 da boshlanadi." :
+    const tail = w === 5 ? "Haftalik liga natijalari yuqorida e'lon qilindi. Yangi hafta dushanba soat 09:00 da boshlanadi." :
       w === 4 ? "Ertaga — haftaning oxirgi kuni. Liga <b>juma 12:00</b> da yakunlanadi va natijalar shu guruhga chiqadi." :
-      "Ertaga soat 08:00 da yangi bosqich ochiladi. Liga natijalari <b>juma 12:00</b> da e'lon qilinadi.";
+      "Ertaga soat 09:00 da yangi bosqich ochiladi. Liga natijalari <b>juma 12:00</b> da e'lon qilinadi.";
     await toGroups(`🔔 <b>Bugungi o'yin tugadi!</b>\n\nSoat 17:00 dan keyin bajarilgan mashq kunlik seriyaga kirmaydi.\n${tail}`);
     return { ok: true };
   }
