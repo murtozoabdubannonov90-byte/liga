@@ -3557,7 +3557,7 @@ const KEY="hisobchi-liga-v1";
 const today=()=>new Date().toISOString().slice(0,10);
 let S={xp:0,stars:{},streak:0,last:"",sim:0,riv:{},ach:[],daily:{d:"",n:0,got:false},dailyRuns:0,failed:{},name:"",rem:"",notif:false,
   user:{first:"",last:"",phone:""},days:{},errs:{},gift:"",shield:0,blitz:0,lastWeekXp:0,key:"",pid:"",pcount:1,
-  week:{id:"",my:0,riv:{},part:{stage:0,daily:0,blitz:0},stages:{}},lastPart:null,lastStages:null,stageXP:{},cups:[0,0,0],leagues:0,pending:null};
+  week:{id:"",my:0,riv:{},part:{stage:0,daily:0,blitz:0},stages:{}},lastPart:null,lastStages:null,stageXP:{},cups:[0,0,0],leagues:0,pending:null,sa:{}};
 try{const o=JSON.parse(localStorage.getItem(KEY)); if(o&&typeof o.xp==="number") S=Object.assign(S,o);}catch(e){}
 RIVALS.forEach(r=>{ if(typeof S.riv[r.id]!=="number") S.riv[r.id]=0; });
 if(!S.week||!S.week.riv) S.week={id:"",my:0,riv:{}};
@@ -4176,11 +4176,23 @@ function cert(){
 
 /* ---------------- bosqich ---------------- */
 let run=null;
+/* Kunlik bosqichda har savolga faqat BIR MARTA javob beriladi (to'g'ri yoki xato).
+   Qayta kirilsa faqat javob berilmagan savollar chiqadi. Ko'rsatilib, javobsiz tashlab
+   ketilgan savol (chiqib ketish, ilovani yopish) xato hisoblanadi. */
+function saRec(si){ if(!S.sa) S.sa={}; const k=dkey(stageDate(si))+"|"+si;
+  if(!S.sa[k]) S.sa[k]={m:{},p:null,b:false}; return S.sa[k]; }
+function saSettle(si){ const rec=saRec(si);            // javobsiz qolgan savol → xato
+  if(rec.p!=null&&!rec.m[rec.p]){ rec.m[rec.p]="bad"; const t=STAGES[si].tasks[rec.p]; if(t&&t.id) S.errs[t.id]=true; }
+  rec.p=null; persist(); return rec; }
+const saLeft=si=>STAGES[si].tasks.map((t,k)=>k).filter(k=>!saRec(si).m[k]);
+const saBad=si=>Object.values(saRec(si).m).filter(v=>v==="bad").length;
 function intro(si){
   if(isWeekend()) return toast(WKMSG);
   const ss=stageState(si);
   if(ss==="future") return toast(`${si+1}-bosqich ${stageDay(si)} soat 09:00 da ochiladi`);
   if(ss==="closed") return toast(`${si+1}-bosqich yopilgan — faqat o'z kunida 09:00–17:00 ochiq edi`);
+  const rec=saSettle(si), left=saLeft(si);
+  if(!left.length){ const b=saBad(si); return toast(`${si+1}-bosqich bugun yakunlangan: ✅ ${STAGES[si].tasks.length-b} · ❌ ${b}. Qayta ishlab bo'lmaydi`); }
   const s=STAGES[si];
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">${si+1}-bosqich</span></div>
   <article class="sheet"><h2>${s.icon} ${s.title}</h2><p class="story">${s.story}</p>
@@ -4188,12 +4200,15 @@ function intro(si){
   ${s.example?`<div class="example"><div class="small">${s.example.t}</div>
     <div class="r"><span>Dt ${s.example.dt}</span><span>Kt ${s.example.kt}</span></div>
     <div class="small">${A[s.example.dt]} ⟵ ${A[s.example.kt]}</div></div>`:""}
-  <p class="small">❤️ 5 ta jon · ⏱ har savolga 1 daqiqa · ${s.tasks.length} ta vazifa. Xato javobning sababi va to'g'ri javobi darhol ko'rsatiladi.</p></article>`;
+  <p class="small">❤️ 5 ta jon · ⏱ har savolga 1 daqiqa · ${s.tasks.length} ta vazifa. Xato javobning sababi va to'g'ri javobi darhol ko'rsatiladi.</p>
+  <p class="small">⚠️ Har savolga faqat <b>bir marta</b> javob beriladi — xato javob qaytib chiqmaydi. Javobsiz tashlab chiqilgan savol ham xato hisoblanadi.${left.length<s.tasks.length?`<br>▶️ Davom etasiz: <b>${left.length} ta</b> savol qoldi.`:""}</p></article>`;
   app.querySelector(".back").onclick=home;
   setDock(`<button class="btn" id="go">Boshlash</button>`);
   document.getElementById("go").onclick=()=>{
-    const tasks=STAGES[si].tasks.map((t,k)=>({...t,k}));
-    run={mode:"stage",si,queue:tasks,total:tasks.length,i:0,lives:5,combo:0,mistakes:0,marks:tasks.map(()=>""),retried:new Set(),earned:0};
+    const rec=saSettle(si), all=STAGES[si].tasks.map((t,k)=>({...t,k}));
+    const tasks=all.filter(t=>!rec.m[t.k]);
+    if(!tasks.length) return intro(si);
+    run={mode:"stage",si,queue:tasks,total:tasks.length,i:0,lives:5,combo:0,mistakes:0,marks:all.map(t=>rec.m[t.k]||""),retried:new Set(),earned:0};
     task();
   };
   window.scrollTo(0,0);
@@ -4271,7 +4286,13 @@ function task(){
   <div class="progress">${r.marks.map((m,k)=>`<span class="${m||(k===t.k?"now":"")}"></span>`).join("")}</div>
   <article class="sheet task" id="card"><div class="kind">${({daily:"Kunlik mashq · ",blitz:"⚡ Blits · ",errs:"📕 Xato daftari · ",gift:"🎁 Sovg'a savoli · ",practice:"📘 Qo'shimcha mashq · "})[r.mode]||""}${kind}</div>
   <p class="q">${t.q}</p><div id="body"></div><div id="fb"></div></article>`;
-  app.querySelector(".back").onclick=()=>{ if(confirm("Chiqasizmi? Natija saqlanmaydi.")){ clearInterval(r.tick); home(); } };
+  if(r.mode==="stage"){ saRec(r.si).p=t.k; persist(); }
+  app.querySelector(".back").onclick=()=>{
+    if(r.mode==="stage"){
+      if(!confirm("Chiqasizmi? Bu savol javobsiz qolsa XATO hisoblanadi va qaytib chiqmaydi. Topgan XP saqlanadi.")) return;
+      clearInterval(r.tick); run=null; if(!r.answered){ r.mistakes++; }
+      saSettle(r.si); if(r.earned){ addXP(r.earned,"stage"); addStageXP(r.si,r.earned); } persist(); sync(); home(); return; }
+    if(confirm("Chiqasizmi? Natija saqlanmaydi.")){ clearInterval(r.tick); home(); } };
   if(r.mode!=="blitz"){
     clearInterval(r.tick); r.timedOut=false; r.qEnd=Date.now()+QSEC*1000;
     r.tick=setInterval(()=>{
@@ -4356,6 +4377,7 @@ function check(){
     document.getElementById("num").disabled=true;
     right=`To'g'ri javob: <b style="display:inline">${fmt(t.a)} ${t.unit||"so'm"}</b><br>`; }
   if(r.timedOut) ok=false;
+  if(r.mode==="stage"){ const rec=saRec(r.si); rec.m[t.k]=ok?"ok":"bad"; rec.p=null; persist(); }
   const card=document.getElementById("card"), st=document.createElement("div");
   st.className="stamp "+(ok?"ok":"bad"); st.textContent=ok?"TO'G'RI":"XATO"; card.appendChild(st);
   if(ok){
@@ -4396,7 +4418,7 @@ function check(){
 }
 
 function stageClosed(r){
-  run=null; addXP(r.earned,"stage"); addStageXP(r.si,r.earned); persist(); sync();
+  run=null; clearInterval(r.tick); saSettle(r.si); addXP(r.earned,"stage"); addStageXP(r.si,r.earned); persist(); sync();
   app.innerHTML=`<section class="sheet result"><div style="font-size:60px">⏰</div>
     <h2>Soat 17:00 — bosqich yopildi</h2>
     <div class="stats"><span class="pill">✅ ${r.marks.filter(m=>m==="ok").length} to'g'ri</span><span class="pill">⚡ +${r.earned} XP</span></div>
@@ -4432,9 +4454,13 @@ function finish(passed){
     document.getElementById("b").onclick=home; window.scrollTo(0,0); return;
   }
   const posBefore=place();
+  let sDone=false;
+  if(r.mode==="stage"){ saSettle(r.si); sDone=!saLeft(r.si).length; if(sDone) passed=true; }
   if(passed){
-    const stars=r.mistakes===0?3:(r.mistakes<=2?2:1);
+    const miss=r.mode==="stage"?saBad(r.si):r.mistakes;
+    const stars=miss===0?3:(miss<=2?2:1);
     let bonus=r.mode==="stage"?stars*30:70;
+    if(r.mode==="stage"){ const rec=saRec(r.si); if(rec.b) bonus=0; else rec.b=true; }
     addXP(r.earned+bonus, r.mode==="stage"?"stage":(r.mode==="daily"?"daily":null));
     if(r.mode==="stage") addStageXP(r.si,r.earned+bonus);
     if(r.mode==="stage"){
@@ -4453,7 +4479,7 @@ function finish(passed){
       <div class="big-stars">${r.mode==="stage"?starStr(stars):"🎯"}</div>
       <h2>${r.mode==="daily"?"Kunlik mashq bajarildi!":(r.si===STAGES.length-1?"Tekshiruvdan o'tdingiz!":"Bosqich yakunlandi!")}</h2>
       <div class="stats"><span class="pill">⚡ +${r.earned+bonus+dayBonus} XP</span>${r.mode==="stage"?`<span class="pill">🗺️ ${r.si+1}-bosqich: ${(S.week.stages||{})[r.si]||0} XP</span>`:""}
-        <span class="pill">❌ ${r.mistakes} xato</span><span class="pill">🔥 ${S.streak} kun</span></div>
+        <span class="pill">❌ ${r.mode==="stage"?saBad(r.si):r.mistakes} xato</span><span class="pill">🔥 ${S.streak} kun</span></div>
       ${dayBonus?`<p class="small">Kunlik seriya bonusi: +${dayBonus} XP</p>`:""}
       <div class="card" style="margin:14px 0 0"><h3>Bu hafta</h3>
         <div class="rank-top"><b>⚡ ${S.week.my} XP</b><span class="pill">🏁 ${timeLeft()}</span></div>
@@ -4466,13 +4492,13 @@ function finish(passed){
     document.getElementById("a").onclick=()=>nx?intro(r.si+1):home();
     document.getElementById("b").onclick=home;
   } else {
-    if(r.mode==="stage"){S.failed[r.si]=true; persist();}
+    if(r.mode==="stage"){S.failed[r.si]=true; if(r.earned){ addXP(r.earned,"stage"); addStageXP(r.si,r.earned); } persist(); sync();}
     const b=board();
     app.innerHTML=`<section class="sheet result"><div class="big-stars">🤍🤍🤍</div>
-      <h2>Jonlar tugadi</h2><p>Har bir bosh buxgalter ham shu yerdan o'tgan. Nazariyani ko'rib, qayta urinib ko'ring.</p>
+      <h2>Jonlar tugadi</h2><p>${r.mode==="stage"?"Topgan XP saqlandi. Xato qilingan savollar qaytib chiqmaydi — «Davom etish» bilan qolgan savollarni ishlaysiz.":"Har bir bosh buxgalter ham shu yerdan o'tgan. Nazariyani ko'rib, qayta urinib ko'ring."}</p>
       <div class="stats"><span class="pill">✅ ${r.marks.filter(m=>m==="ok").length} to'g'ri</span><span class="pill">❌ ${r.mistakes} xato</span></div>
       <p class="small">Xato savollarning sababi yuqorida ko'rsatildi — «Xato daftari»da qayta mashq qilishingiz mumkin.</p></section>`;
-    setDock(`<div class="two"><button class="btn" id="a">Qayta boshlash</button><button class="btn ghost" id="b">Xaritaga</button></div>`);
+    setDock(`<div class="two"><button class="btn" id="a">${r.mode==="stage"?"Davom etish":"Qayta boshlash"}</button><button class="btn ghost" id="b">Xaritaga</button></div>`);
     document.getElementById("a").onclick=()=>r.mode==="stage"?intro(r.si):home();
     document.getElementById("b").onclick=home;
   }
