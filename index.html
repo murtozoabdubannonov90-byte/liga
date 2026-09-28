@@ -3620,7 +3620,7 @@ function daysHTML(o,title){ o=o||{}; const k=Object.keys(o).map(Number).sort((a,
 function partsOf(my,p){ p=p||{}; const st=p.stage||0, dl=p.daily||0, bl=p.blitz||0;
   return {stage:st,daily:dl,blitz:bl,bonus:Math.max(0,(my||0)-st-dl-bl),total:my||0}; }
 function partsHTML(my,p){ const x=partsOf(my,p);
-  return `<div class="parts"><div><b>${x.stage}</b><i>🗺️ Bosqichlar</i></div><div><b>${x.daily}</b><i>🎯 Kunlik mashq</i></div>
+  return `${S.week&&S.week.est&&p===S.week.part?`<p class="small" style="margin:10px 0 0;opacity:.85">ℹ️ Yangilanishdan oldingi ballar taxminan ajratildi</p>`:""}<div class="parts"><div><b>${x.stage}</b><i>🗺️ Bosqichlar</i></div><div><b>${x.daily}</b><i>🎯 Kunlik mashq</i></div>
     <div><b>${x.blitz}</b><i>⚡ Blits</i></div><div><b>${x.bonus}</b><i>🎁 Bonuslar</i></div></div>`; }
 function partsLine(my,p){ const x=partsOf(my,p);
   return `🗺️ ${x.stage} · 🎯 ${x.daily} · ⚡ ${x.blitz} · 🎁 ${x.bonus}`; }
@@ -4475,6 +4475,37 @@ if(S.user.first&&!S.pid) joinServer().then(()=>pullPlayers(true)); else pullPlay
 if(S.pending) leagueResult(); else home();
 scheduleReminder();
 scheduleLeague();
+/* BIR MARTALIK: yangilanishdan oldin to'plangan bu haftalik ballarni taxminan ajratish
+   (eski versiya qaysi ball qayerdan kelganini yozmagan). Faqat bir marta ishlaydi. */
+(function splitOldWeek(){
+  if(S.splitFix1) return; S.splitFix1=true;
+  const P=S.week.part||(S.week.part={stage:0,daily:0,blitz:0});
+  const my=S.week.my||0;
+  if(!my||P.stage||P.daily||P.blitz||(S.week.stages&&Object.keys(S.week.stages).length)){ persist(); return; }
+  const wk=S.week.id===weekId();
+  if(!wk){ persist(); return; }
+  // aniq ma'lum bonuslar
+  let bonus=(S.ach||[]).length*60;
+  if(S.daily&&S.daily.got&&S.daily.d===today()) bonus+=120;
+  if(S.days&&S.days[today()]==="done") bonus+=Math.min(120,(S.streak||0)*12);
+  if(S.gift===today()) bonus+=140;
+  // bosqichlar: yulduzga qarab (3★ ≈ 450, 2★ ≈ 380, 1★ ≈ 280)
+  const est={3:450,2:380,1:280}, stg={};
+  Object.keys(S.stars||{}).forEach(k=>{ const i=+k, d=stageDate(i);
+    if(weekId(new Date(d.getTime()+12*3600e3))===S.week.id) stg[i]=est[S.stars[k]]||280; });
+  let stage=Object.values(stg).reduce((a,b)=>a+b,0);
+  let blitz=(S.blitz||0)*12;
+  let daily=(S.dailyRuns||0)*150;
+  const need=stage+blitz+daily, room=Math.max(0,my-bonus);
+  if(need>room&&need>0){ const k=room/need; stage=Math.round(stage*k); blitz=Math.round(blitz*k); daily=Math.round(daily*k);
+    Object.keys(stg).forEach(i=>stg[i]=Math.round(stg[i]*k)); }
+  else { // ortib qolgani — blits/kunlik mashqqa (bir necha marta o'ynalgan bo'lishi mumkin)
+    let extra=room-need; if(S.blitz) { blitz+=extra; extra=0; } else if(S.dailyRuns){ daily+=extra; extra=0; } }
+  const sk=Object.keys(stg); if(sk.length){ const sum=sk.reduce((a,i)=>a+stg[i],0); if(sum!==stage) stg[sk[sk.length-1]]+=stage-sum; }
+  S.week.part={stage,daily,blitz}; S.week.stages=stg; S.week.est=true;
+  S.stageXP=S.stageXP||{}; Object.keys(stg).forEach(i=>{ if(!S.stageXP[i]) S.stageXP[i]=stg[i]; });
+  persist(); setTimeout(sync,1500);
+})();
 if(S.last!==today()&&S.xp>0) setTimeout(()=>toast("Bugungi mashq hali bajarilmagan 🔥"),900);
 </script>
 </body>
