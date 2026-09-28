@@ -169,6 +169,8 @@ h1,h2,h3{margin:0; line-height:1.1; font-family:var(--display); font-weight:800}
 .league .days>div{background:rgba(255,255,255,.16); color:#fff}
 .days b{font-family:var(--display)}
 .days .dim{opacity:.6}
+.parts>div.bz{outline:2px dashed rgba(127,127,127,.45)}
+.league .parts>div.bz{outline-color:rgba(255,255,255,.55)}
 .psub{display:block; font-style:normal; font-size:11px; opacity:.75; margin-top:2px}
 .duo{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
 .duo>div{border-radius:22px; padding:14px 10px; text-align:center; color:#fff; box-shadow:0 5px 0 rgba(0,0,0,.15)}
@@ -3605,7 +3607,11 @@ function lastResHTML(){
 const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 function online(){ return false; }
 /* cat: "stage" | "daily" | "blitz" — qolgani (yutuq, sovg'a, seriya) bonus hisoblanadi */
-function addXP(n,cat){ S.xp+=n; S.week.my+=n;
+function addXP(n,cat){
+  if(cat==="blitz"){ // blits bali JAMIGA QO'SHILMAYDI — alohida turadi
+    if(!S.week.part) S.week.part={stage:0,daily:0,blitz:0}; S.week.part.blitz=(S.week.part.blitz||0)+n;
+    S.blitzXP=(S.blitzXP||0)+n; return; }
+  S.xp+=n; S.week.my+=n;
   if(cat){ if(!S.week.part) S.week.part={stage:0,daily:0,blitz:0}; S.week.part[cat]=(S.week.part[cat]||0)+n; } }
 /* har bir bosqich (kun) bali alohida */
 function addStageXP(si,n){ if(si==null||!n) return;
@@ -3618,12 +3624,12 @@ function daysHTML(o,title){ o=o||{}; const k=Object.keys(o).map(Number).sort((a,
   return `<h3 style="margin:14px 0 0;font-size:15px">${title||"🗺️ Bosqichlar — har kun alohida"}</h3>
     <div class="days">${rows||`<div><span class="dim">Bu hafta hali bosqich bajarilmagan</span><b>0</b></div>`}</div>`; }
 function partsOf(my,p){ p=p||{}; const st=p.stage||0, dl=p.daily||0, bl=p.blitz||0;
-  return {stage:st,daily:dl,blitz:bl,bonus:Math.max(0,(my||0)-st-dl-bl),total:my||0}; }
+  return {stage:st,daily:dl,blitz:bl,bonus:Math.max(0,(my||0)-st-dl),total:my||0}; }
 function partsHTML(my,p){ const x=partsOf(my,p);
-  return `${S.week&&S.week.est&&p===S.week.part?`<p class="small" style="margin:10px 0 0;opacity:.85">ℹ️ Yangilanishdan oldingi ballar taxminan ajratildi</p>`:""}<div class="parts"><div><b>${x.stage}</b><i>🗺️ Bosqichlar</i></div><div><b>${x.daily}</b><i>🎯 Kunlik mashq</i></div>
-    <div><b>${x.blitz}</b><i>⚡ Blits</i></div><div><b>${x.bonus}</b><i>🎁 Bonuslar</i></div></div>`; }
+  return `${S.week&&S.week.est&&p===S.week.part?`<p class="small" style="margin:10px 0 0;opacity:.85;color:inherit">ℹ️ Yangilanishdan oldingi ballar taxminan ajratildi</p>`:""}<div class="parts"><div><b>${x.stage}</b><i>🗺️ Bosqichlar</i></div><div><b>${x.daily}</b><i>🎯 Kunlik mashq</i></div>
+    <div><b>${x.bonus}</b><i>🎁 Bonuslar</i></div><div class="bz"><b>${x.blitz}</b><i>⚡ Blits<br>jamiga kirmaydi</i></div></div>`; }
 function partsLine(my,p){ const x=partsOf(my,p);
-  return `🗺️ ${x.stage} · 🎯 ${x.daily} · ⚡ ${x.blitz} · 🎁 ${x.bonus}`; }
+  return `🗺️ ${x.stage} · 🎯 ${x.daily} · 🎁 ${x.bonus} · ⚡ blits ${x.blitz} (alohida)`; }
 function d0(p){ return p+"-o'rin"; }
 function checkWeek(){
   const id=weekId();
@@ -4400,8 +4406,9 @@ function finish(passed){
     addXP(r.earned,"blitz"); markDay(); persist(); sync();
     app.innerHTML=`<section class="sheet result"><div style="font-size:60px">⚡</div>
       <h2>Blits yakunlandi!</h2>
-      <div class="stats"><span class="pill">✅ ${r.right} to'g'ri</span><span class="pill">⚡ +${r.earned} XP</span>
+      <div class="stats"><span class="pill">✅ ${r.right} to'g'ri</span><span class="pill">⚡ +${r.earned} blits bali</span>
       <span class="pill">🏅 rekord: ${S.blitz}</span></div>
+      <p class="small">Blits bali alohida hisoblanadi — haftalik jamiga qo'shilmaydi. Bu hafta blits: ${(S.week.part||{}).blitz||0}</p>
       ${rec?`<p class="story">Yangi rekord! 🎉</p>`:`<p class="small">Rekordni yangilash uchun ${S.blitz-r.right+1} ta ko'proq javob kerak.</p>`}</section>`;
     if(rec) coins();
     setDock(`<div class="two"><button class="btn" id="a">Yana blits</button><button class="btn ghost" id="b">Asosiy</button></div>`);
@@ -4505,6 +4512,12 @@ scheduleLeague();
   S.week.part={stage,daily,blitz}; S.week.stages=stg; S.week.est=true;
   S.stageXP=S.stageXP||{}; Object.keys(stg).forEach(i=>{ if(!S.stageXP[i]) S.stageXP[i]=stg[i]; });
   persist(); setTimeout(sync,1500);
+})();
+(function blitzOut(){ // bir martalik: avval jamiga qo'shilgan blits balini chiqarib olish
+  if(S.blitzFix1) return; S.blitzFix1=true;
+  const b=(S.week.part&&S.week.id===weekId())?(S.week.part.blitz||0):0;
+  if(b>0){ S.week.my=Math.max(0,S.week.my-b); S.xp=Math.max(0,S.xp-b); S.blitzXP=(S.blitzXP||0)+b; }
+  persist(); if(b>0) setTimeout(sync,1800);
 })();
 if(S.last!==today()&&S.xp>0) setTimeout(()=>toast("Bugungi mashq hali bajarilmagan 🔥"),900);
 </script>
