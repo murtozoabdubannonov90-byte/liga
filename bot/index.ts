@@ -36,8 +36,8 @@ async function resultsText() {
   if (!data?.length) return "🏁 <b>Hafta yakunlandi</b>\n\nBu hafta hech kim ball to'plamadi. Yangi haftada kuchliroq boshlaymiz!";
   const medal = ["🥇", "🥈", "🥉"];
   const rows = data.map((p: any, i: number) => {
-    const st = p.week_stage ?? 0, dl = p.week_daily ?? 0, bl = p.week_blitz ?? 0, bo = Math.max(0, p.week_xp - st - dl);
-    return `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b>\n     🗺️ bosqich ${st} · 🎯 kunlik ${dl} · 🎁 bonus ${bo}\n     ⚡ blits ${bl} <i>(jamiga kirmaydi)</i>` +
+    const dl = p.week_daily ?? 0, bl = p.week_blitz ?? 0, bo = p.week_bonus ?? 0;
+    return `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b> <i>(kunlik bosqichlar)</i>\n     alohida: 🎯 kunlik mashq ${dl} · 🎁 bonus ${bo} · ⚡ blits ${bl}` +
       (Object.keys(p.week_stages ?? {}).length ? `\n     📅 ` + Object.keys(p.week_stages).map(Number).sort((a, b) => a - b).map((k) => `${k + 1}-bosqich: ${p.week_stages[k]}`).join(" · ") : "");
   });
   const win = data[0];
