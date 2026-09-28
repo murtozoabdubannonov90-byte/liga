@@ -35,7 +35,10 @@ async function resultsText() {
   const { data } = await db.rpc("liga_results", { p_id: null });
   if (!data?.length) return "🏁 <b>Hafta yakunlandi</b>\n\nBu hafta hech kim ball to'plamadi. Yangi haftada kuchliroq boshlaymiz!";
   const medal = ["🥇", "🥈", "🥉"];
-  const rows = data.map((p: any, i: number) => `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b>`);
+  const rows = data.map((p: any, i: number) => {
+    const st = p.week_stage ?? 0, dl = p.week_daily ?? 0, bl = p.week_blitz ?? 0, bo = Math.max(0, p.week_xp - st - dl - bl);
+    return `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b>\n     🗺️ bosqich ${st} · 🎯 kunlik ${dl} · ⚡ blits ${bl} · 🎁 bonus ${bo}`;
+  });
   const win = data[0];
   return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\n🏆 G'olib: <b>${esc(win.name ?? "")}</b> — tabriklaymiz!\nYangi hafta dushanba soat 09:00 da boshlanadi 👇`;
 }
