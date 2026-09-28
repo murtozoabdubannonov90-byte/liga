@@ -37,7 +37,8 @@ async function resultsText() {
   const medal = ["🥇", "🥈", "🥉"];
   const rows = data.map((p: any, i: number) => {
     const st = p.week_stage ?? 0, dl = p.week_daily ?? 0, bl = p.week_blitz ?? 0, bo = Math.max(0, p.week_xp - st - dl - bl);
-    return `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b>\n     🗺️ bosqich ${st} · 🎯 kunlik ${dl} · ⚡ blits ${bl} · 🎁 bonus ${bo}`;
+    return `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b>\n     🗺️ bosqich ${st} · 🎯 kunlik ${dl} · ⚡ blits ${bl} · 🎁 bonus ${bo}` +
+      (Object.keys(p.week_stages ?? {}).length ? `\n     📅 ` + Object.keys(p.week_stages).map(Number).sort((a, b) => a - b).map((k) => `${k + 1}-bosqich: ${p.week_stages[k]}`).join(" · ") : "");
   });
   const win = data[0];
   return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\n🏆 G'olib: <b>${esc(win.name ?? "")}</b> — tabriklaymiz!\nYangi hafta dushanba soat 09:00 da boshlanadi 👇`;

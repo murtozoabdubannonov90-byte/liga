@@ -164,6 +164,11 @@ h1,h2,h3{margin:0; line-height:1.1; font-family:var(--display); font-weight:800}
 .parts b{display:block; font-family:var(--display); font-size:22px; line-height:1.1}
 .parts i{display:block; font-style:normal; font-size:11px; opacity:.8; margin-top:3px}
 .league .parts>div{background:rgba(255,255,255,.16); color:#fff}
+.days{margin-top:10px; display:grid; gap:6px}
+.days>div{display:flex; justify-content:space-between; align-items:center; border-radius:14px; padding:8px 12px; background:rgba(127,127,127,.12); font-size:14px}
+.league .days>div{background:rgba(255,255,255,.16); color:#fff}
+.days b{font-family:var(--display)}
+.days .dim{opacity:.6}
 .psub{display:block; font-style:normal; font-size:11px; opacity:.75; margin-top:2px}
 .duo{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:14px}
 .duo>div{border-radius:22px; padding:14px 10px; text-align:center; color:#fff; box-shadow:0 5px 0 rgba(0,0,0,.15)}
@@ -3524,8 +3529,9 @@ async function pushMe(){
   const base={p_id:S.pid,p_xp:S.xp,p_week_xp:S.week.my,p_week_id:S.week.id,
     p_stages:Object.keys(S.stars).length,p_streak:S.streak,p_first:S.user.first,p_last:S.user.last};
   const pt=S.week.part||{};
-  try{ await rpc("liga_push2",Object.assign({p_week_stage:pt.stage||0,p_week_daily:pt.daily||0,p_week_blitz:pt.blitz||0},base)); }
-  catch(e){ try{ await rpc("liga_push",base); }catch(e2){} }
+  const b2=Object.assign({p_week_stage:pt.stage||0,p_week_daily:pt.daily||0,p_week_blitz:pt.blitz||0},base);
+  try{ await rpc("liga_push3",Object.assign({p_week_stages:S.week.stages||{}},b2)); }
+  catch(e){ try{ await rpc("liga_push2",b2); }catch(e1){ try{ await rpc("liga_push",base); }catch(e2){} } }
 }
 /* boshqalarning natijasi faqat juma 12:00 dan keyin — tugagan hafta jadvali */
 async function pullPlayers(force){
@@ -3533,7 +3539,7 @@ async function pullPlayers(force){
   if(!force&&Date.now()-lastPull<45000) return;
   lastPull=Date.now();
   try{ const rows=await rpc("liga_results",{p_id:S.pid||null});
-    S.lastRes=rows&&rows.length?{id:rows[0].week_id,rows:rows.map(x=>({n:x.name,x:x.week_xp,me:x.is_me,p:{stage:x.week_stage,daily:x.week_daily,blitz:x.week_blitz}}))}:null;
+    S.lastRes=rows&&rows.length?{id:rows[0].week_id,rows:rows.map(x=>({n:x.name,x:x.week_xp,me:x.is_me,p:{stage:x.week_stage,daily:x.week_daily,blitz:x.week_blitz},d:x.week_stages||{}}))}:null;
     S.pcount=await rpc("liga_count",{});
     const mem=await rpc("liga_members",{p_id:S.pid||null}); S.members=(mem||[]).map(x=>({n:x.name,me:x.is_me}));
     if(S.adminPin){ try{ S.adminRows=await rpc("liga_admin_list",{p_pin:S.adminPin}); }catch(e){ S.adminRows=null; } }
@@ -3547,11 +3553,13 @@ const KEY="hisobchi-liga-v1";
 const today=()=>new Date().toISOString().slice(0,10);
 let S={xp:0,stars:{},streak:0,last:"",sim:0,riv:{},ach:[],daily:{d:"",n:0,got:false},dailyRuns:0,failed:{},name:"",rem:"",notif:false,
   user:{first:"",last:"",phone:""},days:{},errs:{},gift:"",shield:0,blitz:0,lastWeekXp:0,key:"",pid:"",pcount:1,
-  week:{id:"",my:0,riv:{},part:{stage:0,daily:0,blitz:0}},lastPart:null,cups:[0,0,0],leagues:0,pending:null};
+  week:{id:"",my:0,riv:{},part:{stage:0,daily:0,blitz:0},stages:{}},lastPart:null,lastStages:null,stageXP:{},cups:[0,0,0],leagues:0,pending:null};
 try{const o=JSON.parse(localStorage.getItem(KEY)); if(o&&typeof o.xp==="number") S=Object.assign(S,o);}catch(e){}
 RIVALS.forEach(r=>{ if(typeof S.riv[r.id]!=="number") S.riv[r.id]=0; });
 if(!S.week||!S.week.riv) S.week={id:"",my:0,riv:{}};
 if(!S.week.part) S.week.part={stage:0,daily:0,blitz:0};
+if(!S.week.stages) S.week.stages={};
+if(!S.stageXP) S.stageXP={};
 RIVALS.forEach(r=>{ if(typeof S.week.riv[r.id]!=="number") S.week.riv[r.id]=0; });
 if(!Array.isArray(S.cups)) S.cups=[0,0,0];
 if(!S.user) S.user={first:"",last:"",phone:""};
@@ -3592,13 +3600,23 @@ function lastResHTML(){
   const L=S.lastRes; if(!L||!L.rows.length) return "";
   const m=["🥇","🥈","🥉"];
   return `<div class="lb">${L.rows.map((x,k)=>`<div class="row ${x.me?"me":""}"><span class="pos">${m[k]||k+1}</span>
-    <span class="who">${x.me?"🧑":"👤"} ${esc(x.n)}${x.p?`<i class="psub">${partsLine(x.x,x.p)}</i>`:""}</span><span class="xp">${x.x} XP</span></div>`).join("")}</div>`;
+    <span class="who">${x.me?"🧑":"👤"} ${esc(x.n)}${x.p?`<i class="psub">${partsLine(x.x,x.p)}</i>`:""}${x.d&&stageLine(x.d)?`<i class="psub">${stageLine(x.d)}</i>`:""}</span><span class="xp">${x.x} XP</span></div>`).join("")}</div>`;
 }
 const esc=t=>String(t==null?"":t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);
 function online(){ return false; }
 /* cat: "stage" | "daily" | "blitz" — qolgani (yutuq, sovg'a, seriya) bonus hisoblanadi */
 function addXP(n,cat){ S.xp+=n; S.week.my+=n;
   if(cat){ if(!S.week.part) S.week.part={stage:0,daily:0,blitz:0}; S.week.part[cat]=(S.week.part[cat]||0)+n; } }
+/* har bir bosqich (kun) bali alohida */
+function addStageXP(si,n){ if(si==null||!n) return;
+  if(!S.stageXP) S.stageXP={}; if(!S.week.stages) S.week.stages={};
+  S.stageXP[si]=(S.stageXP[si]||0)+n; S.week.stages[si]=(S.week.stages[si]||0)+n; }
+function stageLine(o){ o=o||{}; const k=Object.keys(o).map(Number).sort((a,b)=>a-b);
+  return k.length?k.map(i=>`${i+1}-bosqich: ${o[i]}`).join(" · "):""; }
+function daysHTML(o,title){ o=o||{}; const k=Object.keys(o).map(Number).sort((a,b)=>a-b);
+  const rows=k.map(i=>`<div><span>${STAGES[i]?STAGES[i].icon:"📘"} ${i+1}-bosqich <span class="dim">· ${stageDay(i)}</span></span><b>${o[i]} XP</b></div>`).join("");
+  return `<h3 style="margin:14px 0 0;font-size:15px">${title||"🗺️ Bosqichlar — har kun alohida"}</h3>
+    <div class="days">${rows||`<div><span class="dim">Bu hafta hali bosqich bajarilmagan</span><b>0</b></div>`}</div>`; }
 function partsOf(my,p){ p=p||{}; const st=p.stage||0, dl=p.daily||0, bl=p.blitz||0;
   return {stage:st,daily:dl,blitz:bl,bonus:Math.max(0,(my||0)-st-dl-bl),total:my||0}; }
 function partsHTML(my,p){ const x=partsOf(my,p);
@@ -3613,7 +3631,7 @@ function checkWeek(){
   if(S.week.id===id) return;
   const wb=weekBoard(), pos=wb.findIndex(x=>x.me)+1;
   const pr=online()?PRIZE[Math.min(pos,4)-1]:goalPrize(S.week.my);
-  S.lastWeekXp=S.week.my; S.lastPart=Object.assign({},S.week.part||{});
+  S.lastWeekXp=S.week.my; S.lastPart=Object.assign({},S.week.part||{}); S.lastStages=Object.assign({},S.week.stages||{});
   S.pending={pos,xp:pr.xp,cup:pr.cup,txt:pr.txt,goal:!online(),my:S.week.my,
     board:wb.map(x=>({n:x.emoji+" "+x.name,x:x.xp,me:!!x.me}))};
   S.xp+=pr.xp;
@@ -3621,7 +3639,7 @@ function checkWeek(){
   S.leagues=(S.leagues||0)+1;
   if(online()?pos===1:S.week.my>=WEEK_GOAL) award("league");
   notify("🏁 Haftalik liga yakunlandi! "+pr.txt+" — +"+pr.xp+" XP. Yangi liga dushanbadan.");
-  S.week={id,my:0,riv:{},part:{stage:0,daily:0,blitz:0}}; RIVALS.forEach(r=>S.week.riv[r.id]=0);
+  S.week={id,my:0,riv:{},part:{stage:0,daily:0,blitz:0},stages:{}}; RIVALS.forEach(r=>S.week.riv[r.id]=0);
   persist();
 }
 
@@ -3780,10 +3798,10 @@ function shell(html,tab){
 function mateHTML(){
   const cur=weekId();
   if(S.adminPin&&S.adminRows&&S.adminRows.length){
-    const L=S.adminRows.map(p=>({n:((p.first_name||"")+" "+(p.last_name||"").slice(0,1)+".").trim(),x:p.week_id===cur?p.week_xp:0,me:p.id===S.pid,p:p.week_id===cur?{stage:p.week_stage,daily:p.week_daily,blitz:p.week_blitz}:{}}))
+    const L=S.adminRows.map(p=>({n:((p.first_name||"")+" "+(p.last_name||"").slice(0,1)+".").trim(),x:p.week_id===cur?p.week_xp:0,me:p.id===S.pid,p:p.week_id===cur?{stage:p.week_stage,daily:p.week_daily,blitz:p.week_blitz}:{},d:p.week_id===cur?(p.week_stages||{}):{}}))
       .sort((a,b)=>b.x-a.x);
     return `<h3 style="margin:14px 0 8px">👥 Sheriklar <span style="font-size:13px;opacity:.85">· faqat sizga ko'rinadi</span></h3><div class="lb">${L.map((x,k)=>`<div class="row ${x.me?"me":""}">
-      <span class="pos">${["🥇","🥈","🥉"][k]||k+1}</span><span class="who">${x.me?"🧑":"👤"} ${esc(x.n)}<i class="psub">${x.me?partsLine(S.week.my,S.week.part):partsLine(x.x,x.p)}</i></span><span class="xp">${x.me?S.week.my:x.x} XP</span></div>`).join("")}</div>`;
+      <span class="pos">${["🥇","🥈","🥉"][k]||k+1}</span><span class="who">${x.me?"🧑":"👤"} ${esc(x.n)}<i class="psub">${x.me?partsLine(S.week.my,S.week.part):partsLine(x.x,x.p)}</i><i class="psub">${x.me?stageLine(S.week.stages):stageLine(x.d)}</i></span><span class="xp">${x.me?S.week.my:x.x} XP</span></div>`).join("")}</div>`;
   }
   const M=S.members||[]; if(!M.length) return "";
   return `<h3 style="margin:14px 0 8px">👥 Sheriklar (${M.length})</h3><div class="lb">${M.map(x=>`<div class="row ${x.me?"me":""}">
@@ -3834,6 +3852,7 @@ function leagueCard(){
         <div class="ring-t"><b id="ringn">0</b><i>/ ${WEEK_GOAL} XP</i></div></div>
        <div class="goal-t">${my>=WEEK_GOAL?"Maqsad bajarildi — juma kuni 🏆 +400 XP":"Haftalik maqsadgacha "+(WEEK_GOAL-my)+" XP"}</div></div>
      ${partsHTML(my,S.week.part)}
+     ${daysHTML(S.week.stages)}
      <div class="lg-note">${S.lastWeekXp?`O'tgan hafta: ${S.lastWeekXp} XP — ${my>S.lastWeekXp?"hozir oldindasiz 💪":"hozir orqadasiz"}`:"🔒 Sheriklaringiz natijasi juma 12:00 gacha yashirin"}</div>`}
     ${mateHTML()}
   </section>`;
@@ -3902,8 +3921,8 @@ function scrRating(){
   <section class="card"><h3>Mening natijam</h3>${lbHTML(b)}
     <div class="duo" style="margin-top:12px"><div><div class="n">${S.blitz||0}</div><div class="small">blits rekordi</div></div>
     <div><div class="n">${S.lastWeekXp||0}</div><div class="small">o'tgan hafta XP</div></div></div>
-    <h3 style="margin:14px 0 0">Bu hafta — alohida</h3>${partsHTML(S.week.my,S.week.part)}
-    ${S.lastPart?`<p class="small" style="margin-top:8px">O'tgan hafta: ${partsLine(S.lastWeekXp,S.lastPart)}</p>`:""}</section>
+    <h3 style="margin:14px 0 0">Bu hafta — alohida</h3>${partsHTML(S.week.my,S.week.part)}${daysHTML(S.week.stages)}
+    ${S.lastPart?`<p class="small" style="margin-top:8px">O'tgan hafta: ${partsLine(S.lastWeekXp,S.lastPart)}${stageLine(S.lastStages)?"<br>"+stageLine(S.lastStages):""}</p>`:""}</section>
   <section class="card"><h3>Kuboklar</h3><div class="cups"><span>🏆 ${S.cups[0]}</span><span>🥈 ${S.cups[1]}</span><span>🥉 ${S.cups[2]}</span>
     <span class="small">${S.leagues||0} ta liga o'ynaldi</span></div></section>
   <section class="card"><h3>Liga qoidalari</h3><ul class="rules">
@@ -3921,7 +3940,7 @@ function scrStages(){
       :ss==="future"?"🔒 "+stageDay(i)+" · 09:00–17:00":(sc?"✅ Bajarilgan · yopildi":"⛔ Yopildi · "+stageDay(i));
     return `<li class="stage ${sc?"done":""}"><div class="num">${i+1}</div>
     <button ${ss==="open"?"":"disabled"} data-s="${i}"><h3>${st.icon} ${st.title}</h3>
-    <div class="meta"><span>${lbl}</span><span class="stars">${starStr(sc)}</span></div></button></li>`;}).join("")}</ol>
+    <div class="meta"><span>${lbl}${S.stageXP&&S.stageXP[i]?" · ⚡ "+S.stageXP[i]+" XP":""}</span><span class="stars">${starStr(sc)}</span></div></button></li>`;}).join("")}</ol>
     <section class="card"><h3>Kunlik mashq</h3><p class="small">Ochilgan bosqichlardan 10 ta tasodifiy savol.${isWeekend()?" Dam olish kuni — XP berilmaydi.":""}</p>
     <button class="btn" id="dly">🎯 Boshlash</button></section>
     <p class="small" style="margin-top:12px">📅 Har ish kuni bittadan bosqich: faqat o'z kunida <b>09:00 dan 17:00 gacha</b> ochiq. 17:00 da yopiladi va qayta ochilmaydi.</p>`,"stage");
@@ -4065,7 +4084,7 @@ async function scrAdmin(){
   el.innerHTML=`<p class="small" style="margin:0 0 10px">${rows.length} / 7 ishtirokchi</p>`+rows.map(p=>`<div class="adm"><div>
       <b>${esc((p.first_name||"")+" "+(p.last_name||"")).trim()||"(ismsiz)"}${p.id===S.pid?" · siz":""}</b>
       <i>📞 ${esc(p.phone||"—")} · faol: ${dt(p.last_active)}</i>
-      <i>${p.week_id===cur?partsLine(p.week_xp,{stage:p.week_stage,daily:p.week_daily,blitz:p.week_blitz}):"bu hafta hali natija yo'q"}</i>
+      <i>${p.week_id===cur?partsLine(p.week_xp,{stage:p.week_stage,daily:p.week_daily,blitz:p.week_blitz})+(stageLine(p.week_stages)?"<br>"+stageLine(p.week_stages):""):"bu hafta hali natija yo'q"}</i>
       <i>⚡ bu hafta ${p.week_id===cur?p.week_xp:0} XP · jami ${p.xp} XP · ${p.stages} bosqich · ${p.streak} kun</i></div>
       ${p.id===S.pid?"":`<button class="del" data-id="${p.id}" data-n="${esc(p.first_name||"(ismsiz)")}">O'chirish</button>`}</div>`).join("");
   el.querySelectorAll(".del").forEach(b=>b.onclick=async()=>{
@@ -4366,7 +4385,7 @@ function check(){
 }
 
 function stageClosed(r){
-  run=null; addXP(r.earned,"stage"); persist(); sync();
+  run=null; addXP(r.earned,"stage"); addStageXP(r.si,r.earned); persist(); sync();
   app.innerHTML=`<section class="sheet result"><div style="font-size:60px">⏰</div>
     <h2>Soat 17:00 — bosqich yopildi</h2>
     <div class="stats"><span class="pill">✅ ${r.marks.filter(m=>m==="ok").length} to'g'ri</span><span class="pill">⚡ +${r.earned} XP</span></div>
@@ -4405,6 +4424,7 @@ function finish(passed){
     const stars=r.mistakes===0?3:(r.mistakes<=2?2:1);
     let bonus=r.mode==="stage"?stars*30:70;
     addXP(r.earned+bonus, r.mode==="stage"?"stage":(r.mode==="daily"?"daily":null));
+    if(r.mode==="stage") addStageXP(r.si,r.earned+bonus);
     if(r.mode==="stage"){
       const prev=S.stars[r.si]||0; S.stars[r.si]=Math.max(prev,stars);
       award("first"); if(stars===3)award("perfect");
@@ -4420,7 +4440,7 @@ function finish(passed){
     app.innerHTML=`<section class="sheet result">
       <div class="big-stars">${r.mode==="stage"?starStr(stars):"🎯"}</div>
       <h2>${r.mode==="daily"?"Kunlik mashq bajarildi!":(r.si===STAGES.length-1?"Tekshiruvdan o'tdingiz!":"Bosqich yakunlandi!")}</h2>
-      <div class="stats"><span class="pill">⚡ +${r.earned+bonus+dayBonus} XP</span>
+      <div class="stats"><span class="pill">⚡ +${r.earned+bonus+dayBonus} XP</span>${r.mode==="stage"?`<span class="pill">🗺️ ${r.si+1}-bosqich: ${(S.week.stages||{})[r.si]||0} XP</span>`:""}
         <span class="pill">❌ ${r.mistakes} xato</span><span class="pill">🔥 ${S.streak} kun</span></div>
       ${dayBonus?`<p class="small">Kunlik seriya bonusi: +${dayBonus} XP</p>`:""}
       <div class="card" style="margin:14px 0 0"><h3>Bu hafta</h3>
