@@ -3115,7 +3115,17 @@ const LIGA_START=new Date(2026,8,28);
 const WDN=["Yakshanba","Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
 function stageDate(i){ const d=new Date(LIGA_START); let n=i; while(n>0){ d.setDate(d.getDate()+1); if(d.getDay()>=1&&d.getDay()<=5) n--; } return d; }
 function stageDay(i){ const d=stageDate(i); return WDN[d.getDay()]+", "+String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0"); }
-const unlocked=i=>{ const t=new Date(); t.setHours(0,0,0,0); return stageDate(i)<=t; };
+/* vaqt — Toshkent (UTC+5), telefon mintaqasidan qat'i nazar */
+const OPEN_H=9, CLOSE_H=17;
+function tzNow(){ const t=new Date(Date.now()+5*3600e3); return {day:t.toISOString().slice(0,10), h:t.getUTCHours()+t.getUTCMinutes()/60}; }
+const dkey=d=>d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+/* "future" — hali ochilmagan, "open" — hozir ochiq (o'z kuni 09:00–17:00), "closed" — yopilgan */
+function stageState(i){ const n=tzNow(), k=dkey(stageDate(i));
+  if(k>n.day||(k===n.day&&n.h<OPEN_H)) return "future";
+  if(k===n.day&&n.h<CLOSE_H) return "open";
+  return "closed"; }
+const stageOpen=i=>stageState(i)==="open";
+const unlocked=i=>stageState(i)!=="future";   // savollari kunlik mashq/blits uchun ochilganmi
 const openStages=()=>{ const o=STAGES.map((x,i)=>i).filter(unlocked); return o.length?o:[0]; };
 const starStr=n=>"★".repeat(n)+"☆".repeat(3-n);
 function setDock(h){ if(!h){dock.hidden=true;dock.innerHTML="";} else {dock.hidden=false;dock.innerHTML=h;} }
@@ -3326,6 +3336,7 @@ function scrMain(){
   </div>
   <div class="privacy">🔒 Natijangiz faqat sizga ko'rinadi · 👥 liga jadvali juma 12:00 da hammaga ochiladi</div>
   <section class="card cta"><h3>${wk?"Dam olish kuni — o'zingiz uchun mashq":d.k==="open"?"Bugungi mashqni bajaring":"Davom eting"}</h3>
+    ${!wk?`<p class="small">${todayStageNote()}</p>`:""}
     ${wk?`<p class="small">Shanba va yakshanba bosqichlar yopiq. Kunlik mashq va blits ochiq, lekin ligaga XP qo'shilmaydi — faqat bilim uchun. Keyingi bosqich: ${(()=>{const n=STAGES.findIndex((x,i)=>!unlocked(i));return n<0?"hammasi ochiq":(n+1)+"-bosqich — "+stageDay(n);})()}.</p>`:""}
     <button class="btn" id="go">${cta}</button>
     <div class="acts">
@@ -3367,13 +3378,15 @@ function scrRating(){
 }
 /* ---------- bosqichlar ---------- */
 function scrStages(){
-  shell(`<ol class="path">${STAGES.map((st,i)=>{const sc=S.stars[i]||0,op=unlocked(i);
+  shell(`<ol class="path">${STAGES.map((st,i)=>{const sc=S.stars[i]||0,ss=stageState(i);
+    const lbl=ss==="open"?"🟢 Ochiq — bugun 17:00 gacha · "+st.tasks.length+" vazifa"
+      :ss==="future"?"🔒 "+stageDay(i)+" · 09:00–17:00":(sc?"✅ Bajarilgan · yopildi":"⛔ Yopildi · "+stageDay(i));
     return `<li class="stage ${sc?"done":""}"><div class="num">${i+1}</div>
-    <button ${op&&!isWeekend()?"":"disabled"} data-s="${i}"><h3>${st.icon} ${st.title}</h3>
-    <div class="meta"><span>${op&&!isWeekend()?"📅 "+stageDay(i)+" · "+st.tasks.length+" vazifa":"🔒 "+stageDay(i)}</span><span class="stars">${starStr(sc)}</span></div></button></li>`;}).join("")}</ol>
+    <button ${ss==="open"?"":"disabled"} data-s="${i}"><h3>${st.icon} ${st.title}</h3>
+    <div class="meta"><span>${lbl}</span><span class="stars">${starStr(sc)}</span></div></button></li>`;}).join("")}</ol>
     <section class="card"><h3>Kunlik mashq</h3><p class="small">Ochilgan bosqichlardan 10 ta tasodifiy savol.${isWeekend()?" Dam olish kuni — XP berilmaydi.":""}</p>
     <button class="btn" id="dly">🎯 Boshlash</button></section>
-    <p class="small" style="margin-top:12px">📅 Har ish kuni bittadan yangi bosqich ochiladi. Ochilgan bosqich keyin ham ochiq qoladi.</p>`,"stage");
+    <p class="small" style="margin-top:12px">📅 Har ish kuni bittadan bosqich: faqat o'z kunida <b>09:00 dan 17:00 gacha</b> ochiq. 17:00 da yopiladi va qayta ochilmaydi.</p>`,"stage");
   app.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>intro(+b.dataset.s));
   const dl=document.getElementById("dly"); if(dl) dl.onclick=()=>startDaily(STAGES.map((x,i)=>i).filter(unlocked));
   const pr=document.getElementById("prc"); if(pr) pr.onclick=()=>startPractice(STAGES.map((x,i)=>i).filter(unlocked));
@@ -3419,7 +3432,14 @@ function scrProfile(){
   const c=document.getElementById("cert"); if(c) c.onclick=cert;
 }
 function home(){ sweepDays(); if(!S.user.first) return register(); scrMain(); }
-function nextStage(){ for(let i=0;i<STAGES.length;i++) if(!(S.stars[i])) return unlocked(i)?i:null; return null; }
+function todayStageNote(){
+  const i=STAGES.findIndex((x,k)=>dkey(stageDate(k))===tzNow().day); if(i<0) return "";
+  const ss=stageState(i), t=`${i+1}-bosqich «${STAGES[i].title}»`;
+  if(ss==="future") return `📅 Bugun ${t} soat 09:00 da ochiladi.`;
+  if(ss==="open") return S.stars[i]?`✅ ${t} bajarildi.`:`🟢 ${t} ochiq — soat 17:00 gacha.`;
+  return `⛔ ${t} soat 17:00 da yopildi.`;
+}
+function nextStage(){ for(let i=0;i<STAGES.length;i++) if(stageOpen(i)&&!S.stars[i]) return i; return null; }
 function leagueResult(){
   const d=S.pending; S.pending=null; persist();
   app.innerHTML=`<section class="sheet result">
@@ -3589,7 +3609,9 @@ function cert(){
 let run=null;
 function intro(si){
   if(isWeekend()) return toast(WKMSG);
-  if(!unlocked(si)) return toast(`${si+1}-bosqich ${stageDay(si)} kuni ochiladi`);
+  const ss=stageState(si);
+  if(ss==="future") return toast(`${si+1}-bosqich ${stageDay(si)} soat 09:00 da ochiladi`);
+  if(ss==="closed") return toast(`${si+1}-bosqich yopilgan — faqat o'z kunida 09:00–17:00 ochiq edi`);
   const s=STAGES[si];
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">${si+1}-bosqich</span></div>
   <article class="sheet"><h2>${s.icon} ${s.title}</h2><p class="story">${s.story}</p>
@@ -3685,6 +3707,7 @@ function task(){
     clearInterval(r.tick); r.timedOut=false; r.qEnd=Date.now()+QSEC*1000;
     r.tick=setInterval(()=>{
       if(run!==r||r.answered){ clearInterval(r.tick); return; }
+      if(r.mode==="stage"&&!stageOpen(r.si)){ clearInterval(r.tick); return stageClosed(r); }
       const left=Math.max(0,Math.ceil((r.qEnd-Date.now())/1000));
       const el=document.getElementById("qt"); if(el){ el.textContent="⏱ "+left; el.classList.toggle("low",left<=10); }
       if(left<=0){ clearInterval(r.tick); r.timedOut=true; check(); }
@@ -3747,7 +3770,9 @@ const QSEC=60;                                // har savolga 1 daqiqa
 function btn(on){ setDock(`<button class="btn" id="chk" ${on?"":"disabled"}>Tekshirish</button>`); document.getElementById("chk").onclick=check; }
 
 function check(){
-  const r=run,t=r.queue[r.i]; if(r.answered)return; r.answered=true;
+  const r=run; if(!r) return; const t=r.queue[r.i]; if(r.answered)return;
+  if(r.mode==="stage"&&!stageOpen(r.si)) return stageClosed(r);
+  r.answered=true;
   if(r.mode!=="blitz") clearInterval(r.tick);
   let ok=false,right="";
   const body=document.getElementById("body");
@@ -3801,6 +3826,15 @@ function check(){
   document.getElementById("fb").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 
+function stageClosed(r){
+  run=null; addXP(r.earned); persist(); sync();
+  app.innerHTML=`<section class="sheet result"><div style="font-size:60px">⏰</div>
+    <h2>Soat 17:00 — bosqich yopildi</h2>
+    <div class="stats"><span class="pill">✅ ${r.marks.filter(m=>m==="ok").length} to'g'ri</span><span class="pill">⚡ +${r.earned} XP</span></div>
+    <p class="small">Bosqich faqat o'z kunida 09:00–17:00 ochiq. Topgan XP'ingiz saqlandi. Ertaga soat 09:00 da yangi bosqich ochiladi.</p></section>`;
+  setDock(`<button class="btn" id="h">Asosiy</button>`);
+  document.getElementById("h").onclick=home; window.scrollTo(0,0);
+}
 function finish(passed){
   const r=run; clearInterval(r.tick);
   if(r.mode==="blitz"){
