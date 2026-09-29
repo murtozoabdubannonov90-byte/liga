@@ -254,6 +254,7 @@ h1,h2,h3{margin:0; line-height:1.1; font-family:var(--display); font-weight:800}
 .slot.right{background:var(--ok-bg); box-shadow:0 4px 0 var(--ok)}
 .slot.wrong{background:var(--bad-bg); box-shadow:0 4px 0 var(--bad)}
 .accs{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+.accs .acc{text-align:center;font-size:20px;padding:14px 8px}
 .acc{text-align:left; background:var(--bg); border:0; border-radius:14px; padding:9px 11px; font-size:13.5px; line-height:1.25; font-weight:600; box-shadow:0 4px 0 var(--line)}
 .acc:active{transform:translateY(3px); box-shadow:0 1px 0 var(--line)}
 .acc code{display:block; font-family:var(--display); font-size:20px; color:var(--ink)}
@@ -4313,7 +4314,7 @@ function task(){
   }
   const body=document.getElementById("body");
   if(t.t==="mc"){
-    let opts=t.o.map((x,k)=>({x,c:k===t.a}));
+    let opts=t.o.map((x,k)=>({x:/^\d{4} /.test(x)?x.slice(0,4):x,c:k===t.a}));   // variantlarda faqat raqam
     if(t.o.every(o=>/^\d{4}$/.test(o))){           // faqat hisobvaraq raqamlari bo'lsa — yana 2 ta chalg'ituvchi
       const pool=Object.keys(A).filter(c=>!t.o.includes(c));
       shuffle(pool).slice(0,2).forEach(c=>opts.push({x:c,c:false}));
@@ -4331,11 +4332,11 @@ function task(){
     const opts=shuffle(pv);
     body.innerHTML=`<div class="ledger"><div class="h">Debet</div><div class="h">Kredit</div>
       <button class="slot" data-side="dt"></button><button class="slot" data-side="kt"></button></div>
-      <div class="accs">${opts.map(c=>`<button class="acc" data-c="${c}"><code>${c}</code>${A[c]}</button>`).join("")}</div>`;
+      <div class="accs">${opts.map(c=>`<button class="acc" data-c="${c}"><code>${c}</code></button>`).join("")}</div>`;
     const draw=()=>{
       body.querySelectorAll(".slot").forEach(s=>{ const v=r.slots[s.dataset.side];
         s.classList.toggle("active",!r.answered&&r.active===s.dataset.side);
-        s.innerHTML=v?`<span class="hw">${v}</span><span>${A[v]}</span>`:`<span>${r.active===s.dataset.side?"Hisobvaraqni tanlang":"Bo'sh"}</span>`; });
+        s.innerHTML=v?`<span class="hw">${v}</span>${r.answered?`<span>${A[v]}</span>`:""}`:`<span>${r.active===s.dataset.side?"Hisobvaraqni tanlang":"Bo'sh"}</span>`; });
       body.querySelectorAll(".acc").forEach(a=>a.classList.toggle("used",a.dataset.c===r.slots.dt||a.dataset.c===r.slots.kt));
       btn(!!(r.slots.dt&&r.slots.kt));
     };
@@ -4372,7 +4373,7 @@ function check(){
   if(t.t==="pv"){ ok=r.slots.dt===t.dt&&r.slots.kt===t.kt;
     body.querySelectorAll(".slot").forEach(s=>{const side=s.dataset.side; s.classList.remove("active");
       s.classList.add(r.slots[side]===t[side]?"right":"wrong");});
-    right=`To'g'ri provodka: <b style="display:inline">Dt ${t.dt} — Kt ${t.kt}</b><br>`; }
+    right=`To'g'ri provodka: <b style="display:inline">Dt ${t.dt} — Kt ${t.kt}</b><br><span class="small">${t.dt} — ${A[t.dt]}<br>${t.kt} — ${A[t.kt]}</span><br>`; }
   if(t.t==="calc"){ const raw=document.getElementById("num").value.replace(/\D/g,""); ok=raw!==""&&+raw===t.a;
     document.getElementById("num").disabled=true;
     right=`To'g'ri javob: <b style="display:inline">${fmt(t.a)} ${t.unit||"so'm"}</b><br>`; }
