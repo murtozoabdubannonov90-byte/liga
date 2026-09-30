@@ -3507,10 +3507,10 @@ const ACH=[
  {id:"all",i:"🎓",n:"Bosh buxgalter",d:"Barcha 8 bosqich"},
  {id:"league",i:"🏆",n:"Liga g'olibi",d:"Haftalik ligada 1-o'rin"}];
 
-/* ---------------- server (7 kishilik liga) ---------------- */
+/* ---------------- server (8 kishilik liga) ---------------- */
 const SUPA_URL="https://bopzjxboembvcqycfwin.supabase.co";
 const DEFAULT_KEY="sb_publishable_DWSUYhML5IH5cOksXdlCDA_SNt6c9Dm";
-const MAXP=7;
+const MAXP=8;
 let players=[];
 let syncing=false, lastPull=0;
 function sHead(){ return {apikey:S.key,Authorization:"Bearer "+S.key,"Content-Type":"application/json"}; }
@@ -3526,7 +3526,7 @@ async function joinServer(){
     S.pid=id; persist(); await pushMe();
     return {ok:true,msg:had===id?"Hisobingiz tiklandi":"Ligaga qo'shildingiz"};
   }catch(e){ const m=String(e.message||e);
-    return {ok:false,msg:/safari_full/.test(m)?"Joylar to'ldi (7/7)":"Serverga ulanmadi",detail:m.slice(0,200)}; }
+    return {ok:false,msg:/safari_full/.test(m)?"Joylar to'ldi (8/8)":"Serverga ulanmadi",detail:m.slice(0,200)}; }
 }
 async function pushMe(){
   if(!S.key||!S.pid) return;
@@ -3985,7 +3985,7 @@ function scrProfile(){
   <section class="card"><h3>Yutuqlar (${S.ach.length}/${ACH.length})</h3>
     <div class="badges">${ACH.map(a=>`<div class="badge ${S.ach.includes(a.id)?"":"off"}" title="${a.n}: ${a.d}">${a.i}</div>`).join("")}</div></section>
   <section class="card"><h3>Liga ulanishi</h3>
-    <div class="small">${S.key?(S.pid?`✅ Ulangan · ishtirokchilar: ${S.pcount||1}/7`:"⚠️ Kalit bor, lekin ro'yxatga qo'shilmagan"):"❌ Serverga ulanmagan — hozircha yolg'iz o'ynayapsiz"}</div>
+    <div class="small">${S.key?(S.pid?`✅ Ulangan · ishtirokchilar: ${S.pcount||1}/8`:"⚠️ Kalit bor, lekin ro'yxatga qo'shilmagan"):"❌ Serverga ulanmagan — hozircha yolg'iz o'ynayapsiz"}</div>
     <button class="btn ghost" id="srv">🔗 Ligaga ulanish</button></section>
   <section class="card"><h3>Sozlamalar</h3>
     <button class="btn ghost" id="inst">📲 Telefonga o'rnatish</button>
@@ -4025,17 +4025,17 @@ function leagueResult(){
 function scrServer(){
   setDock(null);
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Liga ulanishi</span></div>
-  <section class="sheet set"><h2>🔗 7 kishilik liga</h2>
+  <section class="sheet set"><h2>🔗 8 kishilik liga</h2>
   <p class="story">Ishtirokchilar bitta umumiy jadvalda bo'lishi uchun server kaliti kerak. Kalit bir marta kiritiladi.</p>
   <label for="k">Server kaliti (anon / publishable key)</label>
   <input id="k" type="text" placeholder="sb_publishable_... yoki eyJ..." value="${(S.key||"").slice(0,12)?(S.key||""):""}">
   <p class="small">Supabase → Project Settings → API Keys → publishable (anon) key.</p>
   <p class="small" id="st"></p>
-  <div class="shop"><div><b>Ishtirokchilar</b><i id="cnt">${S.pcount||1} / 7</i></div>
+  <div class="shop"><div><b>Ishtirokchilar</b><i id="cnt">${S.pcount||1} / 8</i></div>
     <button class="buy" id="ref">Yangilash</button></div>
   <div class="shop"><div><b>Diagnostika</b><i>Ulanishni tekshirish va xatoni ko'rsatish</i></div>
     <button class="buy" id="diag">Tekshirish</button></div>
-  <p class="small">Sizdan tashqari 6 kishi qo'shila oladi. Ular ham shu ilovani o'rnatib, ro'yxatdan o'tadi — kalit ilova ichida tayyor turadi.</p>
+  <p class="small">Sizdan tashqari 7 kishi qo'shila oladi. Ular ham shu ilovani o'rnatib, ro'yxatdan o'tadi — kalit ilova ichida tayyor turadi.</p>
   </section>`;
   app.querySelector(".back").onclick=scrProfile;
   const st=document.getElementById("st");
@@ -4046,18 +4046,18 @@ function scrServer(){
     st.textContent="Ulanmoqda...";
     const r=await joinServer();
     st.innerHTML=(r.ok?"✅ ":"❌ ")+r.msg+(r.detail?`<br><span style="font-size:12px">${r.detail}</span>`:"");
-    if(r.ok){ toast(r.msg); await pullPlayers(true); document.getElementById("cnt").textContent=(S.pcount||1)+" / 7"; }
+    if(r.ok){ toast(r.msg); await pullPlayers(true); document.getElementById("cnt").textContent=(S.pcount||1)+" / 8"; }
   };
   document.getElementById("diag").onclick=async()=>{
     st.textContent="Tekshirilmoqda...";
     try{
       const r=await fetch(SUPA_URL+"/rest/v1/rpc/liga_count",{method:"POST",headers:sHead(),body:"{}"});
       const t=await r.text();
-      st.innerHTML=r.ok?`✅ Server javob berdi. Ishtirokchilar: ${t.slice(0,6)} / 7`
+      st.innerHTML=r.ok?`✅ Server javob berdi. Ishtirokchilar: ${t.slice(0,6)} / 8`
         :`❌ Xato ${r.status}: <span style="font-size:12px">${t.slice(0,160).replace(/</g,"&lt;")}</span>`;
     }catch(e){ st.innerHTML=`❌ Ulanib bo'lmadi: <span style="font-size:12px">${String(e.message).slice(0,160)}</span>`; }
   };
-  document.getElementById("ref").onclick=async()=>{ await pullPlayers(true); document.getElementById("cnt").textContent=(S.pcount||1)+" / 7"; toast("Yangilandi"); };
+  document.getElementById("ref").onclick=async()=>{ await pullPlayers(true); document.getElementById("cnt").textContent=(S.pcount||1)+" / 8"; toast("Yangilandi"); };
   window.scrollTo(0,0);
 }
 /* ---------------- admin ---------------- */
@@ -4093,7 +4093,7 @@ async function scrAdmin(){
   const cur=weekId(), dt=v=>v?new Date(v).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"—";
   rows.sort((a,b)=>((b.week_id===cur?b.week_xp:0)-(a.week_id===cur?a.week_xp:0))||(b.xp-a.xp));
   const el=document.getElementById("al");
-  el.innerHTML=`<p class="small" style="margin:0 0 10px">${rows.length} / 7 ishtirokchi</p>`+rows.map(p=>`<div class="adm"><div>
+  el.innerHTML=`<p class="small" style="margin:0 0 10px">${rows.length} / 8 ishtirokchi</p>`+rows.map(p=>`<div class="adm"><div>
       <b>${esc((p.first_name||"")+" "+(p.last_name||"")).trim()||"(ismsiz)"}${p.id===S.pid?" · siz":""}</b>
       <i>📞 ${esc(p.phone||"—")} · faol: ${dt(p.last_active)}</i>
       <i>${p.week_id===cur?partsLine(p.week_xp,{stage:p.week_stage,daily:p.week_daily,blitz:p.week_blitz,bonus:p.week_bonus})+(stageLine(p.week_stages)?"<br>"+stageLine(p.week_stages):""):"bu hafta hali natija yo'q"}</i>
