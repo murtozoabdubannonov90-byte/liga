@@ -115,7 +115,21 @@ body::after{content:""; position:fixed; inset:auto -20% -25% -20%; height:55vh; 
 .stats2{display:grid;gap:7px}.statrow{display:grid;grid-template-columns:1fr 70px 42px;gap:8px;align-items:center;font-size:13.5px;font-weight:600}
 .statrow i{height:9px;border-radius:6px;background:linear-gradient(90deg,var(--lime) var(--w),var(--bg) var(--w))}.statrow b{text-align:right;color:var(--ink)}
 .champ{display:grid;gap:3px;padding:9px 11px;border-radius:14px;background:var(--bg);margin-bottom:8px;font-weight:700;font-size:14.5px}.champ .me{color:var(--violet)}
-@media print{.bar,#dock,.nav{display:none!important} body{background:#fff} .cert{box-shadow:none}}
+@media print{.bar,#dock,.nav,.noprint{display:none!important} body{background:#fff} .cert{box-shadow:none} .rep{box-shadow:none;padding:0}}
+.set textarea{min-height:84px;resize:vertical;font-size:15px}
+.task,.task *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.wm{position:absolute;inset:-30%;pointer-events:none;opacity:.07;font-weight:800;font-size:13px;line-height:2.3;transform:rotate(-20deg);word-break:break-all;color:var(--ink);z-index:0}
+.task>*:not(.wm):not(.stamp){position:relative;z-index:1}
+.fair{background:var(--bg);border-radius:14px;padding:10px 12px;font-size:13.5px;font-weight:600;margin-top:10px}
+.wq{border:2px solid var(--violet)} .wq .q{margin:8px 0 12px}
+.card.fin{background:linear-gradient(140deg,#2a1f6b,#5b3cc4 60%,#a04cd6)!important;color:#fff} .card.fin>.small,.card.fin h3,.card.fin>.small b{color:#fff}
+.topics{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:10px} .topics .act{font-size:13px}
+.rep table{width:100%;border-collapse:collapse;font-size:12px;margin-top:10px} .rep th,.rep td{border:1px solid var(--line);padding:5px 6px;text-align:left;vertical-align:top}
+.rep th{background:var(--bg);font-size:11px} .rep td.n{text-align:right;white-space:nowrap} .rep .sum{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.rep .sum div{background:var(--bg);border-radius:12px;padding:8px;text-align:center;font-size:12px} .rep .sum b{display:block;font-family:var(--display);font-size:18px}
+.repwrap{overflow-x:auto}
+@page rep{size:A4 landscape;margin:10mm} .rep{page:rep}
+.wqo{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;margin-top:8px} .wqo b{font-family:var(--display)}
 .adm{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--bg);border-radius:16px;padding:10px 12px;margin-bottom:8px}
 .adm b{display:block;font-family:var(--display);font-size:16px}.adm i{font-style:normal;font-size:12.5px;color:var(--muted);font-weight:600;display:block;line-height:1.35}
 .del{border:0;border-radius:12px;padding:8px 12px;font-weight:800;color:#fff;background:var(--bad)}
@@ -294,7 +308,7 @@ h1,h2,h3{margin:0; line-height:1.1; font-family:var(--display); font-weight:800}
 .cert h2{font-size:36px; color:var(--ink)}
 .cert .nm{font-family:var(--display); font-size:34px; color:var(--coral); display:inline-block; padding:0 14px; border-bottom:3px solid var(--line)}
 .set label{display:block; margin:14px 0 5px; font-weight:700}
-.set input[type=time],.set input[type=text],.set input[type=number],.set input[type=password]{width:100%; padding:12px; font-size:17px; font-family:inherit; font-weight:700; border:0; border-radius:14px; background:var(--bg); color:var(--text); box-shadow:0 4px 0 var(--line)}
+.set input[type=time],.set input[type=text],.set input[type=number],.set input[type=password],.set input[type=tel],.set select,.set textarea{width:100%; padding:12px; font-size:17px; font-family:inherit; font-weight:700; border:0; border-radius:14px; background:var(--bg); color:var(--text); box-shadow:0 4px 0 var(--line)}
 @media (prefers-reduced-motion:reduce){.stamp,.toast,.coin,.hero h1 span{animation:none}.coin{display:none}.btn:active,.opt:active,.acc:active,.stage button:active{transform:none}}
 @media (max-width:380px){.hero h1{font-size:38px}.accs{grid-template-columns:1fr}}
 </style>
@@ -3432,6 +3446,170 @@ const RANKS=[[0,"Stajyor"],[200,"Kichik hisobchi"],[500,"Hisobchi"],[900,"Bosh h
 const RIVALS=[];   // jonli sheriklar qo'shilganda shu yerga tushadi
 const TASKMAP={};
 STAGES.forEach((st,si)=>st.tasks.forEach((t,k)=>{ t.id=si+"-"+k; TASKMAP[t.id]=t; }));
+/* ---------------- yo'nalishlar: mavzular bo'yicha savollar bazasi ----------------
+   Savollar barqaror (bir xil urug' — har safar bir xil savollar), stavkalar savol matnida aytiladi. */
+function srng(seed){ let a=seed>>>0; return ()=>{ a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function hstr(s){ let h=2166136261; for(const c of String(s)){ h^=c.charCodeAt(0); h=Math.imul(h,16777619); } return h>>>0; }
+const TOPICS=(function(){
+  const ri=(R,a,b)=>a+Math.floor(R()*(b-a+1)), pick=(R,a)=>a[Math.floor(R()*a.length)], N=n=>fmt(n);
+  const AK=Object.keys(A);
+  const pv=(R,q,dt,kt,e)=>{ const o=[dt,kt]; while(o.length<4){ const c=pick(R,AK); if(!o.includes(c)) o.push(c); } return {t:"pv",q,dt,kt,o,e}; };
+  const calc=(q,a,e)=>({t:"calc",q,a:Math.round(a),e});
+  const mc=(q,o,e)=>({t:"mc",q,o,a:0,e});            // to'g'ri javob — birinchi variant (ekranda aralashtiriladi)
+  const M=(R,a,b)=>ri(R,a,b)*1000000, K=(R,a,b)=>ri(R,a,b)*100000;
+  const T={
+  qqs:{icon:"🧾",title:"QQS",n:40,tpl:[
+    R=>{const x=K(R,5,400),a=x*12/100; return calc(`Tovarning QQSsiz qiymati ${N(x)} so'm. QQS stavkasi 12%. QQS summasi qancha?`,a,`${N(x)} × 12% = ${N(a)} so'm.`);},
+    R=>{const x=K(R,5,300),y=x*112/100,a=x*12/100; return calc(`Hisobvaraq-fakturada jami summa (QQS bilan) ${N(y)} so'm, QQS 12%. Fakturadagi QQS summasi?`,a,`QQS = jami × 12 ÷ 112 = ${N(y)} × 12 ÷ 112 = ${N(a)} so'm.`);},
+    R=>{const o=M(R,20,150),i=M(R,5,o/1e6-5); return calc(`Oy davomida sotishdan hisoblangan QQS ${N(o)} so'm, hisobga olinadigan kirim QQS ${N(i)} so'm. Budjetga to'lanadigan QQS?`,o-i,`To'lanadigan QQS = hisoblangan − kirim QQS = ${N(o)} − ${N(i)} = ${N(o-i)} so'm.`);},
+    R=>{const x=K(R,5,300),a=x*112/100; return calc(`Xizmat qiymati QQSsiz ${N(x)} so'm, QQS 12%. Xaridor to'laydigan jami summa?`,a,`${N(x)} + 12% = ${N(x)} × 1,12 = ${N(a)} so'm.`);},
+    R=>{const e=M(R,50,500),d=M(R,20,300),a=d*12/100; return calc(`Oyda eksport ${N(e)} so'm (0% stavka) va ichki bozorda sotish ${N(d)} so'm (QQSsiz, stavka 12%). Hisoblangan QQS jami?`,a,`Eksportga 0%, faqat ichki sotuvga 12%: ${N(d)} × 12% = ${N(a)} so'm.`);},
+    R=>{const s=ri(R,10,50)*10000000,p=pick(R,[50,60,75,80]),t=s*p/100,f=s-t,i=M(R,5,40),a=i*p/100;
+      return calc(`Oyda QQS solinadigan sotish ${N(t)} so'm, QQSdan ozod sotish ${N(f)} so'm. Kirim QQS ${N(i)} so'm. Masala sharti: kirim QQS sotish ulushiga mutanosib hisobga olinadi. Hisobga olinadigan kirim QQS?`,a,`Ulush = ${N(t)} ÷ ${N(s)} = ${p}%. ${N(i)} × ${p}% = ${N(a)} so'm.`);},
+    R=>pv(R,`Yetkazib beruvchi fakturasidagi kirim QQS — ${N(K(R,2,90))} so'm — aks ettirildi.`,"4410","6010","Kirim QQS budjetga bo'nak sifatida (Dt 4410), yetkazib beruvchiga qarz shu summaga oshadi (Kt 6010)."),
+    R=>pv(R,`Xaridorga sotilgan tovar bo'yicha ${N(K(R,2,90))} so'm QQS hisoblandi.`,"4010","6410","Xaridor QQSni ham to'laydi (Dt 4010), budjetga qarz paydo bo'ladi (Kt 6410)."),
+    R=>pv(R,`Oy yakunida ${N(K(R,2,90))} so'm kirim QQS budjetga qarzdan chegirildi.`,"6410","4410","Budjetga qarz kamayadi (Dt 6410), kirim QQS bo'nagi yopiladi (Kt 4410)."),
+    R=>pv(R,`QQS bo'yicha ${N(K(R,5,150))} so'm qarz bank orqali budjetga to'landi.`,"6410","5110","Budjetga qarz kamayadi (Dt 6410), bank hisobi kamayadi (Kt 5110).")]},
+  ish:{icon:"💼",title:"Ish haqi",n:40,tpl:[
+    R=>{const x=K(R,30,200),a=x*88/100; return calc(`Xodimga ${N(x)} so'm ish haqi hisoblandi. JShDS 12% ushlanadi. Qo'lga beriladigan summa?`,a,`${N(x)} − 12% = ${N(x)} × 0,88 = ${N(a)} so'm.`);},
+    R=>{const x=M(R,20,500),a=x*12/100; return calc(`Oylik ish haqi fondi ${N(x)} so'm. Ijtimoiy soliq 12%. Ijtimoiy soliq summasi?`,a,`${N(x)} × 12% = ${N(a)} so'm. Ijtimoiy soliq xodimdan ushlanmaydi — firma o'zi to'laydi.`);},
+    R=>{const x=K(R,30,150),p=pick(R,[10,20,25,30,40,50]),a=x+x*p/100; return calc(`Xodimning okladi ${N(x)} so'm, mukofot okladning ${p}%. Jami hisoblangan ish haqi?`,a,`${N(x)} + ${p}% (${N(x*p/100)}) = ${N(a)} so'm.`);},
+    R=>{const x=22*ri(R,15,90)*10000,d=ri(R,8,21),a=x/22*d; return calc(`Okladi ${N(x)} so'm, oyda 22 ish kuni. Xodim ${d} kun ishladi. Hisoblangan ish haqi?`,a,`${N(x)} ÷ 22 × ${d} = ${N(a)} so'm.`);},
+    R=>{const x=K(R,40,200),z=K(R,2,10),a=x*88/100-z; return calc(`Ish haqi ${N(x)} so'm, JShDS 12%, ijro varaqasi bo'yicha ushlanma ${N(z)} so'm. Qo'lga beriladigan summa?`,a,`${N(x)} − ${N(x*12/100)} (JShDS) − ${N(z)} = ${N(a)} so'm.`);},
+    R=>{const d=ri(R,150,900)*1000,n=pick(R,[15,21,24,30]),a=d*n; return calc(`Xodimning o'rtacha kunlik ish haqi ${N(d)} so'm. Ta'til ${n} kalendar kun. Ta'til puli?`,a,`${N(d)} × ${n} = ${N(a)} so'm.`);},
+    R=>{const x=M(R,20,400),a=x*112/100; return calc(`Ish haqi fondi ${N(x)} so'm. Ijtimoiy soliq 12% bilan firmaning ish haqi bo'yicha jami xarajati?`,a,`${N(x)} + 12% = ${N(a)} so'm.`);},
+    R=>pv(R,`Ishlab chiqarish ishchilariga ${N(K(R,50,900))} so'm ish haqi hisoblandi.`,"2010","6710","Ishchilar ish haqi mahsulot tannarxiga kiradi (Dt 2010), xodimlarga qarz (Kt 6710)."),
+    R=>pv(R,`Ma'muriyat xodimlariga ${N(K(R,50,900))} so'm ish haqi hisoblandi.`,"9420","6710","Ma'muriyat ish haqi — davr xarajati (Dt 9420), xodimlarga qarz (Kt 6710)."),
+    R=>pv(R,`Sotish bo'limi xodimlariga ${N(K(R,50,900))} so'm ish haqi hisoblandi.`,"9410","6710","Sotish bo'limi ish haqi — sotish xarajati (Dt 9410), xodimlarga qarz (Kt 6710)."),
+    R=>pv(R,`Ish haqidan ${N(K(R,5,90))} so'm JShDS ushlandi.`,"6710","6410","Xodimga qarz kamayadi (Dt 6710), budjetga qarz oshadi (Kt 6410)."),
+    R=>pv(R,`${N(K(R,30,900))} so'm ish haqi xodimlarning bank kartalariga o'tkazildi.`,"6710","5110","Xodimlarga qarz yopiladi (Dt 6710), bank hisobi kamayadi (Kt 5110)."),
+    R=>pv(R,`Kassadan ${N(K(R,10,90))} so'm ish haqi naqd berildi.`,"6710","5010","Xodimlarga qarz yopiladi (Dt 6710), kassa kamayadi (Kt 5010)."),
+    R=>pv(R,`Xodim yetkazgan ${N(K(R,1,20))} so'm moddiy zarar uning ish haqidan ushlandi.`,"6710","4730","Ish haqi qarzi kamayadi (Dt 6710), xodimning moddiy zarar qarzi yopiladi (Kt 4730).")]},
+  av:{icon:"🏭",title:"Asosiy vositalar",n:40,tpl:[
+    R=>{const n=pick(R,[4,5,8,10]),l=M(R,0,5),x=l+n*M(R,2,40),a=(x-l)/n; return calc(`Uskunaning boshlang'ich qiymati ${N(x)} so'm, tugatish qiymati ${N(l)} so'm, foydali xizmat muddati ${n} yil. To'g'ri chiziqli usulda YILLIK amortizatsiya?`,a,`(${N(x)} − ${N(l)}) ÷ ${n} = ${N(a)} so'm.`);},
+    R=>{const n=pick(R,[2,3,4,5]),l=K(R,0,20),x=l+n*12*K(R,1,30),a=(x-l)/(n*12); return calc(`Kompyuter qiymati ${N(x)} so'm, tugatish qiymati ${N(l)} so'm, xizmat muddati ${n} yil. To'g'ri chiziqli usulda OYLIK amortizatsiya?`,a,`(${N(x)} − ${N(l)}) ÷ (${n} × 12) = ${N(a)} so'm.`);},
+    R=>{const x=M(R,50,500),y=M(R,5,x/1e6-10); return calc(`Bino boshlang'ich qiymati ${N(x)} so'm, to'plangan eskirish ${N(y)} so'm. Qoldiq (balans) qiymati?`,x-y,`${N(x)} − ${N(y)} = ${N(x-y)} so'm.`);},
+    R=>{const b=M(R,10,200),s=b+M(R,1,50); return calc(`Qoldiq qiymati ${N(b)} so'm bo'lgan uskuna ${N(s)} so'mga (QQSsiz) sotildi. Chiqib ketishdan foyda?`,s-b,`Sotish qiymati − qoldiq qiymat = ${N(s)} − ${N(b)} = ${N(s-b)} so'm.`);},
+    R=>{const n=pick(R,[4,5,8,10]),k=ri(R,5,50),x=n*k*1e6,a=x*2/n; return calc(`Avtomobil qiymati ${N(x)} so'm, xizmat muddati ${n} yil, tugatish qiymati 0. Ikki baravar kamayuvchi qoldiq usulida 1-YIL amortizatsiyasi?`,a,`Stavka = 2 ÷ ${n} = ${Math.round(200/n)}%. ${N(x)} × 2 ÷ ${n} = ${N(a)} so'm.`);},
+    R=>{const u=pick(R,[10000,20000,50000,100000]),k=ri(R,50,500),x=u*k,v=ri(R,1000,u/2); return calc(`Stanok qiymati ${N(x)} so'm, butun xizmat davrida ${N(u)} dona mahsulot chiqaradi. Bu yil ${N(v)} dona chiqardi. Ishlab chiqarish hajmi usulida amortizatsiya?`,k*v,`1 donaga: ${N(x)} ÷ ${N(u)} = ${k} so'm. ${k} × ${N(v)} = ${N(k*v)} so'm.`);},
+    R=>{const p=M(R,20,300),t=K(R,5,50),m=K(R,5,80); return calc(`Uskuna narxi ${N(p)} so'm (QQSsiz), yetkazib berish ${N(t)} so'm, o'rnatish va sozlash ${N(m)} so'm. Kirim QQS hisobga olinadi. Boshlang'ich qiymat?`,p+t+m,`Foydalanishga tayyorlashgacha bo'lgan barcha xarajatlar: ${N(p)} + ${N(t)} + ${N(m)} = ${N(p+t+m)} so'm.`);},
+    R=>pv(R,`Yetkazib beruvchidan ${N(M(R,10,300))} so'mlik uskuna olindi (QQSsiz).`,"0820","6010","Hali foydalanishga topshirilmagan uskuna — kapital qo'yilma (Dt 0820), yetkazib beruvchiga qarz (Kt 6010)."),
+    R=>pv(R,`${N(M(R,10,300))} so'mlik uskuna foydalanishga topshirildi.`,"0130","0820","Asosiy vosita tan olinadi (Dt 0130), kapital qo'yilma yopiladi (Kt 0820)."),
+    R=>pv(R,`Sex uskunasiga ${N(K(R,5,90))} so'm amortizatsiya hisoblandi.`,"2010","0230","Sex uskunasi eskirishi mahsulot tannarxiga (Dt 2010), to'plangan eskirish oshadi (Kt 0230)."),
+    R=>pv(R,`Ofis kompyuterlariga ${N(K(R,2,40))} so'm amortizatsiya hisoblandi.`,"9420","0230","Ofis jihozlari eskirishi — ma'muriy xarajat (Dt 9420), to'plangan eskirish (Kt 0230)."),
+    R=>pv(R,`Chiqib ketgan uskunaning ${N(M(R,5,90))} so'm to'plangan eskirishi hisobdan chiqarildi.`,"0230","0130","Eskirish yopiladi (Dt 0230), asosiy vosita qiymati kamayadi (Kt 0130)."),
+    R=>pv(R,`Chiqib ketgan uskunaning ${N(M(R,5,90))} so'm qoldiq qiymati hisobdan chiqarildi.`,"9210","0130","Qoldiq qiymat chiqib ketish hisobvarag'iga (Dt 9210), asosiy vosita kamayadi (Kt 0130).")]},
+  tmz:{icon:"📦",title:"Zaxiralar",n:40,tpl:[
+    R=>{const a=ri(R,10,50),p1=ri(R,10,50)*1000,b=ri(R,10,60),p2=p1+ri(R,1,10)*1000,c=ri(R,a+1,a+b),v=a*p1+(c-a)*p2;
+      return calc(`Oy boshida ${a} dona × ${N(p1)} so'm qoldiq, keyin ${b} dona × ${N(p2)} so'mdan kirim. ${c} dona chiqim qilindi. FIFO usulida chiqim tannarxi?`,v,`Avval eski partiya: ${a} × ${N(p1)} = ${N(a*p1)}; qolgani ${c-a} × ${N(p2)} = ${N((c-a)*p2)}. Jami ${N(v)} so'm.`);},
+    R=>{const a=ri(R,10,40),m=ri(R,10,60)*1000,d=ri(R,1,9)*1000,c=ri(R,5,2*a),v=c*m;
+      return calc(`Qoldiq ${a} dona × ${N(m-d)} so'm, kirim ${a} dona × ${N(m+d)} so'm. ${c} dona chiqim. O'rtacha tortilgan tannarx usulida chiqim summasi?`,v,`O'rtacha narx = (${N(a*(m-d))} + ${N(a*(m+d))}) ÷ ${2*a} = ${N(m)}. ${c} × ${N(m)} = ${N(v)} so'm.`);},
+    R=>{const p=M(R,10,200),t=K(R,2,40),b=K(R,2,60); return calc(`Material narxi ${N(p)} so'm (QQSsiz), transport ${N(t)} so'm, bojxona to'lovlari ${N(b)} so'm. Kirim QQS hisobga olinadi. Materialning haqiqiy tannarxi?`,p+t+b,`Xarid bilan bog'liq barcha xarajatlar: ${N(p)} + ${N(t)} + ${N(b)} = ${N(p+t+b)} so'm.`);},
+    R=>{const q1=ri(R,100,500),q2=q1-ri(R,3,30),p=ri(R,5,90)*1000; return calc(`Inventarizatsiya: hisob bo'yicha ${q1} dona, haqiqatda ${q2} dona. 1 dona tannarxi ${N(p)} so'm. Kamomad summasi?`,(q1-q2)*p,`(${q1} − ${q2}) × ${N(p)} = ${N((q1-q2)*p)} so'm.`);},
+    R=>{const s=M(R,10,90),k=M(R,20,150),c=M(R,10,(s+k)/1e6-5); return calc(`1010: oy boshi qoldig'i ${N(s)} so'm, oyda kirim ${N(k)} so'm, ishlab chiqarishga berildi ${N(c)} so'm. Oy oxiri qoldig'i?`,s+k-c,`Aktiv hisobvaraq: ${N(s)} + ${N(k)} − ${N(c)} = ${N(s+k-c)} so'm.`);},
+    R=>{const x=M(R,20,200),y=x-M(R,1,15); return calc(`Tovar tannarxi ${N(x)} so'm, sof sotish qiymati ${N(y)} so'm. MHXS (IAS 2) bo'yicha qadrsizlanish summasi?`,x-y,`Zaxira tannarx va sof sotish qiymatining kichigida baholanadi: ${N(x)} − ${N(y)} = ${N(x-y)} so'm.`);},
+    R=>pv(R,`Yetkazib beruvchidan ${N(M(R,2,90))} so'mlik materiallar kirim qilindi.`,"1010","6010","Materiallar ko'paydi (Dt 1010), yetkazib beruvchiga qarz (Kt 6010)."),
+    R=>pv(R,`${N(M(R,2,90))} so'mlik materiallar asosiy ishlab chiqarishga berildi.`,"2010","1010","Ishlab chiqarish xarajati (Dt 2010), ombordagi material kamayadi (Kt 1010)."),
+    R=>pv(R,`Ofis ehtiyojlari uchun ${N(K(R,2,40))} so'mlik kanselyariya hisobdan chiqarildi.`,"9420","1010","Ofis ehtiyoji — ma'muriy xarajat (Dt 9420), material kamayadi (Kt 1010)."),
+    R=>pv(R,`Inventarizatsiyada ${N(K(R,2,40))} so'mlik materiallar kamomadi aniqlandi.`,"5910","1010","Kamomad avval 5910 ga yig'iladi (Dt 5910), material kamayadi (Kt 1010)."),
+    R=>pv(R,`${N(K(R,2,40))} so'mlik kamomad aybdor xodim zimmasiga yuklandi.`,"4730","5910","Xodim qarzi (Dt 4730), kamomad hisobvarag'i yopiladi (Kt 5910)."),
+    R=>pv(R,`Sotish uchun ${N(M(R,5,150))} so'mlik tovarlar kirim qilindi.`,"2910","6010","Tovarlar ko'paydi (Dt 2910), yetkazib beruvchiga qarz (Kt 6010)."),
+    R=>pv(R,`Sotilgan tovarlarning ${N(M(R,5,150))} so'm tannarxi hisobdan chiqarildi.`,"9120","2910","Sotilgan tovar tannarxi (Dt 9120), ombordagi tovar kamayadi (Kt 2910)."),
+    R=>pv(R,`Ishlab chiqarishdan ${N(M(R,5,150))} so'mlik tayyor mahsulot omborga kirim qilindi.`,"2810","2010","Tayyor mahsulot (Dt 2810), ishlab chiqarish xarajati yopiladi (Kt 2010)."),
+    R=>pv(R,`Inventarizatsiyada ${N(K(R,2,40))} so'mlik materiallar ortiqchasi aniqlandi.`,"1010","9390","Ortiqcha material kirim qilinadi (Dt 1010) — boshqa operatsion daromad (Kt 9390).")]},
+  sol:{icon:"🏛️",title:"Soliqlar",n:40,tpl:[
+    R=>{const x=K(R,50,5000),a=x*15/100; return calc(`Soliq solinadigan foyda ${N(x)} so'm, foyda solig'i stavkasi 15%. Foyda solig'i?`,a,`${N(x)} × 15% = ${N(a)} so'm.`);},
+    R=>{const x=M(R,20,500),y=M(R,1,40),a=(x+y)*15/100; return calc(`Buxgalteriya foydasi ${N(x)} so'm, chegirilmaydigan xarajatlar ${N(y)} so'm. Foyda solig'i 15%. Soliq summasi?`,a,`Soliq bazasi = ${N(x)} + ${N(y)} = ${N(x+y)}. × 15% = ${N(a)} so'm.`);},
+    R=>{const x=K(R,20,900),a=x*4/100; return calc(`Aylanmadan olinadigan soliq stavkasi 4%. Oylik tushum ${N(x)} so'm. Soliq summasi?`,a,`${N(x)} × 4% = ${N(a)} so'm.`);},
+    R=>{const x=M(R,5,300),a=x*95/100; return calc(`Jismoniy shaxs ta'sischiga ${N(x)} so'm dividend hisoblandi, 5% soliq ushlanadi. Ta'sischiga to'lanadigan summa?`,a,`${N(x)} − 5% = ${N(a)} so'm.`);},
+    R=>{const x=K(R,5,200),d=ri(R,5,60),a=x*33/100000*d; return calc(`Soliq qarzi ${N(x)} so'm, ${d} kun kechiktirildi. Masala sharti: penya kuniga 0,033%. Penya summasi?`,a,`${N(x)} × 0,033% × ${d} = ${N(a)} so'm.`);},
+    R=>{const x=M(R,100,2000),r=pick(R,[1,1.5,2]),a=x*r/100; return calc(`Mol-mulkning o'rtacha yillik qiymati ${N(x)} so'm. Masala sharti: stavka ${String(r).replace(".",",")}%. Yillik mol-mulk solig'i?`,a,`${N(x)} × ${String(r).replace(".",",")}% = ${N(a)} so'm.`);},
+    R=>pv(R,`Yil yakunida ${N(M(R,2,90))} so'm foyda solig'i hisoblandi.`,"9810","6410","Foyda solig'i xarajati (Dt 9810), budjetga qarz (Kt 6410)."),
+    R=>pv(R,`Budjetga ${N(M(R,2,90))} so'm soliq bank orqali to'landi.`,"6410","5110","Budjetga qarz yopiladi (Dt 6410), bank hisobi kamayadi (Kt 5110)."),
+    R=>pv(R,`Ta'sischilarga ${N(M(R,5,200))} so'm dividend e'lon qilindi.`,"8710","6610","Taqsimlanmagan foyda kamayadi (Dt 8710), dividend qarzi paydo bo'ladi (Kt 6610)."),
+    R=>pv(R,`Dividenddan ${N(K(R,5,90))} so'm soliq ushlandi.`,"6610","6410","Ta'sischiga qarz kamayadi (Dt 6610), budjetga qarz oshadi (Kt 6410)."),
+    R=>pv(R,`Ta'sischilarga ${N(M(R,5,200))} so'm dividend bank orqali to'landi.`,"6610","5110","Dividend qarzi yopiladi (Dt 6610), bank kamayadi (Kt 5110).")]},
+  mhxs:{icon:"🌐",title:"MHXS",n:0,tpl:[
+    R=>{const b=M(R,50,300),f=b-M(R,5,40),v=b-M(R,5,40),q=Math.max(f,v); return calc(`MHXS (IAS) 36: aktivning balans qiymati ${N(b)} so'm, sotish xarajatlari chegirilgan adolatli qiymati ${N(f)} so'm, foydalanish qiymati ${N(v)} so'm. Qadrsizlanish zarari?`,b-q,`Qoplanadigan qiymat — ikkisining KATTASI: ${N(q)}. Zarar = ${N(b)} − ${N(q)} = ${N(b-q)} so'm.`);},
+    R=>{const s=ri(R,1,50)*100000,e=ri(R,50,900); return calc(`MHXS (IAS) 33: sof foyda ${N(s*e)} so'm, oddiy aksiyalarning o'rtacha tortilgan soni ${N(s)} dona. Bir aksiyaga foyda (EPS), so'm?`,e,`EPS = ${N(s*e)} ÷ ${N(s)} = ${N(e)} so'm.`);}],
+   fixed:[
+    mc("MHXS (IAS) 2 bo'yicha zaxiralarni baholashda qaysi usul TAQIQLANGAN?",["LIFO","FIFO","O'rtacha tortilgan tannarx","Alohida identifikatsiya"],"IAS 2 LIFO usulini taqiqlaydi."),
+    mc("IAS 2: zaxiralar balansda qanday baholanadi?",["Tannarx va sof sotish qiymatining kichigida","Faqat bozor narxida","Tannarx va sof sotish qiymatining kattasida","Sotish narxida"],"Zaxiralar tannarx va sof sotish qiymatining eng kichigida baholanadi."),
+    mc("IFRS 15 bo'yicha tushumni tan olish modeli necha bosqichdan iborat?",["5 bosqich","3 bosqich","4 bosqich","7 bosqich"],"Shartnoma → majburiyatlar → narx → taqsimlash → tan olish: 5 bosqich."),
+    mc("IFRS 15: tushum qachon tan olinadi?",["Tovar yoki xizmat ustidan nazorat xaridorga o'tganda","Pul olinganda","Shartnoma imzolanganda","Faktura yozilganda"],"Asosiy mezon — nazoratning xaridorga o'tishi."),
+    mc("IFRS 16: ijarachi (lessee) balansida asosan nima tan olinadi?",["Foydalanish huquqi aktivi va ijara majburiyati","Faqat ijara xarajati","Faqat izohda oshkor qilinadi","Ijaraga beruvchining aktivi"],"Ijarachi «right-of-use» aktivi va ijara majburiyatini tan oladi."),
+    mc("IFRS 16: 12 oygacha bo'lgan qisqa muddatli ijarani ijarachi qanday hisobga olishi mumkin?",["Soddalashtirish: to'lovlarni xarajat sifatida","Majburiy ravishda aktiv sifatida","Kapitalga olib boriladi","Hisobga olinmaydi"],"Qisqa muddatli va kam qiymatli ijaraga soddalashtirish ruxsat etilgan."),
+    mc("IAS 7: pul oqimlari qaysi uch faoliyat bo'yicha ko'rsatiladi?",["Operatsion, investitsion, moliyaviy","Sotish, xarid, soliq","Asosiy, yordamchi, boshqa","Kassa, bank, valyuta"],"Pul oqimlari hisoboti 3 bo'limdan iborat."),
+    mc("IAS 7: asosiy vosita sotib olishga to'langan pul qaysi faoliyatga kiradi?",["Investitsion","Operatsion","Moliyaviy","Hech qaysi"],"Uzoq muddatli aktiv xaridi — investitsion faoliyat."),
+    mc("IAS 7: bank kreditini olish qaysi faoliyatga kiradi?",["Moliyaviy","Investitsion","Operatsion","Hech qaysi"],"Qarz olish va qaytarish — moliyaviy faoliyat."),
+    mc("IAS 16: asosiy vosita dastlab qanday baholanadi?",["Tannarx bo'yicha","Adolatli qiymat bo'yicha","Sotish narxi bo'yicha","Qoldiq qiymat bo'yicha"],"Dastlabki tan olish — tannarx bo'yicha."),
+    mc("IAS 16: dastlabki tan olingandan keyin qaysi baholash modellari mumkin?",["Tannarx modeli yoki qayta baholash modeli","Faqat adolatli qiymat","Faqat LIFO","Faqat bozor narxi"],"Firma hisob siyosatida ikki modeldan birini tanlaydi."),
+    mc("IAS 16: amortizatsiya qachon boshlanadi?",["Aktiv foydalanishga tayyor bo'lganda","Yil boshidan","To'lov qilinganda","Birinchi ta'mirdan keyin"],"Aktiv mo'ljallangan foydalanishga tayyor bo'lgan paytdan."),
+    mc("IAS 16: yer uchastkasi odatda amortizatsiya qilinadimi?",["Yo'q — xizmat muddati cheklanmagan","Ha, 20 yilda","Ha, 5 yilda","Faqat qayta baholansa"],"Yerning foydali xizmat muddati odatda cheklanmagan."),
+    mc("IAS 36: qoplanadigan qiymat qanday aniqlanadi?",["Sotish xarajatlari chegirilgan adolatli qiymat va foydalanish qiymatining kattasi","Ikkisining kichigi","Faqat bozor narxi","Boshlang'ich qiymat"],"Recoverable amount = max(FVLCD, VIU)."),
+    mc("IAS 38: ichki yaratilgan gudvil qanday hisobga olinadi?",["Aktiv sifatida tan olinmaydi","Nomoddiy aktiv sifatida","Kapitalga qo'shiladi","Daromad sifatida"],"Ichki yaratilgan gudvil tan olinmaydi."),
+    mc("IAS 38: tadqiqot (research) bosqichi xarajatlari qanday hisobga olinadi?",["Davr xarajati sifatida","Nomoddiy aktiv sifatida","Kapitalga","Zaxira sifatida"],"Tadqiqot xarajati darhol xarajatga; ishlanma — shartlar bajarilsa aktiv."),
+    mc("IAS 37: zahira (provision) qachon tan olinadi?",["Joriy majburiyat bor, resurs chiqishi ehtimoli yuqori va summa ishonchli baholanadi","Har qanday kelajakdagi xarajat uchun","Faqat sud qarori bo'lsa","Hech qachon"],"Uchala shart birga bajarilishi kerak."),
+    mc("IAS 37: shartli majburiyat qanday aks ettiriladi?",["Tan olinmaydi, izohda oshkor qilinadi","Balansda majburiyat sifatida","Xarajat sifatida","Kapitaldan chegiriladi"],"Shartli majburiyat faqat izohda."),
+    mc("IAS 10: hisobot sanasidan keyin yirik debitorning bankrot bo'lgani ma'lum bo'ldi (holat sanagacha mavjud edi). Bu qanday hodisa?",["Tuzatuvchi hodisa","Tuzatilmaydigan hodisa","Shartli aktiv","Hisob siyosati o'zgarishi"],"Hisobot sanasida mavjud holatni tasdiqlaydi — hisobot tuzatiladi."),
+    mc("IAS 8: hisob siyosatidagi o'zgarish qanday qo'llaniladi?",["Retrospektiv (o'tgan davrlarga ham)","Faqat kelajakka","Qo'llanilmaydi","Faqat joriy oyga"],"Siyosat o'zgarishi — retrospektiv."),
+    mc("IAS 8: hisob baholaridagi o'zgarish (masalan, xizmat muddati) qanday qo'llaniladi?",["Prospektiv (joriy va keyingi davrlarga)","Retrospektiv","Kapitalga to'g'ridan-to'g'ri","Hech qanday"],"Baho o'zgarishi — prospektiv."),
+    mc("IAS 1: moliyaviy hisobotlarning to'liq to'plamiga nima KIRMAYDI?",["Soliq deklaratsiyasi","Pul oqimlari hisoboti","Kapitaldagi o'zgarishlar hisoboti","Izohlar"],"Soliq deklaratsiyasi MHXS hisobotiga kirmaydi."),
+    mc("IAS 21: funksional valyuta nima?",["Firma faoliyat yuritadigan asosiy iqtisodiy muhit valyutasi","Har doim AQSh dollari","Ta'sischilar valyutasi","Eng barqaror valyuta"],"Asosiy iqtisodiy muhit valyutasi."),
+    mc("IAS 21: valyutadagi monetar moddalar (pul, debitorlar) hisobot sanasida qaysi kurs bo'yicha qayta hisoblanadi?",["Yakuniy (hisobot sanasidagi) kurs","Tarixiy kurs","O'rtacha yillik kurs","Qayta hisoblanmaydi"],"Monetar moddalar — yakuniy kurs bo'yicha."),
+    mc("IAS 12: kechiktirilgan soliq nimadan yuzaga keladi?",["Buxgalteriya va soliq bazasi o'rtasidagi vaqtinchalik farqlardan","Jarimalardan","Dividendlardan","Faqat zararlardan"],"Vaqtinchalik farqlar kechiktirilgan soliq aktivi/majburiyatini beradi."),
+    mc("IFRS 9: moliyaviy aktivlar qadrsizlanishi qaysi model bo'yicha?",["Kutilayotgan kredit zararlari (ECL)","Yuz bergan zararlar","LIFO","Bozor narxi"],"IFRS 9 — kutilayotgan kredit zararlari modeli."),
+    mc("Konseptual asos: moliyaviy axborotning ikki fundamental sifat xususiyati?",["Ahamiyatlilik va haqqoniy aks ettirish","Tezlik va arzonlik","Qisqalik va chiroylilik","Soliq va daromad"],"Relevance va faithful representation."),
+    mc("Hisobot tuzishda «uzluksizlik» (going concern) tamoyili nimani anglatadi?",["Firma yaqin kelajakda faoliyatini davom ettiradi deb faraz qilinadi","Firma har yili yopiladi","Hisobot uzluksiz yoziladi","Soliq to'xtovsiz to'lanadi"],"Faoliyat davom etadi degan faraz."),
+    mc("IAS 40: investitsion mulk nima?",["Ijara daromadi yoki qiymat oshishi uchun ushlab turiladigan ko'chmas mulk","Ofis binosi","Sotish uchun tovar","Ishlab chiqarish sexi"],"O'z faoliyatida ishlatilmaydigan, ijara/qiymat o'sishi uchun mulk."),
+    mc("IFRS 13: adolatli qiymat — bu ...",["Bozor ishtirokchilari o'rtasida aktivni sotishda olinadigan narx","Xarid narxi","Balans qiymati","Soliq qiymati"],"Exit price — sotishda olinadigan narx."),
+    mc("IAS 23: malakali aktivga bevosita tegishli qarz xarajatlari (foizlar) qanday hisobga olinadi?",["Aktiv tannarxiga kapitallashtiriladi","Doim xarajatga","Kapitaldan chegiriladi","Hisobga olinmaydi"],"Malakali aktiv uchun foizlar kapitallashtiriladi."),
+    mc("IAS 20: davlat subsidiyasi qachon tan olinadi?",["Shartlar bajarilishi va subsidiya olinishiga ishonch bo'lganda","Ariza berilganda","Faqat yil oxirida","Hech qachon"],"Ishonchli asos bo'lganda, tizimli ravishda daromadga."),
+    mc("IFRS 5: sotish uchun ushlab turiladigan uzoq muddatli aktivga nima bo'ladi?",["Amortizatsiya to'xtatiladi","Amortizatsiya ikki baravar oshadi","Aktiv hisobdan chiqariladi","Qayta baholanmaydi va o'zgarmaydi"],"Balans qiymati va FVLCD kichigida baholanadi, amortizatsiya to'xtaydi."),
+    mc("IAS 24: bog'liq tomonlar bilan operatsiyalar qanday aks ettiriladi?",["Izohlarda oshkor qilinadi","Yashiriladi","Faqat soliq organiga beriladi","Hisobotdan chiqariladi"],"Bog'liq tomonlar va operatsiyalar oshkor qilinadi."),
+    mc("IAS 19: qisqa muddatli xodim nafaqalari (ish haqi, ta'til) qachon xarajatga olinadi?",["Xodim xizmat ko'rsatgan davrda","To'langan kuni","Yil oxirida","Xodim ishdan ketganda"],"Hisoblash tamoyili — xizmat ko'rsatilgan davrda.")]},
+  pro:{icon:"🧮",title:"Provodka",n:45,tpl:[
+    R=>pv(R,`Bankdan kassaga ${N(K(R,5,90))} so'm naqd olindi.`,"5010","5110","Kassa ko'payadi (Dt 5010), bank kamayadi (Kt 5110)."),
+    R=>pv(R,`Kassadagi ${N(K(R,5,90))} so'm naqd bankka topshirildi.`,"5110","5010","Bank ko'payadi (Dt 5110), kassa kamayadi (Kt 5010)."),
+    R=>pv(R,`Xaridordan ${N(M(R,2,90))} so'm qarz bankka tushdi.`,"5110","4010","Bank ko'payadi (Dt 5110), debitorlik kamayadi (Kt 4010)."),
+    R=>pv(R,`Yetkazib beruvchiga ${N(M(R,2,90))} so'm qarz bankdan to'landi.`,"6010","5110","Qarz kamayadi (Dt 6010), bank kamayadi (Kt 5110)."),
+    R=>pv(R,`Yetkazib beruvchiga ${N(M(R,2,90))} so'm oldindan to'lov (bo'nak) o'tkazildi.`,"4310","5110","Berilgan bo'nak — debitorlik (Dt 4310), bank kamayadi (Kt 5110)."),
+    R=>pv(R,`Tovar kelgach, yetkazib beruvchiga berilgan ${N(M(R,2,90))} so'm bo'nak hisobga olindi.`,"6010","4310","Qarz bo'nak hisobidan yopiladi (Dt 6010), bo'nak yopiladi (Kt 4310)."),
+    R=>pv(R,`Xaridordan ${N(M(R,2,90))} so'm oldindan to'lov (bo'nak) bankka tushdi.`,"5110","6310","Bank ko'payadi (Dt 5110), olingan bo'nak — majburiyat (Kt 6310)."),
+    R=>pv(R,`Tovar jo'natilgach, xaridordan olingan ${N(M(R,2,90))} so'm bo'nak hisobga olindi.`,"6310","4010","Bo'nak majburiyati yopiladi (Dt 6310), xaridor qarzi yopiladi (Kt 4010)."),
+    R=>pv(R,`Tayyor mahsulot ${N(M(R,5,200))} so'mga xaridorga sotildi (daromad).`,"4010","9010","Xaridor qarzi (Dt 4010), mahsulot sotishdan daromad (Kt 9010)."),
+    R=>pv(R,`Sotilgan tayyor mahsulotning ${N(M(R,5,150))} so'm tannarxi hisobdan chiqarildi.`,"9110","2810","Tannarx (Dt 9110), ombordagi mahsulot kamayadi (Kt 2810)."),
+    R=>pv(R,`Tovarlar ${N(M(R,5,200))} so'mga xaridorga sotildi (daromad).`,"4010","9020","Xaridor qarzi (Dt 4010), tovar sotishdan daromad (Kt 9020)."),
+    R=>pv(R,`Mijozga ${N(M(R,1,90))} so'mlik xizmat ko'rsatildi (akt imzolandi).`,"4010","9030","Xaridor qarzi (Dt 4010), xizmatdan daromad (Kt 9030)."),
+    R=>pv(R,`Xodimga xizmat safari uchun kassadan ${N(K(R,5,50))} so'm bo'nak berildi.`,"4220","5010","Hisobdor shaxs qarzi (Dt 4220), kassa kamayadi (Kt 5010)."),
+    R=>pv(R,`Bo'nak hisoboti tasdiqlandi: ${N(K(R,5,50))} so'm safar xarajati ma'muriy xarajatga olindi.`,"9420","4220","Ma'muriy xarajat (Dt 9420), hisobdor qarzi yopiladi (Kt 4220)."),
+    R=>pv(R,`Bankdan 6 oyga ${N(M(R,20,500))} so'm kredit olindi.`,"5110","6810","Bank ko'payadi (Dt 5110), qisqa muddatli kredit (Kt 6810)."),
+    R=>pv(R,`Bankdan 3 yilga ${N(M(R,50,900))} so'm kredit olindi.`,"5110","7810","Bank ko'payadi (Dt 5110), uzoq muddatli kredit (Kt 7810)."),
+    R=>pv(R,`Qisqa muddatli kredit ${N(M(R,20,500))} so'm qaytarildi.`,"6810","5110","Kredit qarzi kamayadi (Dt 6810), bank kamayadi (Kt 5110)."),
+    R=>pv(R,`Kredit bo'yicha ${N(K(R,5,90))} so'm foiz hisoblandi.`,"9610","6920","Foiz xarajati (Dt 9610), hisoblangan foiz majburiyati (Kt 6920)."),
+    R=>pv(R,`Hisoblangan ${N(K(R,5,90))} so'm foiz bankka to'landi.`,"6920","5110","Foiz qarzi yopiladi (Dt 6920), bank kamayadi (Kt 5110)."),
+    R=>pv(R,`Ta'sis hujjatlarida ${N(M(R,10,500))} so'm ustav kapital ro'yxatdan o'tkazildi.`,"4610","8330","Ta'sischilar qarzi (Dt 4610), ustav kapital (Kt 8330)."),
+    R=>pv(R,`Ta'sischi ustav kapitalga ${N(M(R,10,500))} so'm pul kiritdi.`,"5110","4610","Bank ko'payadi (Dt 5110), ta'sischi qarzi yopiladi (Kt 4610)."),
+    R=>pv(R,`Valyuta hisobidagi qoldiq qayta baholandi: kurs oshgani uchun ${N(K(R,2,90))} so'm farq.`,"5210","9540","Valyuta hisobi ko'payadi (Dt 5210), kurs farqidan daromad (Kt 9540)."),
+    R=>pv(R,`Valyuta hisobidagi qoldiq qayta baholandi: kurs tushgani uchun ${N(K(R,2,90))} so'm farq.`,"9620","5210","Kurs farqidan zarar (Dt 9620), valyuta hisobi kamayadi (Kt 5210)."),
+    R=>pv(R,`Oy yakunida mahsulot sotishdan ${N(M(R,50,900))} so'm daromad yakuniy natijaga yopildi.`,"9010","9910","Daromad hisobvarag'i yopiladi (Dt 9010), yakuniy natijaga (Kt 9910)."),
+    R=>pv(R,`Oy yakunida sotilgan mahsulot tannarxi ${N(M(R,30,600))} so'm yakuniy natijaga yopildi.`,"9910","9110","Xarajat yakuniy natijaga (Dt 9910), tannarx hisobvarag'i yopiladi (Kt 9110)."),
+    R=>pv(R,`Yil yakunida ${N(M(R,10,500))} so'm sof foyda taqsimlanmagan foydaga o'tkazildi.`,"9910","8710","Yakuniy natija yopiladi (Dt 9910), taqsimlanmagan foyda (Kt 8710)."),
+    R=>pv(R,`Yetkazib beruvchidan ${N(M(R,5,150))} so'mlik tovar olindi (QQSsiz).`,"2910","6010","Tovar (Dt 2910), yetkazib beruvchiga qarz (Kt 6010)."),
+    R=>pv(R,`Budjetga ${N(M(R,2,90))} so'm soliq qarzi to'landi.`,"6410","5110","Budjetga qarz yopiladi (Dt 6410), bank kamayadi (Kt 5110).")]}
+  };
+  const out=[];
+  Object.keys(T).forEach((id,ti)=>{ const tp=T[id], R=srng(hstr("liga-"+id)), seen=new Set(), list=[];
+    (tp.fixed||[]).forEach(q=>{ seen.add(q.q); list.push(q); });
+    const n=tp.n||(list.length+tp.tpl.length*6);
+    for(let k=0;list.length<n&&k<n*6;k++){ const q=tp.tpl[k%tp.tpl.length](R); if(seen.has(q.q)) continue; seen.add(q.q); list.push(q); }
+    list.forEach((q,k)=>{ q.id="T"+id+"-"+k; q.tp=id; TASKMAP[q.id]=q; });
+    out.push({id,icon:tp.icon,title:tp.title,tasks:list}); });
+  return out;
+})();
+const TOPIC_ALL=()=>TOPICS.reduce((a,t)=>a.concat(t.tasks),[]);
+const QBASE=()=>STAGES.reduce((n,s)=>n+s.tasks.length,0)+TOPIC_ALL().length;
+
 const WEEK_GOAL=600;   // haftalik maqsad (XP)
 const ACH=[
  {id:"first",i:"🎓",n:"Birinchi bosqich",d:"Bitta bosqichni yakunlash"},
@@ -3456,7 +3634,14 @@ const APP_LINK="https://murtozoabdubannonov90-byte.github.io/liga/";
 function urlGroup(){ try{ const q=new URLSearchParams(location.search).get("g");
   const tp=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe&&Telegram.WebApp.initDataUnsafe.start_param;
   const v=q||(tp&&/^g_/.test(tp)?tp.slice(2):""); return v?String(v).toUpperCase().replace(/[^A-Z0-9]/g,""):""; }catch(e){ return ""; } }
-const JERR={group_not_found:"Bunday jamoa kodi topilmadi",group_inactive:"Jamoa obunasi tugagan — administratorga murojaat qiling",safari_full:"Jamoada joy qolmagan"};
+const JERR={group_not_found:"Bunday jamoa kodi topilmadi yoki to'xtatilgan",group_inactive:"Jamoa obunasi tugagan — administratorga murojaat qiling",safari_full:"Jamoada joy qolmagan",
+  phone_taken:"Bu raqam boshqa telefonda ro'yxatdan o'tgan. Jamoa administratori «Qurilmani almashtirish» tugmasini bossin — keyin qayta ulaning",
+  bad_input:"Ma'lumotlarni tekshiring",too_many:"Juda ko'p noto'g'ri urinish — 10 daqiqadan keyin qayta urinib ko'ring",
+  final_closed:"Final yopiq — faqat oyning oxirgi shanbasi 10:00–13:00",not_qualified:"Siz bu oy finalga saralanmagansiz",not_winner:"Taklif faqat o'tgan hafta g'olibi uchun"};
+function errMsg(e){ const m=String(e&&e.message||e); const k=Object.keys(JERR).find(x=>m.indexOf(x)>=0); return k?JERR[k]:"Serverga ulanmadi"; }
+const REGIONS=["Qoraqalpog'iston Respublikasi","Andijon viloyati","Buxoro viloyati","Farg'ona viloyati","Jizzax viloyati","Xorazm viloyati","Namangan viloyati",
+  "Navoiy viloyati","Qashqadaryo viloyati","Samarqand viloyati","Sirdaryo viloyati","Surxondaryo viloyati","Toshkent viloyati","Toshkent shahri"];
+const regSel=(id,v)=>`<select id="${id}"><option value="">— tanlang —</option>${REGIONS.map(r=>`<option ${r===v?"selected":""}>${r}</option>`).join("")}</select>`;
 let players=[];
 let syncing=false, lastPull=0;
 function sHead(){ return {apikey:S.key,Authorization:"Bearer "+S.key,"Content-Type":"application/json"}; }
@@ -3464,26 +3649,29 @@ async function rpc(fn,args){
   const r=await fetch(SUPA_URL+"/rest/v1/rpc/"+fn,{method:"POST",headers:sHead(),body:JSON.stringify(args||{})});
   const t=await r.text(); if(!r.ok) throw new Error(t); return t?JSON.parse(t):null;
 }
-async function joinServer(){
+/* Himoya: har o'yinchining maxfiy kaliti faqat o'z telefonida. Natijani faqat kalit egasi yoza oladi. */
+async function joinServer(force){
   if(!S.key) return {ok:false,msg:"Server kaliti kiritilmagan"};
   try{
-    const had=S.pid;
-    const id=await rpc("liga_join",{p_first:S.user.first,p_last:S.user.last,p_phone:S.user.phone,p_group:(S.group&&S.group.code)||"ASOSIY"});
-    S.pid=id; persist(); await pushMe();
-    return {ok:true,msg:had===id?"Hisobingiz tiklandi":"Ligaga qo'shildingiz"};
-  }catch(e){ const m=String(e.message||e);
-    const k=Object.keys(JERR).find(x=>m.indexOf(x)>=0);
-    return {ok:false,msg:k?JERR[k]:"Serverga ulanmadi",detail:m.slice(0,200)}; }
+    if(S.pid&&!S.token&&!S.tokenLost&&!force){        // yangilanishdan oldingi o'yinchi — kalitni bir marta oladi
+      try{ S.token=await rpc("liga_claim",{p_id:S.pid}); S.joinErr=""; persist(); await pushMe(); return {ok:true,msg:"Hisobingiz himoyalandi 🔒"}; }
+      catch(e){ if(!/already_claimed/.test(String(e.message))) throw e; }
+    }
+    const r=(await rpc("liga_join2",{p_first:S.user.first,p_last:S.user.last,p_phone:S.user.phone,p_group:(S.group&&S.group.code)||"ASOSIY",p_region:S.user.region||null}))[0];
+    const had=S.pid; S.pid=r.id; S.token=r.token; S.tokenLost=false; S.joinErr=""; persist(); await pushMe();
+    return {ok:true,msg:had===r.id?"Hisobingiz tiklandi":"Ligaga qo'shildingiz"};
+  }catch(e){ const m=String(e.message||e), msg=errMsg(e); if(/phone_taken|group_not_found/.test(m)){ S.joinErr=msg; persist(); }
+    return {ok:false,msg,detail:m.slice(0,200)}; }
 }
+/* aniqlik: kunlik bosqich javoblari (rahbar hisoboti uchun) */
+function accStats(){ let ok=0, n=0; Object.keys(S.sa||{}).forEach(k=>Object.values(S.sa[k].m||{}).forEach(v=>{ n++; if(v==="ok") ok++; })); return {ok,n}; }
 async function pushMe(){
-  if(!S.key||!S.pid) return;
-  const base={p_id:S.pid,p_xp:S.xp,p_week_xp:S.week.my,p_week_id:S.week.id,
-    p_stages:Object.keys(S.stars).length,p_streak:S.streak,p_first:S.user.first,p_last:S.user.last};
-  const pt=S.week.part||{};
-  const b2=Object.assign({p_week_stage:pt.stage||0,p_week_daily:pt.daily||0,p_week_blitz:pt.blitz||0},base);
-  try{ await rpc("liga_push4",Object.assign({p_week_stages:S.week.stages||{},p_week_bonus:pt.bonus||0},b2)); }
-  catch(e0){ try{ await rpc("liga_push3",Object.assign({p_week_stages:S.week.stages||{}},b2)); }
-  catch(e){ try{ await rpc("liga_push2",b2); }catch(e1){ try{ await rpc("liga_push",base); }catch(e2){} } } }
+  if(!S.key||!S.pid||!S.token) return;
+  const pt=S.week.part||{}, ac=accStats();
+  try{ await rpc("liga_save",{p_id:S.pid,p_token:S.token,p_xp:S.xp,p_stages:Object.keys(S.stars).length,p_streak:S.streak,
+      p_first:S.user.first,p_last:S.user.last,p_week_daily:pt.daily||0,p_week_blitz:pt.blitz||0,p_week_bonus:pt.bonus||0,
+      p_week_stages:S.week.stages||{},p_region:S.user.region||null,p_acc_ok:ac.ok,p_acc_total:ac.n}); }
+  catch(e){ if(/bad_token/.test(String(e.message))){ S.token=""; S.tokenLost=true; persist(); } }
 }
 /* boshqalarning natijasi faqat juma 12:00 dan keyin — tugagan hafta jadvali */
 async function pullPlayers(force){
@@ -3496,10 +3684,13 @@ async function pullPlayers(force){
     const mem=await rpc("liga_members",{p_id:S.pid||null}); S.members=(mem||[]).map(x=>({n:x.name,me:x.is_me,m:x.medal||0}));
     if(S.pid){ try{ const gi=await rpc("liga_group_info",{p_id:S.pid});
       if(gi&&gi[0]) S.group={code:gi[0].code,name:gi[0].name,until:gi[0].paid_until,ok:gi[0].ok,members:gi[0].members,start:gi[0].start_date}; }catch(e){}
-      try{ S.champs=(await rpc("liga_champions",{p_id:S.pid}))||[]; }catch(e){} }
+      try{ S.champs=(await rpc("liga_champions",{p_id:S.pid}))||[]; }catch(e){}
+      try{ const w=await rpc("liga_wq_state",{p_id:S.pid}); S.wq=(w&&w[0])||null; }catch(e){}
+      try{ const f=await rpc("liga_final_info",{p_id:S.pid}); S.fin=(f&&f[0])||null; }catch(e){}
+      try{ S.regL=(await rpc("liga_region_league",{p_id:S.pid}))||[]; }catch(e){} }
     if(S.adminPin){ try{ S.adminRows=await rpc("liga_admin_list",{p_pin:S.adminPin}); }catch(e){ S.adminRows=null; } }
     persist();
-    if(S.user&&S.user.first&&!run){ if(TAB==="main") scrMain(); else if(TAB==="rate") scrRating(); } }catch(e){}
+    if(S.user&&S.user.first&&S.user.region&&!run){ if(TAB==="main") scrMain(); else if(TAB==="rate") scrRating(); } }catch(e){}
 }
 let _syncT=null; function syncSoon(){ clearTimeout(_syncT); _syncT=setTimeout(sync,2500); }
 async function sync(){ if(syncing)return; syncing=true; await pushMe(); await pullPlayers(true); syncing=false; }
@@ -3794,10 +3985,12 @@ function register(){
     <label for="f">Ism</label><input id="f" type="text" placeholder="Ismingiz" autocomplete="given-name">
     <label for="l">Familiya</label><input id="l" type="text" placeholder="Familiyangiz" autocomplete="family-name">
     <label for="p">Telefon raqam</label><input id="p" type="tel" inputmode="tel" placeholder="+998 90 123 45 67" autocomplete="tel">
+    <label for="rg">Viloyat</label>${regSel("rg",S.user.region||"")}
     <label for="g">Jamoa kodi <span class="small">(administrator bergan; bo'lmasa bo'sh qoldiring)</span></label>
     <input id="g" type="text" autocapitalize="characters" placeholder="masalan: BX12AB" value="${urlGroup()}">
     <p class="small" id="gname" style="min-height:18px"></p>
     <p class="small" id="err" style="color:var(--bad); min-height:22px"></p>
+    <div class="fair">🔒 Ma'lumotlaringiz himoyalangan: telefon raqamingiz faqat jamoa administratoriga ko'rinadi, natijangizni faqat shu telefon yoza oladi.</div>
   </section>`;
   setDock(`<button class="btn" id="go">Ro'yxatdan o'tish</button>`);
   const gi=document.getElementById("g"), gn=document.getElementById("gname");
@@ -3817,17 +4010,38 @@ function register(){
     if(/^9\d{8}$/.test(p)) p="+998"+p;
     if(/^998\d{9}$/.test(p)) p="+"+p;
     if(!/^\+998\d{9}$/.test(p)) return err.textContent="Telefon raqam: +998 XX XXX XX XX";
+    const rg=document.getElementById("rg").value; if(!rg) return err.textContent="Viloyatni tanlang";
     const g=await checkG(); if(g===false) return err.textContent="Jamoa kodini tekshiring yoki bo'sh qoldiring";
     S.group=g||{code:"ASOSIY"};
-    S.user={first:f,last:l,phone:p}; S.name=f; persist();
+    S.user={first:f,last:l,phone:p,region:rg}; S.name=f; persist();
     toast("Xush kelibsiz, "+f+"!"); coins(); scrMain();
     if(S.key) joinServer().then(r=>{ toast(r.msg); pullPlayers(true); });
   };
   window.scrollTo(0,0);
 }
+/* eski o'yinchilar uchun — viloyatni bir marta so'rash */
+function askRegion(back){
+  TAB="reg"; setDock(null);
+  app.innerHTML=`<section class="sheet set reg"><div class="reglogo">📍</div><h2>Viloyatingiz</h2>
+    <p class="small">Viloyat ligasi uchun tanlang: jamoangizning eng yaxshi 3 nafari viloyatdagi boshqa jamoalar bilan bellashadi.</p>
+    <label for="rg">Viloyat</label>${regSel("rg",S.user.region||"")}
+    <p class="small" id="err" style="color:var(--bad);min-height:22px"></p></section>`;
+  setDock(`<button class="btn" id="go">Saqlash</button>`);
+  document.getElementById("go").onclick=()=>{ const v=document.getElementById("rg").value;
+    if(!v) return document.getElementById("err").textContent="Viloyatni tanlang";
+    S.user.region=v; persist(); syncSoon(); toast("Saqlandi ✓"); back?back():scrMain(); };
+  window.scrollTo(0,0);
+}
 /* jamoa obunasi tugagan bo'lsa — bosqichlar yopiq */
 function groupBlocked(){ return S.group&&S.group.ok===false; }
-function groupBanner(){ return groupBlocked()?`<div class="alert">⛔ «${esc(S.group.name||"Jamoa")}» obunasi tugagan. Bosqichlar yopiq — administratorga murojaat qiling.</div>`:""; }
+function groupBanner(){
+  let h="";
+  if(groupBlocked()) h+=S.group.until&&S.group.start&&String(S.group.until)<String(S.group.start)
+    ?`<div class="alert">💳 «${esc(S.group.name||"Jamoa")}» obunasi to'lovi kutilmoqda. To'lovdan keyin bosqichlar ochiladi.</div>`
+    :`<div class="alert">⛔ «${esc(S.group.name||"Jamoa")}» obunasi tugagan. Bosqichlar yopiq — administratorga murojaat qiling.</div>`;
+  if(S.user.first&&!S.token&&(S.tokenLost||S.joinErr)) h+=`<div class="alert">🔑 ${S.tokenLost?"Hisobingiz boshqa telefonga o'tkazilgan.":esc(S.joinErr)} <button class="buy" id="rejoin" style="margin-top:8px">Qayta ulanish</button></div>`;
+  return h; }
+function bindRejoin(){ const b=document.getElementById("rejoin"); if(b) b.onclick=async()=>{ b.disabled=true; const r=await joinServer(true); toast(r.msg); if(r.ok) await pullPlayers(true); scrMain(); }; }
 /* ---------- asosiy oyna ---------- */
 function leagueCard(){
   const wb=weekBoard(), wp=wb.findIndex(x=>x.me)+1, my=S.week.my;
@@ -3873,6 +4087,8 @@ function scrMain(){
   ${overtake.length?`<div class="alert">⚠️ Siz ${overtake[0]}-o'rindan ${overtake[1]}-o'ringa tushdingiz. Raqobatchilar siz yo'qligingizda ishladi!</div>`:""}
   <section class="dl ${d.k}"><div class="dl-l"><b>${d.k==="done"?"✅ Bugun bajarildi":d.k==="missed"?"❌ Qoldirib yuborildi":d.k==="off"?"☕ Dam olish kuni":"⏰ Bugungi mashq"}</b>
     <i id="dlt">${d.txt}</i></div><div class="dl-r ${S.streak>0?"pulse":""}">${S.streak}<span>kun</span></div></section>
+  ${finalMini()}
+  ${wqHTML()}
   ${leagueCard()}
   <div class="duo">
     <div><div class="n">${dm}/15</div><div class="small">bugungi to'g'ri javob${S.daily.got?"<br>🎯 +120 olindi":"<br>maqsad: +120 XP"}</div></div>
@@ -3895,6 +4111,7 @@ function scrMain(){
   document.getElementById("blz").onclick=()=>startBlitz(open);
   document.getElementById("err").onclick=startErrs;
   document.getElementById("gft").onclick=openGift;
+  bindRejoin(); bindComp();
   overtake=[]; animate();
 }
 /* ---------- reyting ---------- */
@@ -3905,6 +4122,8 @@ function scrRating(){
   <section class="card"><h3>🏁 O'tgan hafta natijalari</h3>
     ${L&&L.rows.length?`<p class="small" style="margin:0 0 10px">Juma 12:00 dagi yakuniy jadval</p>${lastResHTML()}`
       :`<p class="small">Hali yakunlangan hafta yo'q. Birinchi jadval juma soat 12:00 da ochiladi.</p>`}</section>
+  ${finalHTML()}
+  ${regionHTML()}
   ${champsHTML()}
   <section class="card"><h3>Haftalik sovg'a</h3>
     <div class="prizes">🏆 600 XP maqsad +400 · 🥈 360 XP dan +150 · 🎗️ ishtirok +50</div></section>
@@ -3920,8 +4139,12 @@ function scrRating(){
     <li>Har kuni mashq <b>17:00 gacha</b> bajarilishi kerak — keyin kun qoldirilgan hisoblanadi.</li>
     <li>Har savolga <b>1 daqiqa</b>. Xato javobning sababi darhol ko'rsatiladi.</li>
     <li>Shanba va yakshanba — faqat qo'shimcha mashq, ligaga XP qo'shilmaydi.</li>
-    <li>Natijangizni hafta davomida faqat o'zingiz ko'rasiz. Jadval <b>juma 12:00</b> da hammaga ochiladi.</li></ul></section>`,"rate");
-  animate();
+    <li>Natijangizni hafta davomida faqat o'zingiz ko'rasiz. Jadval <b>juma 12:00</b> da hammaga ochiladi.</li>
+    <li><b>Oylik chempionat:</b> 4 haftada 2 marta kuchli uchlikka kirganlar oyning oxirgi shanbasi 10:00–13:00 da finalda bellashadi.</li>
+    <li><b>Viloyat ligasi:</b> har jamoaning eng yaxshi 3 nafari bali qo'shilib, viloyatdagi jamoalar bilan solishtiriladi.</li>
+    <li><b>Haftaning savoli:</b> hafta g'olibi keyingi hafta uchun savol taklif qiladi — savol uning ismi bilan chiqadi.</li>
+    <li>🤖 <b>Halol o'yin:</b> bosqich va finalda savol ochiq turganda ilovadan chiqilsa, savol xato hisoblanadi.</li></ul></section>`,"rate");
+  bindComp(); animate();
 }
 /* ---------- bosqichlar ---------- */
 function scrStages(){
@@ -3931,19 +4154,24 @@ function scrStages(){
     return `<li class="stage ${sc?"done":""}"><div class="num">${i+1}</div>
     <button ${ss==="open"?"":"disabled"} data-s="${i}"><h3>${st.icon} ${st.title}</h3>
     <div class="meta"><span>${lbl}${S.stageXP&&S.stageXP[i]?" · ⚡ "+S.stageXP[i]+" XP":""}</span><span class="stars">${starStr(sc)}</span></div></button></li>`;}).join("")}</ol>
-    <section class="card"><h3>Kunlik mashq</h3><p class="small">Ochilgan bosqichlardan 10 ta tasodifiy savol.${isWeekend()?" Dam olish kuni — XP berilmaydi.":""}</p>
+    <section class="card"><h3>Kunlik mashq</h3><p class="small">Bosqichlar va yo'nalishlardan 10 ta tasodifiy savol.${isWeekend()?" Dam olish kuni — XP berilmaydi.":""}</p>
     <button class="btn" id="dly">🎯 Boshlash</button></section>
+    <section class="card"><h3>🧭 Yo'nalishlar <span class="small" style="font-weight:600">· bazada ${QBASE()} ta savol</span></h3>
+    <p class="small">Mavzu bo'yicha 10 ta savol. Ball kunlik mashq hisobiga yoziladi — liga jamiga qo'shilmaydi.</p>
+    <div class="topics">${TOPICS.map(t=>{ const a=(S.tacc||{})[t.id];
+      return `<button class="act" data-tp="${t.id}"><span>${t.icon}</span>${t.title}<i>${t.tasks.length} savol${a&&a.n?" · "+Math.round(a.ok/a.n*100)+"%":""}</i></button>`; }).join("")}</div></section>
     <p class="small" style="margin-top:12px">📅 Har ish kuni bittadan bosqich: faqat o'z kunida <b>09:00 dan 17:00 gacha</b> ochiq. 17:00 da yopiladi va qayta ochilmaydi.</p>`,"stage");
   app.querySelectorAll("[data-s]").forEach(b=>b.onclick=()=>intro(+b.dataset.s));
   const dl=document.getElementById("dly"); if(dl) dl.onclick=()=>startDaily(STAGES.map((x,i)=>i).filter(unlocked));
   const pr=document.getElementById("prc"); if(pr) pr.onclick=()=>startPractice(STAGES.map((x,i)=>i).filter(unlocked));
+  app.querySelectorAll("[data-tp]").forEach(b=>b.onclick=()=>startTopic(b.dataset.tp));
 }
 /* ---------- profil ---------- */
 function scrProfile(){
   const rk=rankOf(S.xp), pct=rk.next?Math.max(2,Math.round((S.xp-rk.cur[0])/(rk.next[0]-rk.cur[0])*100)):100;
   const u=S.user, done=Object.keys(S.days).filter(k=>S.days[k]==="done").length, miss=Object.keys(S.days).filter(k=>S.days[k]==="missed").length;
   shell(`<section class="card"><h3>${u.first} ${u.last}</h3>
-    <div class="small">📞 ${u.phone}</div>
+    <div class="small">📞 ${u.phone} · 📍 ${esc(u.region||"viloyat tanlanmagan")} <a href="#" id="chreg">o'zgartirish</a></div>
     <div class="rank-top" style="margin-top:12px"><b>${rk.cur[1]}</b><span class="pill">⚡ ${S.xp} XP</span></div>
     <div class="meter"><i style="width:${pct}%"></i></div>
     <div class="small" style="margin-top:6px">${rk.next?`«${rk.next[1]}» uchun yana ${rk.next[0]-S.xp} XP`:"Eng yuqori daraja!"}</div></section>
@@ -3973,6 +4201,7 @@ function scrProfile(){
     ${Object.keys(S.stars).length===STAGES.length?`<button class="btn ghost" id="cert">🏅 Sertifikat</button>`:""}
     ${myMedal()?`<button class="btn ghost" id="wcert">${["","👑","🥈","🥉"][myMedal().pos]} Haftalik g'olib sertifikati</button>`:""}</section>`,"prof");
   document.getElementById("srv").onclick=scrServer;
+  document.getElementById("chreg").onclick=e=>{ e.preventDefault(); askRegion(scrProfile); };
   document.getElementById("buy").onclick=buyShield;
   document.getElementById("errb").onclick=startErrs;
   document.getElementById("inst").onclick=install;
@@ -4018,7 +4247,7 @@ function champsHTML(){
   return `<section class="card"><h3>🏛️ Chempionlar zali</h3>${weeks.map(w=>{ const r=C.filter(x=>x.week_id===w), d=new Date(w+":00Z");
     return `<div class="champ"><span class="small">${d.toLocaleDateString("ru-RU")}</span>${r.map(x=>`<span class="${x.is_me?"me":""}">${["","👑","🥈","🥉"][x.pos]} ${esc(x.name)} · ${x.week_xp}</span>`).join("")}</div>`; }).join("")}</section>`;
 }
-function home(){ sweepDays(); if(!S.user.first) return register(); scrMain(); }
+function home(){ sweepDays(); if(!S.user.first) return register(); if(!S.user.region) return askRegion(); scrMain(); }
 function todayStageNote(){
   const i=STAGES.findIndex((x,k)=>dkey(stageDate(k))===tzNow().day); if(i<0) return "";
   const ss=stageState(i), t=`${i+1}-bosqich «${STAGES[i].title}»`;
@@ -4091,9 +4320,11 @@ function adminLogin(){
     const pin=document.getElementById("pin").value.trim(), st=document.getElementById("st");
     if(!pin) return st.textContent="PIN kiriting";
     st.textContent="Tekshirilmoqda...";
-    try{ await rpc("liga_super_groups",{p_pin:pin}); S.superPin=pin; persist(); toast("Superadmin rejimi"); return scrSuper(); }catch(e){}
-    try{ await rpc("liga_admin_list",{p_pin:pin}); S.adminPin=pin; persist(); toast("Admin rejimi yoqildi"); scrAdmin(); }
-    catch(e){ st.textContent=/not_admin/.test(String(e.message))?"PIN noto'g'ri":"Serverga ulanmadi"; }
+    try{ const role=await rpc("liga_pin_check",{p_pin:pin});
+      if(role==="super"){ S.superPin=pin; persist(); toast("Superadmin rejimi"); return scrSuper(); }
+      if(role==="admin"){ S.adminPin=pin; persist(); toast("Admin rejimi yoqildi"); return scrAdmin(); }
+      st.textContent="PIN noto'g'ri"; }
+    catch(e){ st.textContent=errMsg(e); }
   };
   window.scrollTo(0,0);
 }
@@ -4102,32 +4333,45 @@ async function scrAdmin(){
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Admin panel</span></div>
   <section class="card" id="ag"><p class="small">Jamoa ma'lumoti yuklanmoqda...</p></section>
   <section class="sheet"><h2>🛡️ Ishtirokchilar</h2><p class="small">Barcha natijalar faqat sizga ko'rinadi.</p><div id="al"><p class="small">Yuklanmoqda...</p></div></section>
+  <section class="card"><h3>📄 Rahbar uchun oylik hisobot</h3><p class="small">Har bir xodimning haftalik ballari, kuchli uchlikka kirishlari, aniqlik foizi va final natijasi. PDF qilib saqlash yoki chop etish mumkin.</p>
+    <button class="btn" id="rep">📄 Oylik hisobotni ochish</button></section>
+  <section class="card" id="pay"><h3>💳 Obuna to'lovi</h3><p class="small">Yuklanmoqda...</p></section>
+  <section class="card" id="wqa"><h3>❓ Haftaning savoli</h3><p class="small">Yuklanmoqda...</p></section>
   <section class="card"><h3>🏁 O'tgan hafta jadvali</h3>${lastResHTML()||`<p class="small">Hali yakunlangan hafta yo'q.</p>`}</section>
   <section class="card"><button class="btn ghost" id="out">Admin rejimidan chiqish</button></section>`;
+  document.getElementById("rep").onclick=()=>scrReport();
   app.querySelector(".back").onclick=scrProfile;
   document.getElementById("out").onclick=()=>{ S.adminPin=""; persist(); scrProfile(); };
   try{ const g=(await rpc("liga_admin_group",{p_pin:S.adminPin}))[0];
+    if(!g){ S.adminPin=""; persist(); toast("PIN eskirgan — qayta kiring"); return adminLogin(); }
+    S.adminGroup=g; payBox(g); wqAdminBox();
     const bl=BOT_LINK+"?start=g_"+g.code, al=APP_LINK+"?g="+g.code;
     document.getElementById("ag").innerHTML=`<h3>👥 ${esc(g.name)}</h3>
       <div class="small">Kod: <b style="display:inline">${g.code}</b> · ${g.members} ishtirokchi · ${g.chats} ta guruh ulangan<br>
-      Obuna: ${g.paid_until?(g.ok?"✅ "+fmtD(g.paid_until)+" gacha":"⛔ "+fmtD(g.paid_until)+" da tugagan"):"✅ muddatsiz"} · Boshlanish: ${fmtD(g.start_date)}</div>
+      Obuna: ${g.paid_until?(g.ok?"✅ "+fmtD(g.paid_until)+" gacha":(String(g.paid_until)<String(g.start_date)?"💳 to'lov kutilmoqda":"⛔ "+fmtD(g.paid_until)+" da tugagan")):"✅ muddatsiz"} · Boshlanish: ${fmtD(g.start_date)}${g.region?" · 📍 "+esc(g.region):""}</div>
       <div class="shop" style="margin-top:10px"><div><b>Taklif havolasi (bot)</b><i style="word-break:break-all">${bl}</i></div><button class="buy" data-cp="${bl}">Nusxa</button></div>
       <div class="shop"><div><b>Ilova havolasi</b><i style="word-break:break-all">${al}</i></div><button class="buy" data-cp="${al}">Nusxa</button></div>
       <p class="small">Telegram guruhingizga botni qo'shing va guruhda <b style="display:inline">/ulash ${g.code}</b> deb yozing — natijalar shu guruhga chiqadi.</p>`;
     document.querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>copyText(b.dataset.cp)); }catch(e){}
   let rows;
-  try{ rows=await rpc("liga_admin_list",{p_pin:S.adminPin}); }
-  catch(e){ if(/not_admin/.test(String(e.message))){ S.adminPin=""; persist(); toast("PIN eskirgan — qayta kiring"); return adminLogin(); }
-    document.getElementById("al").innerHTML=`<p class="small">Serverga ulanmadi</p>`; return; }
+  try{ rows=(await rpc("liga_admin_list",{p_pin:S.adminPin}))||[]; }
+  catch(e){ const el=document.getElementById("al"); if(el) el.innerHTML=`<p class="small">${esc(errMsg(e))}</p>`; return; }
+  if(!document.getElementById("al")) return;
   const cur=weekId(), dt=v=>v?new Date(v).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"—";
   rows.sort((a,b)=>((b.week_id===cur?b.week_xp:0)-(a.week_id===cur?a.week_xp:0))||(b.xp-a.xp));
   const el=document.getElementById("al");
   el.innerHTML=`<p class="small" style="margin:0 0 10px">${rows.length} ishtirokchi</p>`+rows.map(p=>`<div class="adm"><div>
       <b>${esc((p.first_name||"")+" "+(p.last_name||"")).trim()||"(ismsiz)"}${p.id===S.pid?" · siz":""}</b>
-      <i>📞 ${esc(p.phone||"—")} · faol: ${dt(p.last_active)}</i>
+      <i>📞 ${esc(p.phone||"—")} · 📍 ${esc(p.region||"—")} · faol: ${dt(p.last_active)}</i>
+      <i>🎯 aniqlik: ${p.acc_total?Math.round(p.acc_ok/p.acc_total*100)+"% ("+p.acc_ok+"/"+p.acc_total+")":"—"} · ${p.has_device?"📱 telefon ulangan":"📱 telefon ulanmagan"}</i>
       <i>${p.week_id===cur?partsLine(p.week_xp,{stage:p.week_stage,daily:p.week_daily,blitz:p.week_blitz,bonus:p.week_bonus})+(stageLine(p.week_stages)?"<br>"+stageLine(p.week_stages):""):"bu hafta hali natija yo'q"}</i>
       <i>⚡ bu hafta ${p.week_id===cur?p.week_xp:0} XP · jami ${p.xp} XP · ${p.stages} bosqich · ${p.streak} kun</i></div>
-      ${p.id===S.pid?"":`<button class="del" data-id="${p.id}" data-n="${esc(p.first_name||"(ismsiz)")}">O'chirish</button>`}</div>`).join("");
+      <div style="display:grid;gap:6px">${p.has_device?`<button class="buy" data-dev="${p.id}" data-n="${esc(p.first_name||"(ismsiz)")}">📱 Qurilmani almashtirish</button>`:""}
+      ${p.id===S.pid?"":`<button class="del" data-id="${p.id}" data-n="${esc(p.first_name||"(ismsiz)")}">O'chirish</button>`}</div></div>`).join("");
+  el.querySelectorAll("[data-dev]").forEach(b=>b.onclick=async()=>{
+    if(!confirm(b.dataset.n+" yangi telefonga o'tadimi? Eski telefon ulanishi bekor qilinadi, natijalar saqlanadi. Keyin u yangi telefonda o'sha raqam bilan ro'yxatdan o'tadi.")) return;
+    try{ await rpc("liga_admin_reset_device",{p_pin:S.adminPin,p_id:b.dataset.dev}); toast("Tayyor — endi yangi telefonda ro'yxatdan o'tsin"); scrAdmin(); }
+    catch(e){ toast(errMsg(e)); } });
   el.querySelectorAll(".del").forEach(b=>b.onclick=async()=>{
     if(!confirm(b.dataset.n+" ligadan o'chirilsinmi? Uning natijalari ham o'chadi.")) return;
     try{ await rpc("liga_admin_delete",{p_pin:S.adminPin,p_id:b.dataset.id}); toast("O'chirildi"); scrAdmin(); }
@@ -4141,7 +4385,10 @@ async function scrSuper(){
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Superadmin</span></div>
   <section class="sheet set"><h2>💼 Yangi jamoa</h2>
     <label for="sn">Jamoa nomi</label><input id="sn" type="text" placeholder="masalan: Farg'ona buxgalterlari">
-    <label for="sd">Obuna (kun) — 0 = muddatsiz</label><input id="sd" type="number" inputmode="numeric" value="14">
+    <label for="sv">Viloyat</label>${regSel("sv","")}
+    <label for="sd">Obuna</label><select id="sd"><option value="30" selected>To'langan — 30 kun (1 oy)</option><option value="90">To'langan — 90 kun (3 oy)</option>
+      <option value="0">To'lov kutilmoqda (onlayn to'lagach ochiladi)</option><option value="-1">Muddatsiz</option></select>
+    <p class="small">Sinov muddati yo'q. Jamoa keyingi dushanbadan (yangi haftadan) boshlanadi.</p>
     <label for="sm">Ishtirokchilar chegarasi — bo'sh = cheklovsiz</label><input id="sm" type="number" inputmode="numeric" placeholder="cheklovsiz">
     <p class="small" id="sr"></p>
     <button class="btn" id="mk">➕ Jamoa yaratish</button></section>
@@ -4150,11 +4397,12 @@ async function scrSuper(){
   app.querySelector(".back").onclick=scrProfile;
   document.getElementById("out").onclick=()=>{ S.superPin=""; persist(); scrProfile(); };
   document.getElementById("mk").onclick=async()=>{
-    const n=document.getElementById("sn").value.trim(), dd=+document.getElementById("sd").value||0, mx=document.getElementById("sm").value.trim();
+    const n=document.getElementById("sn").value.trim(), dd=+document.getElementById("sd").value, mx=document.getElementById("sm").value.trim(), rg=document.getElementById("sv").value;
     const sr=document.getElementById("sr"); if(n.length<2) return sr.textContent="Nomini kiriting";
-    try{ const g=(await rpc("liga_super_create",{p_pin:S.superPin,p_name:n,p_days:dd,p_max:mx?+mx:null}))[0];
+    try{ const g=(await rpc("liga_super_create",{p_pin:S.superPin,p_name:n,p_days:dd,p_max:mx?+mx:null,p_region:rg||null}))[0];
+      if(!g){ S.superPin=""; persist(); toast("PIN eskirgan — qayta kiring"); return adminLogin(); }
       sr.innerHTML=`✅ <b style="display:inline">${esc(n)}</b> yaratildi.<br>Kod: <b style="display:inline">${g.code}</b> · Admin PIN: <b style="display:inline">${g.admin_pin}</b><br>
-        Boshlanish: ${fmtD(g.start_date)} · Obuna: ${g.paid_until?fmtD(g.paid_until)+" gacha":"muddatsiz"}<br>
+        Boshlanish: ${fmtD(g.start_date)} · Obuna: ${g.paid_until?(String(g.paid_until)<String(g.start_date)?"to'lov kutilmoqda":fmtD(g.paid_until)+" gacha"):"muddatsiz"}<br>
         Havola: ${BOT_LINK}?start=g_${g.code}`;
       copyText(`Hisobchi Liga — «${n}»\nJamoa kodi: ${g.code}\nAdmin PIN: ${g.admin_pin}\nTaklif havolasi: ${BOT_LINK}?start=g_${g.code}\nBoshlanish: ${fmtD(g.start_date)}`);
       superList(); }
@@ -4164,10 +4412,11 @@ async function scrSuper(){
 }
 async function superList(){
   const el=document.getElementById("sl"); if(!el) return;
-  let rows; try{ rows=await rpc("liga_super_groups",{p_pin:S.superPin}); }catch(e){ el.innerHTML=`<p class="small">Xato: ${esc(String(e.message).slice(0,80))}</p>`; return; }
+  let rows; try{ rows=(await rpc("liga_super_groups",{p_pin:S.superPin}))||[]; }catch(e){ el.innerHTML=`<p class="small">${esc(errMsg(e))}</p>`; return; }
+  if(!rows.length){ el.innerHTML=`<p class="small">Jamoa yo'q yoki PIN eskirgan.</p>`; return; }
   el.innerHTML=rows.map(g=>`<div class="adm"><div><b>${esc(g.name)} · ${g.code}</b>
     <i>👥 ${g.members}${g.max_players?"/"+g.max_players:""} · 💬 ${g.chats} guruh · PIN ${g.admin_pin}</i>
-    <i>${!g.active?"⏸ to'xtatilgan":g.paid_until?(g.ok?"✅ "+fmtD(g.paid_until)+" gacha":"⛔ "+fmtD(g.paid_until)+" tugagan"):"✅ muddatsiz"} · start ${fmtD(g.start_date)}</i></div>
+    <i>${!g.active?"⏸ to'xtatilgan":g.paid_until?(g.ok?"✅ "+fmtD(g.paid_until)+" gacha":(String(g.paid_until)<String(g.start_date)?"💳 to'lov kutilmoqda":"⛔ "+fmtD(g.paid_until)+" tugagan")):"✅ muddatsiz"} · start ${fmtD(g.start_date)}${g.region?" · 📍 "+esc(g.region):""}</i></div>
     <div style="display:grid;gap:6px"><button class="buy" data-x="${g.code}" data-d="30">+30 kun</button>
     <button class="del" data-a="${g.code}" data-v="${g.active?0:1}">${g.active?"To'xtatish":"Yoqish"}</button></div></div>`).join("");
   el.querySelectorAll("[data-x]").forEach(b=>b.onclick=async()=>{ await rpc("liga_super_update",{p_pin:S.superPin,p_code:b.dataset.x,p_add_days:+b.dataset.d,p_active:null}); toast("Uzaytirildi"); superList(); });
@@ -4244,6 +4493,175 @@ function cert(){
   document.getElementById("h").onclick=home; coins();
 }
 
+/* ================= musobaqalar: oylik final, viloyat ligasi, haftaning savoli ================= */
+const OYLAR=["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentabr","oktabr","noyabr","dekabr"];
+const monthName=m=>{ const [y,mm]=String(m||"").split("-").map(Number); return mm?OYLAR[mm-1][0].toUpperCase()+OYLAR[mm-1].slice(1)+" "+y:""; };
+const curMonth=()=>tzNow().day.slice(0,7);
+function finalCanPlay(){ const f=S.fin; return !!(f&&f.open_now&&f.qualified&&f.my_score==null&&!(S.finDone||{})[f.month]); }
+function finalMini(){ const f=S.fin; if(!f||f.ended) return "";
+  if(finalCanPlay()) return `<section class="card fin"><h3>🏆 Oylik final boshlandi!</h3><p class="small">Siz saralangansiz. Final bugun 13:00 gacha ochiq · 20 savol · har biriga 1 daqiqa.</p><button class="btn" data-fin="1">🏆 Finalni boshlash</button></section>`;
+  if(f.qualified&&f.my_score==null) return `<div class="lg-note" style="background:#2b2360;color:#fff">🏆 Siz ${monthName(f.month)} finaliga saralandingiz! Final: ${fmtD(f.final_date)}, shanba 10:00–13:00</div>`;
+  return ""; }
+function finalHTML(){ const f=S.fin; if(!f) return "";
+  const Q=f.qualifiers||[], St=f.standings||[], m=["🥇","🥈","🥉"];
+  const list=f.ended&&St.length
+    ?`<div class="lb">${St.map((x,k)=>`<div class="row ${x.me?"me":""}"><span class="pos">${m[k]||k+1}</span><span class="who">${esc(x.n)}<i class="psub">${Math.round(x.s/20)}/20 · ${Math.floor(x.ms/60000)}:${String(Math.floor(x.ms/1000)%60).padStart(2,"0")}</i></span><span class="xp">${x.s}</span></div>`).join("")}</div>`
+    :Q.length?`<div class="lb">${Q.map(x=>`<div class="row ${x.me?"me":""}"><span class="pos">🎟️</span><span class="who">${esc(x.n)}<i class="psub">kuchli uchlikda: ${x.tops} marta</i></span><span class="xp">${x.xp} XP</span></div>`).join("")}</div>`
+    :`<p class="small">Hali saralanganlar yo'q. Oy davomida 2 marta kuchli uchlikka kiring — finalga yo'llanma olasiz.</p>`;
+  return `<section class="card fin"><h3>🏆 ${monthName(f.month)} chempionati</h3>
+    <p class="small">Final: <b style="display:inline">${fmtD(f.final_date)}</b>, shanba 10:00–13:00 · 20 ta savol · har biriga 1 daqiqa · teng ballda tezroq ishlagan yutadi.</p>
+    <p class="small">${f.ended?"🏁 Final yakunlandi — natijalar:":"🎟️ Finalchilar:"}</p>${list}
+    ${finalCanPlay()?`<button class="btn" data-fin="1" style="margin-top:12px">🏆 Finalni boshlash</button>`:f.my_score!=null?`<p class="small" style="margin-top:8px">✅ Siz finalni ishladingiz: ${f.my_score} ball. ${f.ended?"":"G'olib 13:00 da aniqlanadi."}</p>`:""}
+    <p class="small" style="margin-top:8px">🎁 Oy chempioniga maxsus sovg'a tayyorlangan — final kuni ochiladi.</p></section>`; }
+function regionHTML(){ const L=S.regL||[]; const mine=L.find(x=>x.is_mine), reg=mine?mine.region:(S.user.region||"");
+  const rows=L.filter(x=>x.region===reg), others=[...new Set(L.map(x=>x.region))].filter(r=>r!==reg);
+  return `<section class="card"><h3>🗺️ Viloyat ligasi${reg?` <span class="small" style="font-weight:600">· ${esc(reg)}</span>`:""}</h3>
+    <p class="small" style="margin:0 0 10px">Jamoalararo: har jamoaning eng yaxshi 3 nafari bali qo'shiladi · o'tgan hafta yakuni</p>
+    ${rows.length?`<div class="lb">${rows.map(x=>`<div class="row ${x.is_mine?"me":""}"><span class="pos">${["🥇","🥈","🥉"][x.rnk-1]||x.rnk}</span><span class="who">👥 ${esc(x.name)}<i class="psub">${esc(x.top3)}</i></span><span class="xp">${x.team_xp}</span></div>`).join("")}</div>`
+      :`<p class="small">Jadval juma 12:00 da shakllanadi. Viloyatingizdagi boshqa jamoalar qo'shilgach — shu yerda bellashasiz.</p>`}
+    ${others.length?`<p class="small" style="margin-top:8px">Boshqa viloyatlar yetakchilari: ${others.map(r=>{ const t=L.find(x=>x.region===r&&x.rnk===1); return esc(r)+" — "+esc(t?t.name:"—"); }).join(" · ")}</p>`:""}</section>`; }
+function wqHTML(){ const w=S.wq; if(!w) return ""; let h="";
+  if(w.can_submit) h+=`<section class="card wq"><h3>👑 Siz o'tgan hafta g'olibisiz!</h3><p class="small">Jamoangiz uchun «Haftaning savoli»ni taklif qiling — savol ismingiz bilan hammaga chiqadi.</p><button class="btn" data-wqs="1">✍️ Savol taklif qilish</button></section>`;
+  else if(w.my_status) h+=`<div class="lg-note" style="background:var(--card);color:var(--ink)">✍️ Taklif qilgan savolingiz: ${({pending:"⏳ admin tasdiqlashini kutmoqda",approved:"✅ tasdiqlandi — hammaga chiqdi",rejected:"❌ rad etildi"})[w.my_status]||esc(w.my_status)}</div>`;
+  if(w.q_id){ const d=(S.wqDone||{})[w.q_id];
+    h+=`<section class="card wq"><h3>❓ Haftaning savoli</h3><p class="small">Muallif: <b style="display:inline">${esc(w.author)}</b> — o'tgan hafta g'olibi</p><p class="q" style="font-size:17px">${esc(w.q)}</p>
+      ${d?`<p class="small">${d.ok?"✅ To'g'ri javob berdingiz (+50 XP)":"❌ Javobingiz xato edi"}${d.e?"<br>"+esc(d.e):""}</p>`:`<button class="btn" data-wqa="1">Javob berish · +50 XP</button>`}</section>`; }
+  return h; }
+function bindComp(){
+  app.querySelectorAll("[data-fin]").forEach(b=>b.onclick=startFinal);
+  app.querySelectorAll("[data-wqa]").forEach(b=>b.onclick=wqAnswer);
+  app.querySelectorAll("[data-wqs]").forEach(b=>b.onclick=wqSubmit);
+}
+function wqAnswer(){ const w=S.wq; if(!w||!w.q_id) return; let pick=null;
+  setDock(null); TAB="wq";
+  app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Haftaning savoli</span></div>
+  <article class="sheet"><div class="kind">❓ Haftaning savoli · muallif: ${esc(w.author)}</div><p class="q">${esc(w.q)}</p>
+  <div class="opts">${(w.o||[]).map((x,k)=>`<button class="opt" data-k="${k}">${esc(x)}</button>`).join("")}</div><div id="fb"></div></article>`;
+  app.querySelector(".back").onclick=home;
+  const bs=app.querySelectorAll(".opt");
+  bs.forEach(b=>b.onclick=()=>{ if(pick===-1) return; pick=+b.dataset.k; bs.forEach(x=>x.classList.toggle("sel",x===b));
+    setDock(`<button class="btn" id="go">Javob berish</button>`);
+    document.getElementById("go").onclick=async()=>{ const p=pick; pick=-1; let r;
+      try{ r=(await rpc("liga_wq_answer",{p_id:S.pid,p_token:S.token,p_q:w.q_id,p_pick:p}))[0]; }catch(e){ pick=p; return toast(errMsg(e)); }
+      if(!r) return toast("Savol topilmadi");
+      bs.forEach((x,k)=>{ if(k===r.a) x.classList.add("right"); else if(k===p) x.classList.add("wrong"); });
+      S.wqDone=S.wqDone||{}; S.wqDone[w.q_id]={ok:r.ok,e:r.e||""};
+      addXP(r.ok?50:10,"bonus"); persist(); syncSoon();
+      document.getElementById("fb").innerHTML=`<div class="explain ${r.ok?"ok":"bad"}"><b>${r.ok?"To'g'ri! +50 XP":"Xato. Ishtirok uchun +10 XP"}</b>${esc(r.e||"")}</div>`;
+      if(r.ok) coins();
+      setDock(`<button class="btn" id="h">Asosiy</button>`); document.getElementById("h").onclick=home; }; });
+  window.scrollTo(0,0); }
+function wqSubmit(){ setDock(null); TAB="wq";
+  app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Savol taklif qilish</span></div>
+  <section class="sheet set"><h2>✍️ Haftaning savoli</h2><p class="small">Savolingiz admin tasdiqlagach, jamoangizga ismingiz bilan chiqadi.</p>
+  <label for="wq">Savol</label><textarea id="wq" maxlength="400" placeholder="Masalan: Yetkazib beruvchiga bo'nak qaysi hisobvaraqda aks etadi?"></textarea>
+  ${["A","B","C","D"].map((l,k)=>`<label for="wo${k}">${l} variant${k<2?"":" (ixtiyoriy)"}</label><input id="wo${k}" type="text" maxlength="120">`).join("")}
+  <label for="wa">To'g'ri javob</label><select id="wa"><option value="0">A</option><option value="1">B</option><option value="2">C</option><option value="3">D</option></select>
+  <label for="we">Izoh (nega to'g'ri)</label><textarea id="we" maxlength="400"></textarea>
+  <p class="small" id="st" style="color:var(--bad);min-height:22px"></p></section>`;
+  app.querySelector(".back").onclick=home;
+  setDock(`<button class="btn" id="go">Yuborish</button>`);
+  document.getElementById("go").onclick=async()=>{ const st=document.getElementById("st");
+    const q=document.getElementById("wq").value.trim(), raw=[0,1,2,3].map(k=>document.getElementById("wo"+k).value.trim());
+    let a=+document.getElementById("wa").value; const e=document.getElementById("we").value.trim();
+    if(q.length<10) return st.textContent="Savol kamida 10 belgi";
+    if(!raw[a]) return st.textContent="To'g'ri javob varianti bo'sh";
+    const o=[]; raw.forEach((x,k)=>{ if(x){ if(k===a) a=o.length; o.push(x); } });
+    if(o.length<2) return st.textContent="Kamida 2 ta variant kiriting";
+    try{ await rpc("liga_wq_submit",{p_id:S.pid,p_token:S.token,p_q:q,p_o:o,p_a:a,p_e:e}); toast("Yuborildi — admin tasdiqlaydi"); await pullPlayers(true); home(); }
+    catch(err){ st.textContent=errMsg(err); } };
+  window.scrollTo(0,0); }
+async function wqAdminBox(){ const el=document.getElementById("wqa"); if(!el) return; let rows=[];
+  try{ rows=(await rpc("liga_wq_admin",{p_pin:S.adminPin}))||[]; }catch(e){}
+  const L=["A","B","C","D","E"];
+  el.innerHTML=`<h3>❓ Haftaning savoli</h3><p class="small">Hafta g'olibi taklif qilgan savollar. Tasdiqlangan savol jamoaga muallif ismi bilan chiqadi.</p>
+    ${rows.length?rows.map(w=>`<div class="adm"><div><b style="font-size:14px">${esc(w.author_name)} · ${({pending:"⏳ kutmoqda",approved:"✅ tasdiqlangan",rejected:"❌ rad etilgan"})[w.status]||w.status}</b>
+      <i style="color:var(--ink);font-size:14px">${esc(w.q)}</i>${(w.o||[]).map((x,k)=>`<i>${k===w.a?"✅":"▫️"} ${L[k]}) ${esc(x)}</i>`).join("")}${w.e?`<i>💡 ${esc(w.e)}</i>`:""}</div>
+      ${w.status==="pending"?`<div style="display:grid;gap:6px"><button class="buy" data-wok="${w.id}">✅ Tasdiqlash</button><button class="del" data-wno="${w.id}">Rad etish</button></div>`:"<span></span>"}</div>`).join("")
+    :`<p class="small">Hali taklif yo'q. Juma 12:00 dan keyin hafta g'olibi savol yubora oladi.</p>`}`;
+  const go=async(id,ok)=>{ await rpc("liga_wq_decide",{p_pin:S.adminPin,p_qid:+id,p_ok:ok}); toast(ok?"Tasdiqlandi":"Rad etildi"); wqAdminBox(); };
+  el.querySelectorAll("[data-wok]").forEach(b=>b.onclick=()=>go(b.dataset.wok,true));
+  el.querySelectorAll("[data-wno]").forEach(b=>b.onclick=()=>go(b.dataset.wno,false)); }
+
+/* ---------- oylik final: 20 ta savol, oy va jamoa bo'yicha bir xil to'plam ---------- */
+function finalSet(){ const f=S.fin||{}, R=srng(hstr("final|"+f.month+"|"+((S.group&&S.group.code)||"")));
+  const pool=TOPIC_ALL().concat(STAGES.reduce((a,st)=>a.concat(st.tasks.slice(12)),[]));
+  const mix=a=>{ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(R()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+  const all=mix(pool), take=(t,n)=>all.filter(x=>x.t===t).slice(0,n);
+  return mix(take("pv",8).concat(take("calc",6),take("mc",6))).map((t,k)=>({...t,k})); }
+function startFinal(){
+  if(!finalCanPlay()) return toast("Final hozir yopiq");
+  const f=S.fin; S.finDone=S.finDone||{}; S.finDone[f.month]=true;
+  const q=finalSet();
+  run={mode:"final",noXP:true,si:null,queue:q,total:q.length,i:0,lives:99,combo:0,mistakes:0,marks:q.map(()=>""),retried:new Set(),earned:0,right:0,done:0,started:Date.now(),month:f.month};
+  saveFinalRun(run); task(); }
+function saveFinalRun(r){ S.finRun={month:r.month,right:r.right||0,done:r.done||0,ms:Date.now()-r.started,sent:false}; persist(); }
+async function sendFinal(fr){ try{ await rpc("liga_final_submit",{p_id:S.pid,p_token:S.token,p_score:fr.right*20,p_ms:fr.ms}); fr.sent=true; persist(); return true; }
+  catch(e){ if(/final_closed|not_qualified/.test(String(e.message))){ fr.sent=true; persist(); } return false; } }
+function flushFinal(){ const fr=S.finRun; if(fr&&!fr.sent&&S.pid&&S.token) sendFinal(fr); }   // ilova yopilib qolgan bo'lsa — natija yuboriladi
+async function finishFinal(r){ clearInterval(r.tick); run=null; saveFinalRun(r);
+  const fr=S.finRun, ms=fr.ms, ok=await sendFinal(fr);
+  app.innerHTML=`<section class="sheet result"><div style="font-size:64px">🏆</div><h2>Final yakunlandi!</h2>
+    <div class="stats"><span class="pill">✅ ${fr.right} / 20</span><span class="pill">🏅 ${fr.right*20} ball</span><span class="pill">⏱ ${Math.floor(ms/60000)}:${String(Math.floor(ms/1000)%60).padStart(2,"0")}</span></div>
+    <p class="small">${ok?"Natijangiz yuborildi. G'olib soat 13:00 da aniqlanadi — «Reyting» bo'limida ko'rinadi.":"Natija hozir yuborilmadi — internet ulanganda avtomatik yuboriladi."}</p></section>`;
+  coins(); setDock(`<button class="btn" id="h">Asosiy</button>`); document.getElementById("h").onclick=()=>{ pullPlayers(true); home(); }; window.scrollTo(0,0); }
+
+/* ================= rahbar uchun oylik hisobot (PDF) ================= */
+async function scrReport(m){
+  m=m||curMonth(); setDock(null); TAB="rep";
+  const g=S.adminGroup||{}, ms=[0,1,2,3].map(k=>{ const d=ymd(curMonth()+"-01"); d.setMonth(d.getMonth()-k); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); });
+  app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Oylik hisobot</span></div>
+  <section class="sheet rep" id="rep"><p class="small">Yuklanmoqda...</p></section>`;
+  app.querySelector(".back").onclick=scrAdmin;
+  let rows=[]; try{ rows=(await rpc("liga_admin_month",{p_pin:S.adminPin,p_month:m}))||[]; }catch(e){ document.getElementById("rep").innerHTML=`<p class="small">${esc(errMsg(e))}</p>`; return; }
+  const weeks=[...new Set(rows.reduce((a,x)=>a.concat(Object.keys(x.weeks||{})),[]))].sort();
+  const wl=w=>{ const d=new Date(w+":00Z"); return String(d.getUTCDate()).padStart(2,"0")+"."+String(d.getUTCMonth()+1).padStart(2,"0"); };
+  const act=rows.filter(x=>x.month_xp>0), ac=rows.filter(x=>x.acc_total>0);
+  const avg=ac.length?Math.round(ac.reduce((a,x)=>a+x.acc_ok/x.acc_total,0)/ac.length*100):0;
+  const pc=x=>x.acc_total?Math.round(x.acc_ok/x.acc_total*100)+"%":"—";
+  const dt=v=>v?new Date(v).toLocaleDateString("ru-RU"):"—";
+  document.getElementById("rep").innerHTML=`
+    <div class="noprint" style="display:flex;gap:8px;align-items:center;margin-bottom:8px"><span class="small">Oy:</span>
+      <select id="rm" style="padding:8px;border-radius:10px;border:0;background:var(--bg);font-weight:700">${ms.map(x=>`<option value="${x}" ${x===m?"selected":""}>${monthName(x)}</option>`).join("")}</select></div>
+    <h2 style="margin:0">📊 ${esc(g.name||"Jamoa")} — ${monthName(m)}</h2>
+    <p class="small" style="margin:4px 0 0">Hisobchi Liga · rahbar uchun oylik hisobot · tuzilgan: ${new Date().toLocaleDateString("ru-RU")}</p>
+    <div class="sum"><div><b>${rows.length}</b>xodim</div><div><b>${act.length}</b>faol (ball olgan)</div><div><b>${avg}%</b>o'rtacha aniqlik</div><div><b>${weeks.length}</b>hafta</div></div>
+    <div class="repwrap"><table><thead><tr><th>№</th><th>Xodim</th><th>Viloyat</th>${weeks.map(w=>`<th>${wl(w)}</th>`).join("")}<th>Oy jami</th><th>Top-3</th><th>Aniqlik</th><th>Final</th><th>Oxirgi faollik</th></tr></thead>
+    <tbody>${rows.map((x,k)=>`<tr><td class="n">${k+1}</td><td><b>${esc(x.name)}</b><br><span class="small">${esc(x.phone||"")}</span></td><td>${esc(x.region||"—")}</td>
+      ${weeks.map(w=>`<td class="n">${(x.weeks||{})[w]!=null?x.weeks[w]:"—"}</td>`).join("")}<td class="n"><b>${x.month_xp}</b></td><td class="n">${x.tops?"🏅 "+x.tops:"—"}</td><td class="n">${pc(x)}</td><td class="n">${x.final_score!=null?x.final_score:"—"}</td><td>${dt(x.last_active)}</td></tr>`).join("")}</tbody></table></div>
+    <p class="small" style="margin-top:10px">Ustunlar: hafta (juma sanasi) bo'yicha liga bali · Top-3 — haftalik kuchli uchlikka necha marta kirgani · Aniqlik — kunlik bosqichlardagi to'g'ri javoblar ulushi (umumiy).
+    ${(()=>{ const w=ac.filter(x=>x.acc_total>=20&&x.acc_ok/x.acc_total<0.7).sort((a,b)=>a.acc_ok/a.acc_total-b.acc_ok/b.acc_total).slice(0,3); return w.length?"<br>⚠️ Qo'shimcha o'qitish tavsiya etiladi: "+w.map(x=>esc(x.name)+" ("+pc(x)+")").join(", "):""; })()}</p>`;
+  document.getElementById("rm").onchange=e=>scrReport(e.target.value);
+  setDock(`<button class="btn" id="pr">🖨️ PDF saqlash / chop etish</button>`);
+  document.getElementById("pr").onclick=()=>window.print();
+  window.scrollTo(0,0);
+}
+
+/* ================= obuna to'lovi (Payme / Click) ================= */
+function payLinks(cfg,inv){ const L=[];
+  if(cfg&&cfg.payme_merchant_id) L.push(["Payme","https://checkout.paycom.uz/"+btoa(`m=${cfg.payme_merchant_id};ac.invoice_id=${inv.id};a=${inv.amount*100};c=${APP_LINK}`)]);
+  if(cfg&&cfg.click_service_id&&cfg.click_merchant_id) L.push(["Click",`https://my.click.uz/services/pay?service_id=${cfg.click_service_id}&merchant_id=${cfg.click_merchant_id}&amount=${inv.amount}&transaction_param=${inv.id}&return_url=${encodeURIComponent(APP_LINK)}`]);
+  return L; }
+async function payBox(g){ const el=document.getElementById("pay"); if(!el) return;
+  let cfg=null, inv=[]; try{ cfg=((await rpc("liga_pay_config"))||[])[0]; }catch(e){}
+  try{ inv=(await rpc("liga_admin_invoices",{p_pin:S.adminPin}))||[]; }catch(e){}
+  const price=(g&&g.price)||(cfg&&cfg.price)||0, n=Math.max(1,(g&&g.members)||1);
+  const st={new:"⏳ to'lanmagan",paid:"✅ to'langan",cancelled:"❌ bekor qilingan"};
+  el.innerHTML=`<h3>💳 Obuna to'lovi</h3>
+    <p class="small">Narx: har bir ishtirokchi uchun oyiga ${fmt(price)} so'm · hozir ${n} ishtirokchi → oyiga ${fmt(price*n)} so'm. To'lov tushishi bilan obuna avtomatik uzayadi.</p>
+    <div class="set"><label for="pm">Muddat</label><select id="pm"><option value="1">1 oy</option><option value="3">3 oy</option><option value="6">6 oy</option><option value="12">12 oy</option></select></div>
+    <button class="btn" id="pinv" style="margin-top:10px">Hisob yaratish</button><div id="plk"></div>
+    ${inv.length?`<p class="small" style="margin-top:10px">So'nggi hisoblar:</p>`+inv.map(x=>`<div class="adm"><div><b style="font-size:14px">№${x.id} · ${fmt(x.amount)} so'm</b><i>${x.members} kishi × ${x.months} oy · ${st[x.status]||x.status}${x.provider?" · "+x.provider:""} · ${new Date(x.created_at).toLocaleDateString("ru-RU")}</i></div>
+      ${x.status==="new"?`<button class="buy" data-inv='${JSON.stringify({id:x.id,amount:x.amount})}'>To'lash</button>`:"<span></span>"}</div>`).join(""):""}`;
+  const show=v=>{ const L=payLinks(cfg,v), box=document.getElementById("plk");
+    box.innerHTML=`<div class="fair" style="margin-top:10px"><b>Hisob №${v.id}: ${fmt(v.amount)} so'm</b><br>`+
+      (L.length?L.map(l=>`<a class="btn" style="margin-top:8px;text-align:center;text-decoration:none" href="${l[1]}" target="_blank" rel="noopener">${l[0]} orqali to'lash</a>`).join("")
+        :`Onlayn to'lov tez orada ulanadi. Hozircha to'lov uchun yozing: <b style="display:inline">@murtozo_44</b> (hisob raqami №${v.id}).`)+`</div>`; };
+  document.getElementById("pinv").onclick=async()=>{ try{ const v=((await rpc("liga_admin_invoice",{p_pin:S.adminPin,p_months:+document.getElementById("pm").value}))||[])[0];
+      if(!v) return toast("PIN eskirgan"); show(v); payBox(g).then(()=>show(v)); }catch(e){ toast(errMsg(e)); } };
+  el.querySelectorAll("[data-inv]").forEach(b=>b.onclick=()=>show(JSON.parse(b.dataset.inv)));
+}
+
 /* ---------------- bosqich ---------------- */
 let run=null;
 /* Kunlik bosqichda har savolga faqat BIR MARTA javob beriladi (to'g'ri yoki xato).
@@ -4272,6 +4690,7 @@ function intro(si){
     <div class="r"><span>Dt ${s.example.dt}</span><span>Kt ${s.example.kt}</span></div>
     <div class="small">${A[s.example.dt]} ⟵ ${A[s.example.kt]}</div></div>`:""}
   <p class="small">❤️ 5 ta jon · ⏱ har savolga 1 daqiqa · ${s.tasks.length} ta vazifa. Xato javobning sababi va to'g'ri javobi darhol ko'rsatiladi.</p>
+  <div class="fair">🤖 <b>Halol o'yin.</b> Savol ochiq turganda ilovadan chiqsangiz (boshqa ilova, brauzer, sun'iy intellekt) — savol avtomatik <b>XATO</b> hisoblanadi. Savol matnini nusxalab bo'lmaydi, ekranda ismingiz yozilgan.</div>
   <p class="small">⚠️ Har savolga faqat <b>bir marta</b> javob beriladi — xato javob qaytib chiqmaydi. Javobsiz tashlab chiqilgan savol ham xato hisoblanadi.${left.length<s.tasks.length?`<br>▶️ Davom etasiz: <b>${left.length} ta</b> savol qoldi.`:""}</p></article>`;
   app.querySelector(".back").onclick=home;
   setDock(`<button class="btn" id="go">Boshlash</button>`);
@@ -4288,6 +4707,7 @@ const BLITZ_N=20;                              // blits: 20 ta provodka, vaqt ch
 function startBlitz(open){
   if(!open||!open.length) open=openStages();
   let pool=[]; open.forEach(i=>STAGES[i].tasks.forEach(t=>{ if(t.t==="pv") pool.push(t); }));
+  pool=pool.concat(TOPIC_ALL().filter(t=>t.t==="pv"));
   pool=freshFirst(pool).slice(0,BLITZ_N).map((t,k)=>({...t,k}));
   run={mode:"blitz",si:null,queue:pool,total:pool.length,i:0,lives:99,combo:0,mistakes:0,
     marks:pool.map(()=>""),retried:new Set(),earned:0,right:0,noXP:isWeekend()};
@@ -4345,14 +4765,27 @@ function startPractice(open){
 function startDaily(open){
   if(!open||!open.length) open=openStages();
   let pool=[]; open.forEach(i=>STAGES[i].tasks.forEach(t=>pool.push(t)));
-  pool=freshFirst(pool).slice(0,10).map((t,k)=>({...t,k}));
+  pool=shuffle(freshFirst(pool).slice(0,5).concat(freshFirst(TOPIC_ALL()).slice(0,5))).map((t,k)=>({...t,k}));
   run={mode:"daily",noXP:isWeekend(),si:null,queue:pool,total:pool.length,i:0,lives:5,combo:0,mistakes:0,marks:pool.map(()=>""),retried:new Set(),earned:0};
   task();
 }
 
+function startTopic(id){
+  const tp=TOPICS.find(t=>t.id===id); if(!tp) return;
+  const pool=freshFirst(tp.tasks.slice()).slice(0,10).map((t,k)=>({...t,k}));
+  run={mode:"topic",tp:id,tpName:tp.icon+" "+tp.title,noXP:isWeekend(),si:null,queue:pool,total:pool.length,i:0,lives:5,combo:0,mistakes:0,marks:pool.map(()=>""),retried:new Set(),earned:0};
+  task();
+}
+/* ekrandagi suv belgisi: ism + raqamning oxiri (skrinshot tarqatilsa kimniki ekani ko'rinadi) */
+function wmText(){ const u=S.user||{}; const t=((u.first||"")+" "+(u.last||"")).trim()+" · "+String(u.phone||"").slice(-4)+"   "; return esc(t.repeat(60)); }
+const FAIR=m=>m==="stage"||m==="final";
+document.addEventListener("visibilitychange",()=>{ const r=run;
+  if(!document.hidden||!r||r.answered||!FAIR(r.mode)) return;
+  r.leftApp=true; try{ check(); }catch(e){} });
+["copy","cut","contextmenu","selectstart"].forEach(ev=>document.addEventListener(ev,e=>{ if(run&&FAIR(run.mode)) e.preventDefault(); }));
 function task(){
   const r=run,t=r.queue[r.i];
-  r.answered=false; r.pick=null; r.slots={dt:null,kt:null}; r.active="dt";
+  r.answered=false; r.leftApp=false; r.pick=null; r.slots={dt:null,kt:null}; r.active="dt";
   const kind={mc:"Test",pv:"Provodka tuzing",calc:"Hisoblang"}[t.t];
   const retry=r.i>=r.total;
   app.innerHTML=`<div class="bar"><button class="back">✕</button>
@@ -4360,7 +4793,7 @@ function task(){
       :`${r.lives<50?`<span class="hearts">${"❤️".repeat(Math.max(0,r.lives))}${"🤍".repeat(Math.max(0,(r.mode==="gift"?1:5)-r.lives))}</span>`:""}<span class="tmr" id="qt">⏱ 60</span>`}<span class="spacer"></span>
     ${r.combo>=2?`<span class="combo">🔥 ×${r.combo}</span>`:""}<span class="pill">⚡ ${S.xp+r.earned}</span></div>
   <div class="progress">${r.marks.map((m,k)=>`<span class="${m||(k===t.k?"now":"")}"></span>`).join("")}</div>
-  <article class="sheet task" id="card"><div class="kind">${({daily:"Kunlik mashq · ",blitz:"⚡ Blits · ",errs:"📕 Xato daftari · ",gift:"🎁 Sovg'a savoli · ",practice:"📘 Qo'shimcha mashq · "})[r.mode]||""}${kind}</div>
+  <article class="sheet task" id="card">${FAIR(r.mode)?`<div class="wm" aria-hidden="true">${wmText()}</div>`:""}<div class="kind">${({daily:"Kunlik mashq · ",blitz:"⚡ Blits · ",errs:"📕 Xato daftari · ",gift:"🎁 Sovg'a savoli · ",practice:"📘 Qo'shimcha mashq · ",final:"🏆 Oylik final · ",topic:(r.tpName||"")+" · "})[r.mode]||""}${kind}</div>
   <p class="q">${t.q}</p><div id="body"></div><div id="fb"></div></article>`;
   if(r.mode==="stage"){ saRec(r.si).p=t.k; persist(); }
   app.querySelector(".back").onclick=()=>{
@@ -4368,6 +4801,8 @@ function task(){
       if(!confirm("Chiqasizmi? Bu savol javobsiz qolsa XATO hisoblanadi va qaytib chiqmaydi. Topgan XP saqlanadi.")) return;
       clearInterval(r.tick); run=null; if(!r.answered){ r.mistakes++; }
       saSettle(r.si); persist(); sync(); home(); return; }
+    if(r.mode==="final"){ if(!confirm("Finaldan chiqsangiz, natijangiz shu holatda yuboriladi va qayta kirib bo'lmaydi. Chiqasizmi?")) return;
+      clearInterval(r.tick); return finishFinal(r); }
     if(confirm("Chiqasizmi? Natija saqlanmaydi.")){ clearInterval(r.tick); home(); } };
   if(r.mode!=="blitz"){
     clearInterval(r.tick); r.timedOut=false; r.qEnd=Date.now()+QSEC*1000;
@@ -4445,14 +4880,16 @@ function check(){
   if(t.t==="calc"){ const raw=document.getElementById("num").value.replace(/\D/g,""); ok=raw!==""&&+raw===t.a;
     document.getElementById("num").disabled=true;
     right=`To'g'ri javob: <b style="display:inline">${fmt(t.a)} ${t.unit||"so'm"}</b><br>`; }
-  if(r.timedOut) ok=false;
+  if(r.timedOut||r.leftApp) ok=false;
+  if(t.tp){ if(!S.tacc) S.tacc={}; const ta=S.tacc[t.tp]||(S.tacc[t.tp]={ok:0,n:0}); ta.n++; if(ok) ta.ok++; }
+  if(r.mode==="final"){ if(ok) r.right++; r.done=(r.done||0)+1; saveFinalRun(r); }
   if(t.id){ if(!S.seen) S.seen={}; S.seen[t.id]=Date.now(); }
   if(r.mode==="stage"){ const rec=saRec(r.si); rec.m[t.k]=ok?"ok":"bad"; rec.p=null; persist(); }
   const card=document.getElementById("card"), st=document.createElement("div");
   st.className="stamp "+(ok?"ok":"bad"); st.textContent=ok?"TO'G'RI":"XATO"; card.appendChild(st);
   if(ok){
     r.combo++;
-    let g=r.noXP?0:(r.mode==="daily"?8:10); if(!r.noXP){ if(r.combo>=3)g+=5; if(r.combo>=7)g+=5; }
+    let g=r.noXP?0:(r.mode==="daily"||r.mode==="topic"?8:10); if(!r.noXP){ if(r.combo>=3)g+=5; if(r.combo>=7)g+=5; }
     r.earned+=g; if(r.marks[t.k]!=="bad")r.marks[t.k]="ok";
     if(r.mode==="stage"&&g){ addXP(g,"stage"); addStageXP(r.si,g); persist(); syncSoon(); }   // darhol saqlanadi
     if(!r.noXP){
@@ -4462,7 +4899,7 @@ function check(){
     if(r.combo===10)award("combo10");
     dailyTick(true); }
     if(r.mode==="blitz") r.right++;
-    if(t.id&&S.errs[t.id]&&(r.mode==="errs"||r.mode==="daily")){ delete S.errs[t.id]; persist(); }
+    if(t.id&&S.errs[t.id]&&(r.mode==="errs"||r.mode==="daily"||r.mode==="topic")){ delete S.errs[t.id]; persist(); }
     const p=["Barakalla!","Aniq hisob!","Balans joyida!","Zo'r!","Professional daraja!","Inspektor ham rozi!"];
     document.getElementById("fb").innerHTML=`<div class="explain ok"><b>${p[Math.floor(Math.random()*p.length)]}${g?" +"+g+" XP":""}</b>${t.e}</div>`;
   } else {
@@ -4470,12 +4907,15 @@ function check(){
     if(t.id){ S.errs[t.id]=true; persist(); }
     if(navigator.vibrate)try{navigator.vibrate(120);}catch(e){}
     card.classList.add("shake"); setTimeout(()=>card.classList.remove("shake"),600);
-    document.getElementById("fb").innerHTML=`<div class="explain bad"><b>${r.timedOut?"⏱ Vaqt tugadi — javobni ko'rib oling":"Xato — sababini tushunib olamiz"}</b>${right}<span style="display:block;margin-top:6px"><b style="display:inline">Nega:</b> ${t.e}</span></div>`;
+    document.getElementById("fb").innerHTML=`<div class="explain bad"><b>${r.leftApp?"🚫 Ilovadan chiqildi — savol xato hisoblandi":r.timedOut?"⏱ Vaqt tugadi — javobni ko'rib oling":"Xato — sababini tushunib olamiz"}</b>${right}<span style="display:block;margin-top:6px"><b style="display:inline">Nega:</b> ${t.e}</span></div>`;
   }
   const last=r.i>=r.queue.length-1;
   if(r.mode==="gift"){
     setDock(`<button class="btn" id="nx">🎁 Sovg'ani ochish</button>`);
     document.getElementById("nx").onclick=()=>giftReward(ok);
+  } else if(r.mode==="final"){
+    setDock(`<button class="btn" id="nx">${last?"Natijani yuborish":"Keyingi savol"}</button>`);
+    document.getElementById("nx").onclick=()=>{ if(last) return finishFinal(r); r.i++; task(); };
   } else if(r.mode==="blitz"){
     setDock(`<button class="btn" id="nx">${last?"Natijani ko'rish":"Keyingi provodka"}</button>`);
     document.getElementById("nx").onclick=()=>{ if(last) return finish(true); r.i++; task(); };
@@ -4519,7 +4959,7 @@ function finish(passed){
       <div class="stats"><span class="pill">✅ ${okn} to'g'ri</span><span class="pill">❌ ${r.mistakes} xato</span></div>
       <p class="small">Bu mashq faqat o'zingiz uchun — ligaga XP qo'shilmaydi. Xato savollar «Xato daftari»da saqlandi.</p></section>`;
     setDock(`<div class="two"><button class="btn" id="a">Yana mashq</button><button class="btn ghost" id="b">Asosiy</button></div>`);
-    document.getElementById("a").onclick=()=>r.mode==="errs"?startErrs():startPractice(STAGES.map((x,i)=>i).filter(unlocked));
+    document.getElementById("a").onclick=()=>r.mode==="errs"?startErrs():r.mode==="topic"?startTopic(r.tp):startPractice(STAGES.map((x,i)=>i).filter(unlocked));
     document.getElementById("b").onclick=home; window.scrollTo(0,0); return;
   }
   const posBefore=place();
@@ -4531,7 +4971,7 @@ function finish(passed){
     let bonus=r.mode==="stage"?stars*30:70;
     if(r.mode==="stage"){ const rec=saRec(r.si); if(rec.b) bonus=0; else rec.b=true; }
     if(r.mode==="stage"){ if(bonus){ addXP(bonus,"stage"); addStageXP(r.si,bonus); } }   // javoblar bali allaqachon qo'shilgan
-    else addXP(r.earned+bonus, r.mode==="daily"?"daily":null);
+    else addXP(r.earned+bonus, r.mode==="daily"||r.mode==="topic"?"daily":null);
     if(r.mode==="stage"){
       const prev=S.stars[r.si]||0; S.stars[r.si]=Math.max(prev,stars);
       award("first"); if(stars===3)award("perfect");
@@ -4546,7 +4986,7 @@ function finish(passed){
     const b=board(), me=b[posAfter-1], above=posAfter>1?b[posAfter-2]:null;
     app.innerHTML=`<section class="sheet result">
       <div class="big-stars">${r.mode==="stage"?starStr(stars):"🎯"}</div>
-      <h2>${r.mode==="daily"?"Kunlik mashq bajarildi!":(r.si===STAGES.length-1?"Tekshiruvdan o'tdingiz!":"Bosqich yakunlandi!")}</h2>
+      <h2>${r.mode==="daily"?"Kunlik mashq bajarildi!":r.mode==="topic"?"Yo'nalish mashqi bajarildi!":(r.si===STAGES.length-1?"Tekshiruvdan o'tdingiz!":"Bosqich yakunlandi!")}</h2>
       <div class="stats"><span class="pill">⚡ +${r.earned+bonus+dayBonus} XP</span>${r.mode==="stage"?`<span class="pill">🗺️ ${r.si+1}-bosqich: ${(S.week.stages||{})[r.si]||0} XP</span>`:""}
         <span class="pill">❌ ${r.mode==="stage"?saBad(r.si):r.mistakes} xato</span><span class="pill">🔥 ${S.streak} kun</span></div>
       ${dayBonus?`<p class="small">Kunlik seriya bonusi: +${dayBonus} XP</p>`:""}
@@ -4557,8 +4997,8 @@ function finish(passed){
     </section>`;
     coins();
     const nx=r.mode==="stage"&&r.si+1<STAGES.length&&unlocked(r.si+1);
-    setDock(`<div class="two"><button class="btn" id="a">${nx?"Keyingi bosqich":"Xaritaga"}</button><button class="btn ghost" id="b">Xaritaga</button></div>`);
-    document.getElementById("a").onclick=()=>nx?intro(r.si+1):home();
+    setDock(`<div class="two"><button class="btn" id="a">${nx?"Keyingi bosqich":r.mode==="topic"?"Yana shu mavzu":"Xaritaga"}</button><button class="btn ghost" id="b">Xaritaga</button></div>`);
+    document.getElementById("a").onclick=()=>nx?intro(r.si+1):r.mode==="topic"?startTopic(r.tp):home();
     document.getElementById("b").onclick=home;
   } else {
     if(r.mode==="stage"){S.failed[r.si]=true; persist(); sync();}
@@ -4583,7 +5023,8 @@ recalcWeek(); persist();
 /* ---------------- ishga tushirish ---------------- */
 overtake=simulate();
 checkWeek();
-if(S.user.first&&!S.pid) joinServer().then(()=>pullPlayers(true)); else pullPlayers(true);
+if(S.user.first&&(!S.pid||(!S.token&&!S.tokenLost))) joinServer().then(()=>pullPlayers(true)); else pullPlayers(true);
+flushFinal();
 if(S.pending) leagueResult(); else home();
 scheduleReminder();
 scheduleLeague();

@@ -5,18 +5,35 @@ import json, sys
 from playwright.sync_api import sync_playwright
 
 BASE = "http://localhost:8765/index.html"
-SEED = {"xp": 0, "user": {"first": "Test", "last": "User", "phone": "+998901112233"}, "name": "Test", "key": "x", "pid": "p1",
+SEED = {"xp": 0, "user": {"first": "Test", "last": "User", "phone": "+998901112233", "region": "Andijon viloyati"}, "name": "Test", "key": "x", "pid": "p1", "token": "tok1",
         "stars": {}, "week": {"id": "", "my": 0, "riv": {}}, "group": {"code": "ASOSIY", "start": "2026-09-28", "ok": True}}
 fails = []
 def check(name, cond, info=""):
     print(("✅ " if cond else "❌ ") + name + (f" — {info}" if info and not cond else ""))
     if not cond: fails.append(name)
 
+CALLS = []
+EXTRA = {}
 def mock(pushes):
     def h(route):
         u, body = route.request.url, None
-        if "liga_push" in u: pushes.append(json.loads(route.request.post_data or "{}"))
-        if "liga_members" in u: body = [{"name": "Test U.", "is_me": True, "medal": 1}, {"name": "Ali V.", "is_me": False, "medal": None}]
+        fn = u.split("/rpc/")[-1].split("?")[0]
+        CALLS.append((fn, json.loads(route.request.post_data or "{}")))
+        if fn == "liga_save": pushes.append(json.loads(route.request.post_data or "{}"))
+        if fn in EXTRA: body = EXTRA[fn]
+        elif fn == "liga_join2": body = [{"id": "new-id", "token": "tok-new"}]
+        elif fn == "liga_claim": body = "tok-claimed"
+        elif fn == "liga_pin_check": body = "admin"
+        elif fn == "liga_admin_group": body = [{"code": "BX12AB", "name": "Sinov jamoasi", "paid_until": "2026-10-31", "ok": True, "members": 3, "max_players": None, "start_date": "2026-10-05", "chats": 1, "region": "Andijon viloyati", "price": 30000}]
+        elif fn == "liga_admin_list": body = [{"id": "p1", "first_name": "Test", "last_name": "User", "phone": "+998901112233", "xp": 100, "week_xp": 50, "week_id": "x", "stages": 1, "streak": 1, "last_active": None, "created_at": None, "week_stage": 0, "week_daily": 0, "week_blitz": 0, "week_stages": {}, "week_bonus": 0, "region": "Andijon viloyati", "acc_ok": 8, "acc_total": 10, "has_device": True},
+                                             {"id": "p2", "first_name": "Ali", "last_name": "V", "phone": "+998901110000", "xp": 10, "week_xp": 0, "week_id": "x", "stages": 0, "streak": 0, "last_active": None, "created_at": None, "week_stage": 0, "week_daily": 0, "week_blitz": 0, "week_stages": {}, "week_bonus": 0, "region": None, "acc_ok": 0, "acc_total": 0, "has_device": True}]
+        elif fn == "liga_admin_month": body = [{"id": "p1", "name": "Test User", "phone": "+998901112233", "region": "Andijon viloyati", "weeks": {"2026-10-02T07:00": 420, "2026-10-09T07:00": 380}, "month_xp": 800, "tops": 2, "acc_ok": 80, "acc_total": 100, "last_active": "2026-10-09T10:00:00Z", "final_score": 340}]
+        elif fn == "liga_admin_invoice": body = [{"id": 7, "amount": 90000, "members": 3, "months": 1}]
+        elif fn in ("liga_admin_invoices", "liga_wq_admin", "liga_region_league"): body = []
+        elif fn == "liga_pay_config": body = [{"payme_merchant_id": "", "click_service_id": "", "click_merchant_id": "", "price": 30000}]
+        elif fn == "liga_wq_state": body = [{"can_submit": False, "my_status": None, "q_id": None, "q": None, "o": None, "author": None}]
+        elif fn == "liga_final_info": body = [{"month": "2026-10", "final_date": "2026-10-31", "open_now": False, "ended": False, "qualified": False, "my_score": None, "my_ms": None, "qualifiers": [], "standings": []}]
+        elif "liga_members" in u: body = [{"name": "Test U.", "is_me": True, "medal": 1}, {"name": "Ali V.", "is_me": False, "medal": None}]
         elif "liga_count" in u: body = 2
         elif "liga_group_info" in u: body = [{"code": "ASOSIY", "name": "Buxgalterlar ligasi", "paid_until": None, "ok": True, "members": 2, "start_date": "2026-09-28"}]
         elif "liga_champions" in u: body = [{"week_id": "2026-09-25T07:00", "pos": 1, "name": "Test U.", "week_xp": 900, "is_me": True}]
@@ -101,7 +118,7 @@ with sync_playwright() as p:
     joins = []
     def h(route):
         u = route.request.url
-        if "liga_join" in u: joins.append(json.loads(route.request.post_data)); return route.fulfill(status=200, content_type="application/json", body='"new-id"')
+        if "liga_join2" in u: joins.append(json.loads(route.request.post_data)); return route.fulfill(status=200, content_type="application/json", body='[{"id":"new-id","token":"tok-new"}]')
         if "liga_group_info" in u: return route.fulfill(status=200, content_type="application/json",
             body=json.dumps([{"code": "BX12AB", "name": "Sinov jamoasi", "paid_until": "2026-10-20", "ok": True, "members": 1, "start_date": "2026-10-05"}]))
         return mock([])(route)
@@ -110,7 +127,11 @@ with sync_playwright() as p:
     pg.goto(BASE + "?g=bx12ab"); pg.wait_for_timeout(800)
     check("Havoladagi jamoa kodi formaga tushdi", pg.input_value("#g") == "BX12AB")
     pg.fill("#f", "Dilnoza"); pg.fill("#l", "Karimova"); pg.fill("#p", "901234567")
-    pg.click("#go"); pg.wait_for_timeout(800)
+    pg.click("#go"); pg.wait_for_timeout(300)
+    check("Viloyatsiz ro'yxatdan o'tmaydi", "Viloyatni tanlang" in pg.inner_text("#err"))
+    pg.select_option("#rg", "Farg'ona viloyati"); pg.click("#go"); pg.wait_for_timeout(800)
+    check("Viloyat va kalit saqlandi", pg.evaluate("()=>S.user.region===\"Farg'ona viloyati\"&&S.token==='tok-new'"))
+    check("Viloyat serverga yuborildi", joins and joins[0].get("p_region") == "Farg'ona viloyati", str(joins))
     check("Ro'yxatdan o'tish jamoa kodi bilan yuborildi", joins and joins[0].get("p_group") == "BX12AB", str(joins))
     st0 = pg.evaluate("()=>({start:ligaStart().toDateString(), s1:stageState(0)})")
     check("Jamoa o'z sanasidan boshlanadi (05.10 → hozir 1-bosqich kelajakda)", st0["s1"] == "future", str(st0))
@@ -133,6 +154,113 @@ with sync_playwright() as p:
     check("Sheriklarda 👑 nishon", "👑" in pg.inner_text(".league"))
     check("Hech qayerda '/8' yo'q", "/ 8" not in pg.content() and "8/8" not in pg.content())
     check("Xatolar yo'q (5)", not errs, str(errs))
+
+    # 6) Himoya: natija faqat kalit bilan; eski o'yinchi kalitni bir marta oladi
+    CALLS.clear(); pushes = []
+    seed = json.loads(json.dumps(SEED)); seed.pop("token")
+    pg, errs = page(b, "2026-10-01T06:00:00Z", seed=seed, pushes=pushes); pg.wait_for_timeout(500)
+    check("Eski o'yinchi uchun liga_claim chaqirildi", any(c[0] == "liga_claim" for c in CALLS))
+    check("Saqlash kalit bilan (liga_save)", pushes and pushes[-1].get("p_token") == "tok-claimed" and pushes[-1].get("p_region") == "Andijon viloyati", str(pushes[-1:]))
+    check("Eski ochiq push funksiyalari chaqirilmaydi", not any(c[0].startswith("liga_push") or c[0] == "liga_join" for c in CALLS))
+    # viloyatsiz eski o'yinchi — bir marta so'raladi
+    seed = json.loads(json.dumps(SEED)); seed["user"].pop("region")
+    pg, errs = page(b, "2026-10-01T06:00:00Z", seed=seed)
+    check("Viloyat so'raladi", "Viloyatingiz" in pg.inner_text("body"))
+    pg.select_option("#rg", "Toshkent shahri"); pg.click("#go"); pg.wait_for_timeout(300)
+    check("Viloyat saqlanib, asosiy oyna ochildi", pg.evaluate("()=>S.user.region==='Toshkent shahri'&&TAB==='main'"))
+    check("Xatolar yo'q (6)", not errs, str(errs))
+
+    # 7) Halol o'yin: savol ochiqligida ilovadan chiqilsa — xato
+    pg, errs = page(b, "2026-10-01T05:00:00Z")
+    pg.evaluate("()=>{intro(3);document.getElementById('go').click();}")
+    check("Bosqichda suv belgisi (ism) bor", "Test User" in pg.inner_text(".wm"))
+    pg.evaluate("()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true}); document.dispatchEvent(new Event('visibilitychange'));}")
+    r = pg.evaluate("()=>({ans:run.answered, m:Object.values(saRec(3).m), txt:document.getElementById('fb').innerText})")
+    check("Ilovadan chiqilganda savol xato", r["ans"] and r["m"] == ["bad"] and "Ilovadan chiqildi" in r["txt"], str(r))
+    pg.evaluate("()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});}")
+    pg.evaluate("()=>startBlitz()")
+    pg.evaluate("()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true}); document.dispatchEvent(new Event('visibilitychange'));}")
+    check("Blitsda chiqish jazolanmaydi", pg.evaluate("()=>!run.answered"))
+    check("Xatolar yo'q (7)", not errs, str(errs))
+
+    # 8) Savollar bazasi 500+ va yo'nalishlar
+    pg, errs = page(b, "2026-10-01T06:00:00Z")
+    r = pg.evaluate("()=>({n:QBASE(), u:new Set(TOPIC_ALL().map(t=>t.q)).size, t:TOPIC_ALL().length, ids:new Set(TOPIC_ALL().map(t=>t.id)).size, bad:TOPIC_ALL().filter(t=>t.t==='calc'&&!(Number.isInteger(t.a)&&t.a>0)).length, topics:TOPICS.map(t=>t.title)})")
+    check("Bazada 500+ savol", r["n"] >= 500, str(r))
+    check("Yo'nalish savollari noyob va to'g'ri", r["u"] == r["t"] == r["ids"] and r["bad"] == 0, str(r))
+    check("QQS, Ish haqi, MHXS yo'nalishlari bor", all(x in r["topics"] for x in ["QQS", "Ish haqi", "MHXS"]), str(r["topics"]))
+    pg.evaluate("()=>scrStages()"); check("Bosqich bo'limida yo'nalishlar", "Yo'nalishlar" in pg.inner_text("body"))
+    pg.evaluate("()=>startTopic('qqs')")
+    for k in range(10):
+        pg.evaluate(ANSWER, True); pg.evaluate("()=>document.getElementById('nx').click()")
+    r = pg.evaluate("()=>({my:S.week.my, d:S.week.part.daily, h:document.querySelector('h2').innerText, acc:S.tacc.qqs})")
+    check("Yo'nalish bali kunlik mashqqa, ligaga emas", r["my"] == 0 and r["d"] > 0 and "Yo'nalish" in r["h"] and r["acc"]["n"] == 10, str(r))
+    check("Xatolar yo'q (8)", not errs, str(errs))
+
+    # 9) Haftaning savoli
+    EXTRA["liga_wq_state"] = [{"can_submit": False, "my_status": None, "q_id": 5, "q": "Bo'nak qaysi hisobvaraqda?", "o": ["4310", "6010", "5110"], "author": "Ali V."}]
+    EXTRA["liga_wq_answer"] = [{"ok": True, "a": 0, "e": "Berilgan bo'nak — 4310"}]
+    pg, errs = page(b, "2026-10-01T06:00:00Z"); pg.wait_for_timeout(300)
+    txt = pg.inner_text("body")
+    check("Haftaning savoli muallif ismi bilan", "Haftaning savoli" in txt and "Ali V." in txt)
+    xp0 = pg.evaluate("()=>S.xp")
+    pg.click("[data-wqa]"); pg.click(".opt[data-k='0']"); pg.click("#go"); pg.wait_for_timeout(300)
+    check("To'g'ri javob +50 XP (ligaga emas)", pg.evaluate("()=>S.xp") == xp0 + 50 and pg.evaluate("()=>S.week.my") == 0)
+    EXTRA.pop("liga_wq_state"); EXTRA.pop("liga_wq_answer")
+    EXTRA["liga_wq_state"] = [{"can_submit": True, "my_status": None, "q_id": None, "q": None, "o": None, "author": None}]
+    pg, errs2 = page(b, "2026-10-01T06:00:00Z"); pg.wait_for_timeout(300)
+    check("G'olibga savol taklif qilish tugmasi", "Savol taklif qilish" in pg.inner_text("body"))
+    pg.click("[data-wqs]"); CALLS.clear()
+    pg.fill("#wq", "Ish haqidan JShDS qaysi hisobvaraqqa?"); pg.fill("#wo0", "6410"); pg.fill("#wo1", "6710"); pg.fill("#wo3", "5110")
+    pg.select_option("#wa", "3"); pg.click("#go"); pg.wait_for_timeout(300)
+    sub = [c[1] for c in CALLS if c[0] == "liga_wq_submit"]
+    check("Taklif yuborildi (bo'sh variant tashlandi)", sub and sub[0]["p_o"] == ["6410", "6710", "5110"] and sub[0]["p_a"] == 2 and sub[0]["p_token"] == "tok1", str(sub))
+    EXTRA.pop("liga_wq_state")
+    check("Xatolar yo'q (9)", not errs and not errs2, str(errs + errs2))
+
+    # 10) Oylik final
+    EXTRA["liga_final_info"] = [{"month": "2026-10", "final_date": "2026-10-31", "open_now": True, "ended": False, "qualified": True, "my_score": None, "my_ms": None,
+        "qualifiers": [{"n": "Test U.", "tops": 2, "xp": 900, "me": True}, {"n": "Ali V.", "tops": 2, "xp": 800, "me": False}], "standings": []}]
+    pg, errs = page(b, "2026-10-31T06:00:00Z"); pg.wait_for_timeout(300)
+    check("Finalchi uchun final tugmasi", "Finalni boshlash" in pg.inner_text("body"))
+    s1 = pg.evaluate("()=>finalSet().map(t=>t.id).join()")
+    s2 = pg.evaluate("()=>finalSet().map(t=>t.id).join()")
+    check("Final savollari 20 ta va hamma uchun bir xil", s1 == s2 and len(s1.split(",")) == 20)
+    CALLS.clear(); pg.click("[data-fin]")
+    for k in range(20):
+        pg.evaluate(ANSWER, k % 4 != 0); pg.evaluate("()=>document.getElementById('nx').click()"); pg.wait_for_timeout(20)
+    pg.wait_for_timeout(300)
+    fs = [c[1] for c in CALLS if c[0] == "liga_final_submit"]
+    check("Final natijasi yuborildi (15/20 = 300 ball)", fs and fs[0]["p_score"] == 300, str(fs))
+    check("Finalni qayta o'ynab bo'lmaydi", not pg.evaluate("()=>finalCanPlay()"))
+    pg.evaluate("()=>scrRating()"); txt = pg.inner_text("body")
+    check("Reytingda oylik chempionat va viloyat ligasi", "chempionati" in txt and "Viloyat ligasi" in txt)
+    EXTRA.pop("liga_final_info")
+    check("Xatolar yo'q (10)", not errs, str(errs))
+
+    # 11) Admin: PIN tekshiruvi, qurilma, hisobot, to'lov
+    pg, errs = page(b, "2026-10-01T06:00:00Z")
+    pg.evaluate("()=>adminLogin()"); pg.fill("#pin", "11112222"); pg.click("#go"); pg.wait_for_timeout(600)
+    txt = pg.inner_text("body")
+    check("Admin panel ochildi (liga_pin_check)", "Sinov jamoasi" in txt and "Qurilmani almashtirish" in txt and "aniqlik: 80%" in txt, txt[:300])
+    CALLS.clear(); pg.on("dialog", lambda d: d.accept())
+    pg.click("[data-dev='p2']"); pg.wait_for_timeout(300)
+    check("Qurilmani almashtirish yuborildi", any(c[0] == "liga_admin_reset_device" and c[1]["p_id"] == "p2" for c in CALLS))
+    pg.wait_for_timeout(400); pg.click("#pinv"); pg.wait_for_timeout(500)
+    check("To'lov hisobi: 90 000 so'm, onlayn ulanmagan bo'lsa @murtozo_44", "90 000" in pg.inner_text("#plk") and "@murtozo_44" in pg.inner_text("#plk"))
+    pg.evaluate("()=>{ payLinks({payme_merchant_id:'m1',click_service_id:'1',click_merchant_id:'2'},{id:7,amount:90000}).forEach(l=>window._l=(window._l||[]).concat(l[1])) }")
+    links = pg.evaluate("()=>window._l")
+    import base64
+    check("Payme havolasi to'g'ri (tiyinda)", "ac.invoice_id=7;a=9000000" in base64.b64decode(links[0].split("/")[-1]).decode(), links[0])
+    check("Click havolasi to'g'ri", "transaction_param=7" in links[1] and "amount=90000" in links[1])
+    pg.click("#rep"); pg.wait_for_timeout(500)
+    txt = pg.inner_text("body")
+    check("Oylik hisobot: xodim, haftalar, aniqlik, final", "Test User" in txt and "420" in txt and "80%" in txt and "340" in txt and "Oktabr 2026" in txt, txt[:400])
+    EXTRA["liga_pin_check"] = "bad"
+    pg.evaluate("()=>{S.adminPin='';adminLogin()}"); pg.fill("#pin", "1"); pg.click("#go"); pg.wait_for_timeout(300)
+    check("Noto'g'ri PIN rad etiladi", "noto'g'ri" in pg.inner_text("#st"))
+    EXTRA.pop("liga_pin_check")
+    check("Xatolar yo'q (11)", not errs, str(errs))
     b.close()
 
 print("\nNATIJA:", "HAMMASI O'TDI" if not fails else f"{len(fails)} ta xato: {fails}")
