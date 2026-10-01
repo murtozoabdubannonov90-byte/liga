@@ -129,6 +129,13 @@ body::after{content:""; position:fixed; inset:auto -20% -25% -20%; height:55vh; 
 .rep .sum div{background:var(--bg);border-radius:12px;padding:8px;text-align:center;font-size:12px} .rep .sum b{display:block;font-family:var(--display);font-size:18px}
 .repwrap{overflow-x:auto}
 @page rep{size:A4 landscape;margin:10mm} .rep{page:rep}
+.paycard{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;background:linear-gradient(135deg,#2a1f6b,#5b3cc4);color:#fff;border-radius:16px;padding:14px 16px;margin-top:8px}
+.paycard{grid-template-columns:1fr!important} .paycard b{font-family:var(--display);font-size:19px;letter-spacing:.5px;white-space:nowrap;font-variant-numeric:tabular-nums} .paycard i{font-style:normal;font-size:13px;opacity:.85} .paycard .buy{justify-self:start;margin-top:6px}
+.upl{display:block;text-align:center;margin-top:8px;padding:12px;border-radius:14px;border:2px dashed var(--line);font-weight:800;cursor:pointer}
+#rprev[hidden]{display:none} #rprev{display:block;max-width:100%;max-height:260px;margin:10px auto 0;border-radius:12px}
+.rcpt{display:grid;grid-template-columns:96px 1fr;gap:12px;background:var(--bg);border-radius:16px;padding:10px;margin-bottom:8px}
+.rcpt img{width:96px;height:120px;object-fit:cover;border-radius:10px;cursor:zoom-in} .rcpt img.big{grid-column:1/-1;width:100%;height:auto;object-fit:contain}
+.rcpt b{display:block;font-family:var(--display);font-size:15px} .rcpt i{display:block;font-style:normal;font-size:12.5px;color:var(--muted);font-weight:600}
 .wqo{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;margin-top:8px} .wqo b{font-family:var(--display)}
 .adm{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--bg);border-radius:16px;padding:10px 12px;margin-bottom:8px}
 .adm b{display:block;font-family:var(--display);font-size:16px}.adm i{font-style:normal;font-size:12.5px;color:var(--muted);font-weight:600;display:block;line-height:1.35}
@@ -3637,7 +3644,7 @@ function urlGroup(){ try{ const q=new URLSearchParams(location.search).get("g");
 const JERR={group_not_found:"Bunday jamoa kodi topilmadi yoki to'xtatilgan",group_inactive:"Jamoa obunasi tugagan — administratorga murojaat qiling",safari_full:"Jamoada joy qolmagan",
   phone_taken:"Bu raqam boshqa telefonda ro'yxatdan o'tgan. Jamoa administratori «Qurilmani almashtirish» tugmasini bossin — keyin qayta ulaning",
   bad_input:"Ma'lumotlarni tekshiring",too_many:"Juda ko'p noto'g'ri urinish — 10 daqiqadan keyin qayta urinib ko'ring",
-  final_closed:"Final yopiq — faqat oyning oxirgi shanbasi 10:00–13:00",not_qualified:"Siz bu oy finalga saralanmagansiz",not_winner:"Taklif faqat o'tgan hafta g'olibi uchun"};
+  final_closed:"Final yopiq — faqat oyning oxirgi shanbasi 10:00–13:00",not_qualified:"Siz bu oy finalga saralanmagansiz",not_winner:"Taklif faqat o'tgan hafta g'olibi uchun",bad_image:"Chek rasmini qayta tanlang (JPG yoki PNG)",bad_token:"Hisobingiz bu telefonga ulanmagan — «Qayta ulanish» tugmasini bosing"};
 function errMsg(e){ const m=String(e&&e.message||e); const k=Object.keys(JERR).find(x=>m.indexOf(x)>=0); return k?JERR[k]:"Serverga ulanmadi"; }
 const REGIONS=["Qoraqalpog'iston Respublikasi","Andijon viloyati","Buxoro viloyati","Farg'ona viloyati","Jizzax viloyati","Xorazm viloyati","Namangan viloyati",
   "Navoiy viloyati","Qashqadaryo viloyati","Samarqand viloyati","Sirdaryo viloyati","Surxondaryo viloyati","Toshkent viloyati","Toshkent shahri"];
@@ -3687,8 +3694,10 @@ async function pullPlayers(force){
       try{ S.champs=(await rpc("liga_champions",{p_id:S.pid}))||[]; }catch(e){}
       try{ const w=await rpc("liga_wq_state",{p_id:S.pid}); S.wq=(w&&w[0])||null; }catch(e){}
       try{ const f=await rpc("liga_final_info",{p_id:S.pid}); S.fin=(f&&f[0])||null; }catch(e){}
-      try{ S.regL=(await rpc("liga_region_league",{p_id:S.pid}))||[]; }catch(e){} }
-    if(S.adminPin){ try{ S.adminRows=await rpc("liga_admin_list",{p_pin:S.adminPin}); }catch(e){ S.adminRows=null; } }
+      try{ S.regL=(await rpc("liga_region_league",{p_id:S.pid}))||[]; }catch(e){}
+      try{ const m=await rpc("liga_player_status",{p_id:S.pid}); if(m&&m[0]) S.me=m[0]; }catch(e){} }
+    try{ const c=await rpc("liga_pay_config2"); if(c&&c[0]) S.payCfg=c[0]; }catch(e){}
+    if(S.adminPin){ try{ S.adminRows=await rpc("liga_admin_list2",{p_pin:S.adminPin}); }catch(e){ S.adminRows=null; } }
     persist();
     if(S.user&&S.user.first&&S.user.region&&!run){ if(TAB==="main") scrMain(); else if(TAB==="rate") scrRating(); } }catch(e){}
 }
@@ -3991,6 +4000,7 @@ function register(){
     <input id="g" type="text" autocapitalize="characters" placeholder="masalan: BX12AB" value="${urlGroup()}">
     <p class="small" id="gname" style="min-height:18px"></p>
     <p class="small" id="err" style="color:var(--bad); min-height:22px"></p>
+    <div class="fair" id="pinfo">💳 <b>Ligada qatnashish: oyiga ${fmt(price())} so'm.</b> Ro'yxatdan o'tgach kartaga to'lab, chek rasmini yuborasiz — shu zahoti ligaga qo'shilasiz. Jamoa kodi bilan kirsangiz — jamoangiz obunasi amal qiladi.</div>
     <div class="fair">🔒 Ma'lumotlaringiz himoyalangan: telefon raqamingiz faqat jamoa administratoriga ko'rinadi, natijangizni faqat shu telefon yoza oladi.</div>
   </section>`;
   setDock(`<button class="btn" id="go">Ro'yxatdan o'tish</button>`);
@@ -4015,7 +4025,9 @@ function register(){
     const g=await checkG(); if(g===false) return err.textContent="Jamoa kodini tekshiring yoki bo'sh qoldiring";
     S.group=g||{code:"ASOSIY"};
     S.user={first:f,last:l,phone:p,region:rg}; S.name=f; persist();
-    toast("Xush kelibsiz, "+f+"!"); coins(); scrMain();
+    toast("Xush kelibsiz, "+f+"!"); coins();
+    const personal=!S.group.code||S.group.code==="ASOSIY";
+    if(personal){ S.me={personal:true,ok:false,price:price()}; persist(); scrPay(); } else scrMain();
     if(S.key) joinServer().then(r=>{ toast(r.msg); pullPlayers(true); });
   };
   window.scrollTo(0,0);
@@ -4040,9 +4052,11 @@ function groupBanner(){
   if(groupBlocked()) h+=S.group.until&&S.group.start&&String(S.group.until)<String(S.group.start)
     ?`<div class="alert">💳 «${esc(S.group.name||"Jamoa")}» obunasi to'lovi kutilmoqda. To'lovdan keyin bosqichlar ochiladi.</div>`
     :`<div class="alert">⛔ «${esc(S.group.name||"Jamoa")}» obunasi tugagan. Bosqichlar yopiq — administratorga murojaat qiling.</div>`;
+  if(playerBlocked()) h+=`<div class="alert">💳 Ligada qatnashish uchun obuna kerak: oyiga ${fmt(price())} so'm. To'lov qilib, chekni yuboring — bosqichlar darhol ochiladi. <button class="buy" id="paynow" style="margin-top:8px">To'lov qilish</button></div>`;
   if(S.user.first&&!S.token&&(S.tokenLost||S.joinErr)) h+=`<div class="alert">🔑 ${S.tokenLost?"Hisobingiz boshqa telefonga o'tkazilgan.":esc(S.joinErr)} <button class="buy" id="rejoin" style="margin-top:8px">Qayta ulanish</button></div>`;
   return h; }
-function bindRejoin(){ const b=document.getElementById("rejoin"); if(b) b.onclick=async()=>{ b.disabled=true; const r=await joinServer(true); toast(r.msg); if(r.ok) await pullPlayers(true); scrMain(); }; }
+function bindRejoin(){ const pn=document.getElementById("paynow"); if(pn) pn.onclick=scrPay;
+  const b=document.getElementById("rejoin"); if(b) b.onclick=async()=>{ b.disabled=true; const r=await joinServer(true); toast(r.msg); if(r.ok) await pullPlayers(true); scrMain(); }; }
 /* ---------- asosiy oyna ---------- */
 function leagueCard(){
   const wb=weekBoard(), wp=wb.findIndex(x=>x.me)+1, my=S.week.my;
@@ -4192,6 +4206,8 @@ function scrProfile(){
   <section class="card"><h3>Yutuqlar (${S.ach.length}/${ACH.length})</h3>
     <div class="badges">${ACH.map(a=>`<div class="badge ${S.ach.includes(a.id)?"":"off"}" title="${a.n}: ${a.d}">${a.i}</div>`).join("")}</div></section>
   ${statsHTML()}
+  ${S.me&&S.me.personal?`<section class="card"><h3>💳 Obuna</h3><div class="small">${S.me.ok?`✅ ${fmtD(S.me.paid_until)} gacha${S.me.pending?" · chek tekshirilmoqda":""}`:"⛔ To'lanmagan — bosqichlar yopiq"} · oyiga ${fmt(price())} so'm</div>
+    <button class="btn ${S.me.ok?"ghost":""}" id="paybtn">${S.me.ok?"💳 Obunani uzaytirish":"💳 To'lov qilish"}</button></section>`:""}
   <section class="card"><h3>👥 Jamoa</h3>
     <div class="small">${S.pid?`✅ ${esc((S.group&&S.group.name)||"Buxgalterlar ligasi")} · kod <b style="display:inline">${esc((S.group&&S.group.code)||"ASOSIY")}</b> · ${S.pcount||1} ishtirokchi${S.group&&S.group.until?` · obuna ${fmtD(S.group.until)} gacha`:""}`:(S.key?"⚠️ Ro'yxatga qo'shilmagan":"❌ Serverga ulanmagan")}</div>
     <button class="btn ghost" id="srv">🔗 Ulanish va diagnostika</button></section>
@@ -4203,6 +4219,7 @@ function scrProfile(){
     ${myMedal()?`<button class="btn ghost" id="wcert">${["","👑","🥈","🥉"][myMedal().pos]} Haftalik g'olib sertifikati</button>`:""}</section>`,"prof");
   document.getElementById("srv").onclick=scrServer;
   document.getElementById("chreg").onclick=e=>{ e.preventDefault(); askRegion(scrProfile); };
+  const pb=document.getElementById("paybtn"); if(pb) pb.onclick=scrPay;
   document.getElementById("buy").onclick=buyShield;
   document.getElementById("errb").onclick=startErrs;
   document.getElementById("inst").onclick=install;
@@ -4336,6 +4353,7 @@ async function scrAdmin(){
   <section class="sheet"><h2>🛡️ Ishtirokchilar</h2><p class="small">Barcha natijalar faqat sizga ko'rinadi.</p><div id="al"><p class="small">Yuklanmoqda...</p></div></section>
   <section class="card"><h3>📄 Rahbar uchun oylik hisobot</h3><p class="small">Har bir xodimning haftalik ballari, kuchli uchlikka kirishlari, aniqlik foizi va final natijasi. PDF qilib saqlash yoki chop etish mumkin.</p>
     <button class="btn" id="rep">📄 Oylik hisobotni ochish</button></section>
+  <section class="card" id="rcp" hidden></section>
   <section class="card" id="pay"><h3>💳 Obuna to'lovi</h3><p class="small">Yuklanmoqda...</p></section>
   <section class="card" id="wqa"><h3>❓ Haftaning savoli</h3><p class="small">Yuklanmoqda...</p></section>
   <section class="card"><h3>🏁 O'tgan hafta jadvali</h3>${lastResHTML()||`<p class="small">Hali yakunlangan hafta yo'q.</p>`}</section>
@@ -4345,7 +4363,8 @@ async function scrAdmin(){
   document.getElementById("out").onclick=()=>{ S.adminPin=""; persist(); scrProfile(); };
   try{ const g=(await rpc("liga_admin_group",{p_pin:S.adminPin}))[0];
     if(!g){ S.adminPin=""; persist(); toast("PIN eskirgan — qayta kiring"); return adminLogin(); }
-    S.adminGroup=g; payBox(g); wqAdminBox();
+    S.adminGroup=g; wqAdminBox();
+    if(g.code==="ASOSIY"){ const pe=document.getElementById("pay"); if(pe) pe.hidden=true; receiptBox(); } else payBox(g);
     const bl=BOT_LINK+"?start=g_"+g.code, al=APP_LINK+"?g="+g.code;
     document.getElementById("ag").innerHTML=`<h3>👥 ${esc(g.name)}</h3>
       <div class="small">Kod: <b style="display:inline">${g.code}</b> · ${g.members} ishtirokchi · ${g.chats} ta guruh ulangan<br>
@@ -4355,7 +4374,7 @@ async function scrAdmin(){
       <p class="small">Telegram guruhingizga botni qo'shing va guruhda <b style="display:inline">/ulash ${g.code}</b> deb yozing — natijalar shu guruhga chiqadi.</p>`;
     document.querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>copyText(b.dataset.cp)); }catch(e){}
   let rows;
-  try{ rows=(await rpc("liga_admin_list",{p_pin:S.adminPin}))||[]; }
+  try{ rows=(await rpc("liga_admin_list2",{p_pin:S.adminPin}))||[]; }
   catch(e){ const el=document.getElementById("al"); if(el) el.innerHTML=`<p class="small">${esc(errMsg(e))}</p>`; return; }
   if(!document.getElementById("al")) return;
   const cur=weekId(), dt=v=>v?new Date(v).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"—";
@@ -4364,11 +4383,16 @@ async function scrAdmin(){
   el.innerHTML=`<p class="small" style="margin:0 0 10px">${rows.length} ishtirokchi</p>`+rows.map(p=>`<div class="adm"><div>
       <b>${esc((p.first_name||"")+" "+(p.last_name||"")).trim()||"(ismsiz)"}${p.id===S.pid?" · siz":""}</b>
       <i>📞 ${esc(p.phone||"—")} · 📍 ${esc(p.region||"—")} · faol: ${dt(p.last_active)}</i>
+      ${S.adminGroup&&S.adminGroup.code==="ASOSIY"?`<i>${p.pay_ok?"💳 obuna "+fmtD(p.paid_until)+" gacha":"⛔ obuna to'lanmagan"}</i>`:""}
       <i>🎯 aniqlik: ${p.acc_total?Math.round(p.acc_ok/p.acc_total*100)+"% ("+p.acc_ok+"/"+p.acc_total+")":"—"} · ${p.has_device?"📱 telefon ulangan":"📱 telefon ulanmagan"}</i>
       <i>${p.week_id===cur?partsLine(p.week_xp,{stage:p.week_stage,daily:p.week_daily,blitz:p.week_blitz,bonus:p.week_bonus})+(stageLine(p.week_stages)?"<br>"+stageLine(p.week_stages):""):"bu hafta hali natija yo'q"}</i>
       <i>⚡ bu hafta ${p.week_id===cur?p.week_xp:0} XP · jami ${p.xp} XP · ${p.stages} bosqich · ${p.streak} kun</i></div>
-      <div style="display:grid;gap:6px">${p.has_device?`<button class="buy" data-dev="${p.id}" data-n="${esc(p.first_name||"(ismsiz)")}">📱 Qurilmani almashtirish</button>`:""}
+      <div style="display:grid;gap:6px">${S.adminGroup&&S.adminGroup.code==="ASOSIY"?`<button class="buy" data-pay="${p.id}" data-n="${esc(p.first_name||"(ismsiz)")}">💳 +1 oy (naqd)</button>`:""}${p.has_device?`<button class="buy" data-dev="${p.id}" data-n="${esc(p.first_name||"(ismsiz)")}">📱 Qurilmani almashtirish</button>`:""}
       ${p.id===S.pid?"":`<button class="del" data-id="${p.id}" data-n="${esc(p.first_name||"(ismsiz)")}">O'chirish</button>`}</div></div>`).join("");
+  el.querySelectorAll("[data-pay]").forEach(b=>b.onclick=async()=>{
+    if(!confirm(b.dataset.n+" uchun 1 oylik to'lov qabul qilindimi? Obuna 30 kunga uzayadi.")) return;
+    try{ const d=await rpc("liga_admin_player_pay",{p_pin:S.adminPin,p_id:b.dataset.pay,p_months:1}); toast(d?"Obuna "+fmtD(d)+" gacha":"Bajarilmadi"); scrAdmin(); }
+    catch(e){ toast(errMsg(e)); } });
   el.querySelectorAll("[data-dev]").forEach(b=>b.onclick=async()=>{
     if(!confirm(b.dataset.n+" yangi telefonga o'tadimi? Eski telefon ulanishi bekor qilinadi, natijalar saqlanadi. Keyin u yangi telefonda o'sha raqam bilan ro'yxatdan o'tadi.")) return;
     try{ await rpc("liga_admin_reset_device",{p_pin:S.adminPin,p_id:b.dataset.dev}); toast("Tayyor — endi yangi telefonda ro'yxatdan o'tsin"); scrAdmin(); }
@@ -4393,10 +4417,19 @@ async function scrSuper(){
     <label for="sm">Ishtirokchilar chegarasi — bo'sh = cheklovsiz</label><input id="sm" type="number" inputmode="numeric" placeholder="cheklovsiz">
     <p class="small" id="sr"></p>
     <button class="btn" id="mk">➕ Jamoa yaratish</button></section>
+  <section class="sheet set" style="margin-top:14px"><h2>💳 To'lov kartasi</h2>
+    <p class="small">Ishtirokchilar shu kartaga oyiga ${fmt(price())} so'mdan o'tkazib, chek rasmini yuboradi.</p>
+    <label for="cn">Karta raqami</label><input id="cn" type="text" inputmode="numeric" placeholder="8600 0000 0000 0000" value="${esc((S.payCfg&&S.payCfg.card)||"")}">
+    <label for="ch">Karta egasi</label><input id="ch" type="text" placeholder="Ism Familiya" value="${esc((S.payCfg&&S.payCfg.card_name)||"")}">
+    <p class="small" id="cst"></p><button class="btn" id="csave">Saqlash</button></section>
   <section class="sheet" style="margin-top:14px"><h2>📋 Jamoalar</h2><div id="sl"><p class="small">Yuklanmoqda...</p></div></section>
   <section class="card"><button class="btn ghost" id="out">Superadmin rejimidan chiqish</button></section>`;
   app.querySelector(".back").onclick=scrProfile;
   document.getElementById("out").onclick=()=>{ S.superPin=""; persist(); scrProfile(); };
+  document.getElementById("csave").onclick=async()=>{ const c=document.getElementById("cn").value.replace(/[^\d ]/g,"").trim(), n=document.getElementById("ch").value.trim(), st=document.getElementById("cst");
+    if(c.replace(/\D/g,"").length<16) return st.textContent="Karta raqami 16 xonali bo'lishi kerak";
+    try{ await rpc("liga_super_set_card",{p_pin:S.superPin,p_card:c,p_name:n}); S.payCfg=Object.assign(S.payCfg||{},{card:c,card_name:n}); persist(); st.textContent="✅ Saqlandi"; }
+    catch(e){ st.textContent=errMsg(e); } };
   document.getElementById("mk").onclick=async()=>{
     const n=document.getElementById("sn").value.trim(), dd=+document.getElementById("sd").value, mx=document.getElementById("sm").value.trim(), rg=document.getElementById("sv").value;
     const sr=document.getElementById("sr"); if(n.length<2) return sr.textContent="Nomini kiriting";
@@ -4638,13 +4671,87 @@ async function scrReport(m){
   window.scrollTo(0,0);
 }
 
+/* ================= shaxsiy obuna: kartaga to'lov + chek ================= */
+const price=()=>(S.payCfg&&S.payCfg.price)||(S.me&&S.me.price)||30000;
+function playerBlocked(){ return !!(S.me&&S.me.personal&&S.me.ok===false); }
+const cardFmt=c=>String(c||"").replace(/\D/g,"").replace(/(\d{4})(?=\d)/g,"$1 ");
+/* chek rasmini siqish: eng katta tomoni 1200px, JPEG */
+function shrinkImage(file){ return new Promise((res,rej)=>{ const fr=new FileReader();
+  fr.onerror=()=>rej(new Error("bad_image"));
+  fr.onload=()=>{ const im=new Image(); im.onerror=()=>rej(new Error("bad_image"));
+    im.onload=()=>{ let w=im.naturalWidth, h=im.naturalHeight; const k=Math.min(1,1200/Math.max(w,h)); w=Math.round(w*k); h=Math.round(h*k);
+      const c=document.createElement("canvas"); c.width=w; c.height=h; const x=c.getContext("2d"); x.fillStyle="#fff"; x.fillRect(0,0,w,h); x.drawImage(im,0,0,w,h);
+      let q=.75, d=c.toDataURL("image/jpeg",q); while(d.length>1400000&&q>.3){ q-=.15; d=c.toDataURL("image/jpeg",q); } res(d); };
+    im.src=fr.result; };
+  fr.readAsDataURL(file); }); }
+function scrPay(){
+  setDock(null); TAB="pay";
+  const c=S.payCfg||{}, card=cardFmt(c.card), me=S.me||{};
+  app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Obuna</span></div>
+  <section class="sheet set"><h2>💳 Ligaga qo'shilish</h2>
+    <p class="story">Ligada qatnashish: <b>oyiga ${fmt(price())} so'm</b>. To'lovdan keyin bosqichlar ochiladi va siz haftalik ligaga qo'shilasiz.</p>
+    ${me.ok&&me.paid_until?`<div class="fair">✅ Obunangiz ${fmtD(me.paid_until)} gacha faol${me.pending?" · oxirgi chek tekshirilmoqda":""}. Quyida uzaytirishingiz mumkin.</div>`:""}
+    <label for="pm">Muddat</label><select id="pm"><option value="1">1 oy</option><option value="3">3 oy</option><option value="6">6 oy</option></select>
+    <ol class="steps" style="margin-top:14px">
+      <li>Kartaga <b id="amt" style="display:inline">${fmt(price())}</b> so'm o'tkazing:
+        ${card?`<div class="paycard"><b>${card}</b><i>${esc(c.card_name||"")}</i><button class="buy" id="cpy">Nusxa olish</button></div>`
+          :`<div class="fair">Karta raqami tez orada qo'shiladi. Hozircha yozing: <b style="display:inline">@murtozo_44</b></div>`}</li>
+      <li>To'lov chekining rasmini (skrinshot) yuklang:
+        <label class="upl" for="rf">📎 Chek rasmini tanlash</label><input id="rf" type="file" accept="image/*" hidden>
+        <img id="rprev" alt="Chek" hidden></li>
+      <li>«Chekni yuborish» tugmasini bosing — shu zahoti ligaga qo'shilasiz.</li>
+    </ol>
+    <p class="small">Chekni administrator tekshiradi. Chek soxta yoki summa kam bo'lsa, obuna bekor qilinadi.</p>
+    <p class="small" id="pst" style="color:var(--bad);min-height:20px"></p>
+    <div id="online"></div></section>`;
+  app.querySelector(".back").onclick=home;
+  const pm=document.getElementById("pm"); pm.onchange=()=>document.getElementById("amt").textContent=fmt(price()*+pm.value);
+  const cp=document.getElementById("cpy"); if(cp) cp.onclick=()=>copyText(String(c.card||"").replace(/\D/g,""));
+  let img=null; const st=document.getElementById("pst");
+  setDock(`<button class="btn" id="go" disabled>📤 Chekni yuborish</button>`);
+  const go=document.getElementById("go");
+  document.getElementById("rf").onchange=async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return;
+    st.textContent=""; try{ img=await shrinkImage(f); const pv=document.getElementById("rprev"); pv.src=img; pv.hidden=false; go.disabled=false; }
+    catch(err){ img=null; go.disabled=true; st.textContent=JERR.bad_image; } };
+  go.onclick=async()=>{ if(!img) return; go.disabled=true; st.textContent="Yuborilmoqda...";
+    if(!S.token){ const j=await joinServer(); if(!j.ok){ st.textContent=j.msg; go.disabled=false; return; } }
+    try{ const r=((await rpc("liga_receipt_submit",{p_id:S.pid,p_token:S.token,p_months:+pm.value,p_image:img}))||[])[0];
+      S.me=Object.assign({},S.me||{},{ok:true,personal:true,paid_until:r&&r.paid_until,pending:true}); persist(); syncSoon();
+      app.innerHTML=`<section class="sheet result"><div style="font-size:64px">🎉</div><h2>Ligaga qo'shildingiz!</h2>
+        <div class="stats"><span class="pill">✅ Obuna ${fmtD(r&&r.paid_until)} gacha</span></div>
+        <p class="small">Chekingiz administratorga yuborildi. Bosqichlar ochildi — har ish kuni 09:00–17:00.</p></section>`;
+      coins(); setDock(`<button class="btn" id="h">Boshlash</button>`); document.getElementById("h").onclick=home; }
+    catch(e){ st.textContent=errMsg(e); go.disabled=false; } };
+  if(c.payme_merchant_id||(c.click_service_id&&c.click_merchant_id)){
+    document.getElementById("online").innerHTML=`<p class="small" style="margin-top:6px">Yoki onlayn to'lang (chek kerak emas):</p><button class="btn ghost" id="onl">Payme / Click orqali to'lash</button><div id="onlk"></div>`;
+    document.getElementById("onl").onclick=async()=>{ try{ const v=((await rpc("liga_my_invoice",{p_id:S.pid,p_token:S.token,p_months:+pm.value}))||[])[0];
+      document.getElementById("onlk").innerHTML=payLinks(c,v).map(l=>`<a class="btn" style="margin-top:8px;text-align:center;text-decoration:none" href="${l[1]}" target="_blank" rel="noopener">${l[0]} orqali to'lash</a>`).join(""); }
+      catch(e){ st.textContent=errMsg(e); } }; }
+  window.scrollTo(0,0);
+}
+async function receiptBox(){ const el=document.getElementById("rcp"); if(!el) return; el.hidden=false; let rows=[];
+  try{ rows=(await rpc("liga_admin_receipts",{p_pin:S.adminPin}))||[]; }catch(e){}
+  const pend=rows.filter(x=>x.status==="check").length, st={check:"⏳ tekshirilmagan",paid:"✅ tasdiqlangan",cancelled:"❌ rad etilgan"};
+  el.innerHTML=`<h3>🧾 To'lov cheklari${pend?` <span class="pill" style="background:var(--bad);color:#fff">${pend} yangi</span>`:""}</h3>
+    <p class="small">Ishtirokchi chek yuborishi bilan ligaga qo'shiladi. Chek soxta bo'lsa — «Rad etish»: obunasi bekor bo'ladi.</p>
+    ${rows.length?rows.map(x=>`<div class="rcpt"><img src="${x.receipt}" alt="Chek" data-big="1"><div>
+      <b>${esc(x.name)}</b><i>📞 ${esc(x.phone||"")}</i><i>${fmt(x.amount)} so'm · ${x.months} oy · ${new Date(x.created_at).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</i>
+      <i>${st[x.status]||x.status}${x.paid_until?" · obuna "+fmtD(x.paid_until)+" gacha":""}</i>
+      ${x.status==="check"?`<div class="two" style="margin-top:8px"><button class="buy" data-rok="${x.id}">✅ Tasdiqlash</button><button class="del" data-rno="${x.id}">Rad etish</button></div>`:""}</div></div>`).join("")
+      :`<p class="small">Hali chek yo'q.</p>`}`;
+  el.querySelectorAll("[data-big]").forEach(i=>i.onclick=()=>i.classList.toggle("big"));
+  const go=async(id,ok)=>{ if(!ok&&!confirm("Chek rad etilsinmi? Ishtirokchining obunasi bekor qilinadi.")) return;
+    try{ await rpc("liga_admin_receipt_decide",{p_pin:S.adminPin,p_id:+id,p_ok:ok}); toast(ok?"Tasdiqlandi":"Rad etildi"); receiptBox(); }catch(e){ toast(errMsg(e)); } };
+  el.querySelectorAll("[data-rok]").forEach(b=>b.onclick=()=>go(b.dataset.rok,true));
+  el.querySelectorAll("[data-rno]").forEach(b=>b.onclick=()=>go(b.dataset.rno,false)); }
+
 /* ================= obuna to'lovi (Payme / Click) ================= */
 function payLinks(cfg,inv){ const L=[];
   if(cfg&&cfg.payme_merchant_id) L.push(["Payme","https://checkout.paycom.uz/"+btoa(`m=${cfg.payme_merchant_id};ac.invoice_id=${inv.id};a=${inv.amount*100};c=${APP_LINK}`)]);
   if(cfg&&cfg.click_service_id&&cfg.click_merchant_id) L.push(["Click",`https://my.click.uz/services/pay?service_id=${cfg.click_service_id}&merchant_id=${cfg.click_merchant_id}&amount=${inv.amount}&transaction_param=${inv.id}&return_url=${encodeURIComponent(APP_LINK)}`]);
   return L; }
 async function payBox(g){ const el=document.getElementById("pay"); if(!el) return;
-  let cfg=null, inv=[]; try{ cfg=((await rpc("liga_pay_config"))||[])[0]; }catch(e){}
+  let cfg=null, inv=[]; try{ cfg=((await rpc("liga_pay_config2"))||[])[0]; }catch(e){}
   try{ inv=(await rpc("liga_admin_invoices",{p_pin:S.adminPin}))||[]; }catch(e){}
   const price=(g&&g.price)||(cfg&&cfg.price)||0, n=Math.max(1,(g&&g.members)||1);
   const st={new:"⏳ to'lanmagan",paid:"✅ to'langan",cancelled:"❌ bekor qilingan"};
@@ -4677,6 +4784,7 @@ const saLeft=si=>STAGES[si].tasks.map((t,k)=>k).filter(k=>!saRec(si).m[k]);
 const saBad=si=>Object.values(saRec(si).m).filter(v=>v==="bad").length;
 function intro(si){
   if(groupBlocked()) return toast("Jamoa obunasi tugagan — administratorga murojaat qiling");
+  if(playerBlocked()) return scrPay();
   if(isWeekend()) return toast(WKMSG);
   const ss=stageState(si);
   if(ss==="future") return toast(`${si+1}-bosqich ${stageDay(si)} soat 09:00 da ochiladi`);

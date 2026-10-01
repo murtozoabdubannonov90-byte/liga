@@ -47,6 +47,15 @@ Superadmin PIN bazada: `select value from liga_bot_config where key='super_pin';
 Taklif havolasini bosadi (`t.me/Buxgalterlar_Ligasi_bot?start=g_KOD` yoki `…/liga/?g=KOD`) — ro'yxatdan o'tishda jamoa kodi o'zi qo'yiladi.
 Obuna tugasa, bosqichlar yopiladi va ilovada ogohlantirish chiqadi.
 
+## Shaxsiy obuna (asosiy liga)
+- Narx: har bir ishtirokchi uchun oyiga 30 000 so'm (`liga_bot_config.price_per_member`).
+- Tartib: ro'yxatdan o'tadi → «Ligaga qo'shilish» oynasi → kartaga pul o'tkazadi → chek rasmini yuklaydi → **«Chekni yuborish»** → darhol ligaga qo'shiladi.
+- To'lanmaguncha bosqichlar yopiq (kunlik mashq va blits ochiq), server ham bosqich ballarini yozmaydi.
+- Admin panel → **🧾 To'lov cheklari**: chekni ko'rish, **✅ Tasdiqlash** yoki **Rad etish** (rad etilsa obuna bekor bo'ladi). Naqd to'laganlarga — **💳 +1 oy (naqd)**.
+- Karta raqami: Superadmin → **💳 To'lov kartasi** → **Saqlash**.
+- 01.10.2026 gacha ro'yxatdan o'tganlar 04.10.2026 gacha bepul, keyin to'lov bilan.
+- Jamoa kodi bilan kirganlarga jamoa obunasi amal qiladi.
+
 ## Xavfsizlik
 - Barcha ma'lumot Supabase bazasida, faqat tekshiruvli funksiyalar orqali (jadvallarga to'g'ridan-to'g'ri kirish yopiq).
 - Har ishtirokchining maxfiy kaliti faqat o'z telefonida — natijani boshqa birov yoza olmaydi. Bitta raqam bitta telefonda; yangi telefonga o'tishni admin tasdiqlaydi.
@@ -72,6 +81,7 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - `db/2026-10-01_jamoalar.sql` — jamoalar uchun baza o'zgarishlari
 - `db/2026-10-01b_xavfsizlik_musobaqalar.sql` — himoya, viloyat, final, haftaning savoli, hisobot, to'lovlar
 - `db/2026-10-01c_eskilarni_ochirish.sql` — eski ochiq funksiyalarni o'chirish
+- `db/2026-10-01d_shaxsiy_tolov.sql` — shaxsiy obuna, chek orqali to'lov
 - `pay/index.ts` — to'lov qabul qiluvchi (Edge Function `liga-pay`)
 - `tests/app.test.py` — brauzer testlari
 

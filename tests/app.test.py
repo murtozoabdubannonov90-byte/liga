@@ -25,12 +25,15 @@ def mock(pushes):
         elif fn == "liga_claim": body = "tok-claimed"
         elif fn == "liga_pin_check": body = "admin"
         elif fn == "liga_admin_group": body = [{"code": "BX12AB", "name": "Sinov jamoasi", "paid_until": "2026-10-31", "ok": True, "members": 3, "max_players": None, "start_date": "2026-10-05", "chats": 1, "region": "Andijon viloyati", "price": 30000}]
-        elif fn == "liga_admin_list": body = [{"id": "p1", "first_name": "Test", "last_name": "User", "phone": "+998901112233", "xp": 100, "week_xp": 50, "week_id": "x", "stages": 1, "streak": 1, "last_active": None, "created_at": None, "week_stage": 0, "week_daily": 0, "week_blitz": 0, "week_stages": {}, "week_bonus": 0, "region": "Andijon viloyati", "acc_ok": 8, "acc_total": 10, "has_device": True},
-                                             {"id": "p2", "first_name": "Ali", "last_name": "V", "phone": "+998901110000", "xp": 10, "week_xp": 0, "week_id": "x", "stages": 0, "streak": 0, "last_active": None, "created_at": None, "week_stage": 0, "week_daily": 0, "week_blitz": 0, "week_stages": {}, "week_bonus": 0, "region": None, "acc_ok": 0, "acc_total": 0, "has_device": True}]
+        elif fn in ("liga_admin_list", "liga_admin_list2"): body = [{"id": "p1", "first_name": "Test", "last_name": "User", "phone": "+998901112233", "xp": 100, "week_xp": 50, "week_id": "x", "stages": 1, "streak": 1, "last_active": None, "created_at": None, "week_stage": 0, "week_daily": 0, "week_blitz": 0, "week_stages": {}, "week_bonus": 0, "region": "Andijon viloyati", "acc_ok": 8, "acc_total": 10, "has_device": True, "paid_until": "2026-10-30", "pay_ok": True},
+                                             {"id": "p2", "first_name": "Ali", "last_name": "V", "phone": "+998901110000", "xp": 10, "week_xp": 0, "week_id": "x", "stages": 0, "streak": 0, "last_active": None, "created_at": None, "week_stage": 0, "week_daily": 0, "week_blitz": 0, "week_stages": {}, "week_bonus": 0, "region": None, "acc_ok": 0, "acc_total": 0, "has_device": True, "paid_until": None, "pay_ok": False}]
         elif fn == "liga_admin_month": body = [{"id": "p1", "name": "Test User", "phone": "+998901112233", "region": "Andijon viloyati", "weeks": {"2026-10-02T07:00": 420, "2026-10-09T07:00": 380}, "month_xp": 800, "tops": 2, "acc_ok": 80, "acc_total": 100, "last_active": "2026-10-09T10:00:00Z", "final_score": 340}]
         elif fn == "liga_admin_invoice": body = [{"id": 7, "amount": 90000, "members": 3, "months": 1}]
         elif fn in ("liga_admin_invoices", "liga_wq_admin", "liga_region_league"): body = []
-        elif fn == "liga_pay_config": body = [{"payme_merchant_id": "", "click_service_id": "", "click_merchant_id": "", "price": 30000}]
+        elif fn == "liga_player_status": body = [{"paid_until": "2026-10-30", "ok": True, "personal": True, "price": 30000, "pending": False}]
+        elif fn == "liga_receipt_submit": body = [{"id": 11, "paid_until": "2026-10-31"}]
+        elif fn == "liga_admin_receipts": body = [{"id": 11, "player_id": "p2", "name": "Ali V", "phone": "+998901110000", "months": 1, "amount": 30000, "receipt": "data:image/jpeg;base64,/9j/", "status": "check", "created_at": "2026-10-01T10:00:00Z", "paid_until": "2026-10-31"}]
+        elif fn in ("liga_pay_config", "liga_pay_config2"): body = [{"payme_merchant_id": "", "click_service_id": "", "click_merchant_id": "", "price": 30000, "card": "8600123412341234", "card_name": "Murtozo A."}]
         elif fn == "liga_wq_state": body = [{"can_submit": False, "my_status": None, "q_id": None, "q": None, "o": None, "author": None}]
         elif fn == "liga_final_info": body = [{"month": "2026-10", "final_date": "2026-10-31", "open_now": False, "ended": False, "qualified": False, "my_score": None, "my_ms": None, "qualifiers": [], "standings": []}]
         elif "liga_members" in u: body = [{"name": "Test U.", "is_me": True, "medal": 1}, {"name": "Ali V.", "is_me": False, "medal": None}]
@@ -261,6 +264,45 @@ with sync_playwright() as p:
     check("Noto'g'ri PIN rad etiladi", "noto'g'ri" in pg.inner_text("#st"))
     EXTRA.pop("liga_pin_check")
     check("Xatolar yo'q (11)", not errs, str(errs))
+
+    # 12) Shaxsiy obuna: ro'yxatdan o'tgach to'lov, chek → ligaga qo'shiladi
+    ctx = b.new_context(viewport={"width": 390, "height": 844}, timezone_id="Asia/Tashkent")
+    pg = ctx.new_page(); errs = []; pg.on("pageerror", lambda e: errs.append(str(e)))
+    EXTRA["liga_player_status"] = [{"paid_until": None, "ok": False, "personal": True, "price": 30000, "pending": False}]
+    pg.route("**supabase.co/**", mock([])); pg.clock.install(time="2026-10-01T05:00:00Z"); pg.goto(BASE); pg.wait_for_timeout(600)
+    check("Ro'yxatdan o'tishda narx ko'rinadi", "oyiga 30 000 so'm" in pg.inner_text("#pinfo"))
+    pg.fill("#f", "Sardor"); pg.fill("#l", "Aliyev"); pg.fill("#p", "901112244"); pg.select_option("#rg", "Toshkent shahri")
+    pg.click("#go"); pg.wait_for_timeout(800)
+    txt = pg.inner_text("body")
+    check("Ro'yxatdan keyin to'lov oynasi: narx va karta", "Ligaga qo'shilish" in txt and "8600 1234 1234 1234" in txt and "30 000" in txt, txt[:300])
+    pg.evaluate("()=>home()"); pg.wait_for_timeout(200)
+    check("To'lanmagan — banner chiqadi", "obuna kerak" in pg.inner_text("body"))
+    pg.evaluate("()=>intro(3)"); pg.wait_for_timeout(200)
+    check("To'lanmagan — bosqich o'rniga to'lov oynasi", "Ligaga qo'shilish" in pg.inner_text("body"))
+    pg.select_option("#pm", "3"); check("3 oy — 90 000 so'm", pg.inner_text("#amt") == "90 000")
+    import base64 as _b
+    png = _b.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==")
+    pg.set_input_files("#rf", files=[{"name": "chek.png", "mimeType": "image/png", "buffer": png}]); pg.wait_for_timeout(500)
+    CALLS.clear(); pg.click("#go"); pg.wait_for_timeout(600)
+    sub = [c[1] for c in CALLS if c[0] == "liga_receipt_submit"]
+    check("Chek yuborildi (JPEG, 3 oy, kalit bilan)", sub and sub[0]["p_months"] == 3 and sub[0]["p_image"].startswith("data:image/jpeg") and sub[0]["p_token"] == "tok-new", str([{k: (v[:30] if isinstance(v, str) else v) for k, v in x.items()} for x in sub]))
+    check("Chekdan keyin ligaga qo'shildi", "Ligaga qo'shildingiz" in pg.inner_text("body") and not pg.evaluate("()=>playerBlocked()"))
+    EXTRA.pop("liga_player_status")
+    check("Xatolar yo'q (12)", not errs, str(errs))
+
+    # 13) Admin (ASOSIY): cheklar, +1 oy
+    EXTRA["liga_admin_group"] = [{"code": "ASOSIY", "name": "Buxgalterlar ligasi", "paid_until": None, "ok": True, "members": 8, "max_players": None, "start_date": "2026-09-28", "chats": 1, "region": None, "price": 30000}]
+    pg, errs = page(b, "2026-10-01T06:00:00Z")
+    pg.evaluate("()=>{S.adminPin='14';scrAdmin()}"); pg.wait_for_timeout(700)
+    txt = pg.inner_text("body")
+    check("Adminda cheklar va obuna holati", "To'lov cheklari" in txt and "1 yangi" in txt and "obuna to'lanmagan" in txt and "+1 oy" in txt, txt[:500])
+    pg.on("dialog", lambda d: d.accept()); CALLS.clear()
+    pg.click("[data-rok='11']"); pg.wait_for_timeout(300)
+    check("Chek tasdiqlandi", any(c[0] == "liga_admin_receipt_decide" and c[1]["p_ok"] is True for c in CALLS))
+    pg.click("[data-pay='p2']"); pg.wait_for_timeout(300)
+    check("Naqd +1 oy yuborildi", any(c[0] == "liga_admin_player_pay" and c[1]["p_id"] == "p2" for c in CALLS))
+    EXTRA.pop("liga_admin_group")
+    check("Xatolar yo'q (13)", not errs, str(errs))
     b.close()
 
 print("\nNATIJA:", "HAMMASI O'TDI" if not fails else f"{len(fails)} ta xato: {fails}")
