@@ -49,7 +49,10 @@ Obuna tugasa, bosqichlar yopiladi va ilovada ogohlantirish chiqadi.
 
 ## Shaxsiy obuna (asosiy liga)
 - Narx: har bir ishtirokchi uchun oyiga 30 000 so'm (`liga_bot_config.price_per_member`).
-- Tartib: ro'yxatdan o'tadi → «Ligaga qo'shilish» oynasi → kartaga pul o'tkazadi → chek rasmini yuklaydi → **«Chekni yuborish»** → darhol ligaga qo'shiladi.
+- Tartib: ro'yxatdan o'tadi → «Ligaga qo'shilish» oynasi → kartaga pul o'tkazadi → **🤖 Chekni botga yuborish** (yoki ilovada yuklaydi) → bot tekshiradi va darhol ligaga qo'shadi.
+- Bot tekshiruvi: rasm ekanini, hajmini va chek avval yuborilmaganini (takroriy chek qabul qilinmaydi). Pul kartaga tushganini admin tekshiradi.
+- Chek darhol adminning Telegramiga keladi: **✅ Tasdiqlash** / **❌ Rad etish** (rad etilsa obuna bekor, ishtirokchiga xabar boradi). Ulash: admin panel → **🔔 Cheklarni Telegramda olish** → botda **Start**.
+- Botga to'g'ridan-to'g'ri yozganlar: **/tolov** → telefon raqamini yuboradi → karta va chek.
 - To'lanmaguncha bosqichlar yopiq (kunlik mashq va blits ochiq), server ham bosqich ballarini yozmaydi.
 - Admin panel → **🧾 To'lov cheklari**: chekni ko'rish, **✅ Tasdiqlash** yoki **Rad etish** (rad etilsa obuna bekor bo'ladi). Naqd to'laganlarga — **💳 +1 oy (naqd)**.
 - Karta raqami: Superadmin → **💳 To'lov kartasi** → **Saqlash**.
@@ -81,6 +84,7 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - `db/2026-10-01_jamoalar.sql` — jamoalar uchun baza o'zgarishlari
 - `db/2026-10-01b_xavfsizlik_musobaqalar.sql` — himoya, viloyat, final, haftaning savoli, hisobot, to'lovlar
 - `db/2026-10-01c_eskilarni_ochirish.sql` — eski ochiq funksiyalarni o'chirish
+- `db/2026-10-01e_bot_chek.sql` — bot orqali chek, adminga Telegram xabari
 - `db/2026-10-01d_shaxsiy_tolov.sql` — shaxsiy obuna, chek orqali to'lov
 - `pay/index.ts` — to'lov qabul qiluvchi (Edge Function `liga-pay`)
 - `tests/app.test.py` — brauzer testlari

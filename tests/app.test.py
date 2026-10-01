@@ -31,6 +31,8 @@ def mock(pushes):
         elif fn == "liga_admin_invoice": body = [{"id": 7, "amount": 90000, "members": 3, "months": 1}]
         elif fn in ("liga_admin_invoices", "liga_wq_admin", "liga_region_league"): body = []
         elif fn == "liga_player_status": body = [{"paid_until": "2026-10-30", "ok": True, "personal": True, "price": 30000, "pending": False}]
+        elif fn == "liga_tg_pay_link": body = "pay_abc123"
+        elif fn == "liga_admin_tg_link": body = "adm_abc123"
         elif fn == "liga_receipt_submit": body = [{"id": 11, "paid_until": "2026-10-31"}]
         elif fn == "liga_admin_receipts": body = [{"id": 11, "player_id": "p2", "name": "Ali V", "phone": "+998901110000", "months": 1, "amount": 30000, "receipt": "data:image/jpeg;base64,/9j/", "status": "check", "created_at": "2026-10-01T10:00:00Z", "paid_until": "2026-10-31"}]
         elif fn in ("liga_pay_config", "liga_pay_config2"): body = [{"payme_merchant_id": "", "click_service_id": "", "click_merchant_id": "", "price": 30000, "card": "8600123412341234", "card_name": "Murtozo A."}]
@@ -280,6 +282,9 @@ with sync_playwright() as p:
     pg.evaluate("()=>intro(3)"); pg.wait_for_timeout(200)
     check("To'lanmagan — bosqich o'rniga to'lov oynasi", "Ligaga qo'shilish" in pg.inner_text("body"))
     pg.select_option("#pm", "3"); check("3 oy — 90 000 so'm", pg.inner_text("#amt") == "90 000")
+    pg.evaluate("()=>{window._opened=[]; window.open=u=>{_opened.push(u)}; HTMLAnchorElement.prototype.click=function(){_opened.push(this.href)}}")
+    pg.click("#tgpay"); pg.wait_for_timeout(400)
+    check("Chekni botga yuborish havolasi", pg.evaluate("()=>(window._opened||[]).some(u=>u.indexOf('t.me/Buxgalterlar_Ligasi_bot?start=pay_abc123')>=0)"), str(pg.evaluate("()=>window._opened")))
     import base64 as _b
     png = _b.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==")
     pg.set_input_files("#rf", files=[{"name": "chek.png", "mimeType": "image/png", "buffer": png}]); pg.wait_for_timeout(500)
@@ -300,6 +305,9 @@ with sync_playwright() as p:
     pg.click("[data-rok='11']"); pg.wait_for_timeout(300)
     check("Chek tasdiqlandi", any(c[0] == "liga_admin_receipt_decide" and c[1]["p_ok"] is True for c in CALLS))
     pg.click("[data-pay='p2']"); pg.wait_for_timeout(300)
+    pg.evaluate("()=>{window._opened=[]; HTMLAnchorElement.prototype.click=function(){_opened.push(this.href)}}")
+    pg.click("#tgadm"); pg.wait_for_timeout(300)
+    check("Admin: cheklarni Telegramda olish havolasi", pg.evaluate("()=>(window._opened||[]).some(u=>u.indexOf('start=adm_abc123')>=0)"))
     check("Naqd +1 oy yuborildi", any(c[0] == "liga_admin_player_pay" and c[1]["p_id"] == "p2" for c in CALLS))
     EXTRA.pop("liga_admin_group")
     check("Xatolar yo'q (13)", not errs, str(errs))

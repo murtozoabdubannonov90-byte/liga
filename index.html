@@ -4684,6 +4684,9 @@ function shrinkImage(file){ return new Promise((res,rej)=>{ const fr=new FileRea
       let q=.75, d=c.toDataURL("image/jpeg",q); while(d.length>1400000&&q>.3){ q-=.15; d=c.toDataURL("image/jpeg",q); } res(d); };
     im.src=fr.result; };
   fr.readAsDataURL(file); }); }
+/* Telegram havolasini ochish (Telegram ichida bo'lsa — to'g'ridan-to'g'ri botga) */
+function openTg(url){ try{ const W=window.Telegram&&Telegram.WebApp; if(W&&W.initData&&W.openTelegramLink){ W.openTelegramLink(url); return; } }catch(e){}
+  const a=document.createElement("a"); a.href=url; a.target="_blank"; a.rel="noopener"; document.body.appendChild(a); a.click(); a.remove(); }
 function scrPay(){
   setDock(null); TAB="pay";
   const c=S.payCfg||{}, card=cardFmt(c.card), me=S.me||{};
@@ -4696,7 +4699,9 @@ function scrPay(){
       <li>Kartaga <b id="amt" style="display:inline">${fmt(price())}</b> so'm o'tkazing:
         ${card?`<div class="paycard"><b>${card}</b><i>${esc(c.card_name||"")}</i><button class="buy" id="cpy">Nusxa olish</button></div>`
           :`<div class="fair">Karta raqami tez orada qo'shiladi. Hozircha yozing: <b style="display:inline">@murtozo_44</b></div>`}</li>
-      <li>To'lov chekining rasmini (skrinshot) yuklang:
+      <li>To'lov chekining rasmini (skrinshot) botga yuboring — bot tekshiradi va darhol ligaga qo'shadi:
+        <button class="btn" id="tgpay" style="margin-top:8px">🤖 Chekni botga yuborish</button>
+        <span class="small" style="display:block;margin-top:8px">yoki chekni shu yerda yuklang:</span>
         <label class="upl" for="rf">📎 Chek rasmini tanlash</label><input id="rf" type="file" accept="image/*" hidden>
         <img id="rprev" alt="Chek" hidden></li>
       <li>«Chekni yuborish» tugmasini bosing — shu zahoti ligaga qo'shilasiz.</li>
@@ -4708,6 +4713,10 @@ function scrPay(){
   const pm=document.getElementById("pm"); pm.onchange=()=>document.getElementById("amt").textContent=fmt(price()*+pm.value);
   const cp=document.getElementById("cpy"); if(cp) cp.onclick=()=>copyText(String(c.card||"").replace(/\D/g,""));
   let img=null; const st=document.getElementById("pst");
+  document.getElementById("tgpay").onclick=async()=>{ st.textContent="";
+    if(!S.token){ const j=await joinServer(); if(!j.ok) return st.textContent=j.msg; }
+    try{ const code=await rpc("liga_tg_pay_link",{p_id:S.pid,p_token:S.token}); openTg(BOT_LINK+"?start="+code); }
+    catch(e){ st.textContent=errMsg(e); } };
   setDock(`<button class="btn" id="go" disabled>📤 Chekni yuborish</button>`);
   const go=document.getElementById("go");
   document.getElementById("rf").onchange=async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return;
@@ -4734,12 +4743,15 @@ async function receiptBox(){ const el=document.getElementById("rcp"); if(!el) re
   const pend=rows.filter(x=>x.status==="check").length, st={check:"⏳ tekshirilmagan",paid:"✅ tasdiqlangan",cancelled:"❌ rad etilgan"};
   el.innerHTML=`<h3>🧾 To'lov cheklari${pend?` <span class="pill" style="background:var(--bad);color:#fff">${pend} yangi</span>`:""}</h3>
     <p class="small">Ishtirokchi chek yuborishi bilan ligaga qo'shiladi. Chek soxta bo'lsa — «Rad etish»: obunasi bekor bo'ladi.</p>
+    <button class="btn ghost" id="tgadm">🔔 Cheklarni Telegramda olish</button>
     ${rows.length?rows.map(x=>`<div class="rcpt"><img src="${x.receipt}" alt="Chek" data-big="1"><div>
       <b>${esc(x.name)}</b><i>📞 ${esc(x.phone||"")}</i><i>${fmt(x.amount)} so'm · ${x.months} oy · ${new Date(x.created_at).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}</i>
       <i>${st[x.status]||x.status}${x.paid_until?" · obuna "+fmtD(x.paid_until)+" gacha":""}</i>
       ${x.status==="check"?`<div class="two" style="margin-top:8px"><button class="buy" data-rok="${x.id}">✅ Tasdiqlash</button><button class="del" data-rno="${x.id}">Rad etish</button></div>`:""}</div></div>`).join("")
       :`<p class="small">Hali chek yo'q.</p>`}`;
   el.querySelectorAll("[data-big]").forEach(i=>i.onclick=()=>i.classList.toggle("big"));
+  document.getElementById("tgadm").onclick=async()=>{ try{ const c=await rpc("liga_admin_tg_link",{p_pin:S.adminPin}); if(!c) return toast("PIN eskirgan");
+    openTg(BOT_LINK+"?start="+c); toast("Botda «Start» ni bosing"); }catch(e){ toast(errMsg(e)); } };
   const go=async(id,ok)=>{ if(!ok&&!confirm("Chek rad etilsinmi? Ishtirokchining obunasi bekor qilinadi.")) return;
     try{ await rpc("liga_admin_receipt_decide",{p_pin:S.adminPin,p_id:+id,p_ok:ok}); toast(ok?"Tasdiqlandi":"Rad etildi"); receiptBox(); }catch(e){ toast(errMsg(e)); } };
   el.querySelectorAll("[data-rok]").forEach(b=>b.onclick=()=>go(b.dataset.rok,true));
