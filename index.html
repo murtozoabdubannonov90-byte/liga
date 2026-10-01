@@ -3946,8 +3946,9 @@ function scheduleReminder(){
 let overtake=[];
 let TAB="main";
 const NAVS=[["main","🏠","Asosiy"],["rate","🏆","Reyting"],["stage","📚","Bosqich"],["prof","👤","Profil"]];
+function wide(on){ const W=app.closest(".wrap"); if(W) W.style.maxWidth=on?"1100px":""; }
 function shell(html,tab){
-  TAB=tab; run=null;
+  TAB=tab; run=null; wide(false);
   const u=S.user, ini=(((u.first||"?")[0]||"?")+((u.last||"")[0]||"")).toUpperCase();
   app.innerHTML=`<div class="appbar"><div class="ava">${ini}</div>
     <div class="ttl"><b>${u.first||"Buxgalter"} ${(u.last||"").slice(0,1)}${u.last?".":""}</b><i>${rankOf(S.xp).cur[1]}</i></div>
@@ -4329,7 +4330,7 @@ function adminLogin(){
   window.scrollTo(0,0);
 }
 async function scrAdmin(){
-  setDock(null);
+  setDock(null); wide(false);
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Admin panel</span></div>
   <section class="card" id="ag"><p class="small">Jamoa ma'lumoti yuklanmoqda...</p></section>
   <section class="sheet"><h2>🛡️ Ishtirokchilar</h2><p class="small">Barcha natijalar faqat sizga ko'rinadi.</p><div id="al"><p class="small">Yuklanmoqda...</p></div></section>
@@ -4608,7 +4609,7 @@ async function finishFinal(r){ clearInterval(r.tick); run=null; saveFinalRun(r);
 
 /* ================= rahbar uchun oylik hisobot (PDF) ================= */
 async function scrReport(m){
-  m=m||curMonth(); setDock(null); TAB="rep";
+  m=m||curMonth(); setDock(null); TAB="rep"; wide(true);
   const g=S.adminGroup||{}, ms=[0,1,2,3].map(k=>{ const d=ymd(curMonth()+"-01"); d.setMonth(d.getMonth()-k); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0"); });
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Oylik hisobot</span></div>
   <section class="sheet rep" id="rep"><p class="small">Yuklanmoqda...</p></section>`;
