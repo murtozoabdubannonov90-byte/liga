@@ -112,6 +112,10 @@ body::after{content:""; position:fixed; inset:auto -20% -25% -20%; height:55vh; 
 .goal-t{font-size:14px; font-weight:700}
 .tmr{background:linear-gradient(135deg,var(--coral),var(--pink)); color:#fff; font-weight:800; border-radius:999px; padding:5px 13px}
 .tmr.low{animation:pulse 1s infinite}
+.stats2{display:grid;gap:7px}.statrow{display:grid;grid-template-columns:1fr 70px 42px;gap:8px;align-items:center;font-size:13.5px;font-weight:600}
+.statrow i{height:9px;border-radius:6px;background:linear-gradient(90deg,var(--lime) var(--w),var(--bg) var(--w))}.statrow b{text-align:right;color:var(--ink)}
+.champ{display:grid;gap:3px;padding:9px 11px;border-radius:14px;background:var(--bg);margin-bottom:8px;font-weight:700;font-size:14.5px}.champ .me{color:var(--violet)}
+@media print{.bar,#dock,.nav{display:none!important} body{background:#fff} .cert{box-shadow:none}}
 .adm{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;background:var(--bg);border-radius:16px;padding:10px 12px;margin-bottom:8px}
 .adm b{display:block;font-family:var(--display);font-size:16px}.adm i{font-style:normal;font-size:12.5px;color:var(--muted);font-weight:600;display:block;line-height:1.35}
 .del{border:0;border-radius:12px;padding:8px 12px;font-weight:800;color:#fff;background:var(--bad)}
@@ -290,7 +294,7 @@ h1,h2,h3{margin:0; line-height:1.1; font-family:var(--display); font-weight:800}
 .cert h2{font-size:36px; color:var(--ink)}
 .cert .nm{font-family:var(--display); font-size:34px; color:var(--coral); display:inline-block; padding:0 14px; border-bottom:3px solid var(--line)}
 .set label{display:block; margin:14px 0 5px; font-weight:700}
-.set input[type=time],.set input[type=text]{width:100%; padding:12px; font-size:17px; font-family:inherit; font-weight:700; border:0; border-radius:14px; background:var(--bg); color:var(--text); box-shadow:0 4px 0 var(--line)}
+.set input[type=time],.set input[type=text],.set input[type=number],.set input[type=password]{width:100%; padding:12px; font-size:17px; font-family:inherit; font-weight:700; border:0; border-radius:14px; background:var(--bg); color:var(--text); box-shadow:0 4px 0 var(--line)}
 @media (prefers-reduced-motion:reduce){.stamp,.toast,.coin,.hero h1 span{animation:none}.coin{display:none}.btn:active,.opt:active,.acc:active,.stage button:active{transform:none}}
 @media (max-width:380px){.hero h1{font-size:38px}.accs{grid-template-columns:1fr}}
 </style>
@@ -514,93 +518,81 @@ const STAGES=[
 },
 {
 "t": "mc",
-"q": "Balans tenglamasi qanday?",
+"q": "Buxgalteriyada hisobot yili qaysi davr?",
 "o": [
-"Aktiv = Majburiyat + Kapital",
-"Aktiv = Daromad − Xarajat",
-"Kapital = Aktiv + Majburiyat",
-"Aktiv = Kassa + Bank"
+"1-yanvardan 31-dekabrgacha",
+"1-apreldan 31-martgacha",
+"Ro'yxatdan o'tgan kundan 12 oy",
+"Direktor belgilagan davr"
 ],
 "a": 0,
-"e": "Aktiv = Majburiyat + Kapital. Bu tenglama hech qachon buzilmaydi."
+"e": "Hisobot yili — kalendar yil: 1-yanvardan 31-dekabrgacha."
 },
 {
 "t": "mc",
-"q": "Qaysi biri AKTIV hisobvaraq?",
+"q": "Muomala sodir bo'lganini tasdiqlovchi hujjat nima deyiladi?",
 "o": [
-"8330 Ustav kapital",
-"6010 Yetkazib beruvchiga qarz",
-"5010 Kassa",
-"6410 Budjetga qarz"
-],
-"a": 2,
-"e": "Kassadagi pul — firmada bor narsa, demak aktiv. Qolganlari passiv."
-},
-{
-"t": "mc",
-"q": "Hisobvaraqlar rejasi qaysi standartda berilgan?",
-"o": [
-"BHMS 1",
-"BHMS 5",
-"BHMS 21",
-"BHMS 4"
-],
-"a": 2,
-"e": "BHMS 21 — xo'jalik yurituvchi subyektlar moliyaviy-xo'jalik faoliyatining buxgalteriya hisobi schyotlari rejasi."
-},
-{
-"t": "mc",
-"q": "«Buxgalteriya hisobi to'g'risida»gi amaldagi qonun?",
-"o": [
-"O'RQ-404, 13.04.2016",
-"O'RQ-599, 30.12.2019",
-"PQ-4611, 24.02.2020",
-"PF-60, 28.01.2022"
+"Birlamchi hujjat",
+"Bosh kitob",
+"Aylanma qaydnoma",
+"Balans"
 ],
 "a": 0,
-"e": "Buxgalteriya hisobi to'g'risidagi qonun — 2016-yil 13-apreldagi O'RQ-404."
+"e": "Har bir provodka birlamchi hujjatga (faktura, order, dalolatnoma) asoslanadi."
 },
 {
 "t": "mc",
-"q": "QQSning asosiy stavkasi necha foiz?",
+"q": "Har bir xaridor bo'yicha alohida qarzni ko'rsatadigan hisob qanday ataladi?",
 "o": [
-"10%",
-"12%",
-"15%",
-"20%"
+"Analitik hisob",
+"Sintetik hisob",
+"Kassa hisobi",
+"Soliq hisobi"
 ],
-"a": 1,
-"e": "QQS stavkasi — 12% (Soliq kodeksi, 258-modda)."
-},
-{
-"t": "mc",
-"q": "Qaysi hisobvaraq KONTR-AKTIV (aktivni kamaytiruvchi) hisoblanadi?",
-"o": [
-"0130",
-"0230",
-"2910",
-"5110"
-],
-"a": 1,
-"e": "0230 — uskunalar eskirishi. Aktiv bo'limida, lekin qoldig'i kreditda turadi va 0130 qiymatini kamaytiradi."
+"a": 0,
+"e": "Sintetik — umumlashgan (4010 jami), analitik — batafsil (har bir xaridor bo'yicha)."
 },
 {
 "t": "calc",
-"q": "5010: oy boshi 800 000. Debet oborot 12 400 000, kredit oborot 11 900 000. Oy oxiri qoldig'i?",
-"a": 1300000,
-"e": "800 000 + 12 400 000 − 11 900 000 = 1 300 000 so'm."
+"q": "Firmaning aktivlari 500 000 000, majburiyatlari 180 000 000. Kapital qancha?",
+"a": 320000000,
+"e": "Kapital = Aktiv − Majburiyat = 500 − 180 = 320 000 000 so'm."
 },
 {
 "t": "mc",
-"q": "Qaysi qator to'liq PASSIV hisobvaraqlardan iborat?",
+"q": "Aylanma (oborot) qaydnomada qaysi tenglik doim bajariladi?",
 "o": [
-"5010, 5110, 2910",
-"6010, 6710, 8330",
-"4010, 4310, 6010",
-"0130, 0230, 8710"
+"Jami Dt oborot = jami Kt oborot",
+"Aktiv = daromad",
+"Dt qoldiq doim 0",
+"Kt oborot Dt oborotdan katta"
 ],
-"a": 1,
-"e": "6010 (qarz), 6710 (oylik qarzi), 8330 (ustav kapital) — hammasi passiv."
+"a": 0,
+"e": "Har provodka bir xil summada Dt va Kt ga yoziladi — shuning uchun jami oborotlar teng."
+},
+{
+"t": "calc",
+"q": "4010 (aktiv): oy boshi 18 000 000. Oy davomida 42 000 000 lik tovar sotildi, xaridorlar 37 000 000 to'ladi. Oy oxiri qoldig'i?",
+"a": 23000000,
+"e": "Aktivda: boshlang'ich + Dt − Kt = 18 + 42 − 37 = 23 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Kassa 2 mln, bank 48 mln, tovar 70 mln, yetkazib beruvchiga qarz 35 mln, budjetga qarz 5 mln. Kapital qancha?",
+"a": 80000000,
+"e": "Aktiv 120 mln − majburiyat 40 mln = 80 000 000 so'm."
+},
+{
+"t": "mc",
+"q": "6010 hisobvarag'ida oy oxirida DEBET qoldiq chiqdi. Bu nimani bildiradi?",
+"o": [
+"Yetkazib beruvchiga ortiqcha to'langan — endi u bizga qarzdor",
+"Biz yetkazib beruvchiga qarzdormiz",
+"Omborda tovar ko'payganini",
+"Kassa kamomadini"
+],
+"a": 0,
+"e": "6010 — passiv, odatda kredit qoldiq. Debet qoldiq — ortiqcha to'lov, ya'ni debitorlik."
 }
 ]
 },
@@ -797,75 +789,75 @@ const STAGES=[
 },
 {
 "t": "mc",
-"q": "Aktiv hisobvaraq ko'payganda qaysi tomonga yoziladi?",
+"q": "Ustav kapital miqdori qaysi hujjatda belgilanadi?",
 "o": [
-"Debetga",
-"Kreditga",
-"Ikkalasiga",
-"Hech qayerga"
+"Ta'sis hujjati (ustav)",
+"Mehnat shartnomasi",
+"Hisob-faktura",
+"Kassa orderi"
 ],
 "a": 0,
-"e": "Aktiv ko'paysa — Debet, kamaysa — Kredit."
+"e": "Ustav kapital ta'sis hujjatlarida qayd etiladi va 8330 da hisobga olinadi."
 },
 {
 "t": "mc",
-"q": "Ikki yoqlama yozuvning asosiy qoidasi nima?",
+"q": "Bankdan 18 oyga kredit olindi. Qaysi hisobvaraq?",
 "o": [
-"Debet doim Kreditdan katta",
-"Bir summa bir vaqtda Dt va Kt ga yoziladi",
-"Faqat pul harakati yoziladi",
-"Kredit — doim xarajat"
+"7810",
+"6810",
+"5110",
+"8330"
 ],
-"a": 1,
-"e": "Har muomala bir xil summada bir hisobvaraq debetiga va boshqasining kreditiga tushadi."
+"a": 0,
+"e": "1 yildan ortiq — uzoq muddatli kredit (7810)."
 },
 {
 "t": "mc",
-"q": "Passiv hisobvaraq qoldig'i odatda qaysi tomonda?",
+"q": "Ta'sischi ulushini to'liq kiritmaguncha uning qarzi qaysi hisobvaraqda turadi?",
 "o": [
-"Debetda",
-"Kreditda",
-"Ikkalasida",
-"Qoldiq bo'lmaydi"
+"4610",
+"8330",
+"6610",
+"4010"
 ],
-"a": 1,
-"e": "Passivlar kreditda ko'payadi, qoldig'i ham kreditda. Aktivlarniki — debetda."
-},
-{
-"t": "mc",
-"q": "Yuridik shaxslar mol-mulk solig'ining stavkasi?",
-"o": [
-"1%",
-"1,5%",
-"2%",
-"0,95%"
-],
-"a": 1,
-"e": "1,5% (SK 415-modda). 0,95% — qishloq xo'jaligi yerlari uchun yer solig'i."
+"a": 0,
+"e": "4610 — ta'sischilarning ustav kapitalga ulushlar bo'yicha qarzi."
 },
 {
 "t": "calc",
-"q": "Kassada oy boshida 500 000 so'm bor edi. Bankdan 3 000 000 olindi, 1 200 000 xarajatga berildi. Oy oxirida qancha?",
+"q": "Kredit 60 000 000, yillik foiz 24%. Bir oylik foiz qancha?",
+"a": 1200000,
+"e": "60 000 000 × 24% ÷ 12 = 1 200 000 so'm."
+},
+{
+"t": "calc",
+"q": "Xodimga safarga 3 000 000 berildi. Hisobot bo'yicha xarajat 2 650 000. Kassaga qancha qaytariladi?",
+"a": 350000,
+"e": "3 000 000 − 2 650 000 = 350 000 so'm."
+},
+{
+"t": "calc",
+"q": "Kredit 120 000 000, 24 oyga, asosiy qarz teng ulushda qaytariladi. Har oy asosiy qarz to'lovi?",
+"a": 5000000,
+"e": "120 000 000 ÷ 24 = 5 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Kredit 120 000 000, yillik 24% (oyiga 2%). 1-oyda 5 000 000 asosiy qarz qaytarildi. 2-oy foizi (qolgan qarzga)?",
 "a": 2300000,
-"e": "500 000 + 3 000 000 − 1 200 000 = 2 300 000 so'm."
+"e": "Qoldiq 115 000 000 × 2% = 2 300 000 so'm."
 },
 {
-"t": "calc",
-"q": "Ustav kapital 100 000 000. Ta'sischi pul bilan 70 000 000 va uskuna bilan 20 000 000 kiritdi. Yana qancha qarzi qoldi?",
-"a": 10000000,
-"e": "100 − 70 − 20 = 10 mln. 4610 da 10 000 000 so'm debet qoldiq."
-},
-{
-"t": "calc",
-"q": "Ustav kapital 100 000 000. Ta'sischi pul bilan 45 000 000, uskuna bilan 30 000 000, yana tovar bilan 15 000 000 kiritdi. Qarzi qancha qoldi?",
-"a": 10000000,
-"e": "100 − 45 − 30 − 15 = 10 000 000 so'm (4610 debet qoldig'i)."
-},
-{
-"t": "calc",
-"q": "6010 (passiv): oy boshi 25 000 000 kredit qoldiq. Oy davomida yangi fakturalar 40 000 000, to'lovlar 52 000 000. Oy oxiri qarz?",
-"a": 13000000,
-"e": "Passivda: boshlang'ich + Kt oborot − Dt oborot = 25 + 40 − 52 = 13 000 000 so'm."
+"t": "mc",
+"q": "Uzoq muddatli kreditning keyingi 12 oyda to'lanadigan qismi balansda qanday ko'rsatiladi?",
+"o": [
+"Joriy (qisqa muddatli) majburiyat sifatida",
+"Kapital sifatida",
+"Uzoq muddatli aktiv sifatida",
+"Ko'rsatilmaydi"
+],
+"a": 0,
+"e": "Yaqin 12 oyda qaytariladigan qism qisqa muddatli majburiyatga o'tkaziladi."
 }
 ]
 },
@@ -1062,75 +1054,69 @@ const STAGES=[
 },
 {
 "t": "mc",
-"q": "QQS stavkasi Soliq kodeksining qaysi moddasida?",
+"q": "Yetkazib beruvchiga qarz (6010) qaysi tomonda ko'payadi?",
 "o": [
-"239-modda",
-"258-modda",
-"274-modda",
-"317-modda"
+"Kreditda",
+"Debetda",
+"Ikkalasida",
+"Hech qaysida"
 ],
-"a": 1,
-"e": "258-modda — QQS stavkalari. 239 — realizatsiya aylanmasi, 274 — QQSni qaytarish, 317 — chegirilmaydigan xarajatlar."
+"a": 0,
+"e": "6010 — passiv: ko'payishi kreditda, kamayishi debetda."
 },
 {
 "t": "calc",
-"q": "Tovar QQSsiz 10 000 000 so'm. Kirim QQS qancha?",
-"a": 1200000,
-"e": "10 000 000 × 12% = 1 200 000 so'm."
+"q": "Tovar QQSsiz 7 500 000. QQS bilan jami qancha?",
+"a": 8400000,
+"e": "7 500 000 × 1,12 = 8 400 000 so'm."
 },
 {
 "t": "calc",
-"q": "Faktura QQS bilan 5 600 000 so'm. Ichidagi QQS qancha?",
-"a": 600000,
-"e": "5 600 000 × 12 / 112 = 600 000 so'm."
+"q": "Faktura QQS bilan 13 440 000. QQSsiz qiymati?",
+"a": 12000000,
+"e": "13 440 000 × 100 / 112 = 12 000 000 so'm."
 },
 {
 "t": "mc",
-"q": "Kirim QQSni hisobga olish uchun asosiy hujjat qaysi?",
+"q": "Hisobga olinadigan kirim QQS qaysi hisobvaraqda yig'iladi?",
 "o": [
-"Ishonchnoma",
-"Elektron hisob-faktura",
-"Kassa kirim orderi",
-"Mehnat shartnomasi"
+"4410",
+"6410",
+"6010",
+"9430"
 ],
-"a": 1,
-"e": "Kirim QQS elektron hisob-faktura asosida hisobga olinadi."
-},
-{
-"t": "mc",
-"q": "Yetkazib beruvchi aylanmadan olinadigan soliq to'lovchisi, fakturada QQS yo'q. Kirim QQS nima bo'ladi?",
-"o": [
-"12% ni o'zimiz hisoblab olamiz",
-"Kirim QQS yo'q — tovar to'liq summada kirim qilinadi",
-"Budjetdan qaytarib olamiz",
-"Keyingi oyga o'tkazamiz"
-],
-"a": 1,
-"e": "Fakturada QQS bo'lmasa, hisobga olinadigan QQS ham yo'q. Tovar to'lov summasida kirim qilinadi."
+"a": 0,
+"e": "4410 — budjetga bo'naklar (kirim QQS)."
 },
 {
 "t": "calc",
-"q": "Tovar 20 000 000 (QQSsiz), yetkazish 1 500 000 tovar qiymatiga qo'shiladi. 500 dona. 1 dona tannarxi?",
-"a": 43000,
-"e": "(20 000 000 + 1 500 000) ÷ 500 = 43 000 so'm."
-},
-{
-"t": "mc",
-"q": "Qaysi hujjat kirim QQSni hisobga olishga asos bo'LMAYDI?",
-"o": [
-"Elektron hisob-faktura",
-"Import bo'yicha bojxona yuk deklaratsiyasi (QQS to'langan)",
-"Naqd to'lov bo'yicha oddiy chek (fakturasiz)",
-"Soliq agenti sifatida to'langan QQS hujjati"
-],
-"a": 2,
-"e": "Kirim QQS hisob-faktura, import deklaratsiyasi yoki soliq agenti to'lovi asosida hisobga olinadi. Fakturasiz chek bilan olinmaydi."
+"q": "1 200 dona × 15 000 (QQSsiz) tovar keldi, yetkazish 600 000. 1 dona tannarxi?",
+"a": 15500,
+"e": "(18 000 000 + 600 000) ÷ 1 200 = 15 500 so'm."
 },
 {
 "t": "calc",
-"q": "Oy davomida xarid: 3 ta faktura QQS bilan 5 600 000, 11 200 000 va 7 840 000. Jami kirim QQS?",
-"a": 2640000,
-"e": "Jami 24 640 000 × 12/112 = 2 640 000 so'm."
+"q": "4310 da 8 000 000 bo'nak bor edi. QQS bilan 11 200 000 lik tovar keldi, bo'nak hisobga olindi. Yana qancha to'lanadi?",
+"a": 3200000,
+"e": "11 200 000 − 8 000 000 = 3 200 000 so'm."
+},
+{
+"t": "calc",
+"q": "Import: bojxona qiymati 50 000 000, boj 10%. QQS bazasi = bojxona qiymati + boj. Import QQS?",
+"a": 6600000,
+"e": "Baza 55 000 000 × 12% = 6 600 000 so'm."
+},
+{
+"t": "mc",
+"q": "Fakturada QQS xato 15% yozilgan. Nima qilinadi?",
+"o": [
+"Tuzatuvchi hisob-faktura rasmiylashtiriladi",
+"Faktura shundayligicha qabul qilinadi",
+"15% hisobga olinadi",
+"QQS umuman hisobga olinmaydi"
+],
+"a": 0,
+"e": "Xato faktura tuzatuvchi hisob-faktura bilan to'g'rilanadi, keyin 12% hisobga olinadi."
 }
 ]
 },
@@ -1327,51 +1313,59 @@ const STAGES=[
 },
 {
 "t": "calc",
-"q": "Tovar QQSsiz 5 000 000 so'mga sotildi. Chiqim QQS qancha?",
-"a": 600000,
-"e": "5 000 000 × 12% = 600 000 so'm."
+"q": "Tovar QQSsiz 9 000 000 ga sotildi. Xaridor jami qancha to'laydi?",
+"a": 10080000,
+"e": "9 000 000 × 1,12 = 10 080 000 so'm."
 },
 {
 "t": "calc",
-"q": "Sotuv QQS bilan 5 600 000 so'm. QQSsiz daromad qancha?",
-"a": 5000000,
-"e": "5 600 000 × 100 / 112 = 5 000 000 so'm."
+"q": "Kassaga QQS bilan 2 240 000 tushum keldi. Shundan chiqim QQS qancha?",
+"a": 240000,
+"e": "2 240 000 × 12 / 112 = 240 000 so'm."
+},
+{
+"t": "mc",
+"q": "Hisoblash tamoyiliga ko'ra sotuv daromadi qachon tan olinadi?",
+"o": [
+"Tovar xaridorga topshirilganda",
+"Pul kelganda",
+"Shartnoma imzolanganda",
+"Yil oxirida"
+],
+"a": 0,
+"e": "Daromad pul tushganda emas, tovar topshirilganda tan olinadi."
 },
 {
 "t": "calc",
-"q": "Daromad (QQSsiz) 5 000 000, tannarx 3 500 000. Yalpi foyda qancha?",
-"a": 1500000,
-"e": "5 000 000 − 3 500 000 = 1 500 000 so'm."
+"q": "Sotuv 30 mln (QQSsiz), tannarx 21 mln, sotish xarajatlari 2,5 mln. Sotishdan foyda?",
+"a": 6500000,
+"e": "30 − 21 − 2,5 = 6 500 000 so'm."
 },
 {
 "t": "calc",
-"q": "Oy bo'yicha chiqim QQS 2 400 000, kirim QQS 1 560 000. Budjetga qancha QQS to'lanadi?",
-"a": 840000,
-"e": "2 400 000 − 1 560 000 = 840 000 so'm."
+"q": "Tannarx 8 000 000, sotuv narxi (QQSsiz) 10 000 000. Ustama necha foiz?",
+"a": 25,
+"e": "(10 − 8) ÷ 8 = 25%.",
+"unit": "%"
 },
 {
 "t": "calc",
-"q": "Tovar tannarxi 4 000 000, ustama 25%. QQS 12% bilan sotuv narxi?",
-"a": 5600000,
-"e": "4 000 000 × 1,25 = 5 000 000; × 1,12 = 5 600 000 so'm."
+"q": "Daromad 40 mln, sof foyda 6 mln. Sotish rentabelligi necha foiz?",
+"a": 15,
+"e": "6 ÷ 40 = 15%.",
+"unit": "%"
 },
 {
 "t": "calc",
-"q": "O'rtacha narx usuli: 100 dona × 50 000 va 300 dona × 58 000 keldi. 1 donaning o'rtacha tannarxi?",
-"a": 56000,
-"e": "(5 000 000 + 17 400 000) ÷ 400 = 56 000 so'm."
+"q": "Omborda 200 dona × 40 000 bor edi, yana 300 dona × 45 000 keldi. O'rtacha usulda 350 dona sotildi. Qolgan tovar qiymati?",
+"a": 6450000,
+"e": "O'rtacha 43 000; qoldiq 150 × 43 000 = 6 450 000 so'm."
 },
 {
 "t": "calc",
-"q": "FIFO: 100 dona × 50 000 (birinchi), 300 dona × 58 000. 250 dona sotildi. Tannarx?",
-"a": 13700000,
-"e": "Avval 100 × 50 000 = 5 000 000, keyin 150 × 58 000 = 8 700 000. Jami 13 700 000 so'm."
-},
-{
-"t": "calc",
-"q": "Kirim QQS 3 000 000, chiqim QQS 2 100 000. Oy yakunida QQS bo'yicha natija (so'mda, ortiqcha kirim QQS summasi)?",
-"a": 900000,
-"e": "Kirim chiqimdan katta: 3 000 000 − 2 100 000 = 900 000 so'm keyingi davrga o'tadi yoki qaytarishga so'raladi (SK 274-modda)."
+"q": "FIFO usuli: avval 200 dona × 40 000, keyin 300 dona × 45 000 keldi. 350 dona sotildi. Qolgan tovar qiymati?",
+"a": 6750000,
+"e": "Avval eskilari sotiladi; qolgan 150 dona yangi narxda: 150 × 45 000 = 6 750 000 so'm."
 }
 ]
 },
@@ -1568,75 +1562,63 @@ const STAGES=[
 },
 {
 "t": "mc",
-"q": "Jismoniy shaxslardan olinadigan daromad solig'i (JShDS) stavkasi?",
+"q": "Ish haqidan xodimning o'zidan qaysi soliq ushlanadi?",
 "o": [
-"10%",
-"12%",
-"13%",
-"15%"
-],
-"a": 1,
-"e": "Rezident jismoniy shaxslar uchun JShDS — 12% (SK 381-modda)."
-},
-{
-"t": "mc",
-"q": "Tijorat firmasi uchun ijtimoiy soliq stavkasi?",
-"o": [
-"12%",
-"25%",
-"15%",
-"4%"
+"JShDS",
+"Ijtimoiy soliq",
+"QQS",
+"Mol-mulk solig'i"
 ],
 "a": 0,
-"e": "Ijtimoiy soliq — 12%. Budjet tashkilotlari uchun 25% (SK 405-modda)."
+"e": "Xodimdan faqat JShDS ushlanadi; ijtimoiy soliqni firma to'laydi."
+},
+{
+"t": "calc",
+"q": "Oylik 6 500 000. JShDS 12%. Qo'lga qancha?",
+"a": 5720000,
+"e": "6 500 000 − 780 000 = 5 720 000 so'm."
+},
+{
+"t": "calc",
+"q": "Oylik 9 000 000. Firmaning ish haqi bo'yicha jami xarajati (ijtimoiy soliq 12% bilan)?",
+"a": 10080000,
+"e": "9 000 000 + 1 080 000 = 10 080 000 so'm."
 },
 {
 "t": "mc",
-"q": "JShDS va ijtimoiy soliq hisoboti qachongacha topshiriladi?",
+"q": "Mehnat kodeksiga ko'ra yillik asosiy ta'tilning eng kam muddati?",
 "o": [
-"Keyingi oyning 10-sanasigacha",
-"Keyingi oyning 15-sanasigacha",
-"Keyingi oyning 25-sanasigacha",
-"Chorakda bir marta"
+"21 kalendar kun",
+"15 kalendar kun",
+"24 ish kuni",
+"30 kalendar kun"
 ],
-"a": 1,
-"e": "Oylik hisobot va to'lov — keyingi oyning 15-sanasigacha."
-},
-{
-"t": "mc",
-"q": "2026-yil 1-sentabrdan mehnatga haq to'lashning eng kam miqdori qancha?",
-"o": [
-"1 271 000 so'm",
-"1 360 000 so'm",
-"1 155 000 so'm",
-"1 500 000 so'm"
-],
-"a": 1,
-"e": "Prezident farmoni bilan 2026-yil 1-sentabrdan eng kam oylik 1 360 000 so'm (avval 1 271 000 edi)."
+"a": 0,
+"e": "Yillik asosiy mehnat ta'tili kamida 21 kalendar kun."
 },
 {
 "t": "calc",
-"q": "Xodim 22 ish kunidan 16 kun ishladi, oklad 11 000 000. Hisoblangan ish haqi?",
-"a": 8000000,
-"e": "11 000 000 ÷ 22 × 16 = 8 000 000 so'm."
+"q": "Oklad 22 000 000, oyda 22 ish kuni. Xodim 17 kun ishladi va 3 600 000 ta'til puli hisoblandi. Jami hisoblangan?",
+"a": 20600000,
+"e": "17 kun × 1 000 000 = 17 000 000 + 3 600 000 = 20 600 000 so'm."
 },
 {
 "t": "calc",
-"q": "Oylik 12 000 000, oy boshida 3 000 000 avans berilgan. JShDS ushlangach, oy oxirida yana qancha to'lanadi?",
-"a": 7560000,
-"e": "12 000 000 − 1 440 000 − 3 000 000 = 7 560 000 so'm."
+"q": "5 xodim: 3 tasi 6 mln, 2 tasi 9 mln oylik oladi. Ijtimoiy soliq 12%?",
+"a": 4320000,
+"e": "Fond 36 000 000 × 12% = 4 320 000 so'm."
 },
 {
 "t": "calc",
-"q": "Qo'lga 7 040 000 so'm tegishi kerak (JShDS 12%). Qancha hisoblash kerak?",
-"a": 8000000,
-"e": "7 040 000 ÷ 0,88 = 8 000 000 so'm."
+"q": "Xodim qo'liga 8 800 000 olishi kerak. Firmaning jami xarajati (JShDS 12%, ijtimoiy soliq 12%)?",
+"a": 11200000,
+"e": "Hisoblanadi 10 000 000; + ijtimoiy soliq 1 200 000 = 11 200 000 so'm."
 },
 {
 "t": "calc",
-"q": "Budjet tashkilotida ish haqi fondi 40 000 000. Ijtimoiy soliq?",
-"a": 10000000,
-"e": "Budjet tashkilotlari uchun 25%: 10 000 000 so'm."
+"q": "Oylik 10 000 000. JShDS ushlangach, kamomad uchun yana 1 500 000 ushlanadi. Qo'lga?",
+"a": 7300000,
+"e": "10 000 000 − 1 200 000 − 1 500 000 = 7 300 000 so'm."
 }
 ]
 },
@@ -1832,58 +1814,64 @@ const STAGES=[
 "e": "Qoldiq qiymat boshqa operatsion xarajatga (Dt 9430), 9210 yopildi (Kt 9210)."
 },
 {
-"t": "calc",
-"q": "Uskuna narxi 60 000 000, yetkazish 2 000 000, o'rnatish 3 000 000 (hammasi QQSsiz). Boshlang'ich qiymat?",
-"a": 65000000,
-"e": "60 + 2 + 3 = 65 000 000 so'm."
+"t": "mc",
+"q": "Asosiy vositalar qaysi BHMS bo'yicha hisobga olinadi?",
+"o": [
+"BHMS 5",
+"BHMS 4",
+"BHMS 7",
+"BHMS 21"
+],
+"a": 0,
+"e": "BHMS 5 — asosiy vositalar. 4 — zaxiralar, 7 — nomoddiy aktivlar."
 },
 {
 "t": "calc",
-"q": "Uskuna 60 000 000 so'm, muddat 5 yil, tugatish qiymati 0. Yillik amortizatsiya?",
-"a": 12000000,
-"e": "60 000 000 ÷ 5 = 12 000 000 so'm."
+"q": "Kompyuter 18 000 000, muddat 3 yil. Oylik amortizatsiya?",
+"a": 500000,
+"e": "18 000 000 ÷ 36 oy = 500 000 so'm."
 },
 {
 "t": "calc",
-"q": "Yillik amortizatsiya 12 000 000. Oylik qancha?",
-"a": 1000000,
-"e": "12 000 000 ÷ 12 = 1 000 000 so'm."
-},
-{
-"t": "calc",
-"q": "Uskuna 48 000 000, tugatish qiymati 6 000 000, muddat 7 yil. Yillik amortizatsiya?",
-"a": 6000000,
-"e": "(48 000 000 − 6 000 000) ÷ 7 = 6 000 000 so'm."
+"q": "Avtomobil 240 000 000, tugatish qiymati 40 000 000, muddat 5 yil. Yillik amortizatsiya?",
+"a": 40000000,
+"e": "(240 − 40) ÷ 5 = 40 000 000 so'm."
 },
 {
 "t": "mc",
-"q": "Soliq kodeksining qaysi moddasi amortizatsiya xarajatlariga bag'ishlangan?",
+"q": "Amortizatsiya odatda qachondan hisoblana boshlaydi?",
 "o": [
-"258-modda",
-"306-modda",
-"381-modda",
-"415-modda"
+"Foydalanishga topshirilgan oydan keyingi oydan",
+"Xarid qilingan kundan",
+"Yil boshidan",
+"Pul to'langan kundan"
 ],
-"a": 1,
-"e": "SK 306-modda — amortizatsiya xarajatlari. 258 — QQS, 381 — JShDS, 415 — mol-mulk solig'i stavkalari."
+"a": 0,
+"e": "Vosita foydalanishga topshirilgan oydan keyingi oyning 1-sanasidan amortizatsiya boshlanadi."
 },
 {
 "t": "calc",
-"q": "Uskuna 72 000 000, muddat 6 yil. Aprel oyida foydalanishga topshirildi, amortizatsiya keyingi oydan. Birinchi yil (dekabrgacha) amortizatsiya?",
-"a": 8000000,
-"e": "Oylik 1 000 000. May–dekabr 8 oy = 8 000 000 so'm."
+"q": "Bino 600 000 000, muddat 20 yil. 3 yil 6 oydan keyin qoldiq qiymati?",
+"a": 495000000,
+"e": "Yillik 30 mln × 3,5 = 105 mln. 600 − 105 = 495 000 000 so'm."
 },
 {
 "t": "calc",
-"q": "Uskuna: boshlang'ich 50 000 000, eskirish 35 000 000. 20 000 000 (QQSsiz) ga sotildi. Foyda qancha?",
+"q": "Ishlab chiqarish usuli: uskuna 100 000 000, jami resurs 50 000 soat. Oyda 1 200 soat ishladi. Oylik amortizatsiya?",
+"a": 2400000,
+"e": "1 soat = 2 000 so'm; 1 200 × 2 000 = 2 400 000 so'm."
+},
+{
+"t": "calc",
+"q": "Uskuna 80 000 000, eskirish 60 000 000. 15 000 000 ga (QQSsiz) sotildi. Sotishdan zarar qancha?",
 "a": 5000000,
-"e": "Qoldiq 15 000 000. 20 − 15 = 5 000 000 so'm foyda (9310)."
+"e": "Qoldiq 20 mln, sotuv 15 mln — zarar 5 000 000 so'm."
 },
 {
 "t": "calc",
-"q": "Kamayib boruvchi qoldiq usuli, stavka 40%. Uskuna 25 000 000. 2-yil amortizatsiyasi?",
-"a": 6000000,
-"e": "1-yil 10 000 000; qoldiq 15 000 000; 2-yil 15 000 000 × 40% = 6 000 000 so'm."
+"q": "Kamayib boruvchi qoldiq usuli, stavka 30%. Uskuna 50 000 000. 3-yil amortizatsiyasi?",
+"a": 7350000,
+"e": "1-yil 15 mln; 2-yil 10,5 mln; 3-yil 24,5 mln × 30% = 7 350 000 so'm."
 }
 ]
 },
@@ -2076,81 +2064,75 @@ const STAGES=[
 },
 {
 "t": "mc",
-"q": "Foyda solig'ining asosiy stavkasi?",
+"q": "Aylanmadan olinadigan soliqning umumiy stavkasi?",
 "o": [
+"4%",
+"1%",
 "12%",
-"15%",
-"20%",
-"7,5%"
+"15%"
 ],
-"a": 1,
-"e": "Asosiy stavka — 15% (SK 337-modda). 2026-yilda o'zgarmadi."
+"a": 0,
+"e": "Aylanma soliq — 4% (SK 467-modda)."
 },
 {
 "t": "mc",
-"q": "Soliq kodeksi qaysi qonun bilan tasdiqlangan?",
+"q": "2026-yildan YaTT (yillik daromad 1 mlrd gacha) uchun aylanma soliqning yagona stavkasi?",
 "o": [
-"O'RQ-404, 13.04.2016",
-"O'RQ-599, 30.12.2019",
-"O'RQ-798, 28.10.2022",
-"PF-5468, 29.06.2018"
+"1%",
+"4%",
+"12%",
+"6%"
 ],
-"a": 1,
-"e": "Soliq kodeksi — 2019-yil 30-dekabrdagi O'RQ-599; 2020-yil 1-yanvardan kuchga kirgan."
+"a": 0,
+"e": "2026-yildan YaTT va o'zini o'zi band qilganlar uchun yagona 1% stavka."
 },
 {
 "t": "calc",
-"q": "Foyda solig'i bazasi 250 000 000 so'm. Soliq 15%. Qancha?",
-"a": 37500000,
-"e": "250 000 000 × 15% = 37 500 000 so'm."
+"q": "Foyda solig'i bazasi 84 000 000. Stavka 15%. Soliq?",
+"a": 12600000,
+"e": "84 000 000 × 15% = 12 600 000 so'm."
 },
 {
 "t": "calc",
-"q": "Aylanma soliq to'lovchi firma oyda 45 000 000 so'm tushum oldi. Soliq 4%. Qancha to'laydi?",
-"a": 1800000,
-"e": "45 000 000 × 4% = 1 800 000 so'm."
+"q": "Ish haqi fondi 35 000 000. Ijtimoiy soliq 12%?",
+"a": 4200000,
+"e": "35 000 000 × 12% = 4 200 000 so'm."
 },
 {
 "t": "mc",
-"q": "JShDS stavkalari (rezidentlar uchun) qaysi moddada?",
+"q": "Mol-mulk solig'i stavkalari Soliq kodeksining qaysi moddasida?",
 "o": [
+"415-modda",
+"405-modda",
 "337-modda",
-"369-modda",
-"381-modda",
-"405-modda"
+"258-modda"
 ],
-"a": 2,
-"e": "381-modda — rezident jismoniy shaxslar uchun stavkalar. 369 — umumiy daromadga kiritilmaydigan daromadlar."
+"a": 0,
+"e": "415 — mol-mulk solig'i stavkalari; 405 — ijtimoiy soliq; 337 — foyda; 258 — QQS."
 },
 {
 "t": "mc",
-"q": "Soliqlar va yig'imlarning turlari SKning qaysi moddasida sanab o'tilgan?",
+"q": "Foyda solig'ida chegirilmaydigan xarajatlar qaysi moddada?",
 "o": [
-"16-modda",
-"17-modda",
-"81-modda",
-"136-modda"
+"317-modda",
+"304-modda",
+"306-modda",
+"239-modda"
 ],
-"a": 1,
-"e": "17-modda — soliqlar va yig'imlarning turlari. 16 — «Soliqlar va yig'imlar» umumiy tushunchasi."
+"a": 0,
+"e": "317 — chegirilmaydigan xarajatlar (jarima, penya va h.k.)."
 },
 {
 "t": "calc",
-"q": "Mol-mulk yil boshida 700 mln, yil oxirida 900 mln (o'rtacha — ikkalasining yarmi). Stavka 1,5%. Soliq?",
-"a": 12000000,
-"e": "O'rtacha 800 000 000 × 1,5% = 12 000 000 so'm."
+"q": "Yillik yer solig'i 24 000 000, har oy 1/12 qismdan to'lanadi. Oylik to'lov?",
+"a": 2000000,
+"e": "24 000 000 ÷ 12 = 2 000 000 so'm."
 },
 {
-"t": "mc",
-"q": "To'langan QQS summalarini hisobga olish (zachet) qaysi moddada?",
-"o": [
-"258-modda",
-"264-modda",
-"266-modda",
-"274-modda"
-],
-"a": 2,
-"e": "266 — hisobga olish; 264 — nol stavka; 274 — QQSni qaytarish."
+"t": "calc",
+"q": "Sof foyda 120 mln. 60% i jismoniy shaxs ta'sischilarga dividendga ajratildi (soliq 5%). Budjetga dividend solig'i?",
+"a": 3600000,
+"e": "Dividend 72 000 000 × 5% = 3 600 000 so'm."
 }
 ]
 },
@@ -2343,99 +2325,87 @@ const STAGES=[
 },
 {
 "t": "mc",
-"q": "Moliyaviy hisobotning 1-shakli nima?",
+"q": "Yillik moliyaviy hisobotdan oldin nima majburiy o'tkaziladi?",
 "o": [
-"Moliyaviy natijalar to'g'risida hisobot",
-"Buxgalteriya balansi",
-"Pul oqimlari to'g'risida hisobot",
-"Kapital to'g'risida hisobot"
+"Inventarizatsiya",
+"Ustavni o'zgartirish",
+"Direktorni almashtirish",
+"Bankni almashtirish"
 ],
-"a": 1,
-"e": "1-shakl — buxgalteriya balansi (aktiv, passiv)."
+"a": 0,
+"e": "Yillik hisobot oldidan aktiv va majburiyatlar inventarizatsiya qilinadi."
 },
 {
 "t": "mc",
-"q": "Moliyaviy hisobotning 2-shakli nima?",
+"q": "Mart oyi uchun QQS hisoboti qaysi sanagacha topshiriladi?",
 "o": [
-"Buxgalteriya balansi",
-"QQS hisoboti",
-"Moliyaviy natijalar to'g'risida hisobot",
-"Ish haqi qaydnomasi"
+"20-aprel",
+"15-aprel",
+"10-aprel",
+"31-mart"
 ],
-"a": 2,
-"e": "2-shakl — moliyaviy natijalar to'g'risida hisobot: daromad, xarajat, foyda."
+"a": 0,
+"e": "QQS — keyingi oyning 20-sanasigacha."
 },
 {
 "t": "mc",
-"q": "Oylik QQS hisoboti qachongacha topshiriladi?",
+"q": "Avgust ish haqi bo'yicha JShDS va ijtimoiy soliq hisoboti qachongacha?",
 "o": [
-"Keyingi oyning 10-sanasigacha",
-"Keyingi oyning 15-sanasigacha",
-"Keyingi oyning 20-sanasigacha",
-"Keyingi oyning 25-sanasigacha"
+"15-sentabr",
+"20-sentabr",
+"10-sentabr",
+"31-avgust"
 ],
-"a": 2,
-"e": "QQS hisoboti va to'lovi — keyingi oyning 20-sanasigacha."
+"a": 0,
+"e": "JShDS va ijtimoiy soliq — keyingi oyning 15-sanasigacha."
 },
 {
 "t": "mc",
-"q": "Soliq hisobotlari aylanmasi: qaysi juftlik to'g'ri?",
+"q": "2026 taqvimiga ko'ra yer va mol-mulk solig'ining oylik qismi qaysi sanagacha to'lanadi?",
 "o": [
-"JShDS — 20-sana, QQS — 15-sana",
-"JShDS — 15-sana, QQS — 20-sana",
-"Ikkalasi 25-sana",
-"Ikkalasi 10-sana"
+"10-sana",
+"15-sana",
+"20-sana",
+"25-sana"
 ],
-"a": 1,
-"e": "JShDS va ijtimoiy soliq — 15-sana; QQS va aylanma soliq — 20-sana."
+"a": 0,
+"e": "Yillik summaning 1/12 qismi har oyning 10-sanasigacha to'lanadi."
 },
 {
 "t": "mc",
-"q": "Soliq hisobotini shakllantirish va tuzish tartibi SKning qaysi moddasida?",
+"q": "O'tgan yil daromadi 20 mlrd so'mdan ortiq firma foyda solig'i bo'nagini qachon to'laydi?",
 "o": [
-"16-modda",
-"81-modda",
-"100-modda",
-"136-modda"
+"Har oyning 23-sanasigacha",
+"Chorakda bir marta 20-sanagacha",
+"Yilda bir marta",
+"To'lamaydi"
 ],
-"a": 1,
-"e": "81-modda — soliq hisobotini shakllantirish va tuzish. 136 — soliq nazorati shakllari."
+"a": 0,
+"e": "Yirik to'lovchilar oylik bo'nakni joriy oyning 23-sanasigacha to'laydi."
 },
 {
 "t": "mc",
-"q": "Kameral soliq tekshiruvi nima?",
+"q": "2026-yildan soliq organi avtomatik tayyorlagan hisobotga to'lovchi necha kun ichida tuzatish kiritishi mumkin?",
 "o": [
-"Firmaga kelib omborni sanash",
-"Soliq organida hisobotlar va ma'lumotlar asosida tekshirish",
-"Faqat kassani tekshirish",
-"Bankdagi hisobni muzlatish"
+"5 kun",
+"10 kun",
+"15 kun",
+"30 kun"
 ],
-"a": 1,
-"e": "Kameral tekshiruv (SK 138-modda) — soliq organida, topshirilgan hisobotlar asosida o'tkaziladi."
+"a": 0,
+"e": "SK 81-modda (2026): to'lovchiga 5 kun beriladi."
 },
 {
-"t": "mc",
-"q": "Inventarizatsiyani o'tkazish tartibi qaysi BHMSda?",
-"o": [
-"BHMS 7",
-"BHMS 9",
-"BHMS 19",
-"BHMS 21"
-],
-"a": 2,
-"e": "BHMS 19 — inventarizatsiyani tashkil etish va o'tkazish."
+"t": "calc",
+"q": "Avtomatik QQS hisobotida kirim QQS 1 200 000 kam ko'rsatilgan. Tuzatilgach to'lanadigan QQS qanchaga kamayadi?",
+"a": 1200000,
+"e": "Kirim QQS ko'paysa, to'lanadigan QQS ham shuncha kamayadi: 1 200 000 so'm."
 },
 {
-"t": "mc",
-"q": "2026 o'zgarishi: bir oyda bir nechta soliq hisoboti kechiktirilsa, jarima qanday?",
-"o": [
-"Har bir hisobot uchun alohida",
-"Bitta jarima qo'llanadi",
-"Jarima yo'q",
-"Faqat penya"
-],
-"a": 1,
-"e": "2026-yildan bir oyda kechiktirilgan bir nechta hisobot uchun bitta jarima qo'llanadi (kichik biznes uchun jarimalar yumshatildi)."
+"t": "calc",
+"q": "Aylanma qaydnomada aktivlar qoldig'i 410 mln, passivlar qoldig'i 395 mln chiqdi. Qidirilishi kerak bo'lgan farq?",
+"a": 15000000,
+"e": "410 − 395 = 15 000 000 so'm — balans teng bo'lishi kerak, demak xato bor."
 }
 ]
 },
@@ -2628,87 +2598,69 @@ const STAGES=[
 },
 {
 "t": "mc",
-"q": "Tovar eksport qilinganda QQS stavkasi qancha?",
+"q": "QQS bo'yicha 0% stavka qo'llanadigan holatlar qaysi moddada?",
 "o": [
+"264-modda",
+"258-modda",
+"266-modda",
+"274-modda"
+],
+"a": 0,
+"e": "264 — nol stavka; 258 — stavkalar; 266 — hisobga olish; 274 — qaytarish."
+},
+{
+"t": "mc",
+"q": "Litsenziyaga ega ta'lim muassasasining ta'lim xizmatlari QQS bo'yicha qanday?",
+"o": [
+"QQSdan ozod",
 "12%",
 "0%",
-"6%",
-"QQS umuman hisoblanmaydi va hisobot topshirilmaydi"
+"4%"
 ],
-"a": 1,
-"e": "Eksport — 0% stavka. Hisobotda ko'rsatiladi, kirim QQS esa qaytarilishi mumkin."
+"a": 0,
+"e": "Ta'lim xizmatlari QQSdan ozod aylanmalar qatorida."
 },
 {
 "t": "mc",
-"q": "0% stavka va QQSdan ozod qilishning asosiy farqi?",
+"q": "Elektromobil quvvatlash stansiyasi uchun 2028-yilgacha mol-mulk solig'i stavkasi?",
 "o": [
-"Farqi yo'q",
-"0% da kirim QQS hisobga olinadi, ozodda — olinmaydi",
-"Ozodda kirim QQS qaytariladi",
-"0% faqat YaTT uchun"
+"1%",
+"0%",
+"1,5%",
+"2%"
 ],
-"a": 1,
-"e": "0% da kirim QQS hisobga olinadi va qaytarilishi mumkin; ozod aylanmada kirim QQS xarajatga yoki qiymatga qo'shiladi."
-},
-{
-"t": "mc",
-"q": "Qaysi biri odatda QQSdan ozod qilingan?",
-"o": [
-"Oziq-ovqat do'konidagi savdo",
-"Tibbiy xizmatlar",
-"Qurilish materiallari savdosi",
-"Avtomobil ta'miri"
-],
-"a": 1,
-"e": "Tibbiy va ta'lim xizmatlari QQSdan ozod qilinganlar qatorida."
-},
-{
-"t": "mc",
-"q": "Bank kredit bergani uchun oladigan foizlar QQS bo'yicha qanday?",
-"o": [
-"12% QQS",
-"0% QQS",
-"QQSdan ozod (moliyaviy xizmat)",
-"Aylanma soliq"
-],
-"a": 2,
-"e": "Kredit bo'yicha foizlar — moliyaviy xizmat, QQSdan ozod."
-},
-{
-"t": "mc",
-"q": "2026-yildan: firma soddalashtirilgan tizimdan birinchi marta QQS va foyda solig'iga o'tdi. Qanday imtiyoz bor?",
-"o": [
-"Imtiyoz yo'q",
-"1 yil foyda solig'idan ozod (dividend va foizlardan tashqari)",
-"5 yil QQSdan ozod",
-"Ijtimoiy soliq 0%"
-],
-"a": 1,
-"e": "2026-yil o'zgarishi (SK 337-modda): birinchi marta o'tganlarga 1 yil foyda solig'idan ozodlik."
+"a": 0,
+"e": "2028-yilgacha mol-mulk va yer solig'i 1%."
 },
 {
 "t": "calc",
-"q": "Firma 200 000 000 so'mlik tovarni eksport qildi (0%). Oy bo'yicha kirim QQS 9 000 000. Qaytarishga taqdim etiladigan QQS?",
-"a": 9000000,
-"e": "Chiqim QQS 0. Kirim QQS 9 000 000 — to'liq qaytarishga (SK 274-modda)."
+"q": "Eksport 300 mln (0%), ichki sotuv 200 mln (QQSsiz). Ichki sotuv bo'yicha chiqim QQS?",
+"a": 24000000,
+"e": "Faqat ichki sotuvga 12%: 24 000 000 so'm."
 },
 {
 "t": "calc",
-"q": "Ozod aylanma 40 mln, soliq solinadigan aylanma 60 mln. Umumiy kirim QQS 5 000 000. Proporsional usulda hisobga olinadigan qismi?",
+"q": "Chiqim QQS 24 mln, kirim QQS 30 mln (hammasi hisobga olinadi). Ortiqcha QQS?",
+"a": 6000000,
+"e": "30 − 24 = 6 000 000 so'm — qaytarishga yoki keyingi oyga."
+},
+{
+"t": "calc",
+"q": "Ozod aylanma 25%, soliq solinadigan 75%. Kirim QQS 8 000 000. Hisobga olinadigan qismi?",
+"a": 6000000,
+"e": "8 000 000 × 75% = 6 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Issiqxona firmasi: ish haqi fondi 80 mln, imtiyozli ijtimoiy soliq 1%. To'lanadi?",
+"a": 800000,
+"e": "80 000 000 × 1% = 800 000 so'm."
+},
+{
+"t": "calc",
+"q": "Birinchi marta umumiy tizimga o'tgan firma (2026 imtiyozi): foyda 200 mln, shundan 20 mln — bank depoziti foizi. Foyda solig'i (15%)?",
 "a": 3000000,
-"e": "Soliq solinadigan ulush 60%. 5 000 000 × 60% = 3 000 000 so'm hisobga olinadi."
-},
-{
-"t": "mc",
-"q": "Soliqdan ozod qilishni qo'llash xususiyatlari (foyda solig'i bo'yicha) qaysi moddada?",
-"o": [
-"304-modda",
-"337-modda",
-"354-modda",
-"357-modda"
-],
-"a": 3,
-"e": "357-modda — soliqdan ozod qilishni qo'llash xususiyatlari."
+"e": "Imtiyoz foiz va dividendga tatbiq etilmaydi: 20 000 000 × 15% = 3 000 000 so'm."
 }
 ]
 },
@@ -2901,93 +2853,81 @@ const STAGES=[
 },
 {
 "t": "mc",
-"q": "Soliq kodeksi qachondan kuchga kirgan?",
+"q": "Yangi tahrirdagi Mehnat kodeksi qaysi qonun bilan qabul qilingan?",
 "o": [
-"2019-yil 30-dekabr",
-"2020-yil 1-yanvar",
-"2021-yil 1-yanvar",
-"2018-yil 29-iyun"
-],
-"a": 1,
-"e": "O'RQ-599 2019-yil 30-dekabrda imzolangan, 2020-yil 1-yanvardan kuchga kirgan."
-},
-{
-"t": "mc",
-"q": "PQ-4611 (24.02.2020) qaror nimaga bag'ishlangan?",
-"o": [
-"Ish haqini oshirishga",
-"Moliyaviy hisobotning xalqaro standartlariga (MHXS) o'tishga",
-"Soliq kodeksini tasdiqlashga",
-"Davlat xaridlariga"
-],
-"a": 1,
-"e": "PQ-4611 — MHXSga o'tish bo'yicha qo'shimcha chora-tadbirlar to'g'risida."
-},
-{
-"t": "mc",
-"q": "PF-5468 (29.06.2018) farmoni nima haqida?",
-"o": [
-"Soliq siyosatini takomillashtirish konsepsiyasi",
-"MHXSga o'tish",
-"Pensiyalarni oshirish",
-"Mehnat kodeksi"
+"O'RQ-798",
+"O'RQ-599",
+"O'RQ-404",
+"PF-60"
 ],
 "a": 0,
-"e": "PF-5468 — soliq siyosatini takomillashtirish konsepsiyasi; yangi Soliq kodeksiga yo'l ochgan."
+"e": "Mehnat kodeksi — O'RQ-798 (2022), 2023-yil 30-apreldan kuchga kirgan."
 },
 {
 "t": "mc",
-"q": "PF-60 (28.01.2022) farmoni bilan nima tasdiqlangan?",
+"q": "PF-115 (2026) farmoniga ko'ra 1-iyuldan pensiya va nafaqalar necha foizga oshdi?",
 "o": [
-"«O'zbekiston — 2030» strategiyasi",
-"2022–2026-yillarga Yangi O'zbekistonning taraqqiyot strategiyasi",
-"Soliq kodeksi",
-"Buxgalteriya qonuni"
+"7%",
+"5%",
+"10%",
+"12%"
 ],
-"a": 1,
-"e": "PF-60 — 2022–2026-yillarga mo'ljallangan Yangi O'zbekistonning taraqqiyot strategiyasi."
-},
-{
-"t": "mc",
-"q": "«O'zbekiston — 2030» strategiyasi qaysi hujjat bilan tasdiqlangan?",
-"o": [
-"PF-60",
-"PF-158",
-"PQ-4611",
-"PF-5468"
-],
-"a": 1,
-"e": "PF-158 (11.09.2023) — «O'zbekiston — 2030» strategiyasi."
-},
-{
-"t": "mc",
-"q": "PQ-4611 ga ko'ra 2021-yil 1-yanvardan MHXS bo'yicha hisob yuritishni kimlar boshlashi kerak edi?",
-"o": [
-"Barcha YaTTlar",
-"Aksiyadorlik jamiyatlari, tijorat banklari, sug'urta tashkilotlari va yirik soliq to'lovchilar",
-"Faqat budjet tashkilotlari",
-"Faqat eksportchilar"
-],
-"a": 1,
-"e": "Qaror AJlar, banklar, sug'urtachilar va yirik soliq to'lovchilarni 2021-yildan MHXSga o'tkazdi."
+"a": 0,
+"e": "Pensiya va nafaqalar 1-iyuldan, ish haqi 1-sentabrdan — 7% ga."
 },
 {
 "t": "calc",
-"q": "Jarima 3 BHM. 1-sentabr 2026 gacha BHM 412 000, keyin 440 000. Jarima 20-sentabrda qo'llanganda summa?",
-"a": 1320000,
-"e": "20-sentabrda amaldagi BHM 440 000 × 3 = 1 320 000 so'm."
+"q": "BHM 440 000. 10 BHM miqdoridagi jarima?",
+"a": 4400000,
+"e": "10 × 440 000 = 4 400 000 so'm."
+},
+{
+"t": "calc",
+"q": "2026-yil minimal iste'mol xarajatlari — kishi boshiga oyiga 715 000 so'm. 4 kishilik oila uchun?",
+"a": 2860000,
+"e": "4 × 715 000 = 2 860 000 so'm."
+},
+{
+"t": "calc",
+"q": "Eng kam oylik 1 360 000. Xodim oyligi uning 2,5 barobari. Oylik?",
+"a": 3400000,
+"e": "1 360 000 × 2,5 = 3 400 000 so'm."
 },
 {
 "t": "mc",
-"q": "Soliq to'lovchi operatsiyalarini to'xtatib turish to'g'risidagi qarorni bekor qilish tartibi qaysi moddada?",
+"q": "PF-115 farmoni qachon imzolangan?",
 "o": [
+"23.06.2026",
+"01.09.2026",
+"11.09.2023",
+"28.01.2022"
+],
+"a": 0,
+"e": "PF-115 — 2026-yil 23-iyun."
+},
+{
+"t": "mc",
+"q": "PQ-4611 bo'yicha MHXSga majburiy o'tish qaysilariga TEGISHLI EMAS edi?",
+"o": [
+"Kichik biznes (mikrofirmalar)",
+"Aksiyadorlik jamiyatlari",
+"Tijorat banklari",
+"Sug'urta tashkilotlari"
+],
+"a": 0,
+"e": "Majburiy o'tish AJ, bank, sug'urta va yirik soliq to'lovchilarga tegishli edi."
+},
+{
+"t": "mc",
+"q": "Soliq qarzini to'lovchining debitorlik qarzi hisobidan undirish (2026) Soliq kodeksining qaysi moddasida?",
+"o": [
+"121-1-modda",
 "100-modda",
 "112-modda",
-"138-modda",
 "81-modda"
 ],
-"a": 1,
-"e": "112-modda — operatsiyalarni to'xtatib turish haqidagi qarorni bekor qilish tartibi."
+"a": 0,
+"e": "121-1-modda — debitor tasdiqlagandan keyin (10 kun) qarzni hisobga olish."
 }
 ]
 },
@@ -3183,58 +3123,64 @@ const STAGES=[
 "e": "Dt 8710 — Kt 6610."
 },
 {
-"t": "calc",
-"q": "Daromad 850 mln, tannarx 520 mln, sotish xarajatlari 60 mln, ma'muriy 90 mln, kredit foizi 20 mln. Soliqqacha foyda?",
-"a": 160000000,
-"e": "850 − 520 − 60 − 90 − 20 = 160 000 000 so'm."
-},
-{
-"t": "calc",
-"q": "Soliqqacha foyda 160 mln, ichida chegirilmaydigan jarimalar 10 mln. Foyda solig'i 15%?",
-"a": 25500000,
-"e": "Soliq bazasi 170 000 000 × 15% = 25 500 000 so'm."
-},
-{
-"t": "calc",
-"q": "Buxgalteriya foydasi 160 000 000, foyda solig'i 25 500 000. Sof foyda?",
-"a": 134500000,
-"e": "160 000 000 − 25 500 000 = 134 500 000 so'm."
-},
-{
-"t": "calc",
-"q": "Sof foyda 134 500 000. Uning 40% i dividendga ajratildi. Dividend jami?",
-"a": 53800000,
-"e": "134 500 000 × 40% = 53 800 000 so'm."
-},
-{
-"t": "calc",
-"q": "53 800 000 dividend 2 ta teng ulushli jismoniy shaxs ta'sischiga. Bittasi qo'liga qancha oladi (JShDS 5%)?",
-"a": 25555000,
-"e": "26 900 000 × 95% = 25 555 000 so'm."
+"t": "mc",
+"q": "Yil yakunida 9-guruh hisobvaraqlari qayerga yopiladi?",
+"o": [
+"9910",
+"8710",
+"8330",
+"5110"
+],
+"a": 0,
+"e": "Daromad va xarajatlar 9910 — Yakuniy moliyaviy natijaga yopiladi."
 },
 {
 "t": "mc",
-"q": "Soliq organiga to'langan jarima foyda solig'i bazasidan chegiriladimi?",
+"q": "Sof foyda yil yakunida qaysi hisobvaraqda qoladi?",
 "o": [
-"Ha, to'liq",
-"Yo'q — chegirilmaydigan xarajat (SK 317-modda)",
-"Faqat yarmi",
-"Faqat YaTTlar uchun"
+"8710",
+"9910",
+"6610",
+"8330"
 ],
-"a": 1,
-"e": "Jarimalar va penyalar chegirilmaydigan xarajatlar qatorida — soliq bazasiga qo'shib qo'yiladi."
+"a": 0,
+"e": "Sof foyda 9910 dan 8710 — Taqsimlanmagan foydaga o'tadi."
 },
 {
 "t": "calc",
-"q": "Buxgalteriya foydasi 100 000 000. Ichida soliq jarimasi 8 000 000 bor (chegirilmaydi). Foyda solig'i 15% qancha?",
-"a": 16200000,
-"e": "Soliq bazasi 108 000 000 × 15% = 16 200 000 so'm."
+"q": "Daromad 400 mln, xarajatlar jami 340 mln. Soliqqacha foyda?",
+"a": 60000000,
+"e": "400 − 340 = 60 000 000 so'm."
 },
 {
 "t": "calc",
-"q": "Yillik foyda solig'i 18 000 000. Yil davomida choraklar bo'yicha 12 000 000 to'langan. Yil yakunida yana qancha to'lanadi?",
-"a": 6000000,
-"e": "18 000 000 − 12 000 000 = 6 000 000 so'm."
+"q": "Soliqqacha foyda 60 mln, foyda solig'i 15%. Sof foyda?",
+"a": 51000000,
+"e": "60 − 9 = 51 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "8710: yil boshida 30 mln. Yil sof foydasi 51 mln, dividend 20 mln e'lon qilindi. Yil oxiri qoldig'i?",
+"a": 61000000,
+"e": "30 + 51 − 20 = 61 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Foyda 90 mln, chegirilmaydigan xarajatlar 6 mln, soliqqa tortilmaydigan daromad 12 mln. Foyda solig'i 15%?",
+"a": 12600000,
+"e": "Baza 84 mln × 15% = 12 600 000 so'm."
+},
+{
+"t": "calc",
+"q": "8710: yil boshida 40 mln. Yil 25 mln zarar bilan yakunlandi. Yil oxiri qoldig'i?",
+"a": 15000000,
+"e": "40 − 25 = 15 000 000 so'm."
+},
+{
+"t": "calc",
+"q": "Yillik foyda solig'i 21 mln. 3 chorakda 5,5 mln dan to'langan. Yil yakunida qo'shimcha to'lov?",
+"a": 4500000,
+"e": "21 − 16,5 = 4 500 000 so'm."
 }
 ]
 },
@@ -3427,63 +3373,57 @@ const STAGES=[
 },
 {
 "t": "calc",
-"q": "5110 hisobvarag'i: oy boshida 40 000 000, Dt oborot 125 000 000, Kt oborot 138 000 000. Oy oxiridagi qoldiq?",
-"a": 27000000,
-"e": "40 + 125 − 138 = 27 000 000 so'm."
+"q": "Kassa: oy boshi 1 200 000, kirim 9 800 000, chiqim 10 400 000. Sanoqda 500 000 chiqdi. Kamomad?",
+"a": 100000,
+"e": "Hisob bo'yicha 600 000; sanoqda 500 000 — kamomad 100 000 so'm."
 },
 {
 "t": "calc",
-"q": "Hisob-faktura jami (QQS bilan) 44 800 000 so'm. Ichidagi QQS?",
+"q": "Tovar: hisob bo'yicha 1 500 dona, sanoqda 1 470 dona. 1 dona 32 000. Kamomad summasi?",
+"a": 960000,
+"e": "30 × 32 000 = 960 000 so'm."
+},
+{
+"t": "calc",
+"q": "Sotuv QQS bilan 89 600 000, xarid QQS bilan 56 000 000, shundan 5 600 000 lik faktura rad etilgan. To'lanadigan QQS?",
+"a": 4200000,
+"e": "Chiqim 9,6 mln; kirim (50,4 mln dan) 5,4 mln. To'lanadi 4 200 000 so'm."
+},
+{
+"t": "calc",
+"q": "Ish haqi 11 000 000 ga ijtimoiy soliq 12% o'rniga 10% hisoblangan ekan. Qo'shimcha to'lanadi?",
+"a": 220000,
+"e": "11 000 000 × 2% = 220 000 so'm."
+},
+{
+"t": "calc",
+"q": "Uskuna 96 mln, muddat 8 yil. Buxgalter 2 yil davomida 10 yil deb amortizatsiya qilgan. Kam hisoblangan summa?",
 "a": 4800000,
-"e": "44 800 000 × 12 / 112 = 4 800 000 so'm."
+"e": "To'g'ri 24 mln, hisoblangan 19,2 mln — farq 4 800 000 so'm."
 },
 {
 "t": "calc",
-"q": "Oyda sotuv QQS bilan 336 000 000, xarid QQS bilan 224 000 000. Budjetga to'lanadigan QQS?",
-"a": 12000000,
-"e": "Chiqim QQS 36 000 000, kirim QQS 24 000 000. To'lanadi 12 000 000 so'm."
+"q": "Valyuta schyotida 5 000 $. Kurs 12 800 dan 12 650 ga tushdi. Kurs farqidan zarar?",
+"a": 750000,
+"e": "5 000 × 150 = 750 000 so'm."
 },
 {
 "t": "calc",
-"q": "3 ta xodim, har biriga 7 500 000 hisoblandi. JShDS 12%. Xodimlar qo'liga jami qancha?",
-"a": 19800000,
-"e": "22 500 000 − 2 700 000 = 19 800 000 so'm."
-},
-{
-"t": "calc",
-"q": "Aylanma soliq to'lovchi: yil boshidan daromad 940 mln. Oktabrda 85 mln tushdi. Chegaradan (1 mlrd) qancha oshdi?",
-"a": 25000000,
-"e": "940 + 85 = 1 025 mln. Chegaradan 25 000 000 so'm oshdi — umumiy tizimga o'tish kerak."
-},
-{
-"t": "calc",
-"q": "Kirim QQS 9,6 mln, chiqim QQS 14,4 mln, ozod aylanma yo'q. Yana 1,2 mln kirim QQS fakturasi xato (rad etilgan). To'lanadigan QQS?",
-"a": 6000000,
-"e": "Hisobga olinadigan kirim 8 400 000. 14 400 000 − 8 400 000 = 6 000 000 so'm."
+"q": "Faraz qiling: penya kuniga 0,033%. Qarz 10 000 000, 30 kun kechikdi. Penya?",
+"a": 99000,
+"e": "10 000 000 × 0,033% × 30 = 99 000 so'm."
 },
 {
 "t": "mc",
-"q": "Kameral tekshiruvda hisobotda xato topildi. Soliq to'lovchi nima qilishi kerak?",
+"q": "2026-yildan bir oyda 3 ta soliq hisoboti kechiktirilsa, nechta jarima qo'llanadi?",
 "o": [
-"Hech narsa",
-"Aniqlashtirilgan (tuzatilgan) hisobot topshirish va farqni to'lash",
-"Firmani yopish",
-"Keyingi yilga qoldirish"
+"1 ta",
+"3 ta",
+"2 ta",
+"Jarima yo'q"
 ],
-"a": 1,
-"e": "Xatoni aniqlashtirilgan hisobot bilan tuzatish va qo'shimcha soliqni to'lash kerak — shunda jarima yengillashadi."
-},
-{
-"t": "mc",
-"q": "Soliq nazorati shakllari SKning qaysi moddasida sanab o'tilgan?",
-"o": [
-"81-modda",
-"100-modda",
-"136-modda",
-"258-modda"
-],
-"a": 2,
-"e": "136-modda — soliq nazorati shakllari; 138 — kameral tekshiruv."
+"a": 0,
+"e": "2026-yil o'zgarishi: bir oy ichidagi bir nechta kechikish uchun bitta jarima."
 }
 ]
 }
@@ -3504,13 +3444,19 @@ const ACH=[
  {id:"half",i:"⛳",n:"Yarim yo'l",d:"4 ta bosqich"},
  {id:"daily5",i:"🎯",n:"Mashqchi",d:"5 marta kunlik mashq"},
  {id:"comeback",i:"💪",n:"Qaytish",d:"Yiqilgan bosqichni qayta o'tish"},
- {id:"all",i:"🎓",n:"Bosh buxgalter",d:"Barcha 8 bosqich"},
+ {id:"all",i:"🎓",n:"Bosh buxgalter",d:"Barcha 12 bosqich"},
  {id:"league",i:"🏆",n:"Liga g'olibi",d:"Haftalik ligada 1-o'rin"}];
 
-/* ---------------- server (8 kishilik liga) ---------------- */
+/* ---------------- server (jamoalar, cheklovsiz) ---------------- */
 const SUPA_URL="https://bopzjxboembvcqycfwin.supabase.co";
 const DEFAULT_KEY="sb_publishable_DWSUYhML5IH5cOksXdlCDA_SNt6c9Dm";
-const MAXP=8;
+const BOT_LINK="https://t.me/Buxgalterlar_Ligasi_bot";
+const APP_LINK="https://murtozoabdubannonov90-byte.github.io/liga/";
+/* havoladan jamoa kodi: ...?g=BX12AB yoki Telegram start_param g_BX12AB */
+function urlGroup(){ try{ const q=new URLSearchParams(location.search).get("g");
+  const tp=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initDataUnsafe&&Telegram.WebApp.initDataUnsafe.start_param;
+  const v=q||(tp&&/^g_/.test(tp)?tp.slice(2):""); return v?String(v).toUpperCase().replace(/[^A-Z0-9]/g,""):""; }catch(e){ return ""; } }
+const JERR={group_not_found:"Bunday jamoa kodi topilmadi",group_inactive:"Jamoa obunasi tugagan — administratorga murojaat qiling",safari_full:"Jamoada joy qolmagan"};
 let players=[];
 let syncing=false, lastPull=0;
 function sHead(){ return {apikey:S.key,Authorization:"Bearer "+S.key,"Content-Type":"application/json"}; }
@@ -3522,11 +3468,12 @@ async function joinServer(){
   if(!S.key) return {ok:false,msg:"Server kaliti kiritilmagan"};
   try{
     const had=S.pid;
-    const id=await rpc("liga_join",{p_first:S.user.first,p_last:S.user.last,p_phone:S.user.phone});
+    const id=await rpc("liga_join",{p_first:S.user.first,p_last:S.user.last,p_phone:S.user.phone,p_group:(S.group&&S.group.code)||"ASOSIY"});
     S.pid=id; persist(); await pushMe();
     return {ok:true,msg:had===id?"Hisobingiz tiklandi":"Ligaga qo'shildingiz"};
   }catch(e){ const m=String(e.message||e);
-    return {ok:false,msg:/safari_full/.test(m)?"Joylar to'ldi (8/8)":"Serverga ulanmadi",detail:m.slice(0,200)}; }
+    const k=Object.keys(JERR).find(x=>m.indexOf(x)>=0);
+    return {ok:false,msg:k?JERR[k]:"Serverga ulanmadi",detail:m.slice(0,200)}; }
 }
 async function pushMe(){
   if(!S.key||!S.pid) return;
@@ -3545,12 +3492,16 @@ async function pullPlayers(force){
   lastPull=Date.now();
   try{ const rows=await rpc("liga_results",{p_id:S.pid||null});
     S.lastRes=rows&&rows.length?{id:rows[0].week_id,rows:rows.map(x=>({n:x.name,x:x.week_xp,me:x.is_me,p:{stage:x.week_stage,daily:x.week_daily,blitz:x.week_blitz,bonus:x.week_bonus},d:x.week_stages||{}}))}:null;
-    S.pcount=await rpc("liga_count",{});
-    const mem=await rpc("liga_members",{p_id:S.pid||null}); S.members=(mem||[]).map(x=>({n:x.name,me:x.is_me}));
+    S.pcount=await rpc("liga_count",{p_id:S.pid||null});
+    const mem=await rpc("liga_members",{p_id:S.pid||null}); S.members=(mem||[]).map(x=>({n:x.name,me:x.is_me,m:x.medal||0}));
+    if(S.pid){ try{ const gi=await rpc("liga_group_info",{p_id:S.pid});
+      if(gi&&gi[0]) S.group={code:gi[0].code,name:gi[0].name,until:gi[0].paid_until,ok:gi[0].ok,members:gi[0].members,start:gi[0].start_date}; }catch(e){}
+      try{ S.champs=(await rpc("liga_champions",{p_id:S.pid}))||[]; }catch(e){} }
     if(S.adminPin){ try{ S.adminRows=await rpc("liga_admin_list",{p_pin:S.adminPin}); }catch(e){ S.adminRows=null; } }
     persist();
-    if(TAB==="main") scrMain(); else if(TAB==="rate") scrRating(); }catch(e){}
+    if(S.user&&S.user.first&&!run){ if(TAB==="main") scrMain(); else if(TAB==="rate") scrRating(); } }catch(e){}
 }
+let _syncT=null; function syncSoon(){ clearTimeout(_syncT); _syncT=setTimeout(sync,2500); }
 async function sync(){ if(syncing)return; syncing=true; await pushMe(); await pullPlayers(true); syncing=false; }
 
 /* ---------------- saqlash ---------------- */
@@ -3572,6 +3523,7 @@ if(!S.days) S.days={};
 if(!S.errs) S.errs={};
 if(typeof S.shield!=="number") S.shield=0;
 if(typeof S.blitz!=="number") S.blitz=0;
+if(!S.blitz20){ S.blitz=0; S.blitz20=true; }       // yangi blits (20 provodka) — rekord qaytadan
 if(!S.key) S.key=DEFAULT_KEY;                       // liga serveri tayyor holda ulangan
 if(!S.wkfix1){ const wd=new Date().getDay();            // yangi qoida: dam olish kunidagi XP ligaga kirmaydi
   if(S.week&&S.week.id===weekId()&&(wd===6||wd===0)) S.week.my=0; S.wkfix1=true; }
@@ -3621,7 +3573,7 @@ function addXP(n,cat){
 /* har bir bosqich (kun) bali alohida */
 function addStageXP(si,n){ if(si==null||!n) return;
   if(!S.stageXP) S.stageXP={}; if(!S.week.stages) S.week.stages={};
-  S.stageXP[si]=(S.stageXP[si]||0)+n; S.week.stages[si]=(S.week.stages[si]||0)+n; }
+  S.stageXP[si]=(S.stageXP[si]||0)+n; S.week.stages[si]=(S.week.stages[si]||0)+n; recalcWeek(); }
 function stageLine(o){ o=o||{}; const k=Object.keys(o).map(Number).sort((a,b)=>a-b);
   return k.length?k.map(i=>`${i+1}-bosqich: ${o[i]}`).join(" · "):""; }
 function daysHTML(o,title){ o=o||{}; const k=Object.keys(o).map(Number).sort((a,b)=>a-b);
@@ -3676,9 +3628,16 @@ function place(){ return board().findIndex(x=>x.me)+1; }
 const app=document.getElementById("app"), dock=document.getElementById("dock");
 const rankOf=xp=>{let c=RANKS[0],n=null; RANKS.forEach((r,k)=>{if(xp>=r[0]){c=r;n=RANKS[k+1]||null;}}); return {cur:c,next:n};};
 /* bosqichlar ish kunlari bo'yicha ochiladi: 1-bosqich — dushanba 28.09.2026, keyingisi — keyingi ish kuni */
-const LIGA_START=new Date(2026,8,28);
+/* jamoaning boshlanish sanasi (dushanba). Bosqichlar ish kunlari bo'yicha, 12 tadan keyin yangi mavsum boshlanadi */
+const DEF_START="2026-09-28";
+function ymd(str){ const [y,m,d]=String(str).split("-").map(Number); return new Date(y,m-1,d); }
+function ligaStart(){ return ymd((S.group&&S.group.start)||DEF_START); }
+const isWd=d=>d.getDay()>=1&&d.getDay()<=5;
+function addWorkdays(d0,n){ const d=new Date(d0); while(!isWd(d)) d.setDate(d.getDate()+1); while(n>0){ d.setDate(d.getDate()+1); if(isWd(d)) n--; } return d; }
+function workdaysBefore(start,end){ let n=0; const d=new Date(start); while(d<end){ if(isWd(d)) n++; d.setDate(d.getDate()+1); } return n; }
+function season(){ const st=ligaStart(), t=ymd(tzNow().day); if(t<=st) return 0; return Math.floor(workdaysBefore(st,t)/12); }
 const WDN=["Yakshanba","Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"];
-function stageDate(i){ const d=new Date(LIGA_START); let n=i; while(n>0){ d.setDate(d.getDate()+1); if(d.getDay()>=1&&d.getDay()<=5) n--; } return d; }
+function stageDate(i){ return addWorkdays(ligaStart(), season()*12+i); }
 function stageDay(i){ const d=stageDate(i); return WDN[d.getDay()]+", "+String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0"); }
 /* vaqt — Toshkent (UTC+5), telefon mintaqasidan qat'i nazar */
 const OPEN_H=9, CLOSE_H=17;
@@ -3768,7 +3727,7 @@ function remText(){
 function syncSW(){}
 function notify(body){
   if(!("Notification" in window)||Notification.permission!=="granted") return false;
-  try{ const n=new Notification("Buxgalter safari 🔥",{body,icon:ICON192,badge:ICON192,tag:"bux-daily"});
+  try{ const n=new Notification("Hisobchi Liga 🔥",{body,icon:ICON192,badge:ICON192,tag:"bux-daily"});
     n.onclick=()=>{window.focus();n.close();}; return true; }catch(e){ return false; }
 }
 /* juma 12:00 da liga yakuni */
@@ -3817,7 +3776,8 @@ function mateHTML(){
   }
   const M=S.members||[]; if(!M.length) return "";
   return `<h3 style="margin:14px 0 8px">👥 Sheriklar (${M.length})</h3><div class="lb">${M.map(x=>`<div class="row ${x.me?"me":""}">
-    <span class="pos">${x.me?"🧑":"👤"}</span><span class="who">${esc(x.n)}</span><span class="xp">${x.me?S.week.my+" XP":"🔒"}</span></div>`).join("")}</div>`;
+    <span class="pos">${x.me?"🧑":"👤"}</span><span class="who">${esc(x.n)}${x.m?` <span title="O'tgan hafta ${x.m}-o'rin">${["","👑","🥈","🥉"][x.m]}</span>`:""}</span><span class="xp">${x.me?S.week.my+" XP":"🔒"}</span></div>`).join("")}</div>
+    ${M.some(x=>x.m)?`<p class="small" style="margin:6px 0 0;opacity:.85;color:inherit">👑🥈🥉 — o'tgan hafta kuchli uchligi</p>`:""}`;
 }
 function lbHTML(list){
   const m=["🥇","🥈","🥉","4","5","6","7","8","9"];
@@ -3826,18 +3786,29 @@ function lbHTML(list){
 }
 /* ---------- ro'yxatdan o'tish ---------- */
 function register(){
-  setDock(null);
+  TAB="reg"; setDock(null);
   app.innerHTML=`<section class="sheet set reg">
     <div class="reglogo">📗</div>
-    <h2>Buxgalter safari</h2>
+    <h2>Hisobchi Liga</h2>
     <p class="small">Ligada qatnashish uchun ro'yxatdan o'ting.</p>
     <label for="f">Ism</label><input id="f" type="text" placeholder="Ismingiz" autocomplete="given-name">
     <label for="l">Familiya</label><input id="l" type="text" placeholder="Familiyangiz" autocomplete="family-name">
     <label for="p">Telefon raqam</label><input id="p" type="tel" inputmode="tel" placeholder="+998 90 123 45 67" autocomplete="tel">
+    <label for="g">Jamoa kodi <span class="small">(administrator bergan; bo'lmasa bo'sh qoldiring)</span></label>
+    <input id="g" type="text" autocapitalize="characters" placeholder="masalan: BX12AB" value="${urlGroup()}">
+    <p class="small" id="gname" style="min-height:18px"></p>
     <p class="small" id="err" style="color:var(--bad); min-height:22px"></p>
   </section>`;
   setDock(`<button class="btn" id="go">Ro'yxatdan o'tish</button>`);
-  document.getElementById("go").onclick=()=>{
+  const gi=document.getElementById("g"), gn=document.getElementById("gname");
+  const checkG=async()=>{ const c=gi.value.trim().toUpperCase(); gi.value=c; if(!c){ gn.textContent=""; return null; }
+    try{ const r=await rpc("liga_group_public",{p_code:c}); const g=r&&r[0];
+      if(!g){ gn.textContent="❌ Bunday jamoa topilmadi"; return false; }
+      if(!g.ok){ gn.textContent="⛔ «"+g.name+"» obunasi tugagan"; return false; }
+      gn.textContent="✅ Jamoa: "+g.name; return {code:g.code,name:g.name,start:g.start_date,ok:true}; }
+    catch(e){ gn.textContent="Server bilan aloqa yo'q — kod keyin tekshiriladi"; return {code:c}; } };
+  gi.onchange=checkG; if(gi.value) checkG();
+  document.getElementById("go").onclick=async()=>{
     const f=document.getElementById("f").value.trim(), l=document.getElementById("l").value.trim();
     let p=document.getElementById("p").value.replace(/[^\d+]/g,"");
     const err=document.getElementById("err");
@@ -3846,12 +3817,17 @@ function register(){
     if(/^9\d{8}$/.test(p)) p="+998"+p;
     if(/^998\d{9}$/.test(p)) p="+"+p;
     if(!/^\+998\d{9}$/.test(p)) return err.textContent="Telefon raqam: +998 XX XXX XX XX";
+    const g=await checkG(); if(g===false) return err.textContent="Jamoa kodini tekshiring yoki bo'sh qoldiring";
+    S.group=g||{code:"ASOSIY"};
     S.user={first:f,last:l,phone:p}; S.name=f; persist();
     toast("Xush kelibsiz, "+f+"!"); coins(); scrMain();
     if(S.key) joinServer().then(r=>{ toast(r.msg); pullPlayers(true); });
   };
   window.scrollTo(0,0);
 }
+/* jamoa obunasi tugagan bo'lsa — bosqichlar yopiq */
+function groupBlocked(){ return S.group&&S.group.ok===false; }
+function groupBanner(){ return groupBlocked()?`<div class="alert">⛔ «${esc(S.group.name||"Jamoa")}» obunasi tugagan. Bosqichlar yopiq — administratorga murojaat qiling.</div>`:""; }
 /* ---------- asosiy oyna ---------- */
 function leagueCard(){
   const wb=weekBoard(), wp=wb.findIndex(x=>x.me)+1, my=S.week.my;
@@ -3893,6 +3869,7 @@ function scrMain(){
   const wk=isWeekend();
   const cta=wk?"📘 Qo'shimcha mashq":(ns!==null?`${STAGES[ns].icon} ${ns+1}-bosqich: ${STAGES[ns].title}`:"🎯 Kunlik mashq");
   shell(`
+  ${groupBanner()}
   ${overtake.length?`<div class="alert">⚠️ Siz ${overtake[0]}-o'rindan ${overtake[1]}-o'ringa tushdingiz. Raqobatchilar siz yo'qligingizda ishladi!</div>`:""}
   <section class="dl ${d.k}"><div class="dl-l"><b>${d.k==="done"?"✅ Bugun bajarildi":d.k==="missed"?"❌ Qoldirib yuborildi":d.k==="off"?"☕ Dam olish kuni":"⏰ Bugungi mashq"}</b>
     <i id="dlt">${d.txt}</i></div><div class="dl-r ${S.streak>0?"pulse":""}">${S.streak}<span>kun</span></div></section>
@@ -3908,7 +3885,7 @@ function scrMain(){
     <button class="btn" id="go">${cta}</button>
     <div class="acts">
       <button class="act" id="dly"><span>🎯</span>Kunlik mashq<i>${wk?"10 savol · XP siz":"10 savol"}</i></button>
-      <button class="act" id="blz"><span>⚡</span>Blits<i>60 soniya · rekord ${S.blitz||0}${wk?" · XP siz":""}</i></button>
+      <button class="act" id="blz"><span>⚡</span>Blits<i>20 provodka · rekord ${S.blitz||0}/20${wk?" · XP siz":""}</i></button>
       <button class="act ${Object.keys(S.errs).length?"":"dim"}" id="err"><span>📕</span>Xato daftari<i>${Object.keys(S.errs).length} ta savol</i></button>
       <button class="act ${giftReady()?"gift":"dim"}" id="gft"><span>🎁</span>Kunlik sovg'a<i>${giftDone()?"ertaga yana":giftReady()?"savolga javob bering":giftCorrect()+"/"+GIFT_NEED+" to'g'ri javob"}</i></button>
     </div></section>`,"main");
@@ -3928,10 +3905,11 @@ function scrRating(){
   <section class="card"><h3>🏁 O'tgan hafta natijalari</h3>
     ${L&&L.rows.length?`<p class="small" style="margin:0 0 10px">Juma 12:00 dagi yakuniy jadval</p>${lastResHTML()}`
       :`<p class="small">Hali yakunlangan hafta yo'q. Birinchi jadval juma soat 12:00 da ochiladi.</p>`}</section>
+  ${champsHTML()}
   <section class="card"><h3>Haftalik sovg'a</h3>
     <div class="prizes">🏆 600 XP maqsad +400 · 🥈 360 XP dan +150 · 🎗️ ishtirok +50</div></section>
   <section class="card"><h3>Mening natijam</h3>${lbHTML(b)}
-    <div class="duo" style="margin-top:12px"><div><div class="n">${S.blitz||0}</div><div class="small">blits rekordi</div></div>
+    <div class="duo" style="margin-top:12px"><div><div class="n">${S.blitz||0}</div><div class="small">blits rekordi (20 dan)</div></div>
     <div><div class="n">${S.lastWeekXp||0}</div><div class="small">o'tgan hafta XP</div></div></div>
     <h3 style="margin:14px 0 0">Bu hafta — alohida</h3>${partsHTML(S.week.my,S.week.part)}${daysHTML(S.week.stages)}
     ${S.lastPart?`<p class="small" style="margin-top:8px">O'tgan hafta: ${partsLine(S.lastWeekXp,S.lastPart)}${stageLine(S.lastStages)?"<br>"+stageLine(S.lastStages):""}</p>`:""}</section>
@@ -3947,9 +3925,9 @@ function scrRating(){
 }
 /* ---------- bosqichlar ---------- */
 function scrStages(){
-  shell(`<ol class="path">${STAGES.map((st,i)=>{const sc=S.stars[i]||0,ss=stageState(i);
+  shell(`${season()>0?`<div class="lg-note" style="background:var(--card);color:var(--ink);margin-bottom:10px">🔁 ${season()+1}-mavsum — bosqichlar yangidan boshlandi</div>`:""}<ol class="path">${STAGES.map((st,i)=>{const sc=S.stars[i]||0,ss=stageState(i);
     const lbl=ss==="open"?"🟢 Ochiq — bugun 17:00 gacha · "+st.tasks.length+" vazifa"
-      :ss==="future"?"🔒 "+stageDay(i)+" · 09:00–17:00":(sc?"✅ Bajarilgan · yopildi":"⛔ Yopildi · "+stageDay(i));
+      :ss==="future"?"🔒 "+stageDay(i)+" · 09:00–17:00":(!saLeft(i).length?"✅ Bajarilgan · yopildi":"⛔ Yopildi · "+stageDay(i));
     return `<li class="stage ${sc?"done":""}"><div class="num">${i+1}</div>
     <button ${ss==="open"?"":"disabled"} data-s="${i}"><h3>${st.icon} ${st.title}</h3>
     <div class="meta"><span>${lbl}${S.stageXP&&S.stageXP[i]?" · ⚡ "+S.stageXP[i]+" XP":""}</span><span class="stars">${starStr(sc)}</span></div></button></li>`;}).join("")}</ol>
@@ -3984,31 +3962,71 @@ function scrProfile(){
     <button class="buy" id="errb">Mashq</button></div></section>
   <section class="card"><h3>Yutuqlar (${S.ach.length}/${ACH.length})</h3>
     <div class="badges">${ACH.map(a=>`<div class="badge ${S.ach.includes(a.id)?"":"off"}" title="${a.n}: ${a.d}">${a.i}</div>`).join("")}</div></section>
-  <section class="card"><h3>Liga ulanishi</h3>
-    <div class="small">${S.key?(S.pid?`✅ Ulangan · ishtirokchilar: ${S.pcount||1}/8`:"⚠️ Kalit bor, lekin ro'yxatga qo'shilmagan"):"❌ Serverga ulanmagan — hozircha yolg'iz o'ynayapsiz"}</div>
-    <button class="btn ghost" id="srv">🔗 Ligaga ulanish</button></section>
+  ${statsHTML()}
+  <section class="card"><h3>👥 Jamoa</h3>
+    <div class="small">${S.pid?`✅ ${esc((S.group&&S.group.name)||"Buxgalterlar ligasi")} · kod <b style="display:inline">${esc((S.group&&S.group.code)||"ASOSIY")}</b> · ${S.pcount||1} ishtirokchi${S.group&&S.group.until?` · obuna ${fmtD(S.group.until)} gacha`:""}`:(S.key?"⚠️ Ro'yxatga qo'shilmagan":"❌ Serverga ulanmagan")}</div>
+    <button class="btn ghost" id="srv">🔗 Ulanish va diagnostika</button></section>
   <section class="card"><h3>Sozlamalar</h3>
     <button class="btn ghost" id="inst">📲 Telefonga o'rnatish</button>
     <button class="btn ghost" id="set">🔔 Eslatma va sozlamalar</button>
-    <button class="btn ghost" id="adm">🛡️ ${S.adminPin?"Admin panel":"Admin kirish"}</button>
-    ${Object.keys(S.stars).length===STAGES.length?`<button class="btn ghost" id="cert">🏅 Sertifikat</button>`:""}</section>`,"prof");
+    <button class="btn ghost" id="adm">🛡️ ${S.superPin?"Superadmin":S.adminPin?"Admin panel":"Admin kirish"}</button>
+    ${Object.keys(S.stars).length===STAGES.length?`<button class="btn ghost" id="cert">🏅 Sertifikat</button>`:""}
+    ${myMedal()?`<button class="btn ghost" id="wcert">${["","👑","🥈","🥉"][myMedal().pos]} Haftalik g'olib sertifikati</button>`:""}</section>`,"prof");
   document.getElementById("srv").onclick=scrServer;
   document.getElementById("buy").onclick=buyShield;
   document.getElementById("errb").onclick=startErrs;
   document.getElementById("inst").onclick=install;
   document.getElementById("set").onclick=settings;
-  document.getElementById("adm").onclick=()=>S.adminPin?scrAdmin():adminLogin();
+  document.getElementById("adm").onclick=()=>S.superPin?scrSuper():(S.adminPin?scrAdmin():adminLogin());
   const c=document.getElementById("cert"); if(c) c.onclick=cert;
+  const wc=document.getElementById("wcert"); if(wc) wc.onclick=weekCert;
+}
+const fmtD=v=>{ if(!v) return ""; const d=ymd(String(v).slice(0,10)); return String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0")+"."+d.getFullYear(); };
+/* statistika: har bosqich bo'yicha aniqlik (kunlik bosqich javoblari) */
+function statsHTML(){
+  const per={}; let ok=0, bad=0;
+  Object.keys(S.sa||{}).forEach(k=>{ const si=+k.split("|")[1], m=S.sa[k].m||{};
+    Object.values(m).forEach(v=>{ per[si]=per[si]||{ok:0,bad:0}; per[si][v==="ok"?"ok":"bad"]++; v==="ok"?ok++:bad++; }); });
+  const tot=ok+bad; if(!tot) return "";
+  const rows=Object.keys(per).map(Number).sort((a,b)=>a-b).map(si=>{ const p=per[si], n=p.ok+p.bad, pc=Math.round(p.ok/n*100);
+    return `<div class="statrow"><span>${STAGES[si]?STAGES[si].icon:""} ${si+1}. ${STAGES[si]?STAGES[si].title:""}</span><i style="--w:${pc}%"></i><b>${pc}%</b></div>`; }).join("");
+  const weak=Object.keys(per).map(Number).filter(si=>per[si].ok+per[si].bad>=5).sort((a,b)=>per[a].ok/(per[a].ok+per[a].bad)-per[b].ok/(per[b].ok+per[b].bad))[0];
+  return `<section class="card"><h3>📊 Statistika</h3>
+    <div class="duo" style="margin:0 0 12px"><div><div class="n">${Math.round(ok/tot*100)}%</div><div class="small">aniqlik (${ok}/${tot})</div></div>
+    <div><div class="n">${Object.keys(S.errs||{}).length}</div><div class="small">xato daftarida</div></div></div>
+    <div class="stats2">${rows}</div>
+    ${weak!=null&&per[weak].bad?`<p class="small" style="margin-top:10px">🎯 Zaif mavzu: <b style="display:inline">${STAGES[weak].title}</b> — «Xato daftari»da mashq qiling.</p>`:""}</section>`;
+}
+/* o'tgan hafta kuchli uchligidagi o'rnim */
+function myMedal(){ const c=(S.champs||[]).filter(x=>x.is_me); if(!c.length) return null;
+  const last=c.sort((a,b)=>a.week_id<b.week_id?1:-1)[0]; return {pos:last.pos,week:last.week_id,xp:last.week_xp}; }
+function weekCert(){
+  const m=myMedal(); if(!m) return; const end=new Date(m.week+":00Z"), d=end.toLocaleDateString("ru-RU");
+  const place=["","1-o'rin — Chempion","2-o'rin","3-o'rin"][m.pos];
+  app.innerHTML=`<div class="bar"><button class="back">←</button></div>
+  <section class="cert"><div style="font-size:52px">${["","👑","🥈","🥉"][m.pos]}</div><h2>Sertifikat</h2>
+  <p class="small">${esc((S.group&&S.group.name)||"Buxgalterlar ligasi")} · haftalik liga</p><div class="nm">${esc((S.user.first||"")+" "+(S.user.last||""))}</div>
+  <p style="margin-top:14px"><b>${place}</b> — ${m.xp} XP</p>
+  <p class="small">Hafta yakuni: ${d} · Hisobchi Liga</p></section>`;
+  app.querySelector(".back").onclick=scrProfile; setDock(`<button class="btn" id="pr">🖨️ Chop etish / PDF</button>`);
+  document.getElementById("pr").onclick=()=>window.print(); coins();
+}
+/* chempionlar zali */
+function champsHTML(){
+  const C=S.champs||[]; if(!C.length) return `<section class="card"><h3>🏛️ Chempionlar zali</h3><p class="small">Birinchi chempion juma soat 12:00 da aniqlanadi.</p></section>`;
+  const weeks=[...new Set(C.map(x=>x.week_id))].slice(0,8);
+  return `<section class="card"><h3>🏛️ Chempionlar zali</h3>${weeks.map(w=>{ const r=C.filter(x=>x.week_id===w), d=new Date(w+":00Z");
+    return `<div class="champ"><span class="small">${d.toLocaleDateString("ru-RU")}</span>${r.map(x=>`<span class="${x.is_me?"me":""}">${["","👑","🥈","🥉"][x.pos]} ${esc(x.name)} · ${x.week_xp}</span>`).join("")}</div>`; }).join("")}</section>`;
 }
 function home(){ sweepDays(); if(!S.user.first) return register(); scrMain(); }
 function todayStageNote(){
   const i=STAGES.findIndex((x,k)=>dkey(stageDate(k))===tzNow().day); if(i<0) return "";
   const ss=stageState(i), t=`${i+1}-bosqich «${STAGES[i].title}»`;
   if(ss==="future") return `📅 Bugun ${t} soat 09:00 da ochiladi.`;
-  if(ss==="open") return S.stars[i]?`✅ ${t} bajarildi.`:`🟢 ${t} ochiq — soat 17:00 gacha.`;
+  if(ss==="open") return !saLeft(i).length?`✅ ${t} bajarildi.`:`🟢 ${t} ochiq — soat 17:00 gacha.`;
   return `⛔ ${t} soat 17:00 da yopildi.`;
 }
-function nextStage(){ for(let i=0;i<STAGES.length;i++) if(stageOpen(i)&&!S.stars[i]) return i; return null; }
+function nextStage(){ for(let i=0;i<STAGES.length;i++) if(stageOpen(i)&&saLeft(i).length) return i; return null; }
 function leagueResult(){
   const d=S.pending; S.pending=null; persist();
   app.innerHTML=`<section class="sheet result">
@@ -4025,17 +4043,17 @@ function leagueResult(){
 function scrServer(){
   setDock(null);
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Liga ulanishi</span></div>
-  <section class="sheet set"><h2>🔗 8 kishilik liga</h2>
+  <section class="sheet set"><h2>🔗 Liga ulanishi</h2>
   <p class="story">Ishtirokchilar bitta umumiy jadvalda bo'lishi uchun server kaliti kerak. Kalit bir marta kiritiladi.</p>
   <label for="k">Server kaliti (anon / publishable key)</label>
   <input id="k" type="text" placeholder="sb_publishable_... yoki eyJ..." value="${(S.key||"").slice(0,12)?(S.key||""):""}">
   <p class="small">Supabase → Project Settings → API Keys → publishable (anon) key.</p>
   <p class="small" id="st"></p>
-  <div class="shop"><div><b>Ishtirokchilar</b><i id="cnt">${S.pcount||1} / 8</i></div>
+  <div class="shop"><div><b>Ishtirokchilar</b><i id="cnt">${S.pcount||1} ta</i></div>
     <button class="buy" id="ref">Yangilash</button></div>
   <div class="shop"><div><b>Diagnostika</b><i>Ulanishni tekshirish va xatoni ko'rsatish</i></div>
     <button class="buy" id="diag">Tekshirish</button></div>
-  <p class="small">Sizdan tashqari 7 kishi qo'shila oladi. Ular ham shu ilovani o'rnatib, ro'yxatdan o'tadi — kalit ilova ichida tayyor turadi.</p>
+  <p class="small">Ishtirokchilar soni cheklanmagan. Yangi a'zolar jamoa havolasi orqali ro'yxatdan o'tadi — kalit ilova ichida tayyor turadi.</p>
   </section>`;
   app.querySelector(".back").onclick=scrProfile;
   const st=document.getElementById("st");
@@ -4046,18 +4064,18 @@ function scrServer(){
     st.textContent="Ulanmoqda...";
     const r=await joinServer();
     st.innerHTML=(r.ok?"✅ ":"❌ ")+r.msg+(r.detail?`<br><span style="font-size:12px">${r.detail}</span>`:"");
-    if(r.ok){ toast(r.msg); await pullPlayers(true); document.getElementById("cnt").textContent=(S.pcount||1)+" / 8"; }
+    if(r.ok){ toast(r.msg); await pullPlayers(true); document.getElementById("cnt").textContent=(S.pcount||1)+" ta"; }
   };
   document.getElementById("diag").onclick=async()=>{
     st.textContent="Tekshirilmoqda...";
     try{
       const r=await fetch(SUPA_URL+"/rest/v1/rpc/liga_count",{method:"POST",headers:sHead(),body:"{}"});
       const t=await r.text();
-      st.innerHTML=r.ok?`✅ Server javob berdi. Ishtirokchilar: ${t.slice(0,6)} / 8`
+      st.innerHTML=r.ok?`✅ Server javob berdi. Ishtirokchilar: ${t.slice(0,6)} ta`
         :`❌ Xato ${r.status}: <span style="font-size:12px">${t.slice(0,160).replace(/</g,"&lt;")}</span>`;
     }catch(e){ st.innerHTML=`❌ Ulanib bo'lmadi: <span style="font-size:12px">${String(e.message).slice(0,160)}</span>`; }
   };
-  document.getElementById("ref").onclick=async()=>{ await pullPlayers(true); document.getElementById("cnt").textContent=(S.pcount||1)+" / 8"; toast("Yangilandi"); };
+  document.getElementById("ref").onclick=async()=>{ await pullPlayers(true); document.getElementById("cnt").textContent=(S.pcount||1)+" ta"; toast("Yangilandi"); };
   window.scrollTo(0,0);
 }
 /* ---------------- admin ---------------- */
@@ -4073,6 +4091,7 @@ function adminLogin(){
     const pin=document.getElementById("pin").value.trim(), st=document.getElementById("st");
     if(!pin) return st.textContent="PIN kiriting";
     st.textContent="Tekshirilmoqda...";
+    try{ await rpc("liga_super_groups",{p_pin:pin}); S.superPin=pin; persist(); toast("Superadmin rejimi"); return scrSuper(); }catch(e){}
     try{ await rpc("liga_admin_list",{p_pin:pin}); S.adminPin=pin; persist(); toast("Admin rejimi yoqildi"); scrAdmin(); }
     catch(e){ st.textContent=/not_admin/.test(String(e.message))?"PIN noto'g'ri":"Serverga ulanmadi"; }
   };
@@ -4081,11 +4100,21 @@ function adminLogin(){
 async function scrAdmin(){
   setDock(null);
   app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Admin panel</span></div>
+  <section class="card" id="ag"><p class="small">Jamoa ma'lumoti yuklanmoqda...</p></section>
   <section class="sheet"><h2>🛡️ Ishtirokchilar</h2><p class="small">Barcha natijalar faqat sizga ko'rinadi.</p><div id="al"><p class="small">Yuklanmoqda...</p></div></section>
   <section class="card"><h3>🏁 O'tgan hafta jadvali</h3>${lastResHTML()||`<p class="small">Hali yakunlangan hafta yo'q.</p>`}</section>
   <section class="card"><button class="btn ghost" id="out">Admin rejimidan chiqish</button></section>`;
   app.querySelector(".back").onclick=scrProfile;
   document.getElementById("out").onclick=()=>{ S.adminPin=""; persist(); scrProfile(); };
+  try{ const g=(await rpc("liga_admin_group",{p_pin:S.adminPin}))[0];
+    const bl=BOT_LINK+"?start=g_"+g.code, al=APP_LINK+"?g="+g.code;
+    document.getElementById("ag").innerHTML=`<h3>👥 ${esc(g.name)}</h3>
+      <div class="small">Kod: <b style="display:inline">${g.code}</b> · ${g.members} ishtirokchi · ${g.chats} ta guruh ulangan<br>
+      Obuna: ${g.paid_until?(g.ok?"✅ "+fmtD(g.paid_until)+" gacha":"⛔ "+fmtD(g.paid_until)+" da tugagan"):"✅ muddatsiz"} · Boshlanish: ${fmtD(g.start_date)}</div>
+      <div class="shop" style="margin-top:10px"><div><b>Taklif havolasi (bot)</b><i style="word-break:break-all">${bl}</i></div><button class="buy" data-cp="${bl}">Nusxa</button></div>
+      <div class="shop"><div><b>Ilova havolasi</b><i style="word-break:break-all">${al}</i></div><button class="buy" data-cp="${al}">Nusxa</button></div>
+      <p class="small">Telegram guruhingizga botni qo'shing va guruhda <b style="display:inline">/ulash ${g.code}</b> deb yozing — natijalar shu guruhga chiqadi.</p>`;
+    document.querySelectorAll("[data-cp]").forEach(b=>b.onclick=()=>copyText(b.dataset.cp)); }catch(e){}
   let rows;
   try{ rows=await rpc("liga_admin_list",{p_pin:S.adminPin}); }
   catch(e){ if(/not_admin/.test(String(e.message))){ S.adminPin=""; persist(); toast("PIN eskirgan — qayta kiring"); return adminLogin(); }
@@ -4093,7 +4122,7 @@ async function scrAdmin(){
   const cur=weekId(), dt=v=>v?new Date(v).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"—";
   rows.sort((a,b)=>((b.week_id===cur?b.week_xp:0)-(a.week_id===cur?a.week_xp:0))||(b.xp-a.xp));
   const el=document.getElementById("al");
-  el.innerHTML=`<p class="small" style="margin:0 0 10px">${rows.length} / 8 ishtirokchi</p>`+rows.map(p=>`<div class="adm"><div>
+  el.innerHTML=`<p class="small" style="margin:0 0 10px">${rows.length} ishtirokchi</p>`+rows.map(p=>`<div class="adm"><div>
       <b>${esc((p.first_name||"")+" "+(p.last_name||"")).trim()||"(ismsiz)"}${p.id===S.pid?" · siz":""}</b>
       <i>📞 ${esc(p.phone||"—")} · faol: ${dt(p.last_active)}</i>
       <i>${p.week_id===cur?partsLine(p.week_xp,{stage:p.week_stage,daily:p.week_daily,blitz:p.week_blitz,bonus:p.week_bonus})+(stageLine(p.week_stages)?"<br>"+stageLine(p.week_stages):""):"bu hafta hali natija yo'q"}</i>
@@ -4104,6 +4133,46 @@ async function scrAdmin(){
     try{ await rpc("liga_admin_delete",{p_pin:S.adminPin,p_id:b.dataset.id}); toast("O'chirildi"); scrAdmin(); }
     catch(e){ toast("O'chirib bo'lmadi"); }
   });
+}
+function copyText(t){ try{ navigator.clipboard.writeText(t).then(()=>toast("Nusxa olindi ✓"),()=>prompt("Nusxa oling:",t)); }catch(e){ prompt("Nusxa oling:",t); } }
+/* superadmin — jamoalarni sotish va boshqarish */
+async function scrSuper(){
+  setDock(null);
+  app.innerHTML=`<div class="bar"><button class="back">←</button><span class="small">Superadmin</span></div>
+  <section class="sheet set"><h2>💼 Yangi jamoa</h2>
+    <label for="sn">Jamoa nomi</label><input id="sn" type="text" placeholder="masalan: Farg'ona buxgalterlari">
+    <label for="sd">Obuna (kun) — 0 = muddatsiz</label><input id="sd" type="number" inputmode="numeric" value="14">
+    <label for="sm">Ishtirokchilar chegarasi — bo'sh = cheklovsiz</label><input id="sm" type="number" inputmode="numeric" placeholder="cheklovsiz">
+    <p class="small" id="sr"></p>
+    <button class="btn" id="mk">➕ Jamoa yaratish</button></section>
+  <section class="sheet" style="margin-top:14px"><h2>📋 Jamoalar</h2><div id="sl"><p class="small">Yuklanmoqda...</p></div></section>
+  <section class="card"><button class="btn ghost" id="out">Superadmin rejimidan chiqish</button></section>`;
+  app.querySelector(".back").onclick=scrProfile;
+  document.getElementById("out").onclick=()=>{ S.superPin=""; persist(); scrProfile(); };
+  document.getElementById("mk").onclick=async()=>{
+    const n=document.getElementById("sn").value.trim(), dd=+document.getElementById("sd").value||0, mx=document.getElementById("sm").value.trim();
+    const sr=document.getElementById("sr"); if(n.length<2) return sr.textContent="Nomini kiriting";
+    try{ const g=(await rpc("liga_super_create",{p_pin:S.superPin,p_name:n,p_days:dd,p_max:mx?+mx:null}))[0];
+      sr.innerHTML=`✅ <b style="display:inline">${esc(n)}</b> yaratildi.<br>Kod: <b style="display:inline">${g.code}</b> · Admin PIN: <b style="display:inline">${g.admin_pin}</b><br>
+        Boshlanish: ${fmtD(g.start_date)} · Obuna: ${g.paid_until?fmtD(g.paid_until)+" gacha":"muddatsiz"}<br>
+        Havola: ${BOT_LINK}?start=g_${g.code}`;
+      copyText(`Hisobchi Liga — «${n}»\nJamoa kodi: ${g.code}\nAdmin PIN: ${g.admin_pin}\nTaklif havolasi: ${BOT_LINK}?start=g_${g.code}\nBoshlanish: ${fmtD(g.start_date)}`);
+      superList(); }
+    catch(e){ sr.textContent="Yaratib bo'lmadi: "+String(e.message).slice(0,80); }
+  };
+  superList(); window.scrollTo(0,0);
+}
+async function superList(){
+  const el=document.getElementById("sl"); if(!el) return;
+  let rows; try{ rows=await rpc("liga_super_groups",{p_pin:S.superPin}); }catch(e){ el.innerHTML=`<p class="small">Xato: ${esc(String(e.message).slice(0,80))}</p>`; return; }
+  el.innerHTML=rows.map(g=>`<div class="adm"><div><b>${esc(g.name)} · ${g.code}</b>
+    <i>👥 ${g.members}${g.max_players?"/"+g.max_players:""} · 💬 ${g.chats} guruh · PIN ${g.admin_pin}</i>
+    <i>${!g.active?"⏸ to'xtatilgan":g.paid_until?(g.ok?"✅ "+fmtD(g.paid_until)+" gacha":"⛔ "+fmtD(g.paid_until)+" tugagan"):"✅ muddatsiz"} · start ${fmtD(g.start_date)}</i></div>
+    <div style="display:grid;gap:6px"><button class="buy" data-x="${g.code}" data-d="30">+30 kun</button>
+    <button class="del" data-a="${g.code}" data-v="${g.active?0:1}">${g.active?"To'xtatish":"Yoqish"}</button></div></div>`).join("");
+  el.querySelectorAll("[data-x]").forEach(b=>b.onclick=async()=>{ await rpc("liga_super_update",{p_pin:S.superPin,p_code:b.dataset.x,p_add_days:+b.dataset.d,p_active:null}); toast("Uzaytirildi"); superList(); });
+  el.querySelectorAll("[data-a]").forEach(b=>b.onclick=async()=>{ if(!confirm("Ishonchingiz komilmi?")) return;
+    await rpc("liga_super_update",{p_pin:S.superPin,p_code:b.dataset.a,p_add_days:0,p_active:b.dataset.v==="1"}); superList(); });
 }
 function install(){
   const ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
@@ -4169,7 +4238,7 @@ function cert(){
   app.innerHTML=`<div class="bar"><button class="back">←</button></div>
   <section class="cert"><div style="font-size:44px">🏆</div><h2>Sertifikat</h2>
   <p class="small">Ushbu sertifikat beriladi:</p><div class="nm">${S.name||"Buxgalter"}</div>
-  <p style="margin-top:14px">«Buxgalter safari» kursining barcha 8 bosqichini yakunlagani uchun: hisobvaraqlar, provodka, QQS, ish haqi, amortizatsiya va yil yakuni.</p>
+  <p style="margin-top:14px">«Hisobchi Liga» kursining barcha 12 bosqichini yakunlagani uchun: provodka, QQS, ish haqi, asosiy vositalar, soliqlar, hisobotlar, imtiyozlar, qonunchilik va yil yakuni.</p>
   <p class="small">Daraja: ${rankOf(S.xp).cur[1]} · ${S.xp} XP · ${d}</p></section>`;
   app.querySelector(".back").onclick=home; setDock(`<button class="btn" id="h">Xaritaga qaytish</button>`);
   document.getElementById("h").onclick=home; coins();
@@ -4188,6 +4257,7 @@ function saSettle(si){ const rec=saRec(si);            // javobsiz qolgan savol 
 const saLeft=si=>STAGES[si].tasks.map((t,k)=>k).filter(k=>!saRec(si).m[k]);
 const saBad=si=>Object.values(saRec(si).m).filter(v=>v==="bad").length;
 function intro(si){
+  if(groupBlocked()) return toast("Jamoa obunasi tugagan — administratorga murojaat qiling");
   if(isWeekend()) return toast(WKMSG);
   const ss=stageState(si);
   if(ss==="future") return toast(`${si+1}-bosqich ${stageDay(si)} soat 09:00 da ochiladi`);
@@ -4214,14 +4284,19 @@ function intro(si){
   };
   window.scrollTo(0,0);
 }
+const BLITZ_N=20;                              // blits: 20 ta provodka, vaqt cheklovi yo'q
 function startBlitz(open){
   if(!open||!open.length) open=openStages();
-  let pool=[]; open.forEach(i=>STAGES[i].tasks.forEach(t=>pool.push(t)));
-  pool=shuffle(pool).slice(0,40).map((t,k)=>({...t,k}));
+  let pool=[]; open.forEach(i=>STAGES[i].tasks.forEach(t=>{ if(t.t==="pv") pool.push(t); }));
+  pool=freshFirst(pool).slice(0,BLITZ_N).map((t,k)=>({...t,k}));
   run={mode:"blitz",si:null,queue:pool,total:pool.length,i:0,lives:99,combo:0,mistakes:0,
-    marks:pool.map(()=>""),retried:new Set(),earned:0,right:0,end:Date.now()+60000,noXP:isWeekend()};
+    marks:pool.map(()=>""),retried:new Set(),earned:0,right:0,noXP:isWeekend()};
   task();
 }
+/* yaqinda ko'rilmagan savollar oldinga — kunlik mashq va blitsda takror kamayadi */
+function freshFirst(pool){ const now=Date.now(), seen=S.seen||{};
+  const age=t=>t.id&&seen[t.id]?now-seen[t.id]:1e13;
+  return shuffle(pool.slice()).sort((a,b)=>age(b)-age(a)); }
 function startErrs(){
   const ids=Object.keys(S.errs);
   if(!ids.length){ toast("Xato daftari bo'sh — zo'r!"); return; }
@@ -4263,14 +4338,14 @@ function buyShield(){
 function startPractice(open){
   if(!open||!open.length) open=openStages();
   let pool=[]; open.forEach(i=>STAGES[i].tasks.forEach(t=>pool.push(t)));
-  pool=shuffle(pool).slice(0,10).map((t,k)=>({...t,k}));
+  pool=freshFirst(pool).slice(0,10).map((t,k)=>({...t,k}));
   run={mode:"practice",noXP:true,si:null,queue:pool,total:pool.length,i:0,lives:99,combo:0,mistakes:0,marks:pool.map(()=>""),retried:new Set(),earned:0};
   task();
 }
 function startDaily(open){
   if(!open||!open.length) open=openStages();
   let pool=[]; open.forEach(i=>STAGES[i].tasks.forEach(t=>pool.push(t)));
-  pool=shuffle(pool).slice(0,10).map((t,k)=>({...t,k}));
+  pool=freshFirst(pool).slice(0,10).map((t,k)=>({...t,k}));
   run={mode:"daily",noXP:isWeekend(),si:null,queue:pool,total:pool.length,i:0,lives:5,combo:0,mistakes:0,marks:pool.map(()=>""),retried:new Set(),earned:0};
   task();
 }
@@ -4281,7 +4356,7 @@ function task(){
   const kind={mc:"Test",pv:"Provodka tuzing",calc:"Hisoblang"}[t.t];
   const retry=r.i>=r.total;
   app.innerHTML=`<div class="bar"><button class="back">✕</button>
-    ${r.mode==="blitz"?`<span class="tmr" id="tmr">⏱ 60</span><span class="pill">✅ ${r.right}</span>`
+    ${r.mode==="blitz"?`<span class="pill">⚡ ${Math.min(r.i+1,r.total)}/${r.total}</span><span class="pill">✅ ${r.right}</span>`
       :`${r.lives<50?`<span class="hearts">${"❤️".repeat(Math.max(0,r.lives))}${"🤍".repeat(Math.max(0,(r.mode==="gift"?1:5)-r.lives))}</span>`:""}<span class="tmr" id="qt">⏱ 60</span>`}<span class="spacer"></span>
     ${r.combo>=2?`<span class="combo">🔥 ×${r.combo}</span>`:""}<span class="pill">⚡ ${S.xp+r.earned}</span></div>
   <div class="progress">${r.marks.map((m,k)=>`<span class="${m||(k===t.k?"now":"")}"></span>`).join("")}</div>
@@ -4292,7 +4367,7 @@ function task(){
     if(r.mode==="stage"){
       if(!confirm("Chiqasizmi? Bu savol javobsiz qolsa XATO hisoblanadi va qaytib chiqmaydi. Topgan XP saqlanadi.")) return;
       clearInterval(r.tick); run=null; if(!r.answered){ r.mistakes++; }
-      saSettle(r.si); if(r.earned){ addXP(r.earned,"stage"); addStageXP(r.si,r.earned); } persist(); sync(); home(); return; }
+      saSettle(r.si); persist(); sync(); home(); return; }
     if(confirm("Chiqasizmi? Natija saqlanmaydi.")){ clearInterval(r.tick); home(); } };
   if(r.mode!=="blitz"){
     clearInterval(r.tick); r.timedOut=false; r.qEnd=Date.now()+QSEC*1000;
@@ -4304,14 +4379,7 @@ function task(){
       if(left<=0){ clearInterval(r.tick); r.timedOut=true; check(); }
     },250);
   }
-  if(r.mode==="blitz"){
-    clearInterval(r.tick);
-    r.tick=setInterval(()=>{
-      const left=Math.max(0,Math.round((r.end-Date.now())/1000));
-      const el=document.getElementById("tmr"); if(el) el.textContent="⏱ "+left;
-      if(left<=0){ clearInterval(r.tick); finish(true); }
-    },250);
-  }
+  if(r.mode==="blitz") clearInterval(r.tick);   // blitsda vaqt cheklovi yo'q
   const body=document.getElementById("body");
   if(t.t==="mc"){
     let opts=t.o.map((x,k)=>({x:/^\d{4} /.test(x)?x.slice(0,4):x,c:k===t.a}));   // variantlarda faqat raqam
@@ -4378,6 +4446,7 @@ function check(){
     document.getElementById("num").disabled=true;
     right=`To'g'ri javob: <b style="display:inline">${fmt(t.a)} ${t.unit||"so'm"}</b><br>`; }
   if(r.timedOut) ok=false;
+  if(t.id){ if(!S.seen) S.seen={}; S.seen[t.id]=Date.now(); }
   if(r.mode==="stage"){ const rec=saRec(r.si); rec.m[t.k]=ok?"ok":"bad"; rec.p=null; persist(); }
   const card=document.getElementById("card"), st=document.createElement("div");
   st.className="stamp "+(ok?"ok":"bad"); st.textContent=ok?"TO'G'RI":"XATO"; card.appendChild(st);
@@ -4385,6 +4454,7 @@ function check(){
     r.combo++;
     let g=r.noXP?0:(r.mode==="daily"?8:10); if(!r.noXP){ if(r.combo>=3)g+=5; if(r.combo>=7)g+=5; }
     r.earned+=g; if(r.marks[t.k]!=="bad")r.marks[t.k]="ok";
+    if(r.mode==="stage"&&g){ addXP(g,"stage"); addStageXP(r.si,g); persist(); syncSoon(); }   // darhol saqlanadi
     if(!r.noXP){
     if(r.combo===3)toast("🔥 3 ketma-ket! +5 bonus");
     if(r.combo===5){toast("🚀 5 ketma-ket!");award("combo5");}
@@ -4407,10 +4477,8 @@ function check(){
     setDock(`<button class="btn" id="nx">🎁 Sovg'ani ochish</button>`);
     document.getElementById("nx").onclick=()=>giftReward(ok);
   } else if(r.mode==="blitz"){
-    setDock(`<button class="btn" id="nx">Keyingi savol</button>`);
-    const go=()=>{ if(Date.now()>=r.end) return; if(last) return finish(true); r.i++; task(); };
-    document.getElementById("nx").onclick=go;
-    setTimeout(()=>{ if(run===r&&r.answered) go(); },1100);
+    setDock(`<button class="btn" id="nx">${last?"Natijani ko'rish":"Keyingi provodka"}</button>`);
+    document.getElementById("nx").onclick=()=>{ if(last) return finish(true); r.i++; task(); };
   } else {
   setDock(`<button class="btn" id="nx">${r.lives<=0?"Natijani ko'rish":(last?"Yakunlash":"Davom etish")}</button>`);
   document.getElementById("nx").onclick=()=>{ if(r.lives<=0)return finish(false); if(last)return finish(true); r.i++; task(); };
@@ -4419,7 +4487,7 @@ function check(){
 }
 
 function stageClosed(r){
-  run=null; clearInterval(r.tick); saSettle(r.si); addXP(r.earned,"stage"); addStageXP(r.si,r.earned); persist(); sync();
+  run=null; clearInterval(r.tick); saSettle(r.si); persist(); sync();
   app.innerHTML=`<section class="sheet result"><div style="font-size:60px">⏰</div>
     <h2>Soat 17:00 — bosqich yopildi</h2>
     <div class="stats"><span class="pill">✅ ${r.marks.filter(m=>m==="ok").length} to'g'ri</span><span class="pill">⚡ +${r.earned} XP</span></div>
@@ -4434,7 +4502,7 @@ function finish(passed){
     addXP(r.earned,"blitz"); markDay(); persist(); sync();
     app.innerHTML=`<section class="sheet result"><div style="font-size:60px">⚡</div>
       <h2>Blits yakunlandi!</h2>
-      <div class="stats"><span class="pill">✅ ${r.right} to'g'ri</span><span class="pill">⚡ +${r.earned} blits bali</span>
+      <div class="stats"><span class="pill">✅ ${r.right} / ${r.total} to'g'ri</span><span class="pill">⚡ +${r.earned} blits bali</span>
       <span class="pill">🏅 rekord: ${S.blitz}</span></div>
       <p class="small">Blits bali alohida hisoblanadi — haftalik jamiga qo'shilmaydi. Bu hafta blits: ${(S.week.part||{}).blitz||0}</p>
       ${rec?`<p class="story">Yangi rekord! 🎉</p>`:`<p class="small">Rekordni yangilash uchun ${S.blitz-r.right+1} ta ko'proq javob kerak.</p>`}</section>`;
@@ -4462,8 +4530,8 @@ function finish(passed){
     const stars=miss===0?3:(miss<=2?2:1);
     let bonus=r.mode==="stage"?stars*30:70;
     if(r.mode==="stage"){ const rec=saRec(r.si); if(rec.b) bonus=0; else rec.b=true; }
-    addXP(r.earned+bonus, r.mode==="stage"?"stage":(r.mode==="daily"?"daily":null));
-    if(r.mode==="stage") addStageXP(r.si,r.earned+bonus);
+    if(r.mode==="stage"){ if(bonus){ addXP(bonus,"stage"); addStageXP(r.si,bonus); } }   // javoblar bali allaqachon qo'shilgan
+    else addXP(r.earned+bonus, r.mode==="daily"?"daily":null);
     if(r.mode==="stage"){
       const prev=S.stars[r.si]||0; S.stars[r.si]=Math.max(prev,stars);
       award("first"); if(stars===3)award("perfect");
@@ -4493,7 +4561,7 @@ function finish(passed){
     document.getElementById("a").onclick=()=>nx?intro(r.si+1):home();
     document.getElementById("b").onclick=home;
   } else {
-    if(r.mode==="stage"){S.failed[r.si]=true; if(r.earned){ addXP(r.earned,"stage"); addStageXP(r.si,r.earned); } persist(); sync();}
+    if(r.mode==="stage"){S.failed[r.si]=true; persist(); sync();}
     const b=board();
     app.innerHTML=`<section class="sheet result"><div class="big-stars">🤍🤍🤍</div>
       <h2>Jonlar tugadi</h2><p>${r.mode==="stage"?"Topgan XP saqlandi. Xato qilingan savollar qaytib chiqmaydi — «Davom etish» bilan qolgan savollarni ishlaysiz.":"Har bir bosh buxgalter ham shu yerdan o'tgan. Nazariyani ko'rib, qayta urinib ko'ring."}</p>
@@ -4507,6 +4575,11 @@ function finish(passed){
 }
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
+/* jami (liga) bali = bu haftadagi bosqichlar yig'indisi, har bosqich ≤450 — server bilan bir xil qoida */
+function recalcWeek(){ const st=S.week&&S.week.stages; if(!st||!Object.keys(st).length) return;
+  let tot=0; Object.keys(st).forEach(k=>{ st[k]=Math.max(0,Math.min(450,st[k]||0)); tot+=st[k]; });
+  S.week.my=tot; if(S.week.part) S.week.part.stage=tot; }
+recalcWeek(); persist();
 /* ---------------- ishga tushirish ---------------- */
 overtake=simulate();
 checkWeek();
