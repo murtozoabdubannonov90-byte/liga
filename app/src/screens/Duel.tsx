@@ -5,7 +5,7 @@ import { t } from "../lib/i18n";
 import { go, replace, toast } from "../lib/nav";
 import { PageTitle, Card, Empty, copyText } from "../components/ui";
 import { rpc, errMsg, botApp } from "../engine/server";
-import { startDuel } from "../engine/run";
+import { startDuelR } from "../engine/remote";
 import { award } from "../engine/score";
 import { BOT_LINK, openTg } from "../lib/tg";
 import { entry } from "../boot";
@@ -50,7 +50,7 @@ function DuelView({ code }: { code: string }) {
       </section>
       {d.is_a && d.b_score == null && <div className="btn-row"><button className="btn ghost" onClick={() => copyText(duelLink(code), () => toast(t("Nusxa olindi")))}><Copy size={18} />{t("Havola")}</button>
         <button className="btn" onClick={() => share(code)}><Send size={18} />{t("Yuborish")}</button></div>}
-      {canPlay && <button className="btn gold" id="play" onClick={() => { if (!S.pid) return toast(t("Avval ro'yxatdan o'ting")); replace("quiz", { run: startDuel(code) }); }}><Play size={18} />{d.is_a ? t("Men ham o'ynayman") : t("Qabul qilish va boshlash")}</button>}
+      {canPlay && <button className="btn gold" id="play" onClick={async () => { if (!S.pid) return toast(t("Avval ro'yxatdan o'ting")); const r = await startDuelR(code); if (typeof r === "string") return toast(t(r)); replace("quiz", { run: r }); }}><Play size={18} />{d.is_a ? t("Men ham o'ynayman") : t("Qabul qilish va boshlash")}</button>}
     </div>
   );
 }

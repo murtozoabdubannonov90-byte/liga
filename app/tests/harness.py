@@ -10,8 +10,58 @@ SEED = {"xp": 1240, "lang": "uz", "user": {"first": "Dilnoza", "last": "Karimova
         "me": {"ok": True, "personal": True, "paid_until": "2026-10-30", "price": 30000, "ref_code": "S5HMGC", "refs": 2, "tier": 1}, "tier": 1, "blitz": 14,
         "payCfg": {"price": 30000, "card": "5614681012876904", "card_name": "Abdubannonov M"}}
 CALLS, EXTRA = [], {}
+# ---- server o'yinlari taqlidi: savollar javobsiz beriladi, javob shu yerda tekshiriladi ----
+RUNS = {}
+CODES = ["5010", "5110", "6010", "4010", "9420", "6410"]
+def mk_items(n):
+    items, ans = [], []
+    for k in range(n):
+        if k % 3 == 0: items.append({"k": k, "t": "pv", "q": f"Savol №{k+1}: kassaga bankdan pul olindi", "o": CODES}); ans.append({"dt": "5010", "kt": "5110"})
+        elif k % 3 == 1: items.append({"k": k, "t": "mc", "q": f"Savol №{k+1}: qaysi biri to'g'ri?", "o": ["Alfa", "Beta", "Gamma", "Delta"]}); ans.append({"a": k % 4})
+        else: items.append({"k": k, "t": "calc", "q": f"Savol №{k+1}: hisoblang"}); ans.append({"a": 1000 * (k + 1)})
+    return items, ans
+def run_state(rid):
+    r = RUNS[rid]
+    return {"run": rid, "kind": r["kind"], "ref": "x", "n": len(r["items"]), "combo": r["combo"], "right_n": r["right"], "done_n": r["done"], "gain": r["gain"],
+            "bonus": r["bonus"], "stars": r["stars"], "finished": r["finished"], "ms": 123000 if r["finished"] else None, "started_at": "2026-10-01T05:00:00Z"}
+def run_view(rid):
+    r = RUNS[rid]; return dict(run_state(rid), items=[dict(it, st=r["st"][i]) for i, it in enumerate(r["items"])])
+def new_run(kind, n, prefill=0):
+    rid = f"{kind}-{len(RUNS)+1}"; items, ans = mk_items(n)
+    RUNS[rid] = {"kind": kind, "items": items, "ans": ans, "st": [None] * n, "combo": 0, "right": 0, "done": 0, "gain": 0, "bonus": 0, "stars": None, "finished": False}
+    for i in range(1, 1 + prefill): RUNS[rid]["st"][i] = "ok"; RUNS[rid]["right"] += 1; RUNS[rid]["done"] += 1; RUNS[rid]["gain"] += 10
+    return rid
+def run_answer(a):
+    rid, k, p = a["p_run"], a["p_k"], a.get("p_ans") or {}; r = RUNS[rid]; x = r["ans"][k]; t = r["items"][k]["t"]
+    if p.get("left"): ok, why = False, "left"
+    elif t == "pv": ok, why = p.get("dt") == x["dt"] and p.get("kt") == x["kt"], ""
+    elif t == "mc": ok, why = p.get("pick") == x["a"], ""
+    else: ok, why = str(p.get("val", "")).isdigit() and int(p["val"]) == x["a"], ""
+    g = 0
+    if ok:
+        r["combo"] += 1
+        if r["kind"] == "stage": g = 10 + (5 if r["combo"] >= 3 else 0) + (5 if r["combo"] >= 7 else 0)
+    else: r["combo"] = 0
+    r["st"][k] = "ok" if ok else "bad"; r["right"] += int(ok); r["done"] += 1; r["gain"] += g
+    if r["done"] >= len(r["items"]):
+        r["finished"] = True
+        if r["kind"] == "stage": miss = len(r["items"]) - r["right"]; r["stars"] = 3 if miss == 0 else 2 if miss <= 2 else 1; r["bonus"] = r["stars"] * 30
+    return dict(run_state(rid), ok=ok, why=why, got=g, reveal=dict(x, e="Izoh: shunday hisoblanadi."))
 def body_for(fn, args):
     if fn in EXTRA: return EXTRA[fn]
+    if fn == "liga_stage_start": return run_view(new_run("stage", 20, EXTRA.get("_prefill", 0)))
+    if fn == "liga_duel_start": return run_view(new_run("duel", 10))
+    if fn == "liga_final_start": return run_view(new_run("final", 20))
+    if fn == "liga_test_begin": return dict(run_view(new_run("test", 10)), secret="sek", minutes=20, test_started="2026-10-01T05:00:00Z", title="Bosh buxgalter")
+    if fn == "liga_run_show": return 60
+    if fn == "liga_run_answer": return run_answer(args)
+    if fn == "liga_run_finish":
+        r = RUNS[args["p_run"]]
+        if r["kind"] != "stage":
+            for i, st in enumerate(r["st"]):
+                if st is None: r["st"][i] = "bad"; r["done"] += 1
+            r["finished"] = True
+        return run_state(args["p_run"])
     D = {
       "liga_results": [{"week_id": "2026-09-25T07:00", "name": "Dilnoza K.", "week_xp": 1310, "is_me": True, "week_stages": {}}, {"week_id": "2026-09-25T07:00", "name": "Aziz R.", "week_xp": 1250, "is_me": False, "week_stages": {}}, {"week_id": "2026-09-25T07:00", "name": "Malika S.", "week_xp": 1190, "is_me": False, "week_stages": {}}],
       "liga_count": 24,
@@ -22,7 +72,12 @@ def body_for(fn, args):
       "liga_final_info": [{"month": "2026-10", "final_date": "2026-10-31", "open_now": False, "ended": False, "qualified": True, "my_score": None, "my_ms": None, "qualifiers": [{"n": "Dilnoza K.", "tops": 3, "xp": 3420, "me": True}, {"n": "Aziz R.", "tops": 2, "xp": 3180, "me": False}], "standings": []}],
       "liga_region_league": [{"region": "Farg'ona viloyati", "code": "ASOSIY", "name": "Buxgalterlar ligasi", "team_xp": 1290, "top3": "Dilnoza K. 450 · Aziz R. 430 · Malika S. 410", "rnk": 1, "is_mine": True, "week_id": "x"}, {"region": "Farg'ona viloyati", "code": "B2", "name": "Qo'qon audit", "team_xp": 1215, "top3": "Sardor M. 440 · Nodira A. 400", "rnk": 2, "is_mine": False, "week_id": "x"}],
       "liga_player_status2": [{"paid_until": "2026-10-30", "ok": True, "personal": True, "price": 30000, "pending": False, "tier": 1, "ref_code": "S5HMGC", "refs": 2, "tg_linked": False, "lang": "uz"}],
-      "liga_cq_list": [], "liga_my_certs": [], "liga_pay_config2": [{"payme_merchant_id": "", "click_service_id": "", "click_merchant_id": "", "price": 30000, "card": "5614 6810 1287 6904", "card_name": "Abdubannonov M"}],
+      "liga_cq_list": [], "liga_my_certs": [], "liga_stage_status": [],
+      "liga_match_info": {"cur": {"me": "ASOSIY", "opp": "B2", "opp_name": "Qo'qon audit", "opp_region": "Farg'ona viloyati", "my_played": 3, "opp_played": 2}, "prev": {"opp_name": "Marg'ilon hisob", "my_xp": 1290, "opp_xp": 1100}},
+      "liga_news_list": [{"id": 7, "created_at": "2026-09-30T05:00:00Z", "title_uz": "QQS bo'yicha yangi tartib", "title_ru": None, "body_uz": "Yangi qarorga ko'ra elektron hisob-fakturalar 5 kun ichida qabul qilinishi kerak. Batafsil manbada.", "body_ru": None, "url": "https://lex.uz/", "qs": [{"q": "Faktura necha kunda qabul qilinishi kerak?", "o": ["5 kun", "10 kun", "30 kun"], "a": 0, "e": "Qarorda 5 kun deyilgan."}]}],
+      "liga_tax_cal_list": [{"id": 1, "day": 3, "months": None, "title_uz": "Sinov muddati: aylanma hisoboti", "title_ru": None, "topic": "sol", "active": True},
+                            {"id": 2, "day": 15, "months": None, "title_uz": "JShDS va ijtimoiy soliq: hisobot va to'lov", "title_ru": None, "topic": "ish", "active": True}],
+      "liga_tax_cal_save": 3, "liga_news_admin": [], "liga_news_save": 8, "liga_login_begin": "login_abc", "liga_set_tax_remind": None, "liga_pay_config2": [{"payme_merchant_id": "", "click_service_id": "", "click_merchant_id": "", "price": 30000, "card": "5614 6810 1287 6904", "card_name": "Abdubannonov M"}],
       "liga_join3": [{"id": "new-id", "token": "tok-new", "ref_code": "NEWREF"}], "liga_claim": "tok-claimed", "liga_pin_check": "admin",
       "liga_group_public": [{"code": "BX12AB", "name": "Sinov jamoasi", "ok": True, "start_date": "2026-10-05", "exists_active": True}],
       "liga_my_duels": [{"code": "HMAH87", "a_name": "Dilnoza K.", "b_name": "Aziz R.", "a_score": 8, "a_ms": 312000, "b_score": 7, "b_ms": 290000, "is_a": True, "created_at": "2026-10-01T10:00:00Z"}],
@@ -34,7 +89,8 @@ def body_for(fn, args):
                            {"id": "p2", "first_name": "Aziz", "last_name": "Rahimov", "phone": "+998931112233", "xp": 1900, "week_xp": 900, "week_id": "2026-10-02T07:00", "stages": 3, "streak": 2, "region": None, "acc_ok": 60, "acc_total": 90, "has_device": True, "paid_until": None, "pay_ok": False}],
       "liga_admin_receipts": [{"id": 11, "player_id": "p2", "name": "Aziz Rahimov", "phone": "+998931112233", "months": 1, "amount": 30000, "receipt": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==", "status": "check", "created_at": "2026-10-01T10:00:00Z", "paid_until": "2026-10-31"}],
       "liga_admin_month": [{"id": "a", "name": "Dilnoza Karimova", "phone": "+998901234567", "region": "Farg'ona viloyati", "weeks": {"2026-10-02T07:00": 1180, "2026-10-09T07:00": 1240}, "month_xp": 2420, "tops": 2, "acc_ok": 80, "acc_total": 90, "last_active": "2026-10-09T10:00:00Z", "final_score": 340}],
-      "liga_cq_admin": [], "liga_test_admin": [{"code": "TST7ABC", "title": "Bosh buxgalter", "n": 30, "minutes": 30, "lang": "uz", "active": True, "created_at": "2026-10-01T10:00:00Z", "runs": [{"name": "Nomzod Bir", "phone": "+998901234500", "score": 24, "total": 30, "ms": 1200000, "late": False, "finished": "x"}]}],
+      "liga_cq_admin": [], "liga_test_admin": [{"code": "TST7ABC", "title": "Bosh buxgalter", "n": 30, "minutes": 30, "lang": "uz", "active": True, "created_at": "2026-10-01T10:00:00Z", "runs": [{"name": "Nomzod Bir", "phone": "+998901234500", "score": 24, "total": 30, "ms": 1200000, "late": False, "finished": "2026-10-01T10:30:00Z",
+        "detail": [{"pool": "s%d" % (i % 12), "t": ["pv", "calc", "mc"][i % 3], "ok": i % 5 != 0} for i in range(30)]}]}],
       "liga_wq_admin": [], "liga_test_open": [{"code": "TST7ABC", "title": "Bosh buxgalter lavozimiga test", "n": 20, "minutes": 20, "lang": "uz", "active": True, "company": "Farg'ona buxgalterlari"}],
       "liga_test_start": [{"run_id": "run-1", "started_at": "2026-10-01T05:00:00Z"}],
       "liga_cert_verify": [{"id": "ABCD2345", "name": "Dilnoza Karimova", "kind": "week", "title": "week", "detail": "1|1310|2026-09-25T07:00", "issued_at": "2026-10-01T10:00:00Z", "team": "Buxgalterlar ligasi"}],
@@ -53,8 +109,9 @@ def handler(route):
     if "/functions/v1/" in u:
         try: body = json.loads(route.request.post_data or "{}")
         except Exception: body = {}
-        CALLS.append(("bot:" + str(body.get("action", "")), body))
-        return route.fulfill(status=200, content_type="application/json", body='{"ok":true}')
+        act = str(body.get("action", "")); CALLS.append(("bot:" + act, body))
+        out = EXTRA.get("bot:" + act, {"ok": True})
+        return route.fulfill(status=200, content_type="application/json", body=json.dumps(out))
     return route.fulfill(status=200, body="")
 _srv = None
 def serve():
@@ -63,12 +120,16 @@ def serve():
     if s.connect_ex(("localhost", PORT)) != 0:
         _srv = subprocess.Popen(["python3", "-m", "http.server", str(PORT)], cwd=os.path.join(ROOT, "dist"), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL); time.sleep(0.8)
     s.close()
-def page(b, when="2026-10-01T05:00:00Z", seed=SEED, w=390, h=844, dark=False, query=""):
+TG_MOCK = """window.Telegram={WebApp:{initData:'query_id=x&user=%7B%22id%22%3A5%7D&hash=y',initDataUnsafe:{user:{id:5,first_name:'Ali'}},version:'7.0',colorScheme:'light',
+  ready(){},expand(){},isVersionAtLeast(){return false},setHeaderColor(){},setBackgroundColor(){},onEvent(){},openTelegramLink(u){window.__tgOpened=u},openLink(){},
+  BackButton:{onClick(){},offClick(){},show(){},hide(){}},HapticFeedback:{impactOccurred(){},notificationOccurred(){}}}};"""
+def page(b, when="2026-10-01T05:00:00Z", seed=SEED, w=390, h=844, dark=False, query="", tg=False):
     ctx = b.new_context(viewport={"width": w, "height": h}, device_scale_factor=2, timezone_id="Asia/Tashkent", color_scheme="dark" if dark else "light")
     pg = ctx.new_page(); errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.route("**supabase.co/**", handler); pg.route("**telegram.org/**", lambda r: r.fulfill(status=200, body=""))
     pg.clock.install(time=when)
+    if tg: pg.add_init_script(TG_MOCK)
     if seed is not None: pg.add_init_script("localStorage.setItem('hisobchi-liga-v1',JSON.stringify(%s))" % json.dumps(seed))
     pg.goto(BASE + query); pg.wait_for_timeout(900)
     return pg, errs

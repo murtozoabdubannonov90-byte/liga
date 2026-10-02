@@ -25,12 +25,14 @@ import TestTaker from "./screens/TestTaker";
 import { WqAnswer, WqSubmit } from "./screens/WeekQ";
 import WeekEnd from "./screens/WeekEnd";
 import Topics from "./screens/Topics";
+import { TaxCalendar, News, NewsView, Calcs, TestReport } from "./screens/Tools";
 
 const SCREENS: Record<string, (p: any) => JSX.Element | null> = {
   home: Home, rate: Rating, learn: Learn, profile: Profile, settings: Settings, ach: Achievements, quiz: Quiz, intro: Intro, pay: Pay,
   lessons: Lessons, lesson: LessonView, balance: Balance, duel: Duel, finalLive: FinalLive, share: Share, cert: CertView,
   admin: Admin, report: Report, adminLogin: AdminLogin, super: Super, wqAnswer: WqAnswer, wqSubmit: WqSubmit, weekEnd: WeekEnd,
   topics: Topics, region: () => <AskRegion back />,
+  calendar: TaxCalendar, news: News, newsView: NewsView, calc: Calcs, testReport: TestReport,
 };
 const NAVS: [string, any, string][] = [["home", HomeI, "Asosiy"], ["rate", Trophy, "Reyting"], ["learn", BookOpen, "O'qish"], ["profile", User, "Profil"]];
 
@@ -40,6 +42,7 @@ export default function App() {
   let body: JSX.Element;
   if (entry.v) body = <Verify id={entry.v} />;                      // sertifikat tekshiruvi — ro'yxatsiz
   else if (entry.t && !S.adminPin) body = <TestTaker code={entry.t} />; // xodim testi — ro'yxatsiz
+  else if (S.tgTry) body = <div className="shell bare"><div className="splash"><span className="spinner" />{t("Yuklanmoqda...")}</div></div>;
   else if (!S.lang) body = <LangPick />;
   else if (!S.user.first) body = <Register />;
   else if (!S.user.region) body = <AskRegion />;

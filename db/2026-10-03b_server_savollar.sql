@@ -302,7 +302,7 @@ begin
   if a.run_id is null then raise exception 'bad_input'; end if;
   select * into b from public.liga_bank where id = a.qid;
   if a.answered_at is not null then
-    return jsonb_build_object('ok', a.ok, 'why', coalesce(a.why, ''), 'gain', a.gain, 'reveal', public.liga_q_reveal(b, r.lang), 'dup', true) || public.liga_run_state(p_run);
+    return public.liga_run_state(p_run) || jsonb_build_object('ok', a.ok, 'why', coalesce(a.why, ''), 'got', a.gain, 'reveal', public.liga_q_reveal(b, r.lang), 'dup', true);
   end if;
   if r.finished_at is not null then raise exception 'already_done'; end if;
   if r.kind = 'stage' then
@@ -330,7 +330,7 @@ begin
       on conflict (month, player_id) do update set right_n = excluded.right_n, done_n = excluded.done_n, updated_at = now();
   end if;
   perform public.liga_run_settle(p_run);
-  return jsonb_build_object('ok', v_ok, 'why', v_why, 'gain', v_g, 'reveal', public.liga_q_reveal(b, r.lang)) || public.liga_run_state(p_run);
+  return public.liga_run_state(p_run) || jsonb_build_object('ok', v_ok, 'why', v_why, 'got', v_g, 'reveal', public.liga_q_reveal(b, r.lang));
 end $$;
 
 -- o'yinchi chiqib ketdi: bosqich — keyin davom etadi; final/duel/test — natija shu holatda yuboriladi

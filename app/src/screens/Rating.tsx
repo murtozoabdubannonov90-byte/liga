@@ -8,12 +8,14 @@ import { TIERS } from "../engine/score";
 import { fmtD } from "../engine/time";
 import { TopBar } from "./Home";
 import { FinalCard } from "./FinalLive";
+import { MatchCard } from "./Tools";
 
 const medal = (k: number) => (k === 0 ? "1" : k === 1 ? "2" : k === 2 ? "3" : String(k + 1));
 function WeekTab() {
   const L = S.lastRes, M = S.members || [];
   return (
     <div className="stack">
+      <MatchCard />
       <Card title={t("O'tgan hafta natijalari")} right={L ? <span className="chip">{t("juma 12:00")}</span> : undefined}>
         {L && L.rows.length ? <div className="board">{L.rows.map((x: any, k: number) => (
           <div key={k} className={"r" + (k < 3 ? " top" + (k + 1) : "") + (x.me ? " me" : "")}><span className="p">{medal(k)}</span>

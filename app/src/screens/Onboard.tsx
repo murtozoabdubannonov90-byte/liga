@@ -1,10 +1,10 @@
-import { tgUser } from "../lib/tg";
+import { tgUser, inTelegram, openTg, BOT_LINK } from "../lib/tg";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, CreditCard, Check } from "lucide-react";
+import { ShieldCheck, CreditCard, Check, Send } from "lucide-react";
 import { S, persist } from "../engine/state";
 import { LANGS, setLang, t, type Lang } from "../lib/i18n";
-import { rpc, joinServer, pull, setLangServer } from "../engine/server";
+import { rpc, joinServer, pull, setLangServer, loginViaBot } from "../engine/server";
 import { setLigaStart } from "../engine/time";
 import { fmt } from "../engine/data";
 import { entry } from "../boot";
@@ -88,6 +88,7 @@ export function Register() {
   return (
     <div className="shell bare">
       <Hero title={t("Ligaga qo'shiling")} sub={t("Har ish kuni 20 ta savol. Juma kuni — g'oliblar.")} />
+      <TgLoginCard />
       <div className="stack">
         <div className="field"><label htmlFor="f">{t("Ism")}</label><input id="f" className="inp" value={f} onChange={(e) => setF(e.target.value)} autoComplete="given-name" /></div>
         <div className="field"><label htmlFor="l">{t("Familiya")}</label><input id="l" className="inp" value={l} onChange={(e) => setL(e.target.value)} autoComplete="family-name" /></div>
@@ -100,12 +101,32 @@ export function Register() {
           <input id="g" className="inp mono" value={g} onChange={(e) => setG(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))} placeholder="BX12AB" autoCapitalize="characters" />
           {gname && <span className="small" style={{ fontWeight: 700 }}>{gname}</span>}</div>
         {personal && <div className="note"><CreditCard size={18} /><span>{t("Ligada qatnashish: oyiga {p} so'm. Ro'yxatdan o'tgach kartaga to'lab, chekni yuborasiz — shu zahoti ligaga qo'shilasiz.", { p: fmt(S.payCfg?.price || 30000) })}</span></div>}
-        <div className="note"><ShieldCheck size={18} /><span>{t("Telefon raqamingizni faqat jamoa administratori ko'radi. Natijangizni faqat shu telefon yoza oladi.")}</span></div>
+        <div className="note"><ShieldCheck size={18} /><span>{t("Telefon raqamingizni faqat jamoa administratori ko'radi.")}</span></div>
         <p className="err" role="alert">{err}</p>
       </div>
       <div className="dock"><button className="btn" disabled={busy} onClick={submit} id="go">{busy ? t("Yuborilmoqda...") : t("Ro'yxatdan o'tish")}</button></div>
     </div>
   );
+}
+
+/* Avval ro'yxatdan o'tgan bo'lsa: Telegram orqali kirish (brauzer, Android, yangi telefon) */
+function TgLoginCard() {
+  const [wait, setWait] = useState<number | null>(null), [fail, setFail] = useState(false);
+  if (inTelegram) return null;
+  const go2 = async () => {
+    setFail(false); setWait(300);
+    try {
+      const ok = await loginViaBot((code) => openTg(BOT_LINK + "?start=" + code), (l) => setWait(l));
+      setWait(null); if (ok) { sfx("win"); burst(); pull(true); tab("home"); } else setFail(true);
+    } catch { setWait(null); toast(t("Serverga ulanib bo'lmadi — internetni tekshiring")); }
+  };
+  return (
+    <section className="card tglink" style={{ marginBottom: 14 }}>
+      <span className="ic"><Send size={20} /></span>
+      <span className="grow"><b>{t("Avval ro'yxatdan o'tganmisiz?")}</b>
+        <span className="small">{wait != null ? t("Botda «Start» ni bosing — shu yerda avtomatik kirasiz.") : fail ? t("Vaqt tugadi. Qayta urinib ko'ring.") : t("Telegram orqali kiring — ballaringiz saqlanadi.")}</span></span>
+      <button className="chip blue" id="tglogin" disabled={wait != null} onClick={go2}>{wait != null ? <span className="spinner sm" /> : t("Kirish")}</button>
+    </section>);
 }
 
 export function AskRegion({ back: isBack }: { back?: boolean }) {

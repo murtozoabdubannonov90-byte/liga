@@ -103,6 +103,6 @@ export function checkWeek(): boolean {
   persist(); return true;
 }
 export function nextStage(): number | null {
-  for (let i = 0; i < STAGE_N; i++) if (stageOpen(i) && saLeft(i).length) return i;
+  for (let i = 0; i < STAGE_N; i++) if (stageOpen(i) && !(S.stg && S.stg[i] && S.stg[i].finished)) return i;
   return null;
 }

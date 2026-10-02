@@ -59,6 +59,12 @@ const RU: Record<string, string> = {
   "Natijalarni ko'rish": "Посмотреть результаты",
   "✅ <b>Ulandi!</b>\nEndi har bosqichdan keyin natijangiz, ertalab bosqich eslatmasi va juma kuni o'rningiz shu yerga keladi.": "✅ <b>Подключено!</b>\nТеперь после каждого этапа сюда придёт ваш результат, утром — напоминание об этапе, а в пятницу — ваше место.",
   "Ligani ochish": "Открыть лигу",
+  "📅 <b>Soliq taqvimi</b>": "📅 <b>Налоговый календарь</b>",
+  "{d} ({n} kun qoldi)": "{d} (осталось дней: {n})",
+  "{d} (ertaga)": "{d} (завтра)",
+  "Muddatni o'tkazib yubormang — jarima bo'lmasin!": "Не пропустите срок — без штрафов!",
+  "Mashq qilish": "Потренироваться",
+  "✅ <b>Kirish tasdiqlandi!</b>\nIlovaga qayting — avtomatik kirasiz.": "✅ <b>Вход подтверждён!</b>\nВернитесь в приложение — вход выполнится автоматически.",
   "Bosqichni ochish": "Открыть этап",
   "⚔️ <b>Duel yakunlandi!</b>\n{a} — {as} · {b} — {bs}\n\n{w}": "⚔️ <b>Дуэль завершена!</b>\n{a} — {as} · {b} — {bs}\n\n{w}",
   "🏆 Siz yutdingiz!": "🏆 Вы победили!", "Bu safar raqib kuchliroq. Yana chaqiring!": "В этот раз соперник сильнее. Вызовите ещё раз!", "🤝 Durang!": "🤝 Ничья!",
@@ -125,6 +131,25 @@ async function sendDailyPoll(chat: number) {
     correct_option_id: idx.indexOf(q.a), explanation: q.e || undefined, is_anonymous: true });
   return !!r?.ok;
 }
+
+const OY_UZ = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+const OY_RU = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+const dayName = (d: Date, lang?: string | null) => lang === "ru" ? `${d.getUTCDate()} ${OY_RU[d.getUTCMonth()]}` : tr(lang, `${d.getUTCDate()}-${OY_UZ[d.getUTCMonth()]}`);
+// soliq taqvimi: bugundan 1..3 kun ichidagi muddatlar (3 va 1 kun oldin eslatiladi; juma — dam olish kunlariga to'g'ri keladiganlar ham)
+async function taxDue() {
+  const { data } = await db.from("liga_tax_cal").select("id,day,months,title_uz,title_ru,topic").eq("active", true);
+  const today = tzDate(), w = today.getUTCDay(), offs = w === 5 ? [1, 2, 3] : [1, 3], out: any[] = [];
+  for (const n of offs) {
+    const d = new Date(today); d.setUTCDate(d.getUTCDate() + n);
+    const last = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 0)).getUTCDate();
+    for (const c of (data ?? []) as any[]) {
+      const day = Math.min(c.day, last);
+      if (day === d.getUTCDate() && (!c.months?.length || c.months.includes(d.getUTCMonth() + 1))) out.push({ ...c, date: d, n });
+    }
+  }
+  return out;
+}
+async function chatsOf(code: string) { return (await chats()).filter((c) => c.group_code === code); }
 
 type Chat = { chat_id: number; group_code: string };
 type Group = { code: string; name: string; start_date: string; active: boolean; paid_until: string | null };
@@ -349,6 +374,12 @@ async function onUpdate(u: any) {
     if (!x) return reply("❌ Havola eskirgan. Ilovada «Telegram'ni ulash» tugmasini qayta bosing.", openApp());
     return reply(tr(x.lang, "✅ <b>Ulandi!</b>\nEndi har bosqichdan keyin natijangiz, ertalab bosqich eslatmasi va juma kuni o'rningiz shu yerga keladi."), appBtn(tr(x.lang, "Ligani ochish")));
   }
+  if (priv && cmd === "/start" && /^login_[0-9a-f]+$/i.test(arg)) {
+    const { data } = await db.rpc("liga_login_bind_sys", { p_code: arg.slice(6), p_tg: m.from?.id });
+    if (data?.ok) return reply(tr(data.lang, "✅ <b>Kirish tasdiqlandi!</b>\nIlovaga qayting — avtomatik kirasiz."));
+    if (data?.reason === "no_player") return reply("❌ Bu Telegram hisobi ligaga ulanmagan.\nAvval ilovada ro'yxatdan o'ting yoki to'lov chekini shu bot orqali yuboring — shunda hisobingiz Telegram'ga bog'lanadi.", openApp());
+    return reply("❌ Kirish havolasi eskirgan. Ilovada «Telegram orqali kirish» tugmasini qayta bosing.");
+  }
   if (priv && cmd === "/tolov") {
     const { data: ses } = await db.from("liga_tg_sessions").select("player_id,months").eq("chat_id", m.chat.id).maybeSingle();
     if (!ses) return askContact(m.chat.id);
@@ -473,7 +504,39 @@ async function onCron(action: string) {
       if (await dm(p.tg, tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w) }),
         appBtn(tr(p.lang, "Bosqichni boshlash")))) personal++;
     }
-    return { ok: true, sent: n, polls, personal };
+    // soliq taqvimi — shaxsan
+    let tax = 0; const due = await taxDue();
+    if (due.length) {
+      const { data: tl } = await db.rpc("liga_tax_remind_list");
+      for (const p of (tl ?? []) as any[]) {
+        const lines = due.map((x) => "• <b>" + (x.n === 1 ? tr(p.lang, "{d} (ertaga)", { d: dayName(x.date, p.lang) }) : tr(p.lang, "{d} ({n} kun qoldi)", { d: dayName(x.date, p.lang), n: x.n })) + "</b>: " + esc(p.lang === "ru" ? (x.title_ru || x.title_uz) : tr(p.lang, x.title_uz)));
+        if (await dm(p.tg, tr(p.lang, "📅 <b>Soliq taqvimi</b>") + "\n" + lines.join("\n") + "\n\n" + tr(p.lang, "Muddatni o'tkazib yubormang — jarima bo'lmasin!"),
+          appBtn(tr(p.lang, "Mashq qilish"), due[0].topic ? "?tp=" + due[0].topic : ""))) tax++;
+      }
+    }
+    // qonun yangiligi — guruhlarga (bir marta)
+    let news = 0;
+    const { data: nw } = await db.from("liga_news").select("id,title_uz,body_uz,url").eq("active", true).is("posted_at", null)
+      .gte("created_at", new Date(Date.now() - 14 * 864e5).toISOString()).order("created_at").limit(1);
+    if (nw?.[0]) {
+      const x = nw[0], body = x.body_uz.length > 700 ? x.body_uz.slice(0, 700) + "…" : x.body_uz;
+      news = await toChats(() => `⚖️ <b>Qonun yangiligi</b>\n<b>${esc(x.title_uz)}</b>\n\n${esc(body)}${x.url ? `\n\n🔗 Manba: ${esc(x.url)}` : ""}\n\nIlovada shu yangilik bo'yicha qisqa test bor 👇`);
+      await db.from("liga_news").update({ posted_at: new Date().toISOString() }).eq("id", x.id);
+    }
+    // dushanba — jamoalar bellashuvi juftlari
+    let pairs = 0;
+    if (w === 1) {
+      const { data: mp } = await db.rpc("liga_match_pair_sys"); const gm2 = await groupMap();
+      for (const x of (mp ?? []) as any[]) for (const [me, op] of [[x.a_code, x.b_code], [x.b_code, x.a_code]]) {
+        const o = gm2[op]; if (!o) continue;
+        for (const c of await chatsOf(me)) {
+          await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(me),
+            text: `⚔️ <b>Jamoalar bellashuvi!</b>\n\nBu hafta raqibingiz: <b>«${esc(o.name)}»</b>.\nJamoa bali — eng yaxshi 3 kishining haftalik bali yig'indisi.\nG'olib juma 12:00 da e'lon qilinadi. Har kuni bosqichni bajaring — jamoangizni yutqazib qo'ymang! 💪` });
+          pairs++;
+        }
+      }
+    }
+    return { ok: true, sent: n, polls, personal, tax, news, pairs };
   }
   if (action === "remind") {
     // juma kuni bosqich 12:00 da yopiladi — eslatma friday_warn (11:00) da ketadi
@@ -526,7 +589,16 @@ async function onCron(action: string) {
         : tr(p.lang, "🏁 <b>Hafta yakunlandi.</b>\nBu hafta bosqich o'ynamadingiz. Dushanba 09:00 da yangi hafta — qaytib keling! 💪");
       if (await dm(p.tg, text, appBtn(tr(p.lang, "Natijalarni ko'rish")))) personal++;
     }
-    return { ok: true, sent, personal };
+    // jamoalar bellashuvi natijasi
+    let matches = 0;
+    const { data: mc } = await db.rpc("liga_match_close_sys");
+    for (const x of (mc ?? []) as any[]) {
+      const A = gm[x.a_code]?.name ?? x.a_code, B = gm[x.b_code]?.name ?? x.b_code;
+      const win = x.a_xp === x.b_xp ? "🤝 Durang!" : `🏆 G'olib: <b>«${esc(x.a_xp > x.b_xp ? A : B)}»</b>`;
+      const text = `⚔️ <b>Jamoalar bellashuvi natijasi</b>\n\n«${esc(A)}» — <b>${x.a_xp}</b>\n«${esc(B)}» — <b>${x.b_xp}</b>\n\n${win}\nKeyingi raqib dushanba kuni e'lon qilinadi.`;
+      for (const code of [x.a_code, x.b_code]) for (const c of await chatsOf(code)) { await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: openBot(code) }); matches++; }
+    }
+    return { ok: true, sent, personal, matches };
   }
   if (action.startsWith("receipt:")) return await notifyAdmins(Number(action.slice(8)));
   if (action === "status") {
@@ -581,6 +653,11 @@ async function onApp(req: Request) {
   // quyidagilar faqat Telegram ichidan (initData tekshiriladi)
   const user = await checkInit(String(b.initData || ""));
   if (!user) return jres({ error: "no_telegram" }, 403);
+  // Telegram hisobi orqali kirish (telefon, kompyuter — qaysi qurilma bo'lmasin)
+  if (action === "tg_login") {
+    const { data } = await db.rpc("liga_tg_login_sys", { p_tg: user.id });
+    return jres(data ? { found: true, ...data } : { found: false });
+  }
   if (!b.p_id || !(await authOk(b.p_id, b.token))) return jres({ error: "bad_token" }, 403);
   if (action === "link") {
     const { data } = await db.rpc("liga_tg_link_sys", { p_id: b.p_id, p_token: b.token, p_tg: user.id });

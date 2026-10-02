@@ -6,7 +6,8 @@ import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, toast } from "../lib/nav";
 import { C, startDaily, startBlitz, startErrs, startGift, startPractice } from "../engine/run";
-import { rankOf, saLeft, saBad, giftDone, giftReady, giftCorrect, GIFT_NEED, WEEK_GOAL } from "../engine/score";
+import { stLeft, stTotal, stg } from "../engine/remote";
+import { rankOf, giftDone, giftReady, giftCorrect, GIFT_NEED, WEEK_GOAL } from "../engine/score";
 import { stageState, todayStage, tzNow, isWeekend, weekDays, stageOfDate, dkey, OPEN_H, closeH, closeStr, hm, weekEnd, stageDay } from "../engine/time";
 import { joinServer, pull, tgLinkCode } from "../engine/server";
 import { CountUp, TierBadge, useNow } from "../components/ui";
@@ -15,6 +16,7 @@ import { persist } from "../engine/state";
 import { lessonOfDay } from "./Lessons";
 import { finalCanPlay } from "./FinalLive";
 import { sfx } from "../lib/fx";
+import { DeadlineCard, NewsCard } from "./Tools";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -66,7 +68,7 @@ function Ticket() {
         <div className="t-bottom"><button className="btn ghost" onClick={() => runOrToast(startPractice())}>{t("Qo'shimcha mashq")}</button></div>
       </div>);
   }
-  const ss = stageState(si), left = saLeft(si).length, total = c.STAGES[si].tasks.length, done = total - left, n = tzNow();
+  const ss = stageState(si), left = stLeft(si), total = stTotal(si), done = total - left, n = tzNow(), sv = stg(si);
   const until = ss === "future" ? hm((OPEN_H - n.h) * 3600e3) : hm((closeH(n.wd) - n.h) * 3600e3);
   const finished = left === 0;
   return (
@@ -80,7 +82,7 @@ function Ticket() {
           <div className="t-meta">
             {ss === "future" && (until.h > 0 ? t("Bugun 09:00 da ochiladi · {h} soat {m} daqiqa qoldi", { h: until.h, m: until.m }) : t("Bugun 09:00 da ochiladi · {m} daqiqa qoldi", { m: until.m }))}
             {ss === "open" && !finished && <>{t("{d}/{n} savol", { d: done, n: total })} · <Clock3 size={13} style={{ verticalAlign: -2 }} /> {until.h > 0 ? t("{c} gacha {h} soat {m} daqiqa", { c: closeStr(), h: until.h, m: until.m }) : t("{c} gacha {m} daqiqa", { c: closeStr(), m: until.m })}</>}
-            {ss === "open" && finished && t("✅ {ok} to'g'ri · ❌ {bad} xato · {xp} XP", { ok: total - saBad(si), bad: saBad(si), xp: S.week.stages[si] || 0 })}
+            {ss === "open" && finished && t("✅ {ok} to'g'ri · ❌ {bad} xato · {xp} XP", { ok: sv?.right_n || 0, bad: (sv?.done_n || 0) - (sv?.right_n || 0), xp: S.week.stages[si] || 0 })}
             {ss === "closed" && (finished ? t("✅ Bajarilgan · {xp} XP", { xp: S.week.stages[si] || 0 }) : t("{c} da yopildi", { c: closeStr() }))}
           </div>
         </div>
@@ -141,6 +143,8 @@ export default function Home() {
           <div className="t-top"><Trophy size={40} color="var(--gold)" /><div className="grow"><div className="t-title">{t("Oylik final boshlandi!")}</div><div className="t-meta">{t("Siz saralangansiz · 13:00 gacha")}</div></div><ChevronRight /></div></button>}
         <Ticket />
         <TgLinkCard />
+        <DeadlineCard />
+        <NewsCard />
         {S.streak > 1 && <div className="row small" style={{ fontWeight: 800, color: "var(--ink-2)" }}><Flame size={18} color="#E8590C" fill="#FFB020" />{t("{n} kunlik seriya — davom eting!", { n: S.streak })}</div>}
         {wq && wq.q_id && !(S.wqDone || {})[wq.q_id] && (
           <button className="card" style={{ textAlign: "left", borderColor: "var(--stamp)" }} onClick={() => go("wqAnswer")}>

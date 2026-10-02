@@ -145,8 +145,8 @@ function Tests() {
             <button className="btn sm ghost" onClick={() => setOpen(open === x.code ? null : x.code)}>{t("Natijalar")}</button>
             <button className="btn sm ghost" onClick={async () => { await rpc("liga_test_toggle", { p_pin: S.adminPin, p_code: x.code, p_active: !x.active }); load(); }}>{x.active ? t("Yopish") : t("Ochish")}</button></div>
           {open === x.code && (x.runs.length ? <div className="board" style={{ marginTop: 8 }}>{x.runs.map((r: any, k: number) => (
-            <div key={k} className="r"><span className="p">{k + 1}</span><span className="n">{r.name}<small>{r.phone} · {r.finished ? mmss(r.ms) : t("ishlamoqda")}{r.late ? " · " + t("kechikdi") : ""}</small></span>
-              <span className="x">{r.score != null ? Math.round((r.score / r.total) * 100) + "%" : "—"}</span></div>))}</div> : <Empty>{t("Hali nomzod yo'q")}</Empty>)}
+            <button key={k} className="r" style={{ width: "100%", textAlign: "left" }} disabled={!r.finished} onClick={() => go("testReport", { test: x, run: r })}><span className="p">{k + 1}</span><span className="n">{r.name}<small>{r.phone} · {r.finished ? mmss(r.ms) + " · " + t("hisobot") : t("ishlamoqda")}{r.late ? " · " + t("kechikdi") : ""}</small></span>
+              <span className="x">{r.score != null ? Math.round((r.score / r.total) * 100) + "%" : "—"}</span></button>))}</div> : <Empty>{t("Hali nomzod yo'q")}</Empty>)}
         </section>))}
     </div>);
 }

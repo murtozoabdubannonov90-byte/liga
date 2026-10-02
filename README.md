@@ -34,7 +34,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (61 ta)
+python3 tests/app.test.py        # 2.0 testlari (85 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -42,6 +42,17 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
+## 2026-10-03b: javoblar faqat serverda
+
+- **Liga savollari serverda** (`liga_bank`, 480 ta yangi savol, har bosqichga 40 ta). Ilovaga savol javobsiz yuboriladi; har javob serverda tekshiriladi, vaqt (60 s) serverda o'lchanadi, ball va yulduzlarni server hisoblaydi (`liga_stage_start`, `liga_run_show`, `liga_run_answer`, `liga_run_finish`). `liga_save` endi bosqich ballarini qabul qilmaydi.
+- **Har o'yinchiga boshqa savollar**: bosqichda 40 tadan 20 tasi (12 provodka + 8) tasodifiy tanlanadi — guruhda javob ulashish foydasiz.
+- **Final, duel, xodim testi** ham serverda tekshiriladi (`liga_final_start`, `liga_duel_start`, `liga_test_begin`); eski mijozga ishongan funksiyalar yopildi.
+- **Telegram orqali kirish**: Telegram ichida hisob Telegram ID bo'yicha avtomatik topiladi (telefon va kompyuter birga); brauzer/Android'da «Kirish» → bot → avtomatik kirish. Bir nechta qurilma (`liga_tokens`).
+- **Cheklarga kunlik cheklov yo'q** (1–6 oy).
+- **Yangi**: soliq taqvimi (bot 3 va 1 kun oldin eslatadi; superadmin tahrirlaydi), qonun yangiliklari (+ qisqa test, guruhga avtomatik), kalkulyatorlar (ish haqi, QQS, amortizatsiya), Didox/my.soliq/1C amaliy mavzusi (36 savol), jamoalar bellashuvi (dushanba juftlash, juma natija), xodim testi uchun PDF hisobot (ko'nikma va mavzular bo'yicha).
+- Savollar manbasi shifrlangan holda `content/bank.asc` da (kalit faqat serverda va egasida). Ochiq repoda javoblar yo'q.
+- Baza: `db/2026-10-03b_server_savollar.sql`. Bot: v13. Testlar: 85 ta.
 
 ## 2026-10-03 yangilanishi
 

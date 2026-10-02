@@ -17,6 +17,19 @@ def cur_q(pg):
     return pg.evaluate("""()=>{const r=__liga.nav.current().p.run, q=document.querySelector('.qtext').innerText.trim();
       const t=r.queue.find(x=>x.q.trim()===q); return t?{t:t.t,dt:t.dt,kt:t.kt,a:t.a,o:t.o,good:t.t==="mc"?String(t.o[t.a]).replace(/^(\\d{4}) .*/,"$1"):null}:null}""")
 def answer(pg, right=True):
+    """server o'yini: savol raqami bo'yicha taqlid serverdagi javobni olamiz (ilovada javob yo'q)"""
+    import re
+    m = re.search(r"Savol №(\d+)", pg.inner_text(".qtext")); k = int(m.group(1)) - 1
+    rid = pg.evaluate("()=>window.__run.remote.id"); x = RUNS[rid]["ans"][k]; t = RUNS[rid]["items"][k]["t"]
+    if t == "pv":
+        dt, kt = (x["dt"], x["kt"]) if right else (x["kt"], x["dt"])
+        for c in (dt, kt): pg.locator(".keys .key", has_text=c).first.click()
+    elif t == "mc":
+        good = ["Alfa", "Beta", "Gamma", "Delta"][x["a"]]; bad = ["Alfa", "Beta", "Gamma", "Delta"][(x["a"] + 1) % 4]
+        pg.locator(".opts .opt", has_text=good if right else bad).first.click()
+    else: pg.fill("#num", str(x["a"] if right else x["a"] + 7))
+    pg.click("#chk"); pg.wait_for_timeout(450)
+def answer_local(pg, right=True):
     q = cur_q(pg)
     if q["t"] == "pv":
         if right: dt, kt = q["dt"], q["kt"]
@@ -68,14 +81,17 @@ with sync_playwright() as p:
     check("bugungi bosqich = 4-bosqich (payshanba)", si == 3, si)
     go(pg, "intro", {"si": si}); pg.click("#go"); pg.wait_for_timeout(500)
     check("savol ochildi", pg.locator(".qtext").count() == 1)
+    leak = pg.evaluate("()=>{const q=__liga.nav.current().p.run.queue; return q.some(x=>x.dt||x.kt||x.a!=null)}")
+    check("ilovada bosqich savollarining javobi yo'q (faqat serverda)", leak is False)
+    check("savol ko'rsatilgani serverga aytildi (vaqt serverda)", len(calls("liga_run_show")) >= 1)
     xp0 = S(pg, "S.xp"); answer(pg, True)
     check("to'g'ri javob: TO'G'RI muhri", pg.locator(".stamp.ok").count() == 1)
     check("to'g'ri javob: +10 XP", S(pg, "S.xp") == xp0 + 10, (xp0, S(pg, "S.xp")))
     check("haftalik liga bali ham oshdi", S(pg, "S.week.stages['3']") == 10, S(pg, "S.week.stages"))
     pg.click("#nx"); pg.wait_for_timeout(400)
     answer(pg, False)
-    check("xato javob: XATO muhri va sababi", pg.locator(".stamp.bad").count() == 1 and "To'g'ri" in txt(pg))
-    check("xato daftariga tushdi", S(pg, "Object.keys(S.errs).length") >= 1)
+    check("xato javob: XATO muhri va to'g'ri javob serverdan", pg.locator(".stamp.bad").count() == 1 and "To'g'ri" in txt(pg) and "Izoh: shunday" in txt(pg))
+    check("javob serverga yuborildi", len(calls("liga_run_answer")) >= 2)
     pg.click("#nx"); pg.wait_for_timeout(400)
     HIDE = "()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});Object.defineProperty(document,'visibilityState',{value:'hidden',configurable:true});document.dispatchEvent(new Event('visibilitychange'))}"
     SHOW = "()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});Object.defineProperty(document,'visibilityState',{value:'visible',configurable:true});document.dispatchEvent(new Event('visibilitychange'))}"
@@ -117,11 +133,14 @@ with sync_playwright() as p:
     CALLS.clear(); pg.evaluate("()=>{window.open=()=>null}"); pg.click(".tglink"); pg.wait_for_timeout(500)
     check("ulash kodi so'raldi", len(calls("liga_tg_link_code")) == 1)
     si = pg.evaluate("()=>__liga.time.todayStage()")
-    pg.evaluate("(si)=>{const r=__liga.score.saRec(si); for(let k=1;k<20;k++) r.m[k]='ok'; __liga.st.persist()}", si)
-    go(pg, "intro", {"si": si}); pg.click("#go"); pg.wait_for_timeout(500)
+    EXTRA["_prefill"] = 19
+    go(pg, "intro", {"si": si}); pg.click("#go"); pg.wait_for_timeout(600)
+    del EXTRA["_prefill"]
     CALLS.clear(); answer(pg, True); pg.click("#nx"); pg.wait_for_timeout(1500)
     sd = calls("bot:stage_done")
     check("bosqich tugaganda natija botga yuborildi", len(sd) == 1 and sd[0].get("si") == si and sd[0].get("right") == 20, sd)
+    check("3 yulduz va bonus serverdan", "Bosqich yakunlandi" in txt(pg) and S(pg, "S.stars[%d]" % si) == 3, txt(pg)[:200])
+    check("bosqich bali = server hisobi (200 + 90 bonus)", S(pg, "S.week.stages['%d']" % si) == 290, S(pg, "S.week.stages"))
     EXTRA["liga_me"] = [{"xp": 9999, "stages": 5, "week_id": "2026-10-02T07:00", "week_stages": {"0": 440, "1": 390, "2": 360}, "cur_week": "2026-10-02T07:00"}]
     pg, e = page(b); ALLERR += e
     pg.wait_for_timeout(800)
@@ -132,7 +151,7 @@ with sync_playwright() as p:
     pg.click("text=O'zbekcha"); pg.wait_for_timeout(400)
     pg.fill("#f", "Olim"); pg.fill("#l", "Karimov"); pg.fill("#p", "+998901112233"); pg.select_option("#rg", "Toshkent shahri")
     pg.click("#go"); pg.wait_for_timeout(900)
-    check("raqam band bo'lsa to'lovga o'tmaydi, sabab ko'rsatiladi", "5614" not in txt(pg) and "boshqa telefonda" in txt(pg), txt(pg)[-300:])
+    check("raqam band bo'lsa to'lovga o'tmaydi, Telegram orqali kirish taklif qilinadi", "5614" not in txt(pg) and "Telegram bilan kiring" in txt(pg), txt(pg)[-300:])
     del EXTRA["liga_join3"]
 
     print("5. Mashq rejimlari")
@@ -143,8 +162,8 @@ with sync_playwright() as p:
     check("kunlik mashq: 10 savol", r == 10, r)
     r = pg.evaluate("()=>{const r=__liga.run.startTopic('qqs'); return typeof r==='string'?r:r.queue.length}")
     check("yo'nalish (QQS): 10 savol", r == 10, r)
-    r = pg.evaluate("()=>{const a=__liga.run.startDuel('HMAH87'),b=__liga.run.startDuel('HMAH87');return [a.queue.map(x=>x.id).join(),b.queue.map(x=>x.id).join(),a.queue.length]}")
-    check("duel: ikkala o'yinchiga bir xil 10 savol", r[0] == r[1] and r[2] == 10, r)
+    r = pg.evaluate("()=>{const r=__liga.run.startTopic('amaliyot'); return typeof r==='string'?r:r.queue.length}")
+    check("yangi yo'nalish: Didox, my.soliq, 1C", r == 10, r)
     xp0 = S(pg, "S.xp"); go(pg, "lesson", {"id": "L05"}); pg.click("#go"); pg.wait_for_timeout(300)
     go(pg, "lesson", {"id": "L05"}); pg.click("#go"); pg.wait_for_timeout(300)
     check("mini-dars: +15 XP faqat bir marta", S(pg, "S.xp") == xp0 + 15, (xp0, S(pg, "S.xp")))
@@ -157,6 +176,14 @@ with sync_playwright() as p:
     check("duel yaratildi (server)", len(calls("liga_duel_create")) == 1)
     go(pg, "duel", {"code": "HMAH87"}); pg.wait_for_timeout(400)
     check("taklif qilingan duel: qabul tugmasi", pg.locator("#play").count() == 1)
+    CALLS.clear(); pg.click("#play"); pg.wait_for_timeout(600)
+    check("duel savollari serverdan", len(calls("liga_duel_start")) == 1 and pg.locator(".qtext").count() == 1)
+    for i in range(10):
+        answer(pg, i < 7)
+        pg.click("#nx"); pg.wait_for_timeout(300)
+    pg.wait_for_timeout(1300)
+    check("duel natijasi serverda hisoblandi (7/10)", "7/10" in txt(pg).replace(" ", ""), txt(pg)[:200])
+    check("duel tugagach bot xabardor qilindi", len(calls("bot:duel_done")) == 1)
     go(pg, "share", {"kind": "week"}); pg.wait_for_timeout(700)
     check("ulashish: kartochka rasmi chizildi", pg.locator("img[src^='data:image']").count() >= 1)
     check("taklif havolasi shaxsiy kod bilan", "S5HMGC" in pg.content())
@@ -194,8 +221,56 @@ with sync_playwright() as p:
     check("xodim testi sahifasi", "Bosh buxgalter lavozimiga test" in txt(pg))
     pg.click("#go"); pg.wait_for_timeout(300)
     check("ismsiz boshlanmaydi", pg.locator(".qtext").count() == 0)
-    pg.fill("#cn", "Nomzod Ikki"); pg.fill("#cp", "+998901234599"); pg.click("#go"); pg.wait_for_timeout(700)
-    check("test boshlandi", pg.locator(".qtext").count() == 1)
+    pg.fill("#cn", "Nomzod Ikki"); pg.fill("#cp", "+998901234599"); CALLS.clear(); pg.click("#go"); pg.wait_for_timeout(700)
+    check("test boshlandi (savollar serverdan)", pg.locator(".qtext").count() == 1 and len(calls("liga_test_begin")) == 1)
+    answer(pg, True)
+    a = calls("liga_run_answer")
+    check("nomzod javobi maxfiy kalit bilan tekshirildi", a and a[-1].get("p_secret") == "sek" and pg.locator(".stamp.ok").count() == 1, a[-1:] if a else a)
+
+    print("10b. Telegram orqali kirish")
+    EXTRA["bot:tg_login"] = {"found": True, "id": "p9", "token": "tok-tg", "first": "Ali", "last": "Valiyev", "phone": "+998901110000", "region": "Toshkent shahri", "group": "ASOSIY", "lang": "uz", "xp": 500, "ref_code": "ALI123"}
+    pg, e = page(b, seed={}, tg=True); pg.wait_for_timeout(900); ALLERR += e
+    check("Telegram ichida: ro'yxatsiz avtomatik kirildi", S(pg, "S.pid") == "p9" and S(pg, "S.token") == "tok-tg" and "Ali" in txt(pg), txt(pg)[:200])
+    del EXTRA["bot:tg_login"]
+    pg, e = page(b, seed={}); ALLERR += e
+    pg.click("text=O'zbekcha"); pg.wait_for_timeout(400)
+    check("brauzerda: «Telegram orqali kirish» kartasi", pg.locator("#tglogin").count() == 1)
+    EXTRA["liga_login_poll"] = {"id": "p8", "token": "tok-web", "first": "Vali", "last": "Aliyev", "phone": "+998901110001", "region": "Toshkent shahri", "group": "ASOSIY", "lang": "uz", "xp": 0}
+    with pg.expect_popup() as pop: pg.click("#tglogin")
+    pg.clock.fast_forward(3000); pg.wait_for_timeout(1200)
+    check("bot orqali tasdiqlangach ilovaga kirildi", S(pg, "S.pid") == "p8" and S(pg, "S.token") == "tok-web", (S(pg, "S.pid"), CALLS[-3:]))
+    del EXTRA["liga_login_poll"]
+
+    print("10c. Soliq taqvimi, yangiliklar, kalkulyator, bellashuv")
+    pg, e = page(b); ALLERR += e
+    check("bosh sahifada yaqin muddat kartasi (2 kun qoldi)", pg.locator(".deadline").count() == 1 and "2 kun qoldi" in txt(pg), txt(pg)[:400])
+    check("bosh sahifada qonun yangiligi", pg.locator(".news-card").count() == 1)
+    go(pg, "calendar")
+    check("taqvim ro'yxati", pg.locator(".cal-row").count() >= 3)
+    CALLS.clear(); pg.click("text=O'chirilgan"); pg.wait_for_timeout(300)
+    check("eslatmani o'chirish serverga yozildi", calls("liga_set_tax_remind") and calls("liga_set_tax_remind")[0].get("p_on") is False)
+    go(pg, "newsView", {"id": 7})
+    check("yangilik matni va manba", "5 kun ichida" in txt(pg) and "Manbani ochish" in txt(pg))
+    pg.click("#go"); pg.wait_for_timeout(400)
+    check("yangilik bo'yicha test", pg.locator(".qtext").count() == 1 and "necha kunda" in txt(pg))
+    go(pg, "calc")
+    check("ish haqi: 8 000 000 → qo'lga 7 040 000", "7 040 000" in txt(pg), txt(pg)[:500])
+    pg.click("text=QQS >> nth=0"); pg.wait_for_timeout(200)
+    check("QQS: 10 000 000 + 12% = 1 200 000", "1 200 000" in txt(pg) and "11 200 000" in txt(pg))
+    pg.click("text=Amortizatsiya"); pg.wait_for_timeout(200)
+    check("amortizatsiya: 60 mln / 5 yil = 12 000 000 yiliga", "12 000 000" in txt(pg) and "1 000 000" in txt(pg))
+    pg.evaluate("()=>__liga.nav.tab('rate')"); pg.wait_for_timeout(400)
+    check("jamoalar bellashuvi kartasi", "Qo'qon audit" in txt(pg) and "VS" in txt(pg))
+    pg.evaluate("()=>{__liga.st.S.superPin='24'; __liga.st.persist()}"); go(pg, "super"); pg.wait_for_timeout(400)
+    pg.click("text=Taqvim"); pg.wait_for_timeout(300)
+    check("superadmin: taqvim muharriri", "Yangi muddat" in txt(pg))
+    pg.click("text=Yangilik"); pg.wait_for_timeout(300)
+    check("superadmin: yangilik muharriri", "Yangi qonun yangiligi" in txt(pg))
+    pg.evaluate("()=>{__liga.st.S.superPin=''; __liga.st.S.adminPin='14'; __liga.st.persist()}"); go(pg, "admin"); pg.wait_for_timeout(500)
+    pg.click("text=Testlar"); pg.wait_for_timeout(400); pg.click("text=Natijalar"); pg.wait_for_timeout(300)
+    EXTRA_DET = None
+    pg.locator(".board .r").first.click(); pg.wait_for_timeout(400)
+    check("nomzod hisoboti (PDF) ochildi", "Nomzod hisoboti" in txt(pg) and "Nomzod Bir" in txt(pg), txt(pg)[:300])
 
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e

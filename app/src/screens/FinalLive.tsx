@@ -7,7 +7,7 @@ import { go, replace, toast } from "../lib/nav";
 import { Card, Empty, PageTitle } from "../components/ui";
 import { fmtD } from "../engine/time";
 import { rpc } from "../engine/server";
-import { startFinal } from "../engine/run";
+import { startFinalR } from "../engine/remote";
 
 const OY = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
 export const monthName = (m: string) => { const [y, mm] = String(m || "").split("-").map(Number); if (!mm) return ""; const n = t(OY[mm - 1]); return n.charAt(0).toUpperCase() + n.slice(1) + " " + y; };
@@ -64,7 +64,7 @@ export default function FinalLive() {
         </Card>
         <p className="small muted" style={{ fontWeight: 600 }}>{t("Jadval har 5 soniyada yangilanadi. Yakuniy natija 13:00 da e'lon qilinadi.")}</p>
       </div>
-      {can && <div className="dock"><button className="btn gold" id="fin" onClick={() => { const f = S.fin; if (!f) return toast(t("Final hozir yopiq")); replace("quiz", { run: startFinal(f.month) }); }}><Trophy size={18} />{t("Finalni boshlash")}</button></div>}
+      {can && <div className="dock"><button className="btn gold" id="fin" onClick={async () => { const f = S.fin; if (!f) return toast(t("Final hozir yopiq")); const r = await startFinalR(f.month); if (typeof r === "string") return toast(t(r)); replace("quiz", { run: r }); }}><Trophy size={18} />{t("Finalni boshlash")}</button></div>}
     </div>
   );
 }

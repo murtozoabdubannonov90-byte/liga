@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { ClipboardCheck, Clock3, ListChecks, ShieldAlert } from "lucide-react";
 import { S } from "../engine/state";
 import { t, setLang, getLang } from "../lib/i18n";
-import { rpc, errMsg } from "../engine/server";
-import { startTest, type Run } from "../engine/run";
+import { rpc } from "../engine/server";
+import type { Run } from "../engine/run";
+import { beginTestR } from "../engine/remote";
 import { Empty } from "../components/ui";
 import { Mark } from "./Onboard";
 import Quiz from "./Quiz";
@@ -16,9 +17,10 @@ export default function TestTaker({ code }: { code: string }) {
     let p = phone.replace(/[^\d+]/g, ""); if (/^\d{9}$/.test(p)) p = "+998" + p; if (/^998\d{9}$/.test(p)) p = "+" + p;
     if (name.trim().length < 3) return setErr(t("Ism va familiyani kiriting"));
     if (!/^\+998\d{9}$/.test(p)) return setErr(t("Telefon raqam: +998 XX XXX XX XX"));
-    try { const r = (await rpc<any[]>("liga_test_start", { p_code: code, p_name: name.trim(), p_phone: p }))[0];
-      const run = startTest(code, r.run_id, info.n, info.minutes); run.startedAt = new Date(r.started_at).getTime(); setRun(run); }
-    catch (e) { setErr(errMsg(e)); }
+    setErr(""); const r = await beginTestR(code, name.trim(), p);
+    if (typeof r === "string") return setErr(t(r));
+    if (!r.queue.length) return setErr(t("Siz bu testni allaqachon topshirgansiz"));
+    setRun(r);
   };
   if (run) return <Quiz run={run} />;
   if (info === undefined) return <div className="shell bare"><Empty>{t("Yuklanmoqda...")}</Empty></div>;

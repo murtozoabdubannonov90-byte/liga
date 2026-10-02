@@ -1,5 +1,6 @@
 /* Savol-javob jarayoni: bosqich, kunlik mashq, blits, xato daftari, sovg'a, yo'nalish, final, duel, xodim testi */
 import { S, persist } from "./state";
+import { tx } from "../lib/i18n";
 import { content, allTopicTasks, shuffle, srng, hstr, type Task, type Content } from "./data";
 import { addXP, addStageXP, award, dailyTick, saRec, saSettle, saBad, saLeft, markDay, giftCorrect } from "./score";
 import { unlocked, isWeekend, stageOpen, today, STAGE_N } from "./time";
@@ -10,6 +11,8 @@ export interface Run {
   mode: Mode; si: number | null; tp?: string; title: string; queue: Q[]; i: number; lives: number; maxLives: number;
   combo: number; mistakes: number; marks: ("" | "ok" | "bad")[]; earned: number; right: number; noXP: boolean; timed: boolean;
   startedAt: number; duel?: string; testRun?: string; testMinutes?: number; month?: string; fair: boolean; answers: { id: string; ok: boolean }[];
+  /* server o'yini (bosqich, final, duel, test): javoblar serverda tekshiriladi */
+  remote?: { id: string; secret?: string }; state?: any;
 }
 export const QSEC = 60;
 export const lang = () => S.lang || "uz";
@@ -30,15 +33,6 @@ function mk(mode: Mode, queue: Q[], o: Partial<Run> = {}): Run {
     noXP: false, timed: true, startedAt: Date.now(), fair: false, answers: [], ...o };
 }
 
-export function startStage(si: number): Run | string {
-  if (!stageOpen(si)) return "Bosqich hozir yopiq";
-  const rec = saSettle(si), all = C().STAGES[si].tasks.map((t, k) => ({ ...t, k }));
-  const tasks = all.filter((t) => !rec.m[t.k]);
-  if (!tasks.length) return "Bu bosqich bugun yakunlangan";
-  const r = mk("stage", tasks, { si, fair: true, title: C().STAGES[si].title });
-  r.marks = all.map((t) => (rec.m[t.k] || "") as any);
-  return r;
-}
 export function startDaily(): Run {
   const c = C(); let st: Task[] = []; openIdx().forEach((i) => st.push(...c.STAGES[i].tasks));
   const pool = shuffle(freshFirst(st).slice(0, 5).concat(freshFirst(allTopicTasks(c).concat(customTasks())).slice(0, 5)));
@@ -67,24 +61,12 @@ export function startTopic(id: string): Run | string {
   if (!tp || !tp.tasks.length) return "Bu yo'nalishda savol yo'q";
   return mk("topic", q(freshFirst(tp.tasks).slice(0, 10)), { tp: id, noXP: isWeekend(), title: tp.title });
 }
-/* oy va jamoa bo'yicha bir xil savollar (tilga bog'liq emas — id bo'yicha) */
-function seededSet(seed: string, n: { pv: number; calc: number; mc: number }): Q[] {
-  const R = srng(hstr(seed)), uz = content("uz");
-  const pool = allTopicTasks(uz).concat(uz.STAGES.reduce((a: Task[], st) => a.concat(st.tasks.slice(12)), []));
-  const mix = <T,>(a: T[]) => shuffle(a.slice(), R), all = mix(pool), take = (t: string, k: number) => all.filter((x) => x.t === t).slice(0, k);
-  const ids = mix(take("pv", n.pv).concat(take("calc", n.calc), take("mc", n.mc))).map((t) => t.id);
-  return q(ids.map((id) => C().TASKMAP[id]).filter(Boolean));
+/* qonun yangiligi bo'yicha qisqa test (superadmin yozgan savollar) */
+export function startNews(n: any): Run | string {
+  const qs: any[] = n?.qs || []; if (!qs.length) return "Hali savol yo'q";
+  const tasks = qs.map((x, k) => ({ t: "mc", q: tx(x.q), o: (x.o || []).map((s: string) => tx(s)), a: Number(x.a), e: tx(x.e || ""), id: "N" + n.id + "-" + k } as Task));
+  return mk("topic", q(tasks), { noXP: isWeekend(), title: "Qonun yangiligi" });
 }
-export function startFinal(month: string): Run {
-  const r = mk("final", seededSet("final|" + month + "|" + (S.group?.code || ""), { pv: 8, calc: 6, mc: 6 }), { lives: 99, maxLives: 0, noXP: true, fair: true, month, title: "Oylik final" });
-  S.finDone = S.finDone || {}; S.finDone[month] = true; S.finRun = { month, right: 0, done: 0, ms: 0, sent: false }; persist(); return r;
-}
-export function startDuel(code: string): Run { return mk("duel", seededSet("duel|" + code, { pv: 4, calc: 3, mc: 3 }), { lives: 99, maxLives: 0, noXP: true, fair: true, duel: code, title: "Duel" }); }
-export function startTest(code: string, runId: string, n: number, minutes: number): Run {
-  const per = Math.round(n * 0.4), calc = Math.round(n * 0.3);
-  return mk("test", seededSet("test|" + code, { pv: per, calc, mc: n - per - calc }), { lives: 99, maxLives: 0, noXP: true, fair: true, testRun: runId, testMinutes: minutes, title: "Test" });
-}
-
 /* ---------- javob ---------- */
 export interface Ans { dt?: string | null; kt?: string | null; pick?: number | null; opts?: { x: string; c: boolean }[]; val?: string }
 export function grade(t: Task, a: Ans): boolean {

@@ -13,13 +13,13 @@ export async function rpc<T = any>(fn: string, args?: Record<string, unknown>): 
 }
 export const ERR: Record<string, string> = {
   group_not_found: "Bunday jamoa kodi topilmadi yoki to'xtatilgan",
-  phone_taken: "Bu raqam boshqa telefonda ro'yxatdan o'tgan. Jamoa administratori «Qurilmani almashtirish» tugmasini bossin — keyin qayta ulaning",
+  phone_taken: "Bu raqam avval ro'yxatdan o'tgan. Yuqoridagi «Kirish» tugmasi orqali Telegram bilan kiring yoki administratorga murojaat qiling",
   bad_input: "Ma'lumotlarni tekshiring", too_many: "Juda ko'p urinish — birozdan keyin qayta urinib ko'ring",
   final_closed: "Final yopiq — faqat oyning oxirgi shanbasi 10:00–13:00", not_qualified: "Siz bu oy finalga saralanmagansiz",
   not_winner: "Taklif faqat o'tgan hafta g'olibi uchun", bad_image: "Chek rasmini qayta tanlang (JPG yoki PNG)",
   bad_token: "Hisobingiz bu telefonga ulanmagan — «Qayta ulanish» tugmasini bosing", duel_taken: "Bu duelni boshqa odam qabul qilgan",
   already_done: "Siz buni allaqachon bajargansiz", duel_expired: "Duel muddati tugagan", not_found: "Topilmadi",
-  test_closed: "Test yopilgan", not_eligible: "Sertifikat uchun shart bajarilmagan", not_admin: "PIN noto'g'ri",
+  test_closed: "Test yopilgan", not_eligible: "Sertifikat uchun shart bajarilmagan", not_admin: "PIN noto'g'ri", unpaid: "Ligaga qo'shilish uchun obuna kerak", stage_closed: "Bosqich hozir yopiq",
 };
 export function errKey(e: unknown): string { const m = String((e as any)?.message || e); return Object.keys(ERR).find((k) => m.includes(k)) || "net"; }
 export function errMsg(e: unknown): string { const k = errKey(e); return t(k === "net" ? "Serverga ulanib bo'lmadi — internetni tekshiring" : ERR[k]); }
@@ -85,7 +85,14 @@ export async function pull(force = false) {
       if (ch) S.champs = ch; if (wq) S.wq = wq[0] || null; if (fin) S.fin = fin[0] || null; if (reg) S.regL = reg;
       if (me && me[0]) { S.me = { ...me[0] }; S.tier = me[0].tier; }
       if (cq) S.customQ = cq; if (certs) S.certs = certs;
-      if (S.token) await mergeMe();
+      if (S.token) {
+        await mergeMe();
+        const st = await rpc<any[]>("liga_stage_status", { p_id: S.pid, p_token: S.token }).catch(() => null);
+        if (st) { const { setStageStatus } = await import("./remote"); setStageStatus(st); }
+      }
+      const [mi, nw, tc] = await Promise.all([rpc<any>("liga_match_info", { p_id: S.pid }).catch(() => null),
+        rpc<any[]>("liga_news_list").catch(() => null), rpc<any[]>("liga_tax_cal_list").catch(() => null)]);
+      if (mi) S.match = mi; if (nw) S.news = nw; if (tc) S.taxCal = tc;
     }
     rpc<any[]>("liga_pay_config2").then((c) => { if (c && c[0]) { S.payCfg = c[0]; persist(); } }).catch(() => {});
     if (S.adminPin) rpc<any[]>("liga_admin_list2", { p_pin: S.adminPin }).then((x) => { S.adminRows = x; persist(); }).catch(() => {});
@@ -109,6 +116,35 @@ export async function stageDoneNotify(si: number, right: number, total: number, 
 }
 /* Telegram'ga ulash havolasi (bot /start link_KOD) */
 export async function tgLinkCode(): Promise<string> { return rpc<string>("liga_tg_link_code", { p_id: S.pid, p_token: S.token }); }
+/* ---------- Telegram hisobi orqali kirish ---------- */
+export function applyLogin(d: any) {
+  S.pid = d.id; S.token = d.token; S.tokenLost = false; S.joinErr = "";
+  S.user = { first: d.first || "", last: d.last || "", phone: d.phone || "", region: d.region || S.user.region };
+  S.name = d.first || ""; S.group = { ...(S.group || {}), code: d.group || "ASOSIY" };
+  if (d.xp > S.xp) S.xp = d.xp;
+  if (!S.lang && d.lang) S.lang = d.lang;
+  S.me = { ...(S.me || {}), ref_code: d.ref_code };
+  if (inTelegram && tgUser()) S.tgLinked = String(tgUser().id) as any;
+  persist(); bump();
+}
+/* Telegram ichida: tasdiqlangan Telegram ID bo'yicha (yangi telefon, kompyuter — ro'yxatsiz kirish) */
+export async function tgLogin(): Promise<boolean> {
+  if (!inTelegram || !tgUser()) return false;
+  try { const d = await botApp("tg_login"); if (d && d.found) { applyLogin(d); return true; } } catch { /* */ }
+  return false;
+}
+/* brauzer / Android: bot orqali tasdiqlash (kod → bot → ilova kutadi) */
+export async function loginViaBot(open: (code: string) => void, onWait?: (left: number) => void): Promise<boolean> {
+  const code = await rpc<string>("liga_login_begin");
+  open(code);
+  const until = Date.now() + 5 * 60000;
+  while (Date.now() < until) {
+    await new Promise((r) => setTimeout(r, 2500));
+    onWait && onWait(Math.round((until - Date.now()) / 1000));
+    try { const d = await rpc<any>("liga_login_poll", { p_code: code }); if (d && d.token) { applyLogin(d); return true; } } catch { /* */ }
+  }
+  return false;
+}
 export async function linkTelegram() {
   if (!inTelegram || !S.pid || !S.token || !tgUser()) return;
   const uid = String(tgUser().id); if (S.tgLinked === uid as any) return;

@@ -3,3 +3,6 @@ node_modules/
 __pycache__/
 content/new/
 content/bank.json
+app/content/
+**/content/new/
+**/bank.json

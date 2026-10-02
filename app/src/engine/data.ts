@@ -4,6 +4,7 @@ import stagesRu from "../data/stages.ru.json";
 import accUz from "../data/accounts.uz.json";
 import accRu from "../data/accounts.ru.json";
 import lessonsRaw from "../data/lessons.json";
+import amaliyotRaw from "../data/amaliyot.json";
 import { buildTopics as topicsUz } from "../data/topics.uz";
 import { buildTopics as topicsRu } from "../data/topics.ru";
 import { cyr, type Lang } from "../lib/i18n";
@@ -28,6 +29,10 @@ export function content(lang: Lang): Content {
   let A: Record<string, string> = { ...(base === "ru" ? accRu : accUz) };
   let TOPICS: Topic[] = (base === "ru" ? topicsRu : topicsUz)(base === "ru" ? accRu : accUz, fmt) as Topic[];
   raw.forEach((st, si) => st.tasks.forEach((t, k) => { t.id = si + "-" + k; }));
+  /* amaliyot: Didox, my.soliq, 1C */
+  const am: any = amaliyotRaw;
+  TOPICS = TOPICS.concat([{ id: "amaliyot", icon: am.icon, title: base === "ru" ? am.title_ru : am.title_uz,
+    tasks: (base === "ru" ? am.ru : am.uz).map((t: any, k: number) => ({ ...t, id: "A-" + k, tp: "amaliyot" })) }]);
   let STAGES = raw;
   if (lang === "uzc") {
     STAGES = raw.map((s) => ({ ...s, title: cyr(s.title), story: cyr(s.story), theory: cyr(s.theory),

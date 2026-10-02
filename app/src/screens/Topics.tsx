@@ -1,4 +1,4 @@
-import { Receipt, Wallet, Factory, Package, Landmark, Globe, BookOpen, Users } from "lucide-react";
+import { Receipt, Wallet, Factory, Package, Landmark, Globe, BookOpen, Users, MonitorCog } from "lucide-react";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, toast } from "../lib/nav";
@@ -6,7 +6,7 @@ import { C, startTopic, customTasks } from "../engine/run";
 import { PageTitle } from "../components/ui";
 import { isWeekend } from "../engine/time";
 
-const IC: Record<string, any> = { qqs: Receipt, ish: Wallet, av: Factory, tmz: Package, sol: Landmark, mhxs: Globe, pro: BookOpen, jamoa: Users };
+const IC: Record<string, any> = { qqs: Receipt, ish: Wallet, av: Factory, tmz: Package, sol: Landmark, mhxs: Globe, pro: BookOpen, jamoa: Users, amaliyot: MonitorCog };
 export default function Topics() {
   const c = C(), cq = customTasks();
   const list = c.TOPICS.map((x) => ({ id: x.id, title: x.title, n: x.tasks.length })).concat(cq.length ? [{ id: "jamoa", title: t("Jamoa savollari"), n: cq.length }] : []);

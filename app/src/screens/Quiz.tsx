@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Flame, Heart, Zap, Share2, RotateCcw, Home as HomeI, Trophy, Clock3 } from "lucide-react";
 import { S, persist } from "../engine/state";
-import { t } from "../lib/i18n";
+import { t, tx } from "../lib/i18n";
 import { back, replace, setBackGuard, tab, toast, go } from "../lib/nav";
 import { C, QSEC, apply, finish, grade, markPending, giftReward, startBlitz, startDaily, startErrs, startTopic, startPractice, type Run, type Q, type Ans, type Fin } from "../engine/run";
 import { shuffle, fmt } from "../engine/data";
-import { saSettle, saBad, saRec } from "../engine/score";
+import { saSettle } from "../engine/score";
+import { answerR, showR, finishR, stageFinishedLocal, type RState } from "../engine/remote";
 import { stageOpen, closeStr } from "../engine/time";
 import { rpc, syncSoon, syncNow, errMsg, stageDoneNotify } from "../engine/server";
 import { sfx, burst } from "../lib/fx";
@@ -31,6 +32,7 @@ function Confirm({ text, yes, no, onYes, onNo }: { text: string; yes: string; no
 
 export default function Quiz({ run }: { run: Run }) {
   const r = run;
+  (window as any).__run = r; /* testlar uchun */
   const c = C();
   const [i, setI] = useState(r.i);
   const [ans, setAns] = useState<Ans>({ dt: null, kt: null, pick: null, val: "" });
@@ -40,6 +42,7 @@ export default function Quiz({ run }: { run: Run }) {
   const [fin, setFin] = useState<null | Fin>(null);
   const [ask, setAsk] = useState(false);
   const [extra, setExtra] = useState<any>(null);
+  const [busy, setBusy] = useState(false);
   const tq: Q = r.queue[i];
   const answered = useRef(false); const awayAt = useRef(0); answered.current = !!res;
   const qEnd = useRef(Date.now() + QSEC * 1000);
@@ -47,21 +50,25 @@ export default function Quiz({ run }: { run: Run }) {
   /* variantlar va hisobvaraq tugmalari — har savolda bir marta aralashtiriladi */
   const opts = useMemo(() => {
     if (!tq || tq.t !== "mc" || !tq.o) return [];
-    let o = tq.o.map((x, k) => ({ x: /^\d{4} /.test(x) ? x.slice(0, 4) : x, c: k === tq.a }));
-    if (tq.o.every((x) => /^\d{4}$/.test(x))) { const pool = shuffle(Object.keys(c.A).filter((k) => !tq.o!.includes(k))); pool.slice(0, 2).forEach((k) => o.push({ x: k, c: false })); }
+    /* i — asl tartibdagi o'rni (server shu raqam bilan tekshiradi); -1 — qo'shimcha chalg'ituvchi */
+    let o = tq.o.map((x, k) => ({ x: /^\d{4} /.test(x) ? x.slice(0, 4) : x, c: k === tq.a, i: k }));
+    if (tq.o.every((x) => /^\d{4}$/.test(x))) { const pool = shuffle(Object.keys(c.A).filter((k) => !tq.o!.includes(k))); pool.slice(0, 2).forEach((k) => o.push({ x: k, c: false, i: -1 })); }
     return shuffle(o);
   }, [i]);
   const keys = useMemo(() => {
     if (!tq || tq.t !== "pv") return [];
-    let pv = [...(tq.o || [tq.dt!, tq.kt!])]; if (!pv.includes(tq.dt!)) pv.push(tq.dt!); if (!pv.includes(tq.kt!)) pv.push(tq.kt!);
+    let pv = [...(tq.o || [tq.dt!, tq.kt!])].filter(Boolean); if (tq.dt && !pv.includes(tq.dt)) pv.push(tq.dt); if (tq.kt && !pv.includes(tq.kt)) pv.push(tq.kt);
     const pool = shuffle(Object.keys(c.A).filter((k) => !pv.includes(k)));
     return shuffle(pv.concat(pool.slice(0, Math.max(0, 8 - pv.length))).slice(0, 8));
   }, [i]);
 
   useEffect(() => {
     if (!tq) return;
-    markPending(r, tq); setAns({ dt: null, kt: null, pick: null, val: "" }); setActive("dt"); setRes(null);
+    if (!r.remote) markPending(r, tq);
+    setAns({ dt: null, kt: null, pick: null, val: "" }); setActive("dt"); setRes(null);
     qEnd.current = Date.now() + QSEC * 1000; setLeft(QSEC); window.scrollTo(0, 0);
+    /* server: savol ko'rsatildi — vaqt serverda shu paytdan; qayta ochilsa qolgan vaqt */
+    if (r.remote) { const cur = tq; showR(r, tq.k).then((sec) => { if (r.queue[r.i] === cur && !answered.current) qEnd.current = Date.now() + Math.max(0, sec) * 1000; }).catch(() => {}); }
   }, [i]);
 
   /* taymer */
@@ -98,10 +105,11 @@ export default function Quiz({ run }: { run: Run }) {
   useEffect(() => { setBackGuard(() => { if (fin) return true; setAsk(true); return false; }); return () => setBackGuard(null); }, [fin]);
 
   const canCheck = tq && (tq.t === "pv" ? !!(ans.dt && ans.kt) : tq.t === "mc" ? ans.pick != null : String(ans.val || "").replace(/\D/g, "") !== "");
-  function check(why: "time" | "left" | "" = "") {
-    if (!tq || answered.current) return;
+  async function check(why: "time" | "left" | "" = "") {
+    if (!tq || answered.current || busy) return;
     if (r.mode === "stage" && r.si != null && !stageOpen(r.si)) return onClosed();
     answered.current = true;
+    if (r.remote) return checkRemote(why);
     let ok = why ? false : grade(tq, { ...ans, opts });
     const a = apply(r, tq, ok);
     setRes({ ok, gain: a.gain, why });
@@ -110,6 +118,27 @@ export default function Quiz({ run }: { run: Run }) {
     if (r.mode === "final" && S.pid) rpc("liga_final_tick", { p_id: S.pid, p_token: S.token, p_right: r.right, p_done: r.answers.length }).catch(() => {});
     if (ok && r.combo === 5) toast(t("🔥 5 ketma-ket!"));
   }
+  /* server tekshiradi: javob yuboriladi, to'g'ri javob va izoh faqat shundan keyin keladi */
+  async function checkRemote(why: "time" | "left" | "") {
+    setBusy(true);
+    const payload = why === "left" ? { left: true } : tq.t === "pv" ? { dt: ans.dt, kt: ans.kt }
+      : tq.t === "mc" ? { pick: ans.pick != null ? (opts[ans.pick] as any)?.i ?? -1 : -1 } : { val: String(ans.val || "").replace(/\D/g, "") };
+    try {
+      const x = await answerR(r, tq.k, payload);
+      if (x.reveal.dt) tq.dt = x.reveal.dt; if (x.reveal.kt) tq.kt = x.reveal.kt; if (x.reveal.a != null) tq.a = Number(x.reveal.a);
+      tq.e = tx(x.reveal.e || "");
+      r.answers.push({ id: tq.id, ok: x.ok }); r.marks[tq.k] = x.ok ? "ok" : "bad"; r.earned += x.gain;
+      if (!x.ok) { r.mistakes++; if (r.maxLives) r.lives--; }
+      setRes({ ok: x.ok, gain: x.gain, why: x.why === "time" || x.why === "left" ? x.why : why });
+      sfx(x.ok ? "ok" : "bad"); if (x.ok && x.state.combo === 5) toast(t("🔥 5 ketma-ket!"));
+    } catch (e) {
+      answered.current = false; const m = String((e as any)?.message || e);
+      if (/stage_closed/.test(m)) return onClosed();
+      if (/test_closed|final_closed|already_done/.test(m)) { doFinish(true); return; }
+      toast(t("Serverga ulanib bo'lmadi — internetni tekshiring"));
+      if (why) setTimeout(() => check(why), 2500);
+    } finally { setBusy(false); }
+  }
   function next() {
     const last = i >= r.queue.length - 1;
     if (r.mode === "gift") return doGift();
@@ -117,9 +146,10 @@ export default function Quiz({ run }: { run: Run }) {
     if (last) return doFinish(true);
     r.i = i + 1; setI(i + 1);
   }
-  function onClosed() { if (r.si != null) saSettle(r.si); syncNow(); setFin({ passed: false, stars: 0, bonus: 0, dayBonus: 0, total: r.earned }); setExtra({ closed: true }); }
+  function onClosed() { if (!r.remote && r.si != null) saSettle(r.si); syncNow(); setFin({ passed: false, stars: 0, bonus: 0, dayBonus: 0, total: r.earned }); setExtra({ closed: true }); }
   function doGift() { const n = giftReward(!!res?.ok); setFin({ passed: true, stars: 0, bonus: 0, dayBonus: 0, total: n }); setExtra({ gift: n }); if (res?.ok) burst(); sfx("coin"); syncSoon(); }
   async function doFinish(passed: boolean) {
+    if (r.remote) return doFinishRemote();
     const f = finish(r, passed); setFin(f);
     const ms = Date.now() - r.startedAt;
     if (r.mode === "final") {
@@ -133,14 +163,34 @@ export default function Quiz({ run }: { run: Run }) {
     } else if (r.mode === "test" && r.testRun) {
       try { await rpc("liga_test_finish", { p_run: r.testRun, p_score: r.right, p_total: r.queue.length, p_ms: ms, p_detail: r.answers });
         setExtra({ sent: true, ms }); } catch (e) { setExtra({ sent: false, ms, err: errMsg(e) }); }
-    } else if (r.mode === "stage" && r.si != null && f.stageDone) {
-      const si = r.si, n = C().STAGES[si].tasks.length;
-      syncNow().then(() => stageDoneNotify(si, n - saBad(si), n, f.stars)).catch(() => {});
     } else syncNow();
     if (f.passed && (f.stars === 3 || f.newRecord || r.mode === "final")) { burst(true); sfx("win"); } else if (f.passed) { burst(); sfx("win"); }
   }
+  /* server o'yini yakuni: bosqich — yulduz/bonus serverdan; final/duel/test — natija serverda yozilgan */
+  async function doFinishRemote() {
+    let st = r.state as RState;
+    if (r.mode !== "stage" && !st?.finished) st = (await finishR(r)) || st;
+    if (r.mode === "stage" && r.si != null) {
+      const done = !!st?.finished, si = r.si;
+      const dayBonus = done ? stageFinishedLocal(si, st) : 0;
+      if (!done) { S.failed[si] = true; persist(); }
+      setFin({ passed: done, stars: st?.stars || 0, bonus: st?.bonus || 0, dayBonus, total: (st?.gain || 0) + (st?.bonus || 0) + dayBonus, stageDone: done });
+      syncNow().then(() => { if (done) stageDoneNotify(si, st.right_n, st.n, st.stars || 0); }).catch(() => {});
+      if (done) { burst(st.stars === 3); sfx("win"); }
+      return;
+    }
+    const ms = st?.ms ?? Date.now() - r.startedAt;
+    setFin({ passed: true, stars: 0, bonus: 0, dayBonus: 0, total: 0 }); setExtra({ sent: !!st?.finished, ms, err: st ? "" : t("Serverga ulanib bo'lmadi — internetni tekshiring") });
+    if (r.mode === "final") { S.finRun = { month: r.month, right: st?.right_n ?? r.right, done: st?.n, ms, sent: true }; persist(); }
+    if (r.mode === "duel" && r.duel) botNotify(r.duel);
+    burst(); sfx("win");
+  }
   const quit = () => {
     setAsk(false);
+    if (r.remote) {
+      if (r.mode === "stage") { if (!answered.current && tq) answerR(r, tq.k, { left: true }).catch(() => {}); syncNow(); back(); return; }
+      doFinish(true); return;
+    }
     if (r.mode === "stage") { if (!answered.current && tq) { r.mistakes++; } if (r.si != null) saSettle(r.si); syncNow(); back(); return; }
     if (["final", "duel", "test"].includes(r.mode)) { doFinish(true); return; }
     back();
@@ -184,7 +234,7 @@ export default function Quiz({ run }: { run: Run }) {
             }}>{k}</button>))}</div>
         </>}
         {tq.t === "mc" && <div className="opts">{opts.map((o, k) => {
-          const cls = res ? (o.c ? "right" : k === ans.pick ? "wrong" : "") : k === ans.pick ? "sel" : "";
+          const cls = res ? (o.i === Number(tq.a) ? "right" : k === ans.pick ? "wrong" : "") : k === ans.pick ? "sel" : "";
           return <button key={k} className={"opt " + cls} disabled={!!res} onClick={() => { sfx("tap"); setAns({ ...ans, pick: k }); }}>{o.x}</button>;
         })}</div>}
         {tq.t === "calc" && <div className="calc">
@@ -194,12 +244,12 @@ export default function Quiz({ run }: { run: Run }) {
           <div className="unit">{tq.unit || t("so'm")} — {t("faqat raqam")}</div></div>}
         <AnimatePresence>{res && <motion.div className={"stamp " + (res.ok ? "ok" : "bad")} initial={{ scale: 2.2, opacity: 0, rotate: -30 }} animate={{ scale: 1, opacity: 1, rotate: -12 }} transition={{ type: "spring", stiffness: 520, damping: 18 }}>{res.ok ? t("TO'G'RI") : t("XATO")}</motion.div>}</AnimatePresence>
       </motion.article>
-      {!res && <div className="dock"><button className="btn" id="chk" disabled={!canCheck} onClick={() => check()}>{t("Tekshirish")}</button></div>}
+      {!res && <div className="dock"><button className="btn" id="chk" disabled={!canCheck || busy} onClick={() => check()}>{busy ? t("Tekshirilmoqda...") : t("Tekshirish")}</button></div>}
       <AnimatePresence>{res && (
         <motion.div className={"sheet-fb " + (res.ok ? "ok" : "bad")} initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", stiffness: 420, damping: 38 }}>
           <div>
             <h4>{res.ok ? t("To'g'ri!") + (res.gain ? " +" + res.gain + " XP" : "") : res.why === "left" ? t("Ilovadan chiqildi — savol xato hisoblandi") : res.why === "time" ? t("Vaqt tugadi") : t("Xato — sababini ko'ring")}</h4>
-            {!res.ok && <p className="ans">{tq.t === "pv" ? `${t("To'g'ri provodka")}: Dt ${tq.dt} — Kt ${tq.kt}` : tq.t === "mc" ? `${t("To'g'ri javob")}: ${opts.find((o) => o.c)?.x}` : `${t("To'g'ri javob")}: ${fmt(Number(tq.a))} ${tq.unit || t("so'm")}`}</p>}
+            {!res.ok && <p className="ans">{tq.t === "pv" ? `${t("To'g'ri provodka")}: Dt ${tq.dt} — Kt ${tq.kt}` : tq.t === "mc" ? `${t("To'g'ri javob")}: ${opts.find((o) => o.i === Number(tq.a))?.x}` : `${t("To'g'ri javob")}: ${fmt(Number(tq.a))} ${tq.unit || t("so'm")}`}</p>}
             {!res.ok && tq.t === "pv" && <p className="small">{tq.dt} — {c.A[tq.dt!]}<br />{tq.kt} — {c.A[tq.kt!]}</p>}
             <p>{tq.e}</p>
             <button className={"btn " + (res.ok ? "ok" : "bad")} id="nx" onClick={next}>
@@ -214,15 +264,16 @@ export default function Quiz({ run }: { run: Run }) {
 }
 
 function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
-  const okN = r.answers.filter((a) => a.ok).length, badN = r.answers.length - okN;
+  const st = r.state as RState | undefined;
+  const okN = r.remote && st ? st.right_n : r.answers.filter((a) => a.ok).length, badN = r.remote && st ? st.done_n - st.right_n : r.answers.length - okN;
   const again = r.mode === "blitz" ? startBlitz : r.mode === "daily" ? startDaily : r.mode === "errs" ? startErrs : r.mode === "practice" ? startPractice : r.mode === "topic" && r.tp ? () => startTopic(r.tp!) : null;
   let title = t("Yakunlandi"), big: any = null;
   if (extra?.closed) title = t("Soat {c} — bosqich yopildi", { c: closeStr() });
   else if (r.mode === "gift") { title = extra?.gift > 25 ? t("Sovg'a ochildi!") : t("Qutida kichik sovg'a"); big = <>+<CountUp to={extra?.gift || 0} /> XP</>; }
   else if (r.mode === "blitz") { title = f.newRecord ? t("Yangi rekord!") : t("Blits yakunlandi"); big = <><CountUp to={r.right} />/{r.queue.length}</>; }
-  else if (r.mode === "final") { title = t("Final yakunlandi!"); big = <><CountUp to={r.right * 20} /> {t("ball")}</>; }
-  else if (r.mode === "duel") { title = t("Duel natijangiz"); big = <><CountUp to={r.right} />/{r.queue.length}</>; }
-  else if (r.mode === "test") { title = t("Test yakunlandi"); big = <><CountUp to={r.right} />/{r.queue.length}</>; }
+  else if (r.mode === "final") { title = t("Final yakunlandi!"); big = <><CountUp to={okN * 20} /> {t("ball")}</>; }
+  else if (r.mode === "duel") { title = t("Duel natijangiz"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
+  else if (r.mode === "test") { title = t("Test yakunlandi"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
   else if (!f.passed) title = t("Jonlar tugadi");
   else { title = r.mode === "stage" ? t("Bosqich yakunlandi!") : r.mode === "topic" ? t("Yo'nalish mashqi bajarildi!") : t("Mashq bajarildi!"); big = <>+<CountUp to={f.total} /> XP</>; }
   const mmss = (ms: number) => Math.floor(ms / 60000) + ":" + String(Math.floor(ms / 1000) % 60).padStart(2, "0");

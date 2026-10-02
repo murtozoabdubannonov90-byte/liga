@@ -4,6 +4,7 @@ import { S, persist } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, replace, toast, tab } from "../lib/nav";
 import { PageTitle, Card, Seg, Empty, copyText } from "../components/ui";
+import { TaxCalEditor, NewsEditor } from "./Tools";
 import { rpc, errMsg } from "../engine/server";
 import { fmtD } from "../engine/time";
 import { BOT_LINK } from "../lib/tg";
@@ -81,12 +82,12 @@ function CardSet() {
     </Card>);
 }
 export function Super() {
-  const [tb, setTb] = useState<"g" | "c" | "q">("g");
+  const [tb, setTb] = useState<"g" | "c" | "q" | "tc" | "nw">("g");
   return (
     <div className="shell bare"><PageTitle title={t("Superadmin")} />
       <div className="stack">
-        <Seg id="sup" value={tb} onChange={setTb} items={[["g", t("Jamoalar")], ["c", t("Karta")], ["q", t("Umumiy savollar")]]} />
-        {tb === "g" && <Groups />}{tb === "c" && <CardSet />}{tb === "q" && <QEditor pin={S.superPin!} />}
+        <Seg id="sup" value={tb} onChange={setTb} items={[["g", t("Jamoalar")], ["c", t("Karta")], ["q", t("Savollar")], ["tc", t("Taqvim")], ["nw", t("Yangilik")]]} />
+        {tb === "g" && <Groups />}{tb === "c" && <CardSet />}{tb === "q" && <QEditor pin={S.superPin!} />}{tb === "tc" && <TaxCalEditor />}{tb === "nw" && <NewsEditor />}
         <button className="btn ghost" onClick={() => { S.superPin = ""; persist(); tab("profile"); }}><LogOut size={18} />{t("Superadmin rejimidan chiqish")}</button>
       </div>
     </div>);

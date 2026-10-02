@@ -1,0 +1,910 @@
+{
+ "id": "amaliyot",
+ "icon": "🖥️",
+ "title_uz": "Amaliyot: Didox, my.soliq, 1C",
+ "title_ru": "Практика: Didox, my.soliq, 1C",
+ "uz": [
+  {
+   "t": "mc",
+   "q": "Elektron hisob-fakturani imzolashda ERI (elektron raqamli imzo) nima uchun kerak?",
+   "o": [
+    "Fakturadagi soliqni budjetga avtomatik to'laydi",
+    "Kim imzolaganini tasdiqlaydi va hujjat keyin o'zgartirilmaganini kafolatlaydi",
+    "Fakturani avtomatik PDF formatga aylantiradi",
+    "Faktura summasi va QQSni avtomatik hisoblaydi"
+   ],
+   "a": 1,
+   "e": "ERI — qo'lda qo'yilgan imzo va muhrning elektron o'rnini bosadi: imzolovchini aniqlaydi va hujjat yaxlitligini kafolatlaydi."
+  },
+  {
+   "t": "mc",
+   "q": "Didox'da sotuvchi e-faktura bilan ishlaganda to'g'ri ketma-ketlik qaysi?",
+   "o": [
+    "Yaratish → sotuvchi ERI bilan imzolab yuboradi → xaridor qabul qilib imzolaydi",
+    "Yaratish → xaridor to'lov qiladi → shundan keyin sotuvchi imzolaydi",
+    "Xaridor imzolaydi → sotuvchi yaratadi → sotuvchi yuboradi",
+    "Yaratish → soliq inspektori tasdiqlaydi → sotuvchi imzolaydi"
+   ],
+   "a": 0,
+   "e": "Fakturani sotuvchi yaratadi va imzolab yuboradi, xaridor uni qabul qiladi (o'z ERI bilan imzolaydi) yoki rad etadi."
+  },
+  {
+   "t": "mc",
+   "q": "Xaridor kelgan e-fakturani hali qabul qilmagan (imzolamagan). Bu faktura bo'yicha kirim QQS bilan nima bo'ladi?",
+   "o": [
+    "Faktura yaratilgan oyda avtomatik hisobga olinadi",
+    "Faktura to'langan bo'lsa, imzosiz ham hisobga olinadi",
+    "Sotuvchi imzolagani yetarli — darhol hisobga olinadi",
+    "Xaridor qabul qilib imzolamaguncha hisobga olinmaydi"
+   ],
+   "a": 3,
+   "e": "Kirim QQS faqat ikki tomon imzolagan (xaridor tasdiqlagan) e-faktura asosida hisobga olinadi. Shuning uchun kelgan fakturalarni o'z vaqtida qabul qilish muhim."
+  },
+  {
+   "t": "mc",
+   "q": "Kelgan e-fakturada tovar miqdori haqiqatda olinganidan ko'p ko'rsatilgan. Xaridor nima qilishi kerak?",
+   "o": [
+    "Qabul qiladi, ortiqcha QQSni keyingi oy o'zi kamaytiradi",
+    "Qabul qiladi, 1Cda esa kamroq miqdorni kirim qiladi",
+    "Sababini yozib fakturani rad etadi",
+    "Qabul qiladi va farqni kassadan sotuvchiga qaytaradi"
+   ],
+   "a": 2,
+   "e": "Noto'g'ri fakturani imzolab bo'lmaydi — u rad etiladi (izoh bilan), sotuvchi to'g'ri faktura yuboradi."
+  },
+  {
+   "t": "mc",
+   "q": "Sotuvchi fakturani imzolab yubordi, xaridor hali imzolamagan, lekin summada xato topildi. Sotuvchi uchun eng to'g'ri yo'l?",
+   "o": [
+    "Xatoni qog'ozda tuzatib, skanerini yuborish",
+    "Fakturani bekor qilib (qaytarib olib), to'g'ri fakturani qayta yuborish",
+    "Xaridorga qabul qilishni, keyin 1Cda tuzatishni aytish",
+    "Keyingi oy fakturasiga farqni qo'shib yuborish"
+   ],
+   "a": 1,
+   "e": "Xaridor imzolamaguncha sotuvchi fakturani bekor qilib, to'g'risini yuborishi mumkin — xato hujjat aylanmaga kirmaydi."
+  },
+  {
+   "t": "mc",
+   "q": "Ikki tomon imzolagan e-fakturada narx xatosi topildi. Odatda qanday tuzatiladi?",
+   "o": [
+    "Asl fakturaga havola bilan tuzatilgan (исправленный) e-faktura rasmiylashtiriladi",
+    "Faqat 1Cdagi provodkani o'zgartirish yetarli",
+    "Xatoni soliq inspektoriga og'zaki aytish yetarli",
+    "Imzolangan fakturani tahrirlab, qayta saqlanadi"
+   ],
+   "a": 0,
+   "e": "Imzolangan elektron hujjatni tahrirlab bo'lmaydi. Xato asl fakturaga bog'langan tuzatilgan faktura orqali to'g'rilanadi."
+  },
+  {
+   "t": "mc",
+   "q": "Elektron ishonchnoma (doverennost) nima uchun rasmiylashtiriladi?",
+   "o": [
+    "Direktorning ERI parolini xodimga rasman berish uchun",
+    "Soliq hisobotini kechiktirishga ruxsat olish uchun",
+    "Fakturadagi QQS stavkasini o'zgartirish uchun",
+    "Xodimga firma nomidan tovar-moddiy boyliklarni qabul qilish vakolatini berish uchun"
+   ],
+   "a": 3,
+   "e": "Ishonchnoma — muayyan xodimga yetkazib beruvchidan firma nomidan tovar qabul qilish huquqini beruvchi hujjat."
+  },
+  {
+   "t": "mc",
+   "q": "Tovar uchun elektron ishonchnomani qaysi tomon rasmiylashtiradi?",
+   "o": [
+    "Soliq inspeksiyasi",
+    "Xizmat ko'rsatuvchi bank",
+    "Tovarni oluvchi (xaridor) firma",
+    "Tovarni sotuvchi firma"
+   ],
+   "a": 2,
+   "e": "Ishonchnomani o'z xodimiga tovar oluvchi firma beradi; sotuvchi uni ko'rib, tovarni shu vakilga topshiradi."
+  },
+  {
+   "t": "mc",
+   "q": "E-fakturada har bir tovar qatori uchun qaysi identifikator majburiy ko'rsatiladi?",
+   "o": [
+    "To'lov topshiriqnomasi raqami",
+    "MXIK (IKPU) — Yagona elektron milliy katalog kodi",
+    "1Cdagi nomenklaturaning ichki kodi",
+    "Omborchining pasport ma'lumotlari"
+   ],
+   "a": 1,
+   "e": "Har bir tovar/xizmat qatorida MXIK (IKPU) kodi ko'rsatiladi — busiz faktura to'g'ri rasmiylashtirilmaydi."
+  },
+  {
+   "t": "mc",
+   "q": "Direktorning ERI kaliti muddati tugagan. Nima bo'ladi?",
+   "o": [
+    "U bilan hujjat imzolab bo'lmaydi — yangi kalit olish kerak",
+    "Faqat kalit parolini o'zgartirish yetarli",
+    "Kalit muddati avtomatik uzaytiriladi",
+    "Muddati tugasa ham imzolash odatdagidek davom etadi"
+   ],
+   "a": 0,
+   "e": "ERI kalitining amal qilish muddati bor. Muddati o'tgan kalit bilan imzolab bo'lmaydi, uni oldindan yangilash kerak."
+  },
+  {
+   "t": "mc",
+   "q": "Direktor ERI kaliti va parolini barcha xodimlarga berib qo'ydi. Asosiy xavf nima?",
+   "o": [
+    "Faktura summalari yaxlitlanib ketadi",
+    "Hech qanday xavf yo'q, bu odatiy amaliyot",
+    "Kalit tezroq eskiradi",
+    "Uning nomidan istalgan hujjat imzolanishi mumkin — imzo direktorniki hisoblanadi"
+   ],
+   "a": 3,
+   "e": "ERI bilan qo'yilgan imzo egasining imzosi hisoblanadi. Kalitni boshqalarga berish nazoratsiz imzolashga olib keladi."
+  },
+  {
+   "t": "mc",
+   "q": "Firmaning soliq bo'yicha qarzi yoki ortiqcha to'lovini my.soliq.uz kabinetida qayerdan ko'rasiz?",
+   "o": [
+    "Aylanma-saldo qaydnomasidan",
+    "Elektron ishonchnomalar ro'yxatidan",
+    "Shaxsiy hisob varag'idan (лицевой счёт)",
+    "Kassa kitobidan"
+   ],
+   "a": 2,
+   "e": "Shaxsiy hisob varag'i soliq turlari bo'yicha hisob-kitob holatini — qarz yoki ortiqcha to'lovni ko'rsatadi."
+  },
+  {
+   "t": "mc",
+   "q": "Soliq to'lovchining shaxsiy hisob varag'ida nimalar aks etadi?",
+   "o": [
+    "Faqat ombordagi tovar qoldiqlari",
+    "Har bir soliq bo'yicha hisoblangan, to'langan summalar va saldo",
+    "Faqat firmaning bank hisob raqamlari",
+    "Faqat firma xodimlari ro'yxati"
+   ],
+   "a": 1,
+   "e": "Unda har bir soliq turi bo'yicha hisoblangan va to'langan summalar hamda qoldiq (qarz yoki ortiqcha to'lov) ko'rinadi."
+  },
+  {
+   "t": "mc",
+   "q": "Shaxsiy hisob varag'ida bitta soliq bo'yicha ortiqcha to'lov bor. Undan qanday foydalanish mumkin?",
+   "o": [
+    "Ariza bilan boshqa soliq qarziga hisoblash yoki qaytarib olish",
+    "Faqat naqd pulda soliq inspeksiyasidan olinadi",
+    "Avtomatik ravishda xodimlar oyligiga o'tkaziladi",
+    "Undan hech qachon foydalanib bo'lmaydi"
+   ],
+   "a": 0,
+   "e": "Ortiqcha to'langan soliq ariza asosida boshqa soliqlar bo'yicha qarzga hisoblanadi yoki qaytariladi."
+  },
+  {
+   "t": "mc",
+   "q": "Soliq organi bilan hisob-kitoblar holatini rasmiy tasdiqlash uchun qaysi hujjat olinadi?",
+   "o": [
+    "Tovar-transport yuk xati",
+    "Kassa kirim orderi",
+    "Elektron ishonchnoma",
+    "Solishtirma dalolatnoma (akt sverki)"
+   ],
+   "a": 3,
+   "e": "Solishtirma dalolatnoma firma va soliq organi ma'lumotlarini solishtiradi va qoldiqni tasdiqlaydi."
+  },
+  {
+   "t": "mc",
+   "q": "1Cda 6410 bo'yicha soliq qarzi solishtirma dalolatnomadagidan farq qiladi. Birinchi qadam nima?",
+   "o": [
+    "Farqni darhol 9430 ga xarajat qilib yozish",
+    "Dalolatnomani e'tiborsiz qoldirish",
+    "Har bir soliq bo'yicha hisoblash va to'lovlarni solishtirib, farq sababini topish",
+    "1Cdagi summani dalolatnomaga moslab o'zgartirib qo'yish"
+   ],
+   "a": 2,
+   "e": "Avval sabab topiladi: hisoblanmagan soliq, noto'g'ri yo'naltirilgan to'lov yoki hisobot xatosi. Keyin tegishli tomon tuzatadi."
+  },
+  {
+   "t": "mc",
+   "q": "my.soliq.uz orqali yuboriladigan soliq hisoboti qanday tasdiqlanadi?",
+   "o": [
+    "Muhrli qog'oz nusxa pochta orqali yuboriladi",
+    "Rahbar yoki vakolatli shaxsning ERI bilan imzolanadi",
+    "Skaneri elektron pochtaga yuboriladi",
+    "Hech qanday imzo talab qilinmaydi"
+   ],
+   "a": 1,
+   "e": "Elektron hisobot ERI bilan imzolanadi — bu uni topshirgan shaxsni tasdiqlaydi."
+  },
+  {
+   "t": "mc",
+   "q": "Topshirilgan soliq hisobotida xato topildi. Qanday tuzatiladi?",
+   "o": [
+    "Shu davr uchun aniqlashtirilgan (tuzatuvchi) hisobot topshiriladi",
+    "Xato keyingi yil hisobotida to'g'rilanadi",
+    "Eski hisobot kabinetdan o'chirib tashlanadi",
+    "Hech narsa qilinmaydi, xato o'zi tuzaladi"
+   ],
+   "a": 0,
+   "e": "Xato o'sha davr uchun aniqlashtirilgan hisobot bilan tuzatiladi; qo'shimcha soliq chiqsa, uni to'lash kerak."
+  },
+  {
+   "t": "mc",
+   "q": "Soliq to'lov muddatidan kechikib to'lansa, shaxsiy hisob varag'ida qo'shimcha nima hisoblanadi?",
+   "o": [
+    "Kirim QQS",
+    "Amortizatsiya",
+    "Dividend",
+    "Penya — kechikkan har bir kun uchun"
+   ],
+   "a": 3,
+   "e": "Soliq o'z vaqtida to'lanmasa, kechiktirilgan kunlar uchun penya hisoblanadi."
+  },
+  {
+   "t": "mc",
+   "q": "1Cda yetkazib beruvchidan tovar kelganini qaysi hujjat bilan kiritasiz?",
+   "o": [
+    "«Закрытие месяца»",
+    "«Реализация товаров и услуг»",
+    "«Поступление товаров и услуг»",
+    "«Приходный кассовый ордер»"
+   ],
+   "a": 2,
+   "e": "Tovar va xizmatlar kirimi «Поступление товаров и услуг» hujjati bilan rasmiylashtiriladi."
+  },
+  {
+   "t": "mc",
+   "q": "1Cda xaridorga tovar jo'natilgani qaysi hujjat bilan aks ettiriladi?",
+   "o": [
+    "«Выписка банка»",
+    "«Реализация товаров и услуг»",
+    "«Поступление товаров и услуг»",
+    "«Начисление зарплаты»"
+   ],
+   "a": 1,
+   "e": "Sotuv (jo'natish) «Реализация товаров и услуг» bilan kiritiladi — u daromad va tannarx provodkalarini hosil qiladi."
+  },
+  {
+   "t": "mc",
+   "q": "1Cda kassaga naqd pul kirimi qaysi hujjat bilan rasmiylashtiriladi?",
+   "o": [
+    "ПКО — «Приходный кассовый ордер»",
+    "«Выписка банка»",
+    "РКО — «Расходный кассовый ордер»",
+    "«Поступление товаров и услуг»"
+   ],
+   "a": 0,
+   "e": "Kassaga kirim — ПКО (приходный), kassadan chiqim — РКО (расходный) kassa orderi."
+  },
+  {
+   "t": "mc",
+   "q": "Xaridor hisob raqamimizga pul o'tkazdi. 1Cda bu qaysi hujjat orqali kiritiladi?",
+   "o": [
+    "«Реализация товаров и услуг»",
+    "«Приходный кассовый ордер»",
+    "«Закрытие месяца»",
+    "«Выписка банка»"
+   ],
+   "a": 3,
+   "e": "Hisob raqamidagi kirim va chiqimlar bank ko'chirmasi asosida «Выписка банка» orqali kiritiladi."
+  },
+  {
+   "t": "mc",
+   "q": "Oy oxirida xodimlarga ish haqi hisoblash uchun 1Cda qaysi hujjat ishlatiladi?",
+   "o": [
+    "«Расходный кассовый ордер»",
+    "«Карточка счёта»",
+    "«Начисление зарплаты»",
+    "«Поступление товаров и услуг»"
+   ],
+   "a": 2,
+   "e": "Ish haqi «Начисление зарплаты» bilan hisoblanadi; to'lov esa alohida (РКО yoki bank orqali) rasmiylashtiriladi."
+  },
+  {
+   "t": "mc",
+   "q": "1Cdagi «Закрытие месяца» nima qiladi?",
+   "o": [
+    "Oy davomidagi barcha hujjatlarni o'chiradi",
+    "Oy yakunidagi muntazam operatsiyalarni (amortizatsiya, tannarx va h.k.) bajaradi",
+    "Dasturga kirishni keyingi oygacha bloklaydi",
+    "Soliq hisobotini my.soliq.uz'ga avtomatik yuboradi"
+   ],
+   "a": 1,
+   "e": "«Закрытие месяца» oy oxiridagi reglament operatsiyalarni bajaradi: amortizatsiya, tannarxni hisoblash, schyotlarni yopish."
+  },
+  {
+   "t": "mc",
+   "q": "ОСВ (aylanma-saldo qaydnomasi) har bir schyot bo'yicha nimani ko'rsatadi?",
+   "o": [
+    "Boshlang'ich qoldiq, debet va kredit aylanma, oxirgi qoldiq",
+    "Faqat schyotdagi oxirgi provodka",
+    "Faqat xodimlar bo'yicha oylik summalar",
+    "Faqat soliq inspeksiyasi bilan solishtirma natijasi"
+   ],
+   "a": 0,
+   "e": "ОСВ har bir schyot bo'yicha davr boshidagi saldo, davr aylanmalari va davr oxiridagi saldoni beradi."
+  },
+  {
+   "t": "mc",
+   "q": "Bitta xaridor bilan 4010 bo'yicha barcha operatsiyalarni sana tartibida, qoldiq bilan ko'rish uchun 1Cda nima ochiladi?",
+   "o": [
+    "«Закрытие месяца»",
+    "«Приходный кассовый ордер»",
+    "«Начисление зарплаты»",
+    "«Карточка счёта» (shu xaridor bo'yicha)"
+   ],
+   "a": 3,
+   "e": "Schyot kartochkasi har bir operatsiyani sana bo'yicha, korrespondent schyot va joriy qoldiq bilan ko'rsatadi."
+  },
+  {
+   "t": "mc",
+   "q": "1Cda hujjat saqlandi (записан), lekin o'tkazilmadi (не проведён). Natija qanday?",
+   "o": [
+    "Hujjat avtomatik my.soliq.uz'ga yuboriladi",
+    "Hujjat faqat ОСВda ko'rinadi",
+    "Provodkalar hosil bo'lmaydi — hisobotlarda aks etmaydi",
+    "Provodkalar ikki marta hosil bo'ladi"
+   ],
+   "a": 2,
+   "e": "Faqat o'tkazilgan (проведён) hujjat provodka hosil qiladi. Saqlangan, lekin o'tkazilmagan hujjat hisobga ta'sir qilmaydi."
+  },
+  {
+   "t": "mc",
+   "q": "Oy yopilgandan keyin o'sha oydagi kirim hujjati summasi o'zgartirildi. Keyin nima qilish kerak?",
+   "o": [
+    "Tuzatishni faqat keyingi yil boshida qilish",
+    "O'sha oy uchun «Закрытие месяца»ni qayta bajarish",
+    "Hech narsa — natijalar o'zgarmaydi",
+    "Butun bazani qaytadan o'rnatish"
+   ],
+   "a": 1,
+   "e": "Kirim summasi o'zgarsa, tannarx va moliyaviy natija ham o'zgaradi — shuning uchun oy yopilishi qayta bajariladi."
+  },
+  {
+   "t": "mc",
+   "q": "Didox'da qabul qilingan kirim fakturalari 1C bilan solishtirildi: bitta faktura 1Cga kiritilmagan. Oqibati?",
+   "o": [
+    "Tovar va kirim QQS 1Cda kam ko'rsatilgan — hisobotlar noto'g'ri bo'ladi",
+    "Firmaning daromadi oshib ketadi",
+    "Faqat sotuvchining hisobi buziladi",
+    "Hech qanday ta'siri yo'q"
+   ],
+   "a": 0,
+   "e": "Kiritilmagan faktura — qoldiq, yetkazib beruvchi qarzi va kirim QQS kam ko'rsatilgan degani. Shuning uchun Didox va 1C muntazam solishtiriladi."
+  },
+  {
+   "t": "pv",
+   "q": "Didox orqali kelgan e-faktura qabul qilindi va «Поступление товаров и услуг» bilan tovar omborga kirim qilindi (QQSsiz summa), to'lov keyin.",
+   "dt": "2910",
+   "kt": "6010",
+   "o": [
+    "5110",
+    "2910",
+    "4010",
+    "6010",
+    "9120",
+    "4310"
+   ],
+   "e": "Tovar ko'paydi (Dt 2910), yetkazib beruvchiga qarz (Kt 6010)."
+  },
+  {
+   "t": "pv",
+   "q": "Xaridor imzolagan (qabul qilgan) e-faktura bo'yicha kirim QQS 1Cda aks ettirildi.",
+   "dt": "4410",
+   "kt": "6010",
+   "o": [
+    "4410",
+    "6410",
+    "6010",
+    "2910",
+    "9430",
+    "5110"
+   ],
+   "e": "Kirim QQS — budjetga bo'nak (Dt 4410), yetkazib beruvchiga qarz (Kt 6010)."
+  },
+  {
+   "t": "pv",
+   "q": "«Реализация товаров и услуг» o'tkazildi: xaridorga tovar jo'natildi, daromad (QQSsiz) aks ettirildi.",
+   "dt": "4010",
+   "kt": "9020",
+   "o": [
+    "9020",
+    "6310",
+    "4010",
+    "2910",
+    "9120",
+    "5010"
+   ],
+   "e": "Xaridor qarzi paydo bo'ldi (Dt 4010), tovar sotishdan daromad (Kt 9020)."
+  },
+  {
+   "t": "pv",
+   "q": "«Выписка банка» bo'yicha: yetkazib beruvchiga faktura summasi hisob raqamidan to'landi.",
+   "dt": "6010",
+   "kt": "5110",
+   "o": [
+    "4310",
+    "5110",
+    "6010",
+    "5010",
+    "4010",
+    "6410"
+   ],
+   "e": "Qarz yopildi (Dt 6010), bank kamaydi (Kt 5110)."
+  },
+  {
+   "t": "pv",
+   "q": "РКО bilan hisoblangan oylik xodimga kassadan naqd berildi.",
+   "dt": "6710",
+   "kt": "5010",
+   "o": [
+    "5010",
+    "9420",
+    "6410",
+    "5110",
+    "6710",
+    "4220"
+   ],
+   "e": "Xodimga qarz yopildi (Dt 6710), kassa kamaydi (Kt 5010)."
+  },
+  {
+   "t": "pv",
+   "q": "«Начисление зарплаты» bilan buxgalterga oylik ish haqi hisoblandi.",
+   "dt": "9420",
+   "kt": "6710",
+   "o": [
+    "6710",
+    "2010",
+    "5010",
+    "9410",
+    "9420",
+    "6410"
+   ],
+   "e": "Ma'muriy xodim oyligi — davr xarajati (Dt 9420), xodim oldida qarz (Kt 6710)."
+  }
+ ],
+ "ru": [
+  {
+   "t": "mc",
+   "q": "Зачем нужна ЭЦП (электронная цифровая подпись) при подписании электронного счёта-фактуры?",
+   "o": [
+    "Автоматически перечисляет налог по фактуре в бюджет",
+    "Подтверждает, кто подписал, и гарантирует, что документ не изменён после подписи",
+    "Автоматически преобразует фактуру в формат PDF",
+    "Автоматически рассчитывает сумму и НДС по фактуре"
+   ],
+   "a": 1,
+   "e": "ЭЦП заменяет собственноручную подпись и печать: идентифицирует подписанта и гарантирует целостность документа."
+  },
+  {
+   "t": "mc",
+   "q": "Какова правильная последовательность работы продавца с ЭСФ в Didox?",
+   "o": [
+    "Создание → продавец подписывает ЭЦП и отправляет → покупатель принимает и подписывает",
+    "Создание → покупатель оплачивает → только потом продавец подписывает",
+    "Покупатель подписывает → продавец создаёт → продавец отправляет",
+    "Создание → налоговый инспектор утверждает → продавец подписывает"
+   ],
+   "a": 0,
+   "e": "Фактуру создаёт и подписывает продавец, покупатель принимает её (подписывает своей ЭЦП) или отклоняет."
+  },
+  {
+   "t": "mc",
+   "q": "Покупатель ещё не принял (не подписал) входящий ЭСФ. Что происходит с входящим НДС по этой фактуре?",
+   "o": [
+    "Автоматически зачитывается в месяце создания фактуры",
+    "Если фактура оплачена, зачитывается и без подписи",
+    "Достаточно подписи продавца — зачёт сразу",
+    "Не принимается к зачёту, пока покупатель не примет и не подпишет фактуру"
+   ],
+   "a": 3,
+   "e": "Входящий НДС зачитывается только по ЭСФ, подписанному обеими сторонами (подтверждённому покупателем). Поэтому входящие фактуры важно принимать вовремя."
+  },
+  {
+   "t": "mc",
+   "q": "Во входящем ЭСФ количество товара больше фактически полученного. Что должен сделать покупатель?",
+   "o": [
+    "Принять, а лишний НДС самостоятельно уменьшить в следующем месяце",
+    "Принять, а в 1С оприходовать меньшее количество",
+    "Отклонить фактуру с указанием причины",
+    "Принять и вернуть разницу продавцу из кассы"
+   ],
+   "a": 2,
+   "e": "Неверную фактуру подписывать нельзя — её отклоняют (с комментарием), продавец присылает правильную."
+  },
+  {
+   "t": "mc",
+   "q": "Продавец подписал и отправил фактуру, покупатель ещё не подписал, но в сумме найдена ошибка. Как правильнее поступить продавцу?",
+   "o": [
+    "Исправить ошибку на бумаге и отправить скан",
+    "Отменить (отозвать) фактуру и отправить правильную заново",
+    "Попросить покупателя принять, а потом исправить в 1С",
+    "Добавить разницу в фактуру следующего месяца"
+   ],
+   "a": 1,
+   "e": "Пока покупатель не подписал, продавец может отменить фактуру и отправить правильную — ошибочный документ не попадает в оборот."
+  },
+  {
+   "t": "mc",
+   "q": "В подписанном обеими сторонами ЭСФ обнаружена ошибка в цене. Как это обычно исправляется?",
+   "o": [
+    "Оформляется исправленный ЭСФ со ссылкой на исходную фактуру",
+    "Достаточно изменить проводку в 1С",
+    "Достаточно устно сообщить об ошибке налоговому инспектору",
+    "Подписанную фактуру редактируют и сохраняют заново"
+   ],
+   "a": 0,
+   "e": "Подписанный электронный документ редактировать нельзя. Ошибка исправляется исправленной фактурой, привязанной к исходной."
+  },
+  {
+   "t": "mc",
+   "q": "Для чего оформляется электронная доверенность?",
+   "o": [
+    "Чтобы официально передать сотруднику пароль ЭЦП директора",
+    "Чтобы получить разрешение на отсрочку налогового отчёта",
+    "Чтобы изменить ставку НДС в фактуре",
+    "Чтобы уполномочить сотрудника получать ТМЦ от имени фирмы"
+   ],
+   "a": 3,
+   "e": "Доверенность — документ, дающий конкретному сотруднику право получать товар у поставщика от имени фирмы."
+  },
+  {
+   "t": "mc",
+   "q": "Какая сторона оформляет электронную доверенность на получение товара?",
+   "o": [
+    "Налоговая инспекция",
+    "Обслуживающий банк",
+    "Фирма-получатель товара (покупатель)",
+    "Фирма-продавец товара"
+   ],
+   "a": 2,
+   "e": "Доверенность своему сотруднику выдаёт фирма-получатель; продавец проверяет её и передаёт товар этому представителю."
+  },
+  {
+   "t": "mc",
+   "q": "Какой идентификатор обязательно указывается в ЭСФ по каждой товарной строке?",
+   "o": [
+    "Номер платёжного поручения",
+    "ИКПУ (MXIK) — код Единого электронного национального каталога",
+    "Внутренний код номенклатуры в 1С",
+    "Паспортные данные кладовщика"
+   ],
+   "a": 1,
+   "e": "В каждой строке товара/услуги указывается код ИКПУ (MXIK) — без него фактура оформлена неправильно."
+  },
+  {
+   "t": "mc",
+   "q": "У ключа ЭЦП директора истёк срок действия. Что произойдёт?",
+   "o": [
+    "Подписывать им документы нельзя — нужно получить новый ключ",
+    "Достаточно сменить пароль ключа",
+    "Срок ключа продлевается автоматически",
+    "Подписание продолжается как обычно"
+   ],
+   "a": 0,
+   "e": "У ключа ЭЦП есть срок действия. Просроченным ключом подписывать нельзя, его нужно обновить заранее."
+  },
+  {
+   "t": "mc",
+   "q": "Директор передал ключ ЭЦП и пароль всем сотрудникам. В чём главный риск?",
+   "o": [
+    "Суммы фактур начнут округляться",
+    "Никакого риска, это обычная практика",
+    "Ключ быстрее устареет",
+    "От его имени можно подписать любой документ — подпись считается директорской"
+   ],
+   "a": 3,
+   "e": "Подпись ЭЦП считается подписью владельца. Передача ключа другим ведёт к бесконтрольному подписанию."
+  },
+  {
+   "t": "mc",
+   "q": "Где в кабинете my.soliq.uz посмотреть задолженность или переплату фирмы по налогам?",
+   "o": [
+    "В оборотно-сальдовой ведомости",
+    "В списке электронных доверенностей",
+    "В лицевом счёте налогоплательщика",
+    "В кассовой книге"
+   ],
+   "a": 2,
+   "e": "Лицевой счёт показывает состояние расчётов по видам налогов — задолженность или переплату."
+  },
+  {
+   "t": "mc",
+   "q": "Что отражается в лицевом счёте налогоплательщика?",
+   "o": [
+    "Только остатки товаров на складе",
+    "Начисленные и уплаченные суммы и сальдо по каждому налогу",
+    "Только банковские счета фирмы",
+    "Только список сотрудников фирмы"
+   ],
+   "a": 1,
+   "e": "В нём видны начисленные и уплаченные суммы по каждому виду налога и сальдо (задолженность или переплата)."
+  },
+  {
+   "t": "mc",
+   "q": "В лицевом счёте есть переплата по одному налогу. Как её можно использовать?",
+   "o": [
+    "По заявлению зачесть в счёт долга по другому налогу или вернуть",
+    "Получить только наличными в налоговой инспекции",
+    "Она автоматически переводится на зарплату сотрудникам",
+    "Использовать её никогда нельзя"
+   ],
+   "a": 0,
+   "e": "Переплата по заявлению засчитывается в счёт задолженности по другим налогам или возвращается."
+  },
+  {
+   "t": "mc",
+   "q": "Какой документ получают для официального подтверждения состояния расчётов с налоговым органом?",
+   "o": [
+    "Товарно-транспортная накладная",
+    "Приходный кассовый ордер",
+    "Электронная доверенность",
+    "Акт сверки"
+   ],
+   "a": 3,
+   "e": "Акт сверки сопоставляет данные фирмы и налогового органа и подтверждает сальдо."
+  },
+  {
+   "t": "mc",
+   "q": "Долг по налогам на счёте 6410 в 1С не совпадает с актом сверки. Каков первый шаг?",
+   "o": [
+    "Сразу списать разницу в расходы на 9430",
+    "Не обращать внимания на акт сверки",
+    "Сверить начисления и платежи по каждому налогу и найти причину расхождения",
+    "Подогнать сумму в 1С под акт сверки"
+   ],
+   "a": 2,
+   "e": "Сначала ищут причину: неначисленный налог, неверно направленный платёж или ошибка в отчёте. Затем исправляет нужная сторона."
+  },
+  {
+   "t": "mc",
+   "q": "Как подтверждается налоговый отчёт, отправляемый через my.soliq.uz?",
+   "o": [
+    "Бумажная копия с печатью отправляется по почте",
+    "Подписывается ЭЦП руководителя или уполномоченного лица",
+    "Скан отправляется по электронной почте",
+    "Подпись не требуется"
+   ],
+   "a": 1,
+   "e": "Электронный отчёт подписывается ЭЦП — это подтверждает лицо, сдавшее отчёт."
+  },
+  {
+   "t": "mc",
+   "q": "В сданном налоговом отчёте найдена ошибка. Как её исправить?",
+   "o": [
+    "Сдать уточнённый (корректирующий) отчёт за тот же период",
+    "Исправить в отчёте следующего года",
+    "Удалить старый отчёт из кабинета",
+    "Ничего не делать, ошибка исправится сама"
+   ],
+   "a": 0,
+   "e": "Ошибка исправляется уточнённым отчётом за тот же период; если доначислен налог, его нужно уплатить."
+  },
+  {
+   "t": "mc",
+   "q": "Что дополнительно начисляется в лицевом счёте, если налог уплачен с опозданием?",
+   "o": [
+    "Входящий НДС",
+    "Амортизация",
+    "Дивиденды",
+    "Пеня — за каждый день просрочки"
+   ],
+   "a": 3,
+   "e": "Если налог не уплачен вовремя, за дни просрочки начисляется пеня."
+  },
+  {
+   "t": "mc",
+   "q": "Каким документом в 1С отражают поступление товара от поставщика?",
+   "o": [
+    "«Закрытие месяца»",
+    "«Реализация товаров и услуг»",
+    "«Поступление товаров и услуг»",
+    "«Приходный кассовый ордер»"
+   ],
+   "a": 2,
+   "e": "Поступление товаров и услуг оформляется документом «Поступление товаров и услуг»."
+  },
+  {
+   "t": "mc",
+   "q": "Каким документом в 1С отражается отгрузка товара покупателю?",
+   "o": [
+    "«Выписка банка»",
+    "«Реализация товаров и услуг»",
+    "«Поступление товаров и услуг»",
+    "«Начисление зарплаты»"
+   ],
+   "a": 1,
+   "e": "Продажа (отгрузка) вводится документом «Реализация товаров и услуг» — он формирует проводки по выручке и себестоимости."
+  },
+  {
+   "t": "mc",
+   "q": "Каким документом в 1С оформляется поступление наличных в кассу?",
+   "o": [
+    "ПКО — «Приходный кассовый ордер»",
+    "«Выписка банка»",
+    "РКО — «Расходный кассовый ордер»",
+    "«Поступление товаров и услуг»"
+   ],
+   "a": 0,
+   "e": "Приход в кассу — ПКО (приходный), выдача из кассы — РКО (расходный кассовый ордер)."
+  },
+  {
+   "t": "mc",
+   "q": "Покупатель перечислил деньги на наш расчётный счёт. Каким документом это вводится в 1С?",
+   "o": [
+    "«Реализация товаров и услуг»",
+    "«Приходный кассовый ордер»",
+    "«Закрытие месяца»",
+    "«Выписка банка»"
+   ],
+   "a": 3,
+   "e": "Поступления и списания по расчётному счёту вводятся на основании банковской выписки документом «Выписка банка»."
+  },
+  {
+   "t": "mc",
+   "q": "Какой документ в 1С используют для начисления зарплаты сотрудникам в конце месяца?",
+   "o": [
+    "«Расходный кассовый ордер»",
+    "«Карточка счёта»",
+    "«Начисление зарплаты»",
+    "«Поступление товаров и услуг»"
+   ],
+   "a": 2,
+   "e": "Зарплата начисляется документом «Начисление зарплаты»; выплата оформляется отдельно (РКО или через банк)."
+  },
+  {
+   "t": "mc",
+   "q": "Что делает «Закрытие месяца» в 1С?",
+   "o": [
+    "Удаляет все документы за месяц",
+    "Выполняет регламентные операции конца месяца (амортизация, себестоимость и т.д.)",
+    "Блокирует вход в программу до следующего месяца",
+    "Автоматически отправляет налоговый отчёт в my.soliq.uz"
+   ],
+   "a": 1,
+   "e": "«Закрытие месяца» выполняет регламентные операции: начисление амортизации, расчёт себестоимости, закрытие счетов."
+  },
+  {
+   "t": "mc",
+   "q": "Что показывает ОСВ (оборотно-сальдовая ведомость) по каждому счёту?",
+   "o": [
+    "Начальное сальдо, обороты по дебету и кредиту, конечное сальдо",
+    "Только последнюю проводку по счёту",
+    "Только суммы зарплаты по сотрудникам",
+    "Только результат сверки с налоговой инспекцией"
+   ],
+   "a": 0,
+   "e": "ОСВ даёт по каждому счёту сальдо на начало периода, обороты за период и сальдо на конец."
+  },
+  {
+   "t": "mc",
+   "q": "Что открыть в 1С, чтобы увидеть все операции по счёту 4010 с одним покупателем по датам с остатком?",
+   "o": [
+    "«Закрытие месяца»",
+    "«Приходный кассовый ордер»",
+    "«Начисление зарплаты»",
+    "«Карточка счёта» (по этому покупателю)"
+   ],
+   "a": 3,
+   "e": "Карточка счёта показывает каждую операцию по дате с корреспондирующим счётом и текущим остатком."
+  },
+  {
+   "t": "mc",
+   "q": "Документ в 1С записан, но не проведён. Каков результат?",
+   "o": [
+    "Документ автоматически отправляется в my.soliq.uz",
+    "Документ виден только в ОСВ",
+    "Проводки не формируются — в отчётах он не отражается",
+    "Проводки формируются дважды"
+   ],
+   "a": 2,
+   "e": "Проводки формирует только проведённый документ. Записанный, но не проведённый документ на учёт не влияет."
+  },
+  {
+   "t": "mc",
+   "q": "После закрытия месяца изменили сумму документа поступления за этот месяц. Что нужно сделать?",
+   "o": [
+    "Исправить только в начале следующего года",
+    "Повторно выполнить «Закрытие месяца» за этот месяц",
+    "Ничего — результаты не изменятся",
+    "Переустановить всю базу"
+   ],
+   "a": 1,
+   "e": "Изменение суммы поступления меняет себестоимость и финансовый результат — поэтому закрытие месяца выполняют заново."
+  },
+  {
+   "t": "mc",
+   "q": "Принятые в Didox входящие фактуры сверили с 1С: одна фактура в 1С не введена. К чему это ведёт?",
+   "o": [
+    "Товар и входящий НДС в 1С занижены — отчёты будут неверными",
+    "Доход фирмы завышается",
+    "Нарушается только учёт продавца",
+    "Ни к чему, это не влияет"
+   ],
+   "a": 0,
+   "e": "Невведённая фактура означает заниженные остатки, долг поставщику и входящий НДС. Поэтому Didox и 1С регулярно сверяют."
+  },
+  {
+   "t": "pv",
+   "q": "Входящий ЭСФ из Didox принят, документом «Поступление товаров и услуг» товар оприходован на склад (сумма без НДС), оплата позже.",
+   "dt": "2910",
+   "kt": "6010",
+   "o": [
+    "5110",
+    "2910",
+    "4010",
+    "6010",
+    "9120",
+    "4310"
+   ],
+   "e": "Товар увеличился (Дт 2910), долг поставщику (Кт 6010)."
+  },
+  {
+   "t": "pv",
+   "q": "По принятому (подписанному покупателем) ЭСФ в 1С отражён входящий НДС.",
+   "dt": "4410",
+   "kt": "6010",
+   "o": [
+    "4410",
+    "6410",
+    "6010",
+    "2910",
+    "9430",
+    "5110"
+   ],
+   "e": "Входящий НДС — аванс в бюджет (Дт 4410), долг поставщику (Кт 6010)."
+  },
+  {
+   "t": "pv",
+   "q": "Проведена «Реализация товаров и услуг»: товар отгружен покупателю, отражена выручка (без НДС).",
+   "dt": "4010",
+   "kt": "9020",
+   "o": [
+    "9020",
+    "6310",
+    "4010",
+    "2910",
+    "9120",
+    "5010"
+   ],
+   "e": "Возникла задолженность покупателя (Дт 4010), выручка от продажи товаров (Кт 9020)."
+  },
+  {
+   "t": "pv",
+   "q": "По «Выписке банка»: поставщику оплачена сумма фактуры с расчётного счёта.",
+   "dt": "6010",
+   "kt": "5110",
+   "o": [
+    "4310",
+    "5110",
+    "6010",
+    "5010",
+    "4010",
+    "6410"
+   ],
+   "e": "Долг погашен (Дт 6010), деньги на счёте уменьшились (Кт 5110)."
+  },
+  {
+   "t": "pv",
+   "q": "По РКО начисленная зарплата выдана сотруднику наличными из кассы.",
+   "dt": "6710",
+   "kt": "5010",
+   "o": [
+    "5010",
+    "9420",
+    "6410",
+    "5110",
+    "6710",
+    "4220"
+   ],
+   "e": "Долг перед сотрудником погашен (Дт 6710), касса уменьшилась (Кт 5010)."
+  },
+  {
+   "t": "pv",
+   "q": "Документом «Начисление зарплаты» начислена зарплата бухгалтеру.",
+   "dt": "9420",
+   "kt": "6710",
+   "o": [
+    "6710",
+    "2010",
+    "5010",
+    "9410",
+    "9420",
+    "6410"
+   ],
+   "e": "Зарплата административного работника — расход периода (Дт 9420), долг перед сотрудником (Кт 6710)."
+  }
+ ]
+}

@@ -31,7 +31,7 @@ for (const f of files) {
     if (isT || (!attr && looksText(L.s))) keys.add(L.s);
   }
 }
-const JUNK = /px|var\(|Manrope|JetBrains|prefers-|^Content-Type$|^Bearer|^Enter$|^BX12AB$|_bot$|^Payme$|^Click$|^Hisobchi Liga$|stroke-|^O'zbekcha$|^Tilni tanlang · /;
+const JUNK = /^.{0,2}$|^[A-Z]-$|^VS$|px|var\(|Manrope|JetBrains|prefers-|^Content-Type$|^Bearer|^Enter$|^BX12AB$|_bot$|^Payme$|^Click$|^Hisobchi Liga$|stroke-|^O'zbekcha$|^Tilni tanlang · /;
 const list = [...keys].filter((k) => k.trim() && !JUNK.test(k) && /[A-Za-z]/.test(k.replace(/XP|\{[a-z]+\}/g, ""))).sort();
 fs.writeFileSync(path.join(root, "../scripts/i18n-keys.json"), JSON.stringify(list, null, 1));
 const ruSrc = fs.readFileSync(path.join(root, "lib/ru.ts"), "utf8");
