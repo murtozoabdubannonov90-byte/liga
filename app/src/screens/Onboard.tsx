@@ -83,7 +83,7 @@ export function Register() {
     const r = await joinServer(); setBusy(false);
     if (!r.ok) { setErr(r.msg); if (S.joinErr) return; toast(r.msg); } else { sfx("win"); burst(); }
     pull(true);
-    if (S.group?.code === "ASOSIY") { tab("home"); go("pay", { first: true }); } else tab("home");
+    if (S.group?.code === "ASOSIY" && !S.trial) { tab("home"); go("pay", { first: true }); } else tab("home");
   };
   return (
     <div className="shell bare">
@@ -100,7 +100,7 @@ export function Register() {
         <div className="field"><label htmlFor="g">{t("Jamoa kodi")} <span className="muted small">({t("bo'lmasa bo'sh qoldiring")})</span></label>
           <input id="g" className="inp mono" value={g} onChange={(e) => setG(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))} placeholder="BX12AB" autoCapitalize="characters" />
           {gname && <span className="small" style={{ fontWeight: 700 }}>{gname}</span>}</div>
-        {personal && <div className="note"><CreditCard size={18} /><span>{t("Ligada qatnashish: oyiga {p} so'm. Ro'yxatdan o'tgach kartaga to'lab, chekni yuborasiz — shu zahoti ligaga qo'shilasiz.", { p: fmt(S.payCfg?.price || 30000) })}</span></div>}
+        {personal && !S.trial && <div className="note"><CreditCard size={18} /><span>{t("Ligada qatnashish: oyiga {p} so'm. Ro'yxatdan o'tgach kartaga to'lab, chekni yuborasiz — shu zahoti ligaga qo'shilasiz.", { p: fmt(S.payCfg?.price || 30000) })}</span></div>}
         <div className="note"><ShieldCheck size={18} /><span>{t("Telefon raqamingizni faqat jamoa administratori ko'radi.")}</span></div>
         <p className="err" role="alert">{err}</p>
       </div>

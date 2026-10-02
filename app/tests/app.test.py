@@ -272,6 +272,67 @@ with sync_playwright() as p:
     pg.locator(".board .r").first.click(); pg.wait_for_timeout(400)
     check("nomzod hisoboti (PDF) ochildi", "Nomzod hisoboti" in txt(pg) and "Nomzod Bir" in txt(pg), txt(pg)[:300])
 
+    print("10d. G'olib vaqti, javob effekti, xatolar ustida ishlash, imtiyozlar, sinov rejimi")
+    EXTRA["_extra"] = 7
+    pg, e = page(b); ALLERR += e
+    check("bosh sahifa: «Imtiyozlaringiz» kartasi", pg.locator("#perks").count() == 1 and "+7 soniya" in pg.inner_text("#perks") and "1-o'rin" in pg.inner_text("#perks"), pg.inner_text("body")[:300])
+    go(pg, "intro", {"si": 3}); pg.wait_for_timeout(300)
+    rw = pg.inner_text("#rw-start") if pg.locator("#rw-start").count() else ""
+    check("bosqich boshida: kuchli uchlik mukofoti +10/+7/+4", all(x in rw for x in ["+10", "+7", "+4"]), rw[:200])
+    check("bosqich boshida: mening bonusim va 67 soniya", "+7 soniya bor" in rw and "67 soniya" in txt(pg))
+    pg.click("#go"); pg.wait_for_timeout(700)
+    check("savolda g'olib bonusi belgisi (+7 s)", pg.locator("#xsec").count() == 1 and "+7" in pg.inner_text("#xsec"))
+    lft = int(pg.inner_text(".timer b"))
+    check("savol vaqti 60+7 soniya", 61 <= lft <= 67, lft)
+    pg.evaluate("()=>{window.__vib=[]; navigator.vibrate=(p)=>{window.__vib.push(p); return true}}")
+    answer(pg, right=False)
+    check("xato: katta qizil X va silkinish", pg.locator(".cheer.bad .bigx").count() == 1 and pg.locator(".qcard.shake").count() == 1)
+    check("xato: telefon vibratsiyasi", pg.evaluate("()=>JSON.stringify(window.__vib.slice(-1))") == "[[90,50,160]]", pg.evaluate("()=>JSON.stringify(window.__vib)"))
+    pg.click("#exbtn"); pg.wait_for_timeout(300)
+    ex = pg.inner_text(".sheet-fb .explain")
+    check("misol bilan tushuntirish: ikki T-hisob, summa va qoida", pg.locator(".sheet-fb .tbox").count() == 2 and "1 000 000" in ex and "Aktiv hisobvaraq" in ex, ex[:300])
+    check("tushuntirish: tomonlar almashgani aytiladi", "almashib" in ex)
+    check("xato daftariga savol to'liq yozildi", S(pg, "Object.values(S.errInfo||{}).some(x=>x.task&&x.task.dt==='5010')"))
+    pg.click("#nx"); pg.wait_for_timeout(400)
+    answer(pg, right=True)
+    check("to'g'ri: yon tomonlardan yashil sharlar va belgilar", pg.locator(".cheer.ok .bln").count() >= 10 and pg.locator(".cheer.ok .chk").count() >= 1)
+    pg.wait_for_timeout(2500)
+    check("effekt o'zi yo'qoladi", pg.locator(".cheer").count() == 0)
+    EXTRA.pop("_extra", None)
+
+    go(pg, "review"); pg.wait_for_timeout(300)
+    check("xatolar ustida ishlash ekrani: misol bilan", "Xatolar ustida ishlash" in txt(pg) and pg.locator(".err-card .explain").count() == 1)
+    pg.click("#rv-go"); pg.wait_for_timeout(500)
+    kinds = pg.evaluate("()=>window.__run.queue.map(q=>q.rv&&q.rv.kind)")
+    check("mashq: asl savol + chalg'ituvchi + teskari savol", "orig" in kinds and "dist" in kinds and kinds[-1] == "rev", kinds)
+    rq = pg.evaluate("()=>window.__run.queue[window.__run.queue.length-1].q")
+    check("teskari savol: provodkadan muomalani topish", "Dt 5010" in rq and "qaysi muomalani" in rq, rq)
+    for _ in range(8):
+        if pg.locator(".qtext").count() == 0: break
+        answer_local(pg, True); pg.click("#nx"); pg.wait_for_timeout(350)
+    check("natija: xato o'zlashtirildi va daftardan o'chdi", "o'zlashtirildi" in txt(pg) and S(pg, "!Object.keys(S.errs).some(k=>k.startsWith('S:'))"), txt(pg)[:300])
+
+    EXTRA["_prefill"] = 18
+    go(pg, "intro", {"si": 3}); pg.click("#go"); pg.wait_for_timeout(700)
+    answer(pg, right=False); pg.click("#nx"); pg.wait_for_timeout(300); answer(pg, right=True); pg.click("#nx"); pg.wait_for_timeout(1200)
+    EXTRA.pop("_prefill", None)
+    check("bosqich yakunida: kuchli uchlik mukofoti", pg.locator("#rw-end").count() == 1 and "+10" in pg.inner_text("#rw-end"))
+    check("yakunda: «Xatolarni tahlil qilish» tugmasi", pg.locator("#toreview").count() == 1)
+    pg.evaluate("()=>__liga.nav.tab('rate')"); pg.wait_for_timeout(400)
+    check("reyting: kunlik kuchli uchlik", pg.locator("#daytop-card").count() == 1 and "Aziz R." in pg.inner_text("#daytop-card"))
+
+    EXTRA["liga_trial"] = True
+    EXTRA["liga_player_status2"] = [{"paid_until": None, "ok": False, "personal": True, "price": 30000, "pending": False, "tier": 1, "ref_code": "S5HMGC", "refs": 2, "tg_linked": True, "lang": "uz"}]
+    pg, e = page(b, seed={**SEED, "me": {**SEED["me"], "ok": False, "paid_until": None}}); ALLERR += e
+    pg.wait_for_timeout(600)
+    check("sinov rejimi: to'lovsiz ham bosqich ochiq", "obuna kerak" not in txt(pg) and S(pg, "S.trial===true"))
+    pg.evaluate("()=>__liga.nav.tab('profile')"); pg.wait_for_timeout(400)
+    check("profil: «Sinov davri — bepul»", pg.locator("#trial-note").count() == 1)
+    pg.evaluate("()=>{__liga.st.S.superPin='24'; __liga.st.persist()}"); go(pg, "super"); pg.click("text=Karta"); pg.wait_for_timeout(300)
+    pg.click("#trial-flip"); pg.wait_for_timeout(400)
+    check("superadmin: sinov rejimi tugmasi", any(a.get("p_on") is False for a in calls("liga_super_set_trial")))
+    EXTRA.pop("liga_trial", None); EXTRA.pop("liga_player_status2", None)
+
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e
     check("tungi mavzu", pg.evaluate("()=>document.documentElement.dataset.theme") == "dark")

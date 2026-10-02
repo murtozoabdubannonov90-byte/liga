@@ -28,7 +28,17 @@ export function haptic(kind: "ok" | "bad" | "tap" | "warn") {
       else h.notificationOccurred(kind === "ok" ? "success" : kind === "bad" ? "error" : "warning");
       return;
     }
-    if (navigator.vibrate) navigator.vibrate(kind === "bad" ? [40, 40, 60] : kind === "ok" ? 25 : 10);
+    /* Android ilovasi (Capacitor): telefonning o'z vibratsiyasi */
+    const Cap = (window as any).Capacitor;
+    if (Cap?.isNativePlatform?.()) {
+      import("@capacitor/haptics").then(({ Haptics, NotificationType, ImpactStyle }) => {
+        if (kind === "tap") Haptics.impact({ style: ImpactStyle.Light });
+        else if (kind === "bad") { Haptics.notification({ type: NotificationType.Error }); Haptics.vibrate({ duration: 220 }); }
+        else Haptics.notification({ type: kind === "ok" ? NotificationType.Success : NotificationType.Warning });
+      }).catch(() => { try { navigator.vibrate?.(kind === "bad" ? [90, 50, 160] : 25); } catch { /* */ } });
+      return;
+    }
+    if (navigator.vibrate) navigator.vibrate(kind === "bad" ? [90, 50, 160] : kind === "ok" ? 25 : 10);
   } catch { /* yo'q */ }
 }
 

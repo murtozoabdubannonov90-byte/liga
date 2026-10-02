@@ -17,6 +17,7 @@ import { lessonOfDay } from "./Lessons";
 import { finalCanPlay } from "./FinalLive";
 import { sfx } from "../lib/fx";
 import { DeadlineCard, NewsCard } from "./Tools";
+import { PerksCard } from "./Perks";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -34,7 +35,7 @@ export function TgLinkCard() {
       <span className="chip blue">{t("Ulash")}<ChevronRight size={13} /></span>
     </button>);
 }
-export const playerBlocked = () => !!(S.me && S.me.personal && S.me.ok === false);
+export const playerBlocked = () => !S.trial && !!(S.me && S.me.personal && S.me.ok === false);
 export const groupBlocked = () => !!(S.group && S.group.ok === false);
 const WD = ["Du", "Se", "Ch", "Pa", "Ju"];
 
@@ -125,7 +126,7 @@ export default function Home() {
     [Zap, "Blits", t("20 provodka · rekord {n}", { n: S.blitz || 0 }), () => runOrToast(startBlitz())],
     [Swords, "Duel", t("Hamkasbingizni chaqiring"), () => go("duel"), true],
     [Scale, "Balans o'yini", t("Aktiv va passivni joylang"), () => go("balance")],
-    [NotebookPen, "Xato daftari", t("{n} ta savol", { n: errs }), () => runOrToast(startErrs())],
+    [NotebookPen, "Xato daftari", errs ? t("{n} ta · misol bilan", { n: errs }) : t("{n} ta savol", { n: 0 }), () => go("review"), errs > 0],
     [Gift, "Kunlik sovg'a", giftDone() ? t("ertaga yana") : giftReady() ? t("ochishga tayyor") : t("{a}/{b} to'g'ri javob", { a: giftCorrect(), b: GIFT_NEED }), () => runOrToast(startGift()), giftReady()],
   ];
   const fin = S.fin, wq = S.wq;
@@ -142,6 +143,7 @@ export default function Home() {
         {fin && finalCanPlay() && <button className="ticket" style={{ textAlign: "left" }} onClick={() => go("finalLive")}>
           <div className="t-top"><Trophy size={40} color="var(--gold)" /><div className="grow"><div className="t-title">{t("Oylik final boshlandi!")}</div><div className="t-meta">{t("Siz saralangansiz · 13:00 gacha")}</div></div><ChevronRight /></div></button>}
         <Ticket />
+        <PerksCard />
         <TgLinkCard />
         <DeadlineCard />
         <NewsCard />

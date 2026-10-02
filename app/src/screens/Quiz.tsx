@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Flame, Heart, Zap, Share2, RotateCcw, Home as HomeI, Trophy, Clock3 } from "lucide-react";
+import { X, Flame, Heart, Zap, Share2, RotateCcw, Home as HomeI, Trophy, Clock3, Lightbulb, ChevronDown, NotebookPen, Timer } from "lucide-react";
 import { S, persist } from "../engine/state";
 import { t, tx } from "../lib/i18n";
 import { back, replace, setBackGuard, tab, toast, go } from "../lib/nav";
@@ -10,7 +10,10 @@ import { saSettle } from "../engine/score";
 import { answerR, showR, finishR, stageFinishedLocal, type RState } from "../engine/remote";
 import { stageOpen, closeStr } from "../engine/time";
 import { rpc, syncSoon, syncNow, errMsg, stageDoneNotify } from "../engine/server";
-import { sfx, burst } from "../lib/fx";
+import { sfx, burst, cheer } from "../lib/fx";
+import { recordErr, errList, type Mine } from "../engine/errs";
+import { Explain } from "../components/Explain";
+import { DayRewards } from "./Perks";
 import { Ring, Star, CountUp } from "../components/ui";
 import { botNotify } from "./Duel";
 
@@ -38,14 +41,16 @@ export default function Quiz({ run }: { run: Run }) {
   const [ans, setAns] = useState<Ans>({ dt: null, kt: null, pick: null, val: "" });
   const [active, setActive] = useState<"dt" | "kt">("dt");
   const [res, setRes] = useState<null | { ok: boolean; gain: number; why: "time" | "left" | "" }>(null);
-  const [left, setLeft] = useState(QSEC);
+  const [left, setLeft] = useState(r.qsec || QSEC);
   const [fin, setFin] = useState<null | Fin>(null);
   const [ask, setAsk] = useState(false);
   const [extra, setExtra] = useState<any>(null);
   const [busy, setBusy] = useState(false);
+  const [exp, setExp] = useState(false);
+  const QS = r.qsec || QSEC;
   const tq: Q = r.queue[i];
   const answered = useRef(false); const awayAt = useRef(0); answered.current = !!res;
-  const qEnd = useRef(Date.now() + QSEC * 1000);
+  const qEnd = useRef(Date.now() + (r.qsec || QSEC) * 1000);
 
   /* variantlar va hisobvaraq tugmalari — har savolda bir marta aralashtiriladi */
   const opts = useMemo(() => {
@@ -65,8 +70,8 @@ export default function Quiz({ run }: { run: Run }) {
   useEffect(() => {
     if (!tq) return;
     if (!r.remote) markPending(r, tq);
-    setAns({ dt: null, kt: null, pick: null, val: "" }); setActive("dt"); setRes(null);
-    qEnd.current = Date.now() + QSEC * 1000; setLeft(QSEC); window.scrollTo(0, 0);
+    setAns({ dt: null, kt: null, pick: null, val: "" }); setActive("dt"); setRes(null); setExp(false);
+    qEnd.current = Date.now() + QS * 1000; setLeft(QS); window.scrollTo(0, 0);
     /* server: savol ko'rsatildi — vaqt serverda shu paytdan; qayta ochilsa qolgan vaqt */
     if (r.remote) { const cur = tq; showR(r, tq.k).then((sec) => { if (r.queue[r.i] === cur && !answered.current) qEnd.current = Date.now() + Math.max(0, sec) * 1000; }).catch(() => {}); }
   }, [i]);
@@ -112,11 +117,17 @@ export default function Quiz({ run }: { run: Run }) {
     if (r.remote) return checkRemote(why);
     let ok = why ? false : grade(tq, { ...ans, opts });
     const a = apply(r, tq, ok);
+    if (!ok && !["test", "review"].includes(r.mode) && !tq.rv) recordErr(tq, mine(why));
     setRes({ ok, gain: a.gain, why });
-    sfx(ok ? "ok" : "bad");
+    sfx(ok ? "ok" : "bad"); cheer(ok);
     if (r.mode === "stage" && a.gain) syncSoon();
     if (r.mode === "final" && S.pid) rpc("liga_final_tick", { p_id: S.pid, p_token: S.token, p_right: r.right, p_done: r.answers.length }).catch(() => {});
     if (ok && r.combo === 5) toast(t("🔥 5 ketma-ket!"));
+  }
+  /* xato daftari uchun: men nima javob berdim */
+  function mine(why: "time" | "left" | ""): Mine {
+    if (why) return { none: why };
+    return tq.t === "pv" ? { dt: ans.dt, kt: ans.kt } : tq.t === "mc" ? { pick: ans.pick != null ? opts[ans.pick]?.x ?? null : null } : { val: ans.val || "" };
   }
   /* server tekshiradi: javob yuboriladi, to'g'ri javob va izoh faqat shundan keyin keladi */
   async function checkRemote(why: "time" | "left" | "") {
@@ -128,9 +139,10 @@ export default function Quiz({ run }: { run: Run }) {
       if (x.reveal.dt) tq.dt = x.reveal.dt; if (x.reveal.kt) tq.kt = x.reveal.kt; if (x.reveal.a != null) tq.a = Number(x.reveal.a);
       tq.e = tx(x.reveal.e || "");
       r.answers.push({ id: tq.id, ok: x.ok }); r.marks[tq.k] = x.ok ? "ok" : "bad"; r.earned += x.gain;
-      if (!x.ok) { r.mistakes++; if (r.maxLives) r.lives--; }
-      setRes({ ok: x.ok, gain: x.gain, why: x.why === "time" || x.why === "left" ? x.why : why });
-      sfx(x.ok ? "ok" : "bad"); if (x.ok && x.state.combo === 5) toast(t("🔥 5 ketma-ket!"));
+      const w = x.why === "time" || x.why === "left" ? x.why : why;
+      if (!x.ok) { r.mistakes++; if (r.maxLives) r.lives--; if (r.mode !== "test") recordErr(tq, mine(w), true); }
+      setRes({ ok: x.ok, gain: x.gain, why: w });
+      sfx(x.ok ? "ok" : "bad"); cheer(x.ok); if (x.ok && x.state.combo === 5) toast(t("🔥 5 ketma-ket!"));
     } catch (e) {
       answered.current = false; const m = String((e as any)?.message || e);
       if (/stage_closed/.test(m)) return onClosed();
@@ -199,7 +211,7 @@ export default function Quiz({ run }: { run: Run }) {
   const wm = useMemo(() => { const u = S.user; return (((u.first || "") + " " + (u.last || "")).trim() + " · " + String(u.phone || "").slice(-4) + "   ").repeat(60); }, []);
   if (fin) return <Result r={r} f={fin} extra={extra} />;
   if (!tq) return null;
-  const pct = left / QSEC;
+  const pct = left / QS;
   return (
     <div className="shell bare" style={{ paddingTop: "calc(6px + var(--safe-t))" }}>
       <div className="qbar">
@@ -207,6 +219,7 @@ export default function Quiz({ run }: { run: Run }) {
         <div className="qprog">{r.marks.map((m, k) => <i key={k} className={m || (k === tq.k ? "now" : "")} />)}</div>
         {r.timed && <div className={"timer" + (left <= 10 ? " low" : "")}><Ring pct={pct} size={42} stroke={4} color={left <= 10 ? "var(--red)" : "var(--stamp)"}><b className="num" style={{ fontFamily: "var(--display)", fontSize: 13, fontWeight: 700, color: left <= 10 ? "var(--red)" : "inherit" }}>{left}</b></Ring></div>}
         {r.mode === "blitz" && <span className="chip"><Zap size={13} />{r.right}</span>}
+        {!!r.extraSec && <span className="chip gold" id="xsec" title={t("G'olib bonusi")}><Timer size={13} />+{r.extraSec} {t("s")}</span>}
       </div>
       <div className="row" style={{ marginBottom: 10, minHeight: 26 }}>
         {r.maxLives > 0 && <span className="hearts" aria-label={t("Jonlar")}>{Array.from({ length: r.maxLives }).map((_, k) => <Heart key={k} size={18} fill={k < r.lives ? "var(--red)" : "none"} color={k < r.lives ? "var(--red)" : "var(--rule)"} />)}</span>}
@@ -251,7 +264,9 @@ export default function Quiz({ run }: { run: Run }) {
             <h4>{res.ok ? t("To'g'ri!") + (res.gain ? " +" + res.gain + " XP" : "") : res.why === "left" ? t("Ilovadan chiqildi — savol xato hisoblandi") : res.why === "time" ? t("Vaqt tugadi") : t("Xato — sababini ko'ring")}</h4>
             {!res.ok && <p className="ans">{tq.t === "pv" ? `${t("To'g'ri provodka")}: Dt ${tq.dt} — Kt ${tq.kt}` : tq.t === "mc" ? `${t("To'g'ri javob")}: ${opts.find((o) => o.i === Number(tq.a))?.x}` : `${t("To'g'ri javob")}: ${fmt(Number(tq.a))} ${tq.unit || t("so'm")}`}</p>}
             {!res.ok && tq.t === "pv" && <p className="small">{tq.dt} — {c.A[tq.dt!]}<br />{tq.kt} — {c.A[tq.kt!]}</p>}
-            <p>{tq.e}</p>
+            {!exp && <p>{tq.e}</p>}
+            {!res.ok && <button className="ex-toggle" id="exbtn" onClick={() => { sfx("tap"); setExp(!exp); }}><Lightbulb size={17} />{t("Misol bilan tushuntirish")}<ChevronDown size={16} style={{ transform: exp ? "rotate(180deg)" : "" }} /></button>}
+            {exp && !res.ok && <Explain task={tq} my={mine(res.why)} />}
             <button className={"btn " + (res.ok ? "ok" : "bad")} id="nx" onClick={next}>
               {r.mode === "gift" ? t("Sovg'ani ochish") : r.maxLives && r.lives <= 0 ? t("Natijani ko'rish") : i >= r.queue.length - 1 ? t("Yakunlash") : t("Davom etish")}
             </button>
@@ -266,7 +281,7 @@ export default function Quiz({ run }: { run: Run }) {
 function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
   const st = r.state as RState | undefined;
   const okN = r.remote && st ? st.right_n : r.answers.filter((a) => a.ok).length, badN = r.remote && st ? st.done_n - st.right_n : r.answers.length - okN;
-  const again = r.mode === "blitz" ? startBlitz : r.mode === "daily" ? startDaily : r.mode === "errs" ? startErrs : r.mode === "practice" ? startPractice : r.mode === "topic" && r.tp ? () => startTopic(r.tp!) : null;
+  const again = r.mode === "review" ? () => { replace("review"); return null; } : r.mode === "blitz" ? startBlitz : r.mode === "daily" ? startDaily : r.mode === "errs" ? startErrs : r.mode === "practice" ? startPractice : r.mode === "topic" && r.tp ? () => startTopic(r.tp!) : null;
   let title = t("Yakunlandi"), big: any = null;
   if (extra?.closed) title = t("Soat {c} — bosqich yopildi", { c: closeStr() });
   else if (r.mode === "gift") { title = extra?.gift > 25 ? t("Sovg'a ochildi!") : t("Qutida kichik sovg'a"); big = <>+<CountUp to={extra?.gift || 0} /> XP</>; }
@@ -274,11 +289,12 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
   else if (r.mode === "final") { title = t("Final yakunlandi!"); big = <><CountUp to={okN * 20} /> {t("ball")}</>; }
   else if (r.mode === "duel") { title = t("Duel natijangiz"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
   else if (r.mode === "test") { title = t("Test yakunlandi"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
+  else if (r.mode === "review") { title = t("Xatolar tahlili yakunlandi"); big = <><CountUp to={r.mastered || 0} /> {t("ta o'zlashtirildi")}</>; }
   else if (!f.passed) title = t("Jonlar tugadi");
   else { title = r.mode === "stage" ? t("Bosqich yakunlandi!") : r.mode === "topic" ? t("Yo'nalish mashqi bajarildi!") : t("Mashq bajarildi!"); big = <>+<CountUp to={f.total} /> XP</>; }
   const mmss = (ms: number) => Math.floor(ms / 60000) + ":" + String(Math.floor(ms / 1000) % 60).padStart(2, "0");
   return (
-    <div className="shell bare">
+    <div className="shell bare" style={{ paddingBottom: "calc(250px + var(--safe-b))" }}>
       <div className="result">
         {r.mode === "stage" && f.passed && <div className="stars">{[0, 1, 2].map((k) => <Star key={k} on={k < f.stars} delay={0.15 + k * 0.18} />)}</div>}
         {r.mode === "final" && <Trophy size={64} color="var(--gold)" style={{ margin: "0 auto" }} />}
@@ -292,13 +308,16 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
         {r.mode === "duel" && <p className="small muted">{extra?.sent ? t("Natija yuborildi. Raqibingiz o'ynagach g'olib ko'rinadi.") : extra?.err || ""}</p>}
         {r.mode === "test" && <p className="small muted">{extra?.sent ? t("Natijangiz kompaniyaga yuborildi. Rahmat!") : extra?.err || ""}</p>}
         {r.mode === "blitz" && <p className="small muted">{t("Blits bali alohida — haftalik jamiga qo'shilmaydi.")}</p>}
+        {r.mode === "review" && <p className="small muted">{(r.mastered || 0) > 0 ? t("Asl savolni ham, teskarisini ham to'g'ri topgan xatolar daftardan o'chirildi.") : t("Xato o'chishi uchun asl savolni ham, teskarisini ham to'g'ri toping.")} {t("Daftarda qoldi: {n} ta", { n: Object.keys(S.errs).length })}</p>}
         {!f.passed && r.mode === "stage" && <p className="small muted">{t("Topgan XP saqlandi. Javob berilgan savollar qaytmaydi — «Davom etish» bilan qolganlarini ishlaysiz.")}</p>}
       </div>
+      {r.mode === "stage" && <div style={{ marginTop: 18 }}><DayRewards when="end" /></div>}
       <div className="dock"><div style={{ display: "grid", gap: 10 }}>
+        {badN > 0 && !["test", "review", "gift"].includes(r.mode) && errList().length > 0 && <button className="btn ghost" id="toreview" onClick={() => replace("review")}><NotebookPen size={18} />{t("Xatolarni tahlil qilish ({n})", { n: Math.min(5, errList().length) })}</button>}
         {r.mode === "stage" && f.passed && <button className="btn gold" onClick={() => replace("share", { kind: "stage", si: r.si, stars: f.stars })}><Share2 size={18} />{t("Natijani ulashish")}</button>}
         {r.mode === "duel" && <button className="btn" onClick={() => replace("duel", { code: r.duel })}>{t("Duel holati")}</button>}
         {r.mode === "test" ? null : <div className="btn-row">
-          {again ? <button className="btn ghost" onClick={() => { const x = (again as any)(); if (typeof x === "string") toast(t(x)); else replace("quiz", { run: x }); }}><RotateCcw size={18} />{t("Yana")}</button>
+          {again ? <button className="btn ghost" onClick={() => { const x = (again as any)(); if (x === null) return; if (typeof x === "string") toast(t(x)); else replace("quiz", { run: x }); }}><RotateCcw size={18} />{t("Yana")}</button>
             : r.mode === "stage" && !f.passed && !extra?.closed ? <button className="btn ghost" onClick={() => replace("intro", { si: r.si })}>{t("Davom etish")}</button> : <span />}
           <button className="btn" onClick={() => tab("home")}><HomeI size={18} />{t("Asosiy")}</button></div>}
       </div></div>

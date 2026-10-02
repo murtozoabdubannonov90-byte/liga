@@ -34,7 +34,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (85 ta)
+python3 tests/app.test.py        # 2.0 testlari (107 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -42,6 +42,15 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
+## 2026-10-03c: xatodan o'rganish, g'oliblar, sinov davri
+- **Javob effekti:** to'g'ri javobda ekran chetlaridan yashil sharlar va yashil belgilar ko'tariladi; xatoda katta qizil X, qizil chet, karta silkinadi va telefon tebranadi (Telegram, brauzer, Android ilova — `@capacitor/haptics`).
+- **Misol bilan tushuntirish:** xato javobdan keyin «Misol bilan tushuntirish» — provodka ikki T-hisobda summa bilan (savoldagi summa yoki 1 000 000), hisobvaraq turi, ko'paydi/kamaydi, qoida, sizning javobingiz tahlili; hisoblashda farq va ehtimoliy sabab (QQS, 12 oy).
+- **Xatolar ustida ishlash** (Asosiy → «Xato daftari»): oxirgi 5 xato misol bilan → mashq: shu savollar chalg'ituvchilar orasida → teskari savol (provodkadan muomalani, javobdan savolni topish). Ikkalasi to'g'ri bo'lsa xato daftardan o'chadi. Bosqich savollari ham (javobi ochilgandan keyin) daftarga yoziladi.
+- **Kunlik kuchli uchlik:** bosqich bali bo'yicha (teng — tezroq). Keyingi ish kuni har savolga 🥇 +10, 🥈 +7, 🥉 +4 soniya (serverda hisoblanadi). Mukofot bosqich boshida va oxirida ko'rinadi; bot guruhga va g'oliblarga shaxsan yozadi (17:00, juma 12:00).
+- **Imtiyozlaringiz** (bosh sahifa): bugungi qo'shimcha soniya, o'tgan hafta medali va sertifikat, «Haftaning savoli», oylik final. Reytingda — kunlik kuchli uchlik.
+- **Sinov rejimi:** yoqilgan — hamma bepul, to'lov ekrani chiqmaydi. O'chirish: Profil → Superadmin → «Karta» → «Sinov rejimini o'chirish».
+- Baza: `db/2026-10-03c_kunlik_golib.sql`. Bot: v14. Testlar: 107 ta.
 
 ## 2026-10-03b: javoblar faqat serverda
 

@@ -23,12 +23,14 @@ def mk_items(n):
 def run_state(rid):
     r = RUNS[rid]
     return {"run": rid, "kind": r["kind"], "ref": "x", "n": len(r["items"]), "combo": r["combo"], "right_n": r["right"], "done_n": r["done"], "gain": r["gain"],
-            "bonus": r["bonus"], "stars": r["stars"], "finished": r["finished"], "ms": 123000 if r["finished"] else None, "started_at": "2026-10-01T05:00:00Z"}
+            "bonus": r["bonus"], "stars": r["stars"], "finished": r["finished"], "ms": 123000 if r["finished"] else None, "started_at": "2026-10-01T05:00:00Z",
+            "extra_sec": r.get("extra", 0), "qsec": 60 + r.get("extra", 0)}
 def run_view(rid):
     r = RUNS[rid]; return dict(run_state(rid), items=[dict(it, st=r["st"][i]) for i, it in enumerate(r["items"])])
 def new_run(kind, n, prefill=0):
     rid = f"{kind}-{len(RUNS)+1}"; items, ans = mk_items(n)
     RUNS[rid] = {"kind": kind, "items": items, "ans": ans, "st": [None] * n, "combo": 0, "right": 0, "done": 0, "gain": 0, "bonus": 0, "stars": None, "finished": False}
+    RUNS[rid]["extra"] = EXTRA.get("_extra", 0) if kind == "stage" else 0
     for i in range(1, 1 + prefill): RUNS[rid]["st"][i] = "ok"; RUNS[rid]["right"] += 1; RUNS[rid]["done"] += 1; RUNS[rid]["gain"] += 10
     return rid
 def run_answer(a):
@@ -53,7 +55,7 @@ def body_for(fn, args):
     if fn == "liga_duel_start": return run_view(new_run("duel", 10))
     if fn == "liga_final_start": return run_view(new_run("final", 20))
     if fn == "liga_test_begin": return dict(run_view(new_run("test", 10)), secret="sek", minutes=20, test_started="2026-10-01T05:00:00Z", title="Bosh buxgalter")
-    if fn == "liga_run_show": return 60
+    if fn == "liga_run_show": return 60 + RUNS.get(args.get("p_run"), {}).get("extra", 0)
     if fn == "liga_run_answer": return run_answer(args)
     if fn == "liga_run_finish":
         r = RUNS[args["p_run"]]
@@ -95,6 +97,9 @@ def body_for(fn, args):
       "liga_test_start": [{"run_id": "run-1", "started_at": "2026-10-01T05:00:00Z"}],
       "liga_cert_verify": [{"id": "ABCD2345", "name": "Dilnoza Karimova", "kind": "week", "title": "week", "detail": "1|1310|2026-09-25T07:00", "issued_at": "2026-10-01T10:00:00Z", "team": "Buxgalterlar ligasi"}],
       "liga_cert_issue": [{"id": "ABCD2345", "title": "week", "detail": "1|1310|2026-09-25T07:00", "issued_at": "2026-10-01T10:00:00Z"}],
+      "liga_day_info": {"prev_day": "2026-09-30", "prev_top": [{"pos": 1, "name": "Aziz R.", "me": False}, {"pos": 2, "name": "Dilnoza K.", "me": True}, {"pos": 3, "name": "Malika S.", "me": False}],
+                        "extra_today": 7, "today_closed": False, "today_top": []},
+      "liga_trial": False, "liga_super_set_trial": True,
       "liga_tg_link_code": "link_abc", "liga_me": [{"xp": 0, "stages": 0, "week_id": None, "week_stages": {}, "cur_week": "2026-10-02T07:00"}],
       "liga_receipt_submit": [{"id": 12, "paid_until": "2026-10-31"}], "liga_tg_pay_link": "pay_abc", "liga_admin_tg_link": "adm_abc",
     }

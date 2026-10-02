@@ -3,9 +3,10 @@ import { S, persist } from "./state";
 import { tx } from "../lib/i18n";
 import { content, allTopicTasks, shuffle, srng, hstr, type Task, type Content } from "./data";
 import { addXP, addStageXP, award, dailyTick, saRec, saSettle, saBad, saLeft, markDay, giftCorrect } from "./score";
+import { buildReview, settleReview, clearErr } from "./errs";
 import { unlocked, isWeekend, stageOpen, today, STAGE_N } from "./time";
 
-export type Mode = "stage" | "daily" | "blitz" | "errs" | "gift" | "practice" | "topic" | "final" | "duel" | "test";
+export type Mode = "stage" | "daily" | "blitz" | "errs" | "gift" | "practice" | "topic" | "final" | "duel" | "test" | "review";
 export interface Q extends Task { k: number }
 export interface Run {
   mode: Mode; si: number | null; tp?: string; title: string; queue: Q[]; i: number; lives: number; maxLives: number;
@@ -13,6 +14,8 @@ export interface Run {
   startedAt: number; duel?: string; testRun?: string; testMinutes?: number; month?: string; fair: boolean; answers: { id: string; ok: boolean }[];
   /* server o'yini (bosqich, final, duel, test): javoblar serverda tekshiriladi */
   remote?: { id: string; secret?: string }; state?: any;
+  /* server o'yinida savol vaqti (g'olibga qo'shimcha soniya bilan); xatolar mashqi natijasi */
+  qsec?: number; extraSec?: number; mastered?: number;
 }
 export const QSEC = 60;
 export const lang = () => S.lang || "uz";
@@ -23,7 +26,7 @@ export function customTasks(): Task[] {
   return (S.customQ || []).map((c: any) => ({ id: "C" + c.id, tp: "jamoa", t: c.t, q: c.q, o: c.o || undefined, a: c.a != null ? Number(c.a) : undefined,
     dt: c.dt || undefined, kt: c.kt || undefined, e: c.e || "", unit: c.unit || undefined } as Task));
 }
-export function taskById(id: string): Task | undefined { if (id.startsWith("C")) return customTasks().find((t) => t.id === id); return C().TASKMAP[id]; }
+export function taskById(id: string): Task | undefined { const s = S.errInfo?.[id]?.task; if (s) return s; if (id.startsWith("C")) return customTasks().find((t) => t.id === id); return C().TASKMAP[id]; }
 
 function freshFirst(pool: Task[]): Task[] { const now = Date.now(), seen = S.seen || {}; const age = (t: Task) => (t.id && seen[t.id] ? now - seen[t.id] : 1e13); return shuffle(pool.slice()).sort((a, b) => age(b) - age(a)); }
 const openIdx = () => { const o = Array.from({ length: STAGE_N }, (_, i) => i).filter(unlocked); return o.length ? o : [0]; };
@@ -61,6 +64,11 @@ export function startTopic(id: string): Run | string {
   if (!tp || !tp.tasks.length) return "Bu yo'nalishda savol yo'q";
   return mk("topic", q(freshFirst(tp.tasks).slice(0, 10)), { tp: id, noXP: isWeekend(), title: tp.title });
 }
+/* xatolar ustida ishlash: asl savollar chalg'ituvchilar orasida, keyin teskari savollar */
+export function startReview(): Run | string {
+  const q = buildReview(5); if (typeof q === "string") return q;
+  return mk("review", q, { noXP: isWeekend(), lives: 99, maxLives: 0, title: "Xatolar ustida ishlash" });
+}
 /* qonun yangiligi bo'yicha qisqa test (superadmin yozgan savollar) */
 export function startNews(n: any): Run | string {
   const qs: any[] = n?.qs || []; if (!qs.length) return "Hali savol yo'q";
@@ -84,16 +92,16 @@ export function apply(r: Run, t: Q, ok: boolean): AnsRes {
   let gain = 0;
   if (ok) {
     r.combo++; r.right++;
-    gain = r.noXP ? 0 : r.mode === "daily" || r.mode === "topic" ? 8 : 10;
+    gain = r.noXP ? 0 : r.mode === "daily" || r.mode === "topic" || r.mode === "review" ? 8 : 10;
     if (!r.noXP) { if (r.combo >= 3) gain += 5; if (r.combo >= 7) gain += 5; }
     r.earned += gain; if (r.marks[t.k] !== "bad") r.marks[t.k] = "ok";
     if (r.mode === "stage" && gain && r.si != null) { addXP(gain, "stage"); addStageXP(r.si, gain); }
     if (!r.noXP && ["stage", "daily", "topic", "errs"].includes(r.mode)) { if (r.combo === 5) award("combo5"); if (r.combo === 10) award("combo10"); }
     if (!r.noXP && ["stage", "daily", "topic", "errs", "blitz"].includes(r.mode)) dailyTick(true);
-    if (t.id && S.errs[t.id] && ["errs", "daily", "topic"].includes(r.mode)) delete S.errs[t.id];
+    if (t.id && S.errs[t.id] && ["errs", "daily", "topic"].includes(r.mode)) clearErr(t.id);
   } else {
     r.combo = 0; if (r.maxLives) r.lives--; r.mistakes++; r.marks[t.k] = "bad";
-    if (t.id && !["test"].includes(r.mode)) S.errs[t.id] = true;
+    if (t.id && !["test", "review"].includes(r.mode)) S.errs[t.id] = true;
   }
   if (r.mode === "final") S.finRun = { month: r.month, right: r.right, done: r.answers.length, ms: Date.now() - r.startedAt, sent: false };
   persist();
@@ -110,6 +118,7 @@ export function finish(r: Run, passed: boolean): Fin {
     addXP(r.earned, "blitz"); markDay(); persist();
     return { passed: true, stars: 0, bonus: 0, dayBonus: 0, total: r.earned, newRecord: rec };
   }
+  if (r.mode === "review") r.mastered = settleReview(r);
   if (r.noXP || ["final", "duel", "test", "gift"].includes(r.mode)) { persist(); return { passed, stars: 0, bonus: 0, dayBonus: 0, total: r.earned }; }
   let stars = 0, bonus = 0, stageDone = false;
   if (r.mode === "stage" && r.si != null) { saSettle(r.si); stageDone = !saLeft(r.si).length; if (stageDone) passed = true; }

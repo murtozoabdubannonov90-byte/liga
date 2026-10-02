@@ -64,6 +64,8 @@ const RU: Record<string, string> = {
   "{d} (ertaga)": "{d} (завтра)",
   "Muddatni o'tkazib yubormang — jarima bo'lmasin!": "Не пропустите срок — без штрафов!",
   "Mashq qilish": "Потренироваться",
+  "{m} <b>Tabriklaymiz! Siz bugungi bosqichda {p}-o'rin oldingiz.</b>\nMukofot: {d} bosqichda har savolga <b>+{s} soniya</b> ({t} soniya).": "{m} <b>Поздравляем! Сегодня вы заняли {p}-е место в этапе.</b>\nНаграда: {d} на каждый вопрос этапа <b>+{s} сек.</b> ({t} сек.).",
+  "ertaga": "завтра", "dushanba kuni": "в понедельник",
   "✅ <b>Kirish tasdiqlandi!</b>\nIlovaga qayting — avtomatik kirasiz.": "✅ <b>Вход подтверждён!</b>\nВернитесь в приложение — вход выполнится автоматически.",
   "Bosqichni ochish": "Открыть этап",
   "⚔️ <b>Duel yakunlandi!</b>\n{a} — {as} · {b} — {bs}\n\n{w}": "⚔️ <b>Дуэль завершена!</b>\n{a} — {as} · {b} — {bs}\n\n{w}",
@@ -148,6 +150,26 @@ async function taxDue() {
     }
   }
   return out;
+}
+// kunning kuchli uchligi: mukofot — keyingi ish kuni har savolga qo'shimcha vaqt
+const EXTRA = [10, 7, 4], MEDAL = ["🥇", "🥈", "🥉"];
+async function dayTop(code: string) {
+  const { data } = await db.rpc("liga_day_top_sys", { p_code: code, p_day: tzDate().toISOString().slice(0, 10) });
+  return (data ?? []) as any[];
+}
+function dayTopText(top: any[], w: number) {
+  const when = w === 5 ? "dushanba kuni" : "ertaga";
+  return `🏅 <b>Bugungi kuchli uchlik</b>\n${top.map((x) => `${MEDAL[x.pos - 1]} ${esc(x.name)} — <b>+${EXTRA[x.pos - 1]} soniya</b>`).join("\n")}\n\nMukofot: ${when} bosqichda har savolga qo'shimcha vaqt.`;
+}
+async function dayTopDm(top: any[], w: number) {
+  let n = 0;
+  for (const x of top) {
+    if (!x.tg) continue;
+    const when = tr(x.lang, w === 5 ? "dushanba kuni" : "ertaga");
+    if (await dm(x.tg, tr(x.lang, "{m} <b>Tabriklaymiz! Siz bugungi bosqichda {p}-o'rin oldingiz.</b>\nMukofot: {d} bosqichda har savolga <b>+{s} soniya</b> ({t} soniya).",
+      { m: MEDAL[x.pos - 1], p: x.pos, d: when, s: EXTRA[x.pos - 1], t: 60 + EXTRA[x.pos - 1] }), appBtn(tr(x.lang, "Ligani ochish")))) n++;
+  }
+  return n;
 }
 async function chatsOf(code: string) { return (await chats()).filter((c) => c.group_code === code); }
 
@@ -415,7 +437,7 @@ async function onUpdate(u: any) {
     const code = priv ? "ASOSIY" : await chatGroup(m.chat.id);
     await reply(await resultsText(code), priv ? openApp(code) : openBot(code));
   } else if (cmd === "/qoida") {
-    await reply("📋 <b>Qoidalar</b>\n• Har ish kuni 09:00–17:00 da (juma — 12:00 gacha) yangi bosqich: 12 ta provodka + 8 ta qonun, kodeks va hisob savoli.\n• Har savolga 1 daqiqa, har savolga faqat bir marta javob. Xatoning sababi darhol ko'rsatiladi.\n• Liga bali faqat bosqichlardan; kunlik mashq va blits — alohida.\n• Liga — dushanbadan juma 12:00 gacha. Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Juma 12:00 da jadval e'lon qilinadi; kuchli uchlik nishon va sertifikat oladi.");
+    await reply("📋 <b>Qoidalar</b>\n• Har ish kuni 09:00–17:00 da (juma — 12:00 gacha) yangi bosqich: 12 ta provodka + 8 ta qonun, kodeks va hisob savoli.\n• Har savolga 1 daqiqa, har savolga faqat bir marta javob. Xatoning sababi darhol ko'rsatiladi.\n• Kunlik kuchli uchlik keyingi ish kuni har savolga qo'shimcha vaqt oladi: 🥇 +10, 🥈 +7, 🥉 +4 soniya.\n• Liga bali faqat bosqichlardan; kunlik mashq va blits — alohida.\n• Liga — dushanbadan juma 12:00 gacha. Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Juma 12:00 da jadval e'lon qilinadi; kuchli uchlik nishon va sertifikat oladi.");
   }
 }
 
@@ -564,12 +586,16 @@ async function onCron(action: string) {
     if (w < 1 || w > 4 || !(await once("day_end"))) return { skip: true };
     const tail = w === 4 ? "Ertaga — haftaning oxirgi kuni: bosqich <b>09:00–12:00</b>, liga <b>juma 12:00</b> da yakunlanadi va natijalar shu guruhga chiqadi." :
       "Ertaga soat 09:00 da yangi bosqich ochiladi. Liga natijalari <b>juma 12:00</b> da e'lon qilinadi.";
-    const cnt = await todayCounts();
-    return { ok: true, sent: await toChats((g) => {
+    const cnt = await todayCounts(); let winners = 0;
+    const sent = await toChats(async (g) => {
       if (todayStage(g.start_date) === null) return null;
-      const c = cnt[g.code], who = c && c.played > 0 ? `\n👥 Bugun <b>${c.played}</b> kishi bosqichni yakunladi. Kim birinchi — juma kuni bilamiz!` : "";
-      return `🔔 <b>Bugungi o'yin tugadi!</b>\n\nBugungi bosqich yopildi.${who}\n${tail}`;
-    }) };
+      const c = cnt[g.code], who = c && c.played > 0 ? `\n👥 Bugun <b>${c.played}</b> kishi bosqichni yakunladi.` : "";
+      const top = await dayTop(g.code);
+      return `🔔 <b>Bugungi o'yin tugadi!</b>\n\nBugungi bosqich yopildi.${who}${top.length ? "\n\n" + dayTopText(top, w) : ""}\n\n${tail}`;
+    });
+    const gm = await groupMap();
+    for (const code of Object.keys(gm)) if (groupOk(gm[code])) winners += await dayTopDm(await dayTop(code), w);
+    return { ok: true, sent, winners };
   }
   if (action === "friday_warn") {
     if (w !== 5 || !(await once("friday_warn"))) return { skip: true };
@@ -589,6 +615,14 @@ async function onCron(action: string) {
         : tr(p.lang, "🏁 <b>Hafta yakunlandi.</b>\nBu hafta bosqich o'ynamadingiz. Dushanba 09:00 da yangi hafta — qaytib keling! 💪");
       if (await dm(p.tg, text, appBtn(tr(p.lang, "Natijalarni ko'rish")))) personal++;
     }
+    // juma bosqichining kuchli uchligi (mukofot — dushanba)
+    let winners = 0;
+    if (w === 5) for (const code of Object.keys(gm)) {
+      if (!groupOk(gm[code])) continue;
+      const top = await dayTop(code); if (!top.length) continue;
+      for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text: dayTopText(top, 5), reply_markup: openBot(code) });
+      winners += await dayTopDm(top, 5);
+    }
     // jamoalar bellashuvi natijasi
     let matches = 0;
     const { data: mc } = await db.rpc("liga_match_close_sys");
@@ -598,7 +632,7 @@ async function onCron(action: string) {
       const text = `⚔️ <b>Jamoalar bellashuvi natijasi</b>\n\n«${esc(A)}» — <b>${x.a_xp}</b>\n«${esc(B)}» — <b>${x.b_xp}</b>\n\n${win}\nKeyingi raqib dushanba kuni e'lon qilinadi.`;
       for (const code of [x.a_code, x.b_code]) for (const c of await chatsOf(code)) { await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: openBot(code) }); matches++; }
     }
-    return { ok: true, sent, personal, matches };
+    return { ok: true, sent, personal, matches, winners };
   }
   if (action.startsWith("receipt:")) return await notifyAdmins(Number(action.slice(8)));
   if (action === "status") {

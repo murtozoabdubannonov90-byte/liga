@@ -72,14 +72,23 @@ function CardSet() {
   const [c, setC] = useState(S.payCfg?.card || ""), [nm, setNm] = useState(S.payCfg?.card_name || ""), [st, setSt] = useState("");
   const save = async () => { if (c.replace(/\D/g, "").length < 16) return setSt(t("Karta raqami 16 xonali bo'lishi kerak"));
     try { await rpc("liga_super_set_card", { p_pin: S.superPin, p_card: c, p_name: nm }); S.payCfg = { ...(S.payCfg || {}), card: c, card_name: nm }; persist(); setSt("✅ " + t("Saqlandi")); } catch (e) { setSt(errMsg(e)); } };
-  return (
+  const [trial, setTrial] = useState(!!S.trial), [tst, setTst] = useState("");
+  const flip = async () => {
+    try { const v = await rpc<boolean>("liga_super_set_trial", { p_pin: S.superPin, p_on: !trial }); setTrial(!!v); S.trial = !!v; persist(); setTst("✅ " + (v ? t("Sinov rejimi yoqildi — hamma bepul o'ynaydi") : t("Sinov rejimi o'chirildi — to'lov talab qilinadi"))); }
+    catch (e) { setTst(errMsg(e)); } };
+  return (<>
+    <Card title={t("Sinov rejimi")} right={<span className={"chip " + (trial ? "ok" : "")}>{trial ? t("yoqilgan") : t("o'chiq")}</span>}>
+      <p className="small muted" style={{ fontWeight: 600 }}>{t("Yoqilganda hamma ishtirokchi to'lovsiz o'ynaydi, to'lov ekrani chiqmaydi. Sotuvni boshlaganda o'chiring.")}</p>
+      <p className="small" style={{ marginTop: 6 }}>{tst}</p>
+      <button className={"btn sm " + (trial ? "bad" : "")} id="trial-flip" style={{ marginTop: 10 }} onClick={flip}>{trial ? t("Sinov rejimini o'chirish") : t("Sinov rejimini yoqish")}</button>
+    </Card>
     <Card title={t("To'lov kartasi")} right={<CreditCard size={20} />}>
       <div className="stack" style={{ gap: 10 }}>
         <input className="inp mono" inputMode="numeric" placeholder="8600 0000 0000 0000" value={c} onChange={(e) => setC(e.target.value)} aria-label={t("Karta raqami")} />
         <input className="inp" placeholder={t("Karta egasi")} value={nm} onChange={(e) => setNm(e.target.value)} aria-label={t("Karta egasi")} />
         <p className="small">{st}</p><button className="btn" onClick={save}>{t("Saqlash")}</button>
       </div>
-    </Card>);
+    </Card></>);
 }
 export function Super() {
   const [tb, setTb] = useState<"g" | "c" | "q" | "tc" | "nw">("g");

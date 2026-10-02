@@ -10,7 +10,7 @@ import { buildTopics as topicsRu } from "../data/topics.ru";
 import { cyr, type Lang } from "../lib/i18n";
 
 export type TaskType = "pv" | "mc" | "calc";
-export interface Task { t: TaskType; q: string; o?: string[]; a?: number; dt?: string; kt?: string; e: string; unit?: string; id: string; tp?: string; k?: number; author?: string }
+export interface Task { t: TaskType; q: string; o?: string[]; a?: number; dt?: string; kt?: string; e: string; unit?: string; id: string; tp?: string; k?: number; author?: string; rv?: { of: string; kind: "orig" | "dist" | "rev" } }
 export interface Stage { title: string; icon: string; story: string; theory: string; example: null | { t: string; dt: string; kt: string }; tasks: Task[] }
 export interface Topic { id: string; icon: string; title: string; tasks: Task[] }
 export interface Lesson { id: string; topic: string; title: string; body: string; tip: string; dt: string | null; kt: string | null }

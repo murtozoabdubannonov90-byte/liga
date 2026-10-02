@@ -42,7 +42,7 @@ function fromView(mode: Mode, v: any, o: Partial<Run>): Run {
   return {
     mode, si: null, title: "", queue, i: 0, lives: 5, maxLives: 5, combo: v.combo || 0, mistakes: items.filter((x) => x.st === "bad").length,
     marks: items.map((x) => (x.st || "") as any), earned: 0, right: v.right_n || 0, noXP: true, timed: true, startedAt: Date.now(), fair: true, answers: [],
-    remote: { id: v.run }, state: v, ...o,
+    remote: { id: v.run }, state: v, qsec: v.qsec || 60, extraSec: v.extra_sec || 0, ...o,
   } as Run;
 }
 
