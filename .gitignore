@@ -1,3 +1,5 @@
 app/dist/
 node_modules/
 __pycache__/
+content/new/
+content/bank.json
