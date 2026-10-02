@@ -18,7 +18,7 @@ export default function Intro({ si }: { si: number }) {
     if (playerBlocked()) return go("pay");
     if (groupBlocked()) return toast(t("Jamoa obunasi tugagan — administratorga murojaat qiling"));
     if (ss === "future") return toast(t("{n}-bosqich {d} soat 09:00 da ochiladi", { n: si + 1, d: stageDay(si) }));
-    if (ss === "closed") return toast(t("Bosqich yopilgan — faqat o'z kunida 09:00–17:00 ochiq"));
+    if (ss === "closed") return toast(t("Bosqich yopilgan — faqat o'z kunida ochiq: 09:00–17:00, juma 09:00–12:00"));
     const r = startStage(si); if (typeof r === "string") return toast(t(r));
     sfx("tap"); replace("quiz", { run: r });
   };

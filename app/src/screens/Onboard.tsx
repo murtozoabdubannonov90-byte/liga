@@ -1,3 +1,4 @@
+import { tgUser } from "../lib/tg";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck, CreditCard, Check } from "lucide-react";
@@ -51,7 +52,7 @@ export function LangPick() {
 }
 
 export function Register() {
-  const [f, setF] = useState(""), [l, setL] = useState(""), [p, setP] = useState(""), [rg, setRg] = useState(S.user.region || "");
+  const tu = tgUser(); const [f, setF] = useState(S.user.first || tu?.first_name || ""), [l, setL] = useState(S.user.last || tu?.last_name || ""), [p, setP] = useState(""), [rg, setRg] = useState(S.user.region || "");
   const [g, setG] = useState(entry.g || ""), [gname, setGname] = useState(""), [err, setErr] = useState(""), [busy, setBusy] = useState(false);
   const personal = !g || g === "ASOSIY";
   useEffect(() => {
@@ -80,7 +81,7 @@ export function Register() {
     if (S.group?.code === "ASOSIY") S.me = { personal: true, ok: false, price: 30000 };
     persist();
     const r = await joinServer(); setBusy(false);
-    if (!r.ok) toast(r.msg); else { sfx("win"); burst(); }
+    if (!r.ok) { setErr(r.msg); if (S.joinErr) return; toast(r.msg); } else { sfx("win"); burst(); }
     pull(true);
     if (S.group?.code === "ASOSIY") { tab("home"); go("pay", { first: true }); } else tab("home");
   };

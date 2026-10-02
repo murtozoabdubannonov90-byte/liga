@@ -16,7 +16,7 @@ export interface St {
   lastWeekXp: number; lastPart: Part | null; lastStages: Record<string, number> | null; stageXP: Record<string, number>;
   cups: number[]; leagues: number; pending: any; sa: Record<string, SaRec>; seen: Record<string, number>; tacc: Record<string, { ok: number; n: number }>;
   group?: { code: string; name?: string; start?: string; ok?: boolean; until?: string | null; members?: number };
-  me?: { paid_until?: string | null; ok?: boolean; personal?: boolean; price?: number; pending?: boolean; tier?: number; ref_code?: string; refs?: number };
+  me?: { paid_until?: string | null; ok?: boolean; personal?: boolean; price?: number; pending?: boolean; tier?: number; ref_code?: string; refs?: number; tg_linked?: boolean };
   payCfg?: any; members?: { n: string; me: boolean; m: number; tier?: number }[]; lastRes?: any; champs?: any[];
   wq?: any; wqDone?: Record<string, { ok: boolean; e: string }>; fin?: any; finDone?: Record<string, boolean>; finRun?: any; regL?: any[];
   adminPin?: string; superPin?: string; adminRows?: any[]; adminGroup?: any;

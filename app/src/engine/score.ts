@@ -1,7 +1,7 @@
 /* Ball qoidalari — eski ilova va server bilan bir xil:
    liga bali = bu haftadagi bosqichlar yig'indisi (har bosqich ≤ 450); kunlik mashq, blits, bonus — alohida. */
 import { S, persist } from "./state";
-import { dkey, stageDate, stageOpen, today, isWd, weekId, STAGE_N } from "./time";
+import { dkey, stageDate, stageOpen, today, isWd, weekId, STAGE_N, ymd, tzNow, closeH } from "./time";
 import { content } from "./data";
 
 export const RANKS: [number, string][] = [[0, "Stajyor"], [200, "Kichik hisobchi"], [500, "Hisobchi"], [900, "Bosh hisobchi o'rinbosari"], [1400, "Bosh buxgalter"], [2000, "Moliya direktori"], [2800, "Provodka ustozi"]];
@@ -58,20 +58,20 @@ export const saBad = (si: number) => Object.values(saRec(si).m).filter((v) => v 
 export function accStats() { let ok = 0, n = 0; Object.keys(S.sa || {}).forEach((k) => Object.values(S.sa[k].m || {}).forEach((v) => { n++; if (v === "ok") ok++; })); return { ok, n }; }
 
 /* kunlik seriya */
-const dstr = (d: Date) => d.toISOString().slice(0, 10);
-export function recalcStreak() { let n = 0; const d = new Date(); for (let i = 0; i < 90; i++) { if (isWd(d)) { const v = S.days[dstr(d)]; if (v === "done" || v === "shield") n++; else break; } d.setDate(d.getDate() - 1); } S.streak = n; }
+const dstr = (d: Date) => dkey(d);
+export function recalcStreak() { let n = 0; const d = ymd(tzNow().day); for (let i = 0; i < 90; i++) { if (isWd(d)) { const v = S.days[dstr(d)]; if (v === "done" || v === "shield") n++; else break; } d.setDate(d.getDate() - 1); } S.streak = n; }
 export function sweepDays() {
-  const now = new Date(), t = today();
-  for (let i = 1; i <= 21; i++) { const d = new Date(); d.setDate(d.getDate() - i); if (isWd(d) && !S.days[dstr(d)]) S.days[dstr(d)] = "missed"; }
-  if (isWd(now) && !S.days[t] && now.getHours() >= 17) S.days[t] = "missed";
+  const n = tzNow(), t = n.day;
+  for (let i = 1; i <= 21; i++) { const d = ymd(t); d.setDate(d.getDate() - i); if (isWd(d) && !S.days[dstr(d)]) S.days[dstr(d)] = "missed"; }
+  if (n.wd >= 1 && n.wd <= 5 && !S.days[t] && n.h >= closeH(n.wd)) S.days[t] = "missed";
   Object.keys(S.days).forEach((k) => { if (S.days[k] === "missed" && S.shield > 0) { S.days[k] = "shield"; S.shield--; } });
   recalcStreak(); persist();
 }
 export function markDay() {
-  const t = today(), now = new Date();
+  const n = tzNow(), t = n.day;
   if (S.days[t] === "done") return 0;
-  if (!isWd(now)) { S.days[t] = "bonus"; S.last = t; persist(); return 0; }
-  if (now.getHours() >= 17) { S.days[t] = "late"; S.last = t; persist(); return 0; }
+  if (n.wd < 1 || n.wd > 5) { S.days[t] = "bonus"; S.last = t; persist(); return 0; }
+  if (n.h >= closeH(n.wd)) { S.days[t] = "late"; S.last = t; persist(); return 0; }
   S.days[t] = "done"; S.last = t; recalcStreak();
   const bonus = Math.min(120, S.streak * 12); addXP(bonus);
   if (S.streak >= 3) award("streak3"); if (S.streak >= 7) award("streak7");

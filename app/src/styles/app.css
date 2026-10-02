@@ -278,3 +278,10 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .hidden{display:none!important}
 @media print{.nav,.dock,.ptitle .back,.noprint{display:none!important} body::before{display:none} .shell{padding:0;max-width:none} .card{box-shadow:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Telegram ulash kartasi */
+.tglink{display:flex;align-items:center;gap:12px;text-align:left;border:1.5px dashed var(--stamp);background:var(--stamp-soft)}
+.tglink .ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:var(--stamp);color:#fff;flex:none}
+.tglink b{display:block;font-size:15px;margin-bottom:2px}
+.tglink .small{display:block;color:var(--muted);font-weight:600;line-height:1.35}
+.tglink .chip{flex:none}

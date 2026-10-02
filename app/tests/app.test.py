@@ -15,7 +15,7 @@ def calls(fn): return [a for f, a in CALLS if f == fn]
 def cur_q(pg):
     """ekrandagi savol (run navbatidan) — to'g'ri javobni bilish uchun"""
     return pg.evaluate("""()=>{const r=__liga.nav.current().p.run, q=document.querySelector('.qtext').innerText.trim();
-      const t=r.queue.find(x=>x.q.trim()===q); return t?{t:t.t,dt:t.dt,kt:t.kt,a:t.a,o:t.o}:null}""")
+      const t=r.queue.find(x=>x.q.trim()===q); return t?{t:t.t,dt:t.dt,kt:t.kt,a:t.a,o:t.o,good:t.t==="mc"?String(t.o[t.a]).replace(/^(\\d{4}) .*/,"$1"):null}:null}""")
 def answer(pg, right=True):
     q = cur_q(pg)
     if q["t"] == "pv":
@@ -28,7 +28,7 @@ def answer(pg, right=True):
     elif q["t"] == "mc":
         opts = pg.locator(".opts .opt"); n = opts.count()
         texts = [opts.nth(i).inner_text().strip() for i in range(n)]
-        good = q["o"][0].strip() if q["o"] else None
+        good = (q.get("good") or "").strip()
         idx = next((i for i, x in enumerate(texts) if x == good), 0)
         opts.nth(idx if right else (idx + 1) % n).click()
     else:
@@ -77,10 +77,12 @@ with sync_playwright() as p:
     check("xato javob: XATO muhri va sababi", pg.locator(".stamp.bad").count() == 1 and "To'g'ri" in txt(pg))
     check("xato daftariga tushdi", S(pg, "Object.keys(S.errs).length") >= 1)
     pg.click("#nx"); pg.wait_for_timeout(400)
-    pg.evaluate("()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});Object.defineProperty(document,'visibilityState',{value:'hidden',configurable:true});document.dispatchEvent(new Event('visibilitychange'))}")
-    pg.wait_for_timeout(400)
-    check("ilovadan chiqish = xato (halol o'yin)", "Ilovadan chiqildi" in txt(pg), txt(pg)[-300:])
-    pg.evaluate("()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});Object.defineProperty(document,'visibilityState',{value:'visible',configurable:true})}")
+    HIDE = "()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});Object.defineProperty(document,'visibilityState',{value:'hidden',configurable:true});document.dispatchEvent(new Event('visibilitychange'))}"
+    SHOW = "()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});Object.defineProperty(document,'visibilityState',{value:'visible',configurable:true});document.dispatchEvent(new Event('visibilitychange'))}"
+    pg.evaluate(HIDE); pg.clock.fast_forward(1500); pg.evaluate(SHOW); pg.wait_for_timeout(300)
+    check("1.5 soniya chiqib qaytish kechiriladi (qo'ng'iroq)", "Ilovadan chiqildi" not in txt(pg) and pg.locator("#chk").count() == 1)
+    pg.evaluate(HIDE); pg.clock.fast_forward(5000); pg.evaluate(SHOW); pg.wait_for_timeout(400)
+    check("ilovadan uzoq chiqish = xato (halol o'yin)", "Ilovadan chiqildi" in txt(pg), txt(pg)[-300:])
     check("nusxa olish bloklangan", pg.evaluate("()=>{const e=new Event('copy',{cancelable:true});document.dispatchEvent(e);return e.defaultPrevented}"))
     check("ekranda ism suv belgisi", pg.locator(".wm").count() == 1 and "Dilnoza" in pg.inner_text(".wm"))
     pg.click("#nx"); pg.wait_for_timeout(300)
@@ -99,6 +101,39 @@ with sync_playwright() as p:
     check("shanba: dam olish kuni", pg.evaluate("()=>__liga.time.isWeekend()") and "Dam olish" in txt(pg))
     pg, e = page(b, when="2026-10-01T12:30:00Z"); ALLERR += e
     check("17:00 dan keyin bosqich yopiq", pg.evaluate("()=>__liga.time.stageOpen(3)") is False)
+
+    pg, e = page(b, when="2026-10-02T06:30:00Z"); ALLERR += e
+    check("juma 11:30 — bosqich ochiq", pg.evaluate("()=>__liga.time.stageOpen(__liga.time.todayStage())") is True)
+    check("juma: «12:00 gacha» yozuvi", "12:00 gacha" in txt(pg), txt(pg)[:300])
+    pg, e = page(b, when="2026-10-02T06:59:00Z", seed={**SEED, "week": {**SEED["week"], "id": "2026-10-02T07:00"}}); ALLERR += e
+    pg.clock.fast_forward(120000); pg.wait_for_timeout(300)
+    pg.evaluate("()=>document.dispatchEvent(new Event('visibilitychange'))"); pg.wait_for_timeout(500)
+    check("juma 12:00 — bosqich yopildi", pg.evaluate("()=>__liga.time.stageOpen(__liga.time.todayStage())") is False)
+    check("ilova ochiq turganda hafta yangilandi", S(pg, "S.week.id") == "2026-10-09T07:00" and S(pg, "S.week.my") == 0, S(pg, "S.week"))
+
+    print("4b. Telegram va shaxsiy natija")
+    pg, e = page(b); ALLERR += e
+    check("Telegram ulash kartasi ko'rinadi", pg.locator(".tglink").count() == 1)
+    CALLS.clear(); pg.evaluate("()=>{window.open=()=>null}"); pg.click(".tglink"); pg.wait_for_timeout(500)
+    check("ulash kodi so'raldi", len(calls("liga_tg_link_code")) == 1)
+    si = pg.evaluate("()=>__liga.time.todayStage()")
+    pg.evaluate("(si)=>{const r=__liga.score.saRec(si); for(let k=1;k<20;k++) r.m[k]='ok'; __liga.st.persist()}", si)
+    go(pg, "intro", {"si": si}); pg.click("#go"); pg.wait_for_timeout(500)
+    CALLS.clear(); answer(pg, True); pg.click("#nx"); pg.wait_for_timeout(1500)
+    sd = calls("bot:stage_done")
+    check("bosqich tugaganda natija botga yuborildi", len(sd) == 1 and sd[0].get("si") == si and sd[0].get("right") == 20, sd)
+    EXTRA["liga_me"] = [{"xp": 9999, "stages": 5, "week_id": "2026-10-02T07:00", "week_stages": {"0": 440, "1": 390, "2": 360}, "cur_week": "2026-10-02T07:00"}]
+    pg, e = page(b); ALLERR += e
+    pg.wait_for_timeout(800)
+    check("serverdagi ball telefonga qaytdi (yangi telefon)", S(pg, "S.xp") >= 9999 and S(pg, "S.week.stages['0']") == 440, (S(pg, "S.xp"), S(pg, "S.week.stages")))
+    del EXTRA["liga_me"]
+    EXTRA["liga_join3"] = {"__error": "phone_taken"}
+    pg, e = page(b, seed={}); ALLERR += e
+    pg.click("text=O'zbekcha"); pg.wait_for_timeout(400)
+    pg.fill("#f", "Olim"); pg.fill("#l", "Karimov"); pg.fill("#p", "+998901112233"); pg.select_option("#rg", "Toshkent shahri")
+    pg.click("#go"); pg.wait_for_timeout(900)
+    check("raqam band bo'lsa to'lovga o'tmaydi, sabab ko'rsatiladi", "5614" not in txt(pg) and "boshqa telefonda" in txt(pg), txt(pg)[-300:])
+    del EXTRA["liga_join3"]
 
     print("5. Mashq rejimlari")
     pg, e = page(b); ALLERR += e

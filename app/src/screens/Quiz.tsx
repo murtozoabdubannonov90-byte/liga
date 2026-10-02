@@ -6,13 +6,14 @@ import { t } from "../lib/i18n";
 import { back, replace, setBackGuard, tab, toast, go } from "../lib/nav";
 import { C, QSEC, apply, finish, grade, markPending, giftReward, startBlitz, startDaily, startErrs, startTopic, startPractice, type Run, type Q, type Ans, type Fin } from "../engine/run";
 import { shuffle, fmt } from "../engine/data";
-import { saSettle } from "../engine/score";
-import { stageOpen } from "../engine/time";
-import { rpc, syncSoon, syncNow, errMsg } from "../engine/server";
+import { saSettle, saBad, saRec } from "../engine/score";
+import { stageOpen, closeStr } from "../engine/time";
+import { rpc, syncSoon, syncNow, errMsg, stageDoneNotify } from "../engine/server";
 import { sfx, burst } from "../lib/fx";
 import { Ring, Star, CountUp } from "../components/ui";
 import { botNotify } from "./Duel";
 
+const AWAY_MS = 3000;
 const KIND: Record<string, string> = { mc: "Test", pv: "Provodka tuzing", calc: "Hisoblang" };
 const isFair = (r: Run) => r.fair;
 
@@ -40,7 +41,7 @@ export default function Quiz({ run }: { run: Run }) {
   const [ask, setAsk] = useState(false);
   const [extra, setExtra] = useState<any>(null);
   const tq: Q = r.queue[i];
-  const answered = useRef(false); answered.current = !!res;
+  const answered = useRef(false); const awayAt = useRef(0); answered.current = !!res;
   const qEnd = useRef(Date.now() + QSEC * 1000);
 
   /* variantlar va hisobvaraq tugmalari — har savolda bir marta aralashtiriladi */
@@ -82,7 +83,12 @@ export default function Quiz({ run }: { run: Run }) {
   /* halol o'yin: ilovadan chiqish = xato; nusxalash taqiqlangan */
   useEffect(() => {
     if (!isFair(r)) return;
-    const vis = () => { if (document.hidden && !answered.current && !fin) check("left"); };
+    /* 3 soniyagacha chiqib qaytish kechiriladi (qo'ng'iroq, bildirishnoma); undan uzoq — savol xato */
+    const vis = () => {
+      if (document.hidden) { awayAt.current = Date.now(); return; }
+      const away = awayAt.current ? Date.now() - awayAt.current : 0; awayAt.current = 0;
+      if (away > AWAY_MS && !answered.current && !fin) check("left");
+    };
     const block = (e: Event) => e.preventDefault();
     document.addEventListener("visibilitychange", vis);
     ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.addEventListener(ev, block));
@@ -127,6 +133,9 @@ export default function Quiz({ run }: { run: Run }) {
     } else if (r.mode === "test" && r.testRun) {
       try { await rpc("liga_test_finish", { p_run: r.testRun, p_score: r.right, p_total: r.queue.length, p_ms: ms, p_detail: r.answers });
         setExtra({ sent: true, ms }); } catch (e) { setExtra({ sent: false, ms, err: errMsg(e) }); }
+    } else if (r.mode === "stage" && r.si != null && f.stageDone) {
+      const si = r.si, n = C().STAGES[si].tasks.length;
+      syncNow().then(() => stageDoneNotify(si, n - saBad(si), n, f.stars)).catch(() => {});
     } else syncNow();
     if (f.passed && (f.stars === 3 || f.newRecord || r.mode === "final")) { burst(true); sfx("win"); } else if (f.passed) { burst(); sfx("win"); }
   }
@@ -208,7 +217,7 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
   const okN = r.answers.filter((a) => a.ok).length, badN = r.answers.length - okN;
   const again = r.mode === "blitz" ? startBlitz : r.mode === "daily" ? startDaily : r.mode === "errs" ? startErrs : r.mode === "practice" ? startPractice : r.mode === "topic" && r.tp ? () => startTopic(r.tp!) : null;
   let title = t("Yakunlandi"), big: any = null;
-  if (extra?.closed) title = t("Soat 17:00 — bosqich yopildi");
+  if (extra?.closed) title = t("Soat {c} — bosqich yopildi", { c: closeStr() });
   else if (r.mode === "gift") { title = extra?.gift > 25 ? t("Sovg'a ochildi!") : t("Qutida kichik sovg'a"); big = <>+<CountUp to={extra?.gift || 0} /> XP</>; }
   else if (r.mode === "blitz") { title = f.newRecord ? t("Yangi rekord!") : t("Blits yakunlandi"); big = <><CountUp to={r.right} />/{r.queue.length}</>; }
   else if (r.mode === "final") { title = t("Final yakunlandi!"); big = <><CountUp to={r.right * 20} /> {t("ball")}</>; }

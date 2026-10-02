@@ -45,7 +45,20 @@ function cyrWord(w: string) {
 const cyr = (t: string) => t.replace(/(<[^>]*>|@[A-Za-z0-9_]+|https?:\/\/\S+|XP|[A-Za-z][A-Za-z'ʻʼ‘’`]*[A-Za-z]|[A-Za-z])/g, (m) => (m[0] === "<" || m[0] === "@" || m.startsWith("http") || m === "XP" ? m : cyrWord(m)));
 // shaxsiy xabarlar: o'zbekcha matn kalit, rus tarjimasi shu yerda
 const RU: Record<string, string> = {
-  "⏰ <b>{n}, bugungi bosqich hali bajarilmagan!</b>\n{s}-bosqich soat 17:00 da yopiladi — 1 soat qoldi.": "⏰ <b>{n}, сегодняшний этап ещё не пройден!</b>\nЭтап {s} закроется в 17:00 — остался 1 час.",
+  "⏰ <b>{n}, bugungi bosqich hali bajarilmagan!</b>\n{s}-bosqich soat {c} da yopiladi — 1 soat qoldi.": "⏰ <b>{n}, сегодняшний этап ещё не пройден!</b>\nЭтап {s} закроется в {c} — остался 1 час.",
+  "Jamoangizdan {p} kishi bugungi bosqichni bajarib bo'ldi.": "Из вашей команды сегодняшний этап уже прошли: {p}.",
+  "✅ <b>{s}-bosqich yakunlandi!</b>\n🎯 {r}/{t} to'g'ri {st}\n💰 Bosqich bali: <b>{x} XP</b>\n📊 Shu hafta jami: <b>{w} XP</b>\n\n{next}": "✅ <b>Этап {s} пройден!</b>\n🎯 Верно: {r}/{t} {st}\n💰 Баллы за этап: <b>{x} XP</b>\n📊 Всего за неделю: <b>{w} XP</b>\n\n{next}",
+  "Ertaga 09:00 da yangi bosqich ochiladi.": "Завтра в 09:00 откроется новый этап.",
+  "Dushanba 09:00 da yangi bosqich ochiladi.": "В понедельник в 09:00 откроется новый этап.",
+  "Liga bugun 12:00 da yakunlanadi — natijalar shu yerga keladi.": "Лига завершится сегодня в 12:00 — результаты придут сюда.",
+  "Natijalar juma 12:00 da shu yerga keladi.": "Результаты придут сюда в пятницу в 12:00.",
+  "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.": "☀️ <b>Доброе утро, {n}!</b>\nСегодня открыт <b>этап {s}</b> — 20 вопросов.\n⏰ Открыт до {c}.",
+  "Bosqichni boshlash": "Начать этап",
+  "🏁 <b>Hafta yakunlandi!</b>\n{m} Siz jamoada <b>{p}-o'rin</b>ni egalladingiz ({n} kishidan).\n💰 Haftalik bal: <b>{x} XP</b>\n\nDarajangiz 12:10 da yangilanadi. Yangi hafta dushanba 09:00 da.": "🏁 <b>Неделя завершена!</b>\n{m} Ваше место в команде: <b>{p}</b> (из {n}).\n💰 Баллы за неделю: <b>{x} XP</b>\n\nУровень обновится в 12:10. Новая неделя — в понедельник в 09:00.",
+  "🏁 <b>Hafta yakunlandi.</b>\nBu hafta bosqich o'ynamadingiz. Dushanba 09:00 da yangi hafta — qaytib keling! 💪": "🏁 <b>Неделя завершена.</b>\nНа этой неделе вы не проходили этапы. Новая неделя — в понедельник в 09:00, возвращайтесь! 💪",
+  "Natijalarni ko'rish": "Посмотреть результаты",
+  "✅ <b>Ulandi!</b>\nEndi har bosqichdan keyin natijangiz, ertalab bosqich eslatmasi va juma kuni o'rningiz shu yerga keladi.": "✅ <b>Подключено!</b>\nТеперь после каждого этапа сюда придёт ваш результат, утром — напоминание об этапе, а в пятницу — ваше место.",
+  "Ligani ochish": "Открыть лигу",
   "Bosqichni ochish": "Открыть этап",
   "⚔️ <b>Duel yakunlandi!</b>\n{a} — {as} · {b} — {bs}\n\n{w}": "⚔️ <b>Дуэль завершена!</b>\n{a} — {as} · {b} — {bs}\n\n{w}",
   "🏆 Siz yutdingiz!": "🏆 Вы победили!", "Bu safar raqib kuchliroq. Yana chaqiring!": "В этот раз соперник сильнее. Вызовите ещё раз!", "🤝 Durang!": "🤝 Ничья!",
@@ -83,6 +96,35 @@ async function checkInit(initData: string): Promise<any | null> {
   try { return JSON.parse(p.get("user") || "null"); } catch { return null; }
 }
 const appBtn = (text: string, q = "") => ({ inline_keyboard: [[{ text, web_app: { url: APP + q } }]] });
+const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
+// juma — bosqich 12:00 gacha (liga juma 12:00 da tugaydi), boshqa ish kunlari — 17:00 gacha
+const closeStr = (w: number) => (w === 5 ? "12:00" : "17:00");
+const stars = (n: number) => (n > 0 ? "⭐".repeat(Math.min(3, n)) : "");
+// bugun jamoada nechta kishi bosqichni o'ynadi
+async function todayCounts(): Promise<Record<string, { played: number; total: number }>> {
+  const { data } = await db.rpc("liga_today_counts"); const m: Record<string, { played: number; total: number }> = {};
+  for (const r of (data ?? []) as any[]) m[r.group_code] = { played: r.played, total: r.total };
+  return m;
+}
+// shaxsiy xabar (bot bloklangan bo'lsa jim o'tadi); Telegram cheklovi: sekundiga ~25 ta
+async function dm(chat: number, text: string, kb?: unknown) {
+  const r = await tg("sendMessage", { chat_id: chat, parse_mode: "HTML", text, reply_markup: kb }); await pause(45); return !!r?.ok;
+}
+// kunning savoli — guruhga Telegram "quiz" so'rovnomasi (public/polls.json, ilova bilan bir xil savollar)
+let POLLS: { uz: any[]; ru: any[] } | null = null;
+async function sendDailyPoll(chat: number) {
+  try { if (!POLLS) POLLS = await (await fetch(APP + "polls.json")).json(); } catch { return false; }
+  const list = POLLS?.uz ?? []; if (!list.length) return false;
+  const day = Math.round((tzDate().getTime() - Date.UTC(2026, 9, 1)) / 864e5);
+  const q = list[((day * 37) % list.length + list.length) % list.length];
+  // variantlar tartibi har kuni boshqacha, to'g'ri javob doim birinchi bo'lmasin
+  const idx = q.o.map((_: string, i: number) => i); let seed = day * 9301 + 49297;
+  for (let i = idx.length - 1; i > 0; i--) { seed = (seed * 9301 + 49297) % 233280; const j = Math.floor((seed / 233280) * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  const head = "📚 Kunning savoli: ";
+  const r = await tg("sendPoll", { chat_id: chat, question: (head + q.q).slice(0, 300), options: idx.map((i: number) => ({ text: q.o[i] })), type: "quiz",
+    correct_option_id: idx.indexOf(q.a), explanation: q.e || undefined, is_anonymous: true });
+  return !!r?.ok;
+}
 
 type Chat = { chat_id: number; group_code: string };
 type Group = { code: string; name: string; start_date: string; active: boolean; paid_until: string | null };
@@ -185,7 +227,7 @@ async function onReceipt(m: any) {
   if (r?.dup) return tg("sendMessage", { chat_id: chatId, text: "⚠️ Bu chek avval yuborilgan. Yangi to'lov chekini yuboring." });
   const p = await playerName(ses.player_id);
   await tg("sendMessage", { chat_id: chatId, parse_mode: "HTML", reply_markup: openApp(p?.group_code),
-    text: `✅ <b>Chek qabul qilindi!</b>\n\nSiz ligaga qo'shildingiz${p?.first_name ? `, ${esc(p.first_name)}` : ""}.\n💳 Obuna: <b>${fmtD(r.paid_until)}</b> gacha.\n\nBosqichlar har ish kuni 09:00–17:00. Omad! 💪` });
+    text: `✅ <b>Chek qabul qilindi!</b>\n\nSiz ligaga qo'shildingiz${p?.first_name ? `, ${esc(p.first_name)}` : ""}.\n💳 Obuna: <b>${fmtD(r.paid_until)}</b> gacha.\n\nBosqichlar har ish kuni 09:00–17:00, juma 09:00–12:00. Omad! 💪` });
   await notifyAdmins(Number(r.id));
 }
 
@@ -255,7 +297,7 @@ async function onUpdate(u: any) {
     if (st === "member" || st === "administrator") {
       await db.from("liga_bot_chats").upsert({ chat_id: cm.chat.id, title: cm.chat.title, active: true });
       await tg("sendMessage", { chat_id: cm.chat.id, parse_mode: "HTML", reply_markup: openBot(await chatGroup(cm.chat.id)),
-        text: "👋 Salom, buxgalterlar!\n\n<b>Hisobchi Liga</b> — haftalik musobaqa:\n• har ish kuni 09:00–17:00 da yangi bosqich (20 savol);\n• liga dushanbadan <b>juma 12:00</b> gacha;\n• hafta davomida natijangizni faqat o'zingiz ko'rasiz;\n• yakuniy jadval juma 12:00 da shu guruhga chiqadi.\n\n🔗 Jamoa administratori: guruhda <b>/ulash KOD</b> deb yozing (kod admin panelda).\nBoshlash uchun pastdagi tugmani bosing." });
+        text: "👋 Salom, buxgalterlar!\n\n<b>Hisobchi Liga</b> — haftalik musobaqa:\n• har ish kuni 09:00–17:00 da (juma 12:00 gacha) yangi bosqich (20 savol);\n• liga dushanbadan <b>juma 12:00</b> gacha;\n• hafta davomida natijangizni faqat o'zingiz ko'rasiz;\n• yakuniy jadval juma 12:00 da shu guruhga chiqadi.\n\n🔗 Jamoa administratori: guruhda <b>/ulash KOD</b> deb yozing (kod admin panelda).\nBoshlash uchun pastdagi tugmani bosing." });
     } else if (st === "left" || st === "kicked") {
       await db.from("liga_bot_chats").update({ active: false }).eq("chat_id", cm.chat.id);
     }
@@ -281,6 +323,7 @@ async function onUpdate(u: any) {
     const { data: pl } = await db.from("safari_players").select("id,first_name").eq("phone", "+" + ph).maybeSingle();
     if (!pl) return reply("❌ Bu raqam bilan ro'yxatdan o'tilmagan. Avval ilovada ro'yxatdan o'ting, keyin chekni yuboring.", openApp());
     await setSession(m.chat.id, pl.id, 1);
+    await db.rpc("liga_tg_bind_sys", { p_player: pl.id, p_tg: m.from.id });
     await tg("sendMessage", { chat_id: m.chat.id, text: "✅ Topildi.", reply_markup: { remove_keyboard: true } });
     return cardMessage(m.chat.id, 1, pl.first_name);
   }
@@ -289,6 +332,7 @@ async function onUpdate(u: any) {
     const { data: l } = await db.from("liga_tg_links").select("player_id,created_at").eq("code", arg.slice(4)).eq("kind", "pay").maybeSingle();
     if (!l || Date.now() - new Date(l.created_at).getTime() > 7 * 864e5) return askContact(m.chat.id);
     await setSession(m.chat.id, l.player_id, 1);
+    if (m.from?.id) await db.rpc("liga_tg_bind_sys", { p_player: l.player_id, p_tg: m.from.id });
     const p = await playerName(l.player_id);
     return cardMessage(m.chat.id, 1, p?.first_name);
   }
@@ -298,6 +342,12 @@ async function onUpdate(u: any) {
     await db.from("liga_admin_chats").upsert({ chat_id: m.chat.id, group_code: l.group_code });
     await db.from("liga_tg_links").update({ used_at: new Date().toISOString() }).eq("code", arg.slice(4));
     return reply("✅ Ulandi! Endi yangi to'lov cheklari shu yerga keladi — «✅ Tasdiqlash» yoki «❌ Rad etish» tugmasini bosasiz.");
+  }
+  if (priv && cmd === "/start" && /^link_[0-9a-f]+$/i.test(arg)) {
+    const { data } = await db.rpc("liga_tg_link_use_sys", { p_code: arg.slice(5), p_tg: m.from?.id });
+    const x = (data ?? [])[0];
+    if (!x) return reply("❌ Havola eskirgan. Ilovada «Telegram'ni ulash» tugmasini qayta bosing.", openApp());
+    return reply(tr(x.lang, "✅ <b>Ulandi!</b>\nEndi har bosqichdan keyin natijangiz, ertalab bosqich eslatmasi va juma kuni o'rningiz shu yerga keladi."), appBtn(tr(x.lang, "Ligani ochish")));
   }
   if (priv && cmd === "/tolov") {
     const { data: ses } = await db.from("liga_tg_sessions").select("player_id,months").eq("chat_id", m.chat.id).maybeSingle();
@@ -317,7 +367,7 @@ async function onUpdate(u: any) {
     let gname = "";
     if (code) { const { data } = await db.from("liga_groups").select("name").eq("code", code).maybeSingle(); gname = data?.name ?? ""; }
     await reply(priv
-      ? `🏆 <b>Hisobchi Liga</b>${gname ? ` — «${esc(gname)}»` : ""}\n\nProvodka, QQS, ish haqi, soliq va hisobotlar bo'yicha har kuni yangi bosqich. Har ish kuni 09:00–17:00.\n\n${code ? `Jamoa kodi: <b>${esc(code)}</b> — ro'yxatdan o'tishda avtomatik qo'yiladi.\n\n` : ""}Ilovani ochish uchun tugmani bosing:`
+      ? `🏆 <b>Hisobchi Liga</b>${gname ? ` — «${esc(gname)}»` : ""}\n\nProvodka, QQS, ish haqi, soliq va hisobotlar bo'yicha har kuni yangi bosqich. Har ish kuni 09:00–17:00, juma 09:00–12:00.\n\n${code ? `Jamoa kodi: <b>${esc(code)}</b> — ro'yxatdan o'tishda avtomatik qo'yiladi.\n\n` : ""}Ilovani ochish uchun tugmani bosing:`
       : "🏆 Ligani ochish uchun tugmani bosing:", priv ? openApp(code) : openBot(code));
   } else if (cmd === "/ulash") {
     if (priv) return reply("Bu buyruq Telegram guruhda ishlaydi: botni guruhga qo'shing va guruhda <b>/ulash KOD</b> deb yozing.");
@@ -334,7 +384,7 @@ async function onUpdate(u: any) {
     const code = priv ? "ASOSIY" : await chatGroup(m.chat.id);
     await reply(await resultsText(code), priv ? openApp(code) : openBot(code));
   } else if (cmd === "/qoida") {
-    await reply("📋 <b>Qoidalar</b>\n• Har ish kuni 09:00–17:00 da yangi bosqich: 12 ta provodka + 8 ta qonun, kodeks va hisob savoli.\n• Har savolga 1 daqiqa, har savolga faqat bir marta javob. Xatoning sababi darhol ko'rsatiladi.\n• Liga bali faqat bosqichlardan; kunlik mashq va blits — alohida.\n• Liga — dushanbadan juma 12:00 gacha. Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Juma 12:00 da jadval e'lon qilinadi; kuchli uchlik nishon va sertifikat oladi.");
+    await reply("📋 <b>Qoidalar</b>\n• Har ish kuni 09:00–17:00 da (juma — 12:00 gacha) yangi bosqich: 12 ta provodka + 8 ta qonun, kodeks va hisob savoli.\n• Har savolga 1 daqiqa, har savolga faqat bir marta javob. Xatoning sababi darhol ko'rsatiladi.\n• Liga bali faqat bosqichlardan; kunlik mashq va blits — alohida.\n• Liga — dushanbadan juma 12:00 gacha. Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Juma 12:00 da jadval e'lon qilinadi; kuchli uchlik nishon va sertifikat oladi.");
   }
 }
 
@@ -367,6 +417,23 @@ async function once(tag: string) {
   return !error;
 }
 
+// 1 soat qoldi: guruhga (nechta kishi o'ynagani bilan) va bajarmaganlarga shaxsan
+async function remindAll(w: number, groupText: string) {
+  const cnt = await todayCounts();
+  const sent = await toChats((g) => {
+    if (todayStage(g.start_date) === null) return null;
+    const c = cnt[g.code]; return groupText + (c && c.played > 0 ? `\n\n👥 Jamoangizdan <b>${c.played}</b> kishi bugungi bosqichni bajarib bo'ldi. Siz-chi?` : "");
+  });
+  const { data: list } = await db.rpc("liga_remind_list2"); let personal = 0;
+  for (const p of (list ?? []) as any[]) {
+    const c = cnt[p.group_code ?? ""];
+    const extra = c && c.played > 0 ? "\n" + tr(p.lang, "Jamoangizdan {p} kishi bugungi bosqichni bajarib bo'ldi.", { p: c.played }) : "";
+    if (await dm(p.tg, tr(p.lang, "⏰ <b>{n}, bugungi bosqich hali bajarilmagan!</b>\n{s}-bosqich soat {c} da yopiladi — 1 soat qoldi.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w) }) + extra,
+      appBtn(tr(p.lang, "Bosqichni ochish")))) personal++;
+  }
+  return { ok: true, sent, personal };
+}
+
 async function onCron(action: string) {
   if (action === "setup") {
     const url = `${SB_URL}/functions/v1/liga-bot`;
@@ -395,22 +462,23 @@ async function onCron(action: string) {
       const head = w === 1
         ? "🚀 <b>Yangi liga haftasi boshlandi!</b>\n\nLiga bugundan <b>juma soat 12:00</b> gacha davom etadi."
         : "☀️ <b>Bugungi o'yin boshlandi!</b>";
-      return `${head}\n📚 Bugun <b>${si + 1}-bosqich: ${TITLES[si]}</b> ochildi (20 savol).\n⏰ Bosqich <b>17:00</b> gacha ochiq, keyin yopiladi.\n⏱ Har savolga 1 daqiqa.${lesson ? `\n\n📘 <b>Bugungi dars:</b> ${esc(lesson.uz.title)}\n${esc(lesson.uz.body)}` : ""}\n\nOmad, buxgalterlar! 💪`;
+      return `${head}\n📚 Bugun <b>${si + 1}-bosqich: ${TITLES[si]}</b> ochildi (20 savol).\n⏰ Bosqich <b>${closeStr(w)}</b> gacha ochiq, keyin yopiladi.\n⏱ Har savolga 1 daqiqa.${lesson ? `\n\n📘 <b>Bugungi dars:</b> ${esc(lesson.uz.title)}\n${esc(lesson.uz.body)}` : ""}\n\nOmad, buxgalterlar! 💪`;
     });
-    return { ok: true, sent: n };
+    // guruhlarga kunning savoli (so'rovnoma)
+    let polls = 0; const gm = await groupMap();
+    for (const c of await chats()) if (groupOk(gm[c.group_code]) && todayStage(gm[c.group_code].start_date) !== null && await sendDailyPoll(c.chat_id)) polls++;
+    // har o'yinchiga shaxsan
+    const { data: list } = await db.rpc("liga_morning_list"); let personal = 0;
+    for (const p of (list ?? []) as any[]) {
+      if (await dm(p.tg, tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w) }),
+        appBtn(tr(p.lang, "Bosqichni boshlash")))) personal++;
+    }
+    return { ok: true, sent: n, polls, personal };
   }
   if (action === "remind") {
-    if (w < 1 || w > 5 || !(await once("remind"))) return { skip: true };
-    const sent = await toChats((g) => todayStage(g.start_date) === null ? null : "⏰ <b>Eslatma:</b> bugungi bosqich yopilishiga <b>1 soat</b> qoldi — soat 17:00 gacha bajaring!");
-    // shaxsiy: bugungi bosqichni bajarmaganlarga
-    const { data: list } = await db.rpc("liga_remind_list");
-    let personal = 0;
-    for (const p of (list ?? []) as any[]) {
-      const r = await tg("sendMessage", { chat_id: p.tg, parse_mode: "HTML", text: tr(p.lang, "⏰ <b>{n}, bugungi bosqich hali bajarilmagan!</b>\n{s}-bosqich soat 17:00 da yopiladi — 1 soat qoldi.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1 }),
-        reply_markup: appBtn(tr(p.lang, "Bosqichni ochish")) });
-      if (r?.ok) personal++;
-    }
-    return { ok: true, sent, personal };
+    // juma kuni bosqich 12:00 da yopiladi — eslatma friday_warn (11:00) da ketadi
+    if (w < 1 || w > 4 || !(await once("remind"))) return { skip: true };
+    return await remindAll(w, "⏰ <b>Eslatma:</b> bugungi bosqich yopilishiga <b>1 soat</b> qoldi — soat 17:00 gacha bajaring!");
   }
   if (action === "tiers") {
     if (!(await once("tiers"))) return { skip: "already" };
@@ -429,19 +497,36 @@ async function onCron(action: string) {
     return { ok: true, players: n, notified: msg };
   }
   if (action === "day_end") {
-    if (w < 1 || w > 5 || !(await once("day_end"))) return { skip: true };
-    const tail = w === 5 ? "Yangi hafta dushanba soat 09:00 da boshlanadi." :
-      w === 4 ? "Ertaga — haftaning oxirgi kuni. Liga <b>juma 12:00</b> da yakunlanadi va natijalar shu guruhga chiqadi." :
+    // juma: bosqich 12:00 da yopiladi, o'sha paytda haftalik natijalar chiqadi — alohida xabar kerak emas
+    if (w < 1 || w > 4 || !(await once("day_end"))) return { skip: true };
+    const tail = w === 4 ? "Ertaga — haftaning oxirgi kuni: bosqich <b>09:00–12:00</b>, liga <b>juma 12:00</b> da yakunlanadi va natijalar shu guruhga chiqadi." :
       "Ertaga soat 09:00 da yangi bosqich ochiladi. Liga natijalari <b>juma 12:00</b> da e'lon qilinadi.";
-    return { ok: true, sent: await toChats((g) => todayStage(g.start_date) === null ? null : `🔔 <b>Bugungi o'yin tugadi!</b>\n\nBugungi bosqich yopildi.\n${tail}`) };
+    const cnt = await todayCounts();
+    return { ok: true, sent: await toChats((g) => {
+      if (todayStage(g.start_date) === null) return null;
+      const c = cnt[g.code], who = c && c.played > 0 ? `\n👥 Bugun <b>${c.played}</b> kishi bosqichni yakunladi. Kim birinchi — juma kuni bilamiz!` : "";
+      return `🔔 <b>Bugungi o'yin tugadi!</b>\n\nBugungi bosqich yopildi.${who}\n${tail}`;
+    }) };
   }
   if (action === "friday_warn") {
     if (w !== 5 || !(await once("friday_warn"))) return { skip: true };
-    return { ok: true, sent: await toChats(() => "⏳ <b>Liga tugashiga 1 soat qoldi!</b>\n\nSoat 12:00 da haftalik liga yakunlanadi. Oxirgi imkoniyat — ballaringizni oshiring! 🔥") };
+    return await remindAll(5, "⏳ <b>Liga tugashiga 1 soat qoldi!</b>\n\nSoat 12:00 da bugungi bosqich yopiladi va haftalik liga yakunlanadi. Oxirgi imkoniyat — ballaringizni oshiring! 🔥");
   }
   if (action === "results" || action === "league_end") {
     if (!(await once("league_end"))) return { skip: true };
-    return { ok: true, sent: await toChats(async (g) => "🏁 <b>Haftalik liga tugadi!</b>\n\n" + (await resultsText(g.code)).replace(/^🏁 <b>[^<]*<\/b>\n\n/, "")) };
+    const gm = await groupMap();
+    const sent = await toChats(async (g) => "🏁 <b>Haftalik liga tugadi!</b>\n\n" + (await resultsText(g.code)).replace(/^🏁 <b>[^<]*<\/b>\n\n/, ""));
+    // guruh boti ulanmagan jamoalar ham natijani hisoblasin (liga_week_results)
+    for (const code of Object.keys(gm)) if (groupOk(gm[code])) await db.rpc("liga_results_group", { p_code: code, p_id: null });
+    const { data: list } = await db.rpc("liga_week_personal"); let personal = 0;
+    for (const p of (list ?? []) as any[]) {
+      const text = p.pos && p.week_xp > 0
+        ? tr(p.lang, "🏁 <b>Hafta yakunlandi!</b>\n{m} Siz jamoada <b>{p}-o'rin</b>ni egalladingiz ({n} kishidan).\n💰 Haftalik bal: <b>{x} XP</b>\n\nDarajangiz 12:10 da yangilanadi. Yangi hafta dushanba 09:00 da.",
+            { m: ["👑", "🥈", "🥉"][p.pos - 1] ?? "🏅", p: p.pos, n: p.n, x: p.week_xp })
+        : tr(p.lang, "🏁 <b>Hafta yakunlandi.</b>\nBu hafta bosqich o'ynamadingiz. Dushanba 09:00 da yangi hafta — qaytib keling! 💪");
+      if (await dm(p.tg, text, appBtn(tr(p.lang, "Natijalarni ko'rish")))) personal++;
+    }
+    return { ok: true, sent, personal };
   }
   if (action.startsWith("receipt:")) return await notifyAdmins(Number(action.slice(8)));
   if (action === "status") {
@@ -477,6 +562,21 @@ async function onApp(req: Request) {
       await tg("sendMessage", { chat_id: A.tg_user_id, parse_mode: "HTML", text: tr(A.lang, "⚔️ <b>{n} duelingizni qabul qildi va o'ynadi.</b>\nEndi navbat sizda!", { n: nm(B) }), reply_markup: appBtn(tr(A.lang, "Duelni ochish"), "?d=" + d.code) });
     }
     return jres({ ok: true });
+  }
+  if (action === "stage_done") {
+    if (!b.p_id || !(await authOk(b.p_id, b.token))) return jres({ error: "bad_token" }, 403);
+    const si = Math.max(0, Math.min(11, Number(b.si) || 0));
+    const { data: p } = await db.from("safari_players").select("tg_user_id,lang,week_stages").eq("id", b.p_id).maybeSingle();
+    if (!p?.tg_user_id) return jres({ ok: false, reason: "no_tg" });
+    if (!(await once(`sd_${b.p_id}_${si}`))) return jres({ ok: true, dup: true });
+    const ws = (p.week_stages ?? {}) as Record<string, number>, x = Number(ws[String(si)] ?? 0);
+    const week = Object.values(ws).reduce((a, v) => a + (Number(v) || 0), 0), w = tzDate().getUTCDay();
+    const next = w === 5 ? tr(p.lang, "Liga bugun 12:00 da yakunlanadi — natijalar shu yerga keladi.") : w === 4 ? tr(p.lang, "Ertaga 09:00 da yangi bosqich ochiladi.") + " " + tr(p.lang, "Natijalar juma 12:00 da shu yerga keladi.")
+      : tr(p.lang, "Ertaga 09:00 da yangi bosqich ochiladi.");
+    const total = Math.max(1, Math.min(20, Number(b.total) || 20)), right = Math.max(0, Math.min(total, Number(b.right) || 0));
+    const ok = await dm(p.tg_user_id, tr(p.lang, "✅ <b>{s}-bosqich yakunlandi!</b>\n🎯 {r}/{t} to'g'ri {st}\n💰 Bosqich bali: <b>{x} XP</b>\n📊 Shu hafta jami: <b>{w} XP</b>\n\n{next}",
+      { s: si + 1, r: right, t: total, st: stars(Number(b.stars) || 0), x, w: week, next }), appBtn(tr(p.lang, "Ligani ochish")));
+    return jres({ ok });
   }
   // quyidagilar faqat Telegram ichidan (initData tekshiriladi)
   const user = await checkInit(String(b.initData || ""));

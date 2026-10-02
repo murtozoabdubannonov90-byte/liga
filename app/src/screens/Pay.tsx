@@ -41,7 +41,7 @@ export default function Pay() {
   if (done !== null) return (
     <div className="shell bare"><div className="result"><Check size={72} color="var(--green)" style={{ margin: "0 auto" }} /><h2>{t("Ligaga qo'shildingiz!")}</h2>
       <span className="chip ok" style={{ justifySelf: "center" }}>{t("Obuna {d} gacha", { d: fmtD(done) })}</span>
-      <p className="small muted">{t("Chekingiz administratorga yuborildi. Bosqichlar ochildi — har ish kuni 09:00–17:00.")}</p></div>
+      <p className="small muted">{t("Chekingiz administratorga yuborildi. Bosqichlar ochildi — har ish kuni 09:00–17:00, juma 09:00–12:00.")}</p></div>
       <div className="dock"><button className="btn" onClick={() => tab("home")}>{t("Boshlash")}</button></div></div>);
   return (
     <div className="shell bare">

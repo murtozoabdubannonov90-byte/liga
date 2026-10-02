@@ -39,6 +39,7 @@ def body_for(fn, args):
       "liga_test_start": [{"run_id": "run-1", "started_at": "2026-10-01T05:00:00Z"}],
       "liga_cert_verify": [{"id": "ABCD2345", "name": "Dilnoza Karimova", "kind": "week", "title": "week", "detail": "1|1310|2026-09-25T07:00", "issued_at": "2026-10-01T10:00:00Z", "team": "Buxgalterlar ligasi"}],
       "liga_cert_issue": [{"id": "ABCD2345", "title": "week", "detail": "1|1310|2026-09-25T07:00", "issued_at": "2026-10-01T10:00:00Z"}],
+      "liga_tg_link_code": "link_abc", "liga_me": [{"xp": 0, "stages": 0, "week_id": None, "week_stages": {}, "cur_week": "2026-10-02T07:00"}],
       "liga_receipt_submit": [{"id": 12, "paid_until": "2026-10-31"}], "liga_tg_pay_link": "pay_abc", "liga_admin_tg_link": "adm_abc",
     }
     return D.get(fn, None)
@@ -47,8 +48,13 @@ def handler(route):
     if "/rpc/" in u:
         fn = u.split("/rpc/")[-1].split("?")[0]; args = json.loads(route.request.post_data or "{}")
         CALLS.append((fn, args)); b = body_for(fn, args)
+        if isinstance(b, dict) and "__error" in b: return route.fulfill(status=400, content_type="application/json", body=json.dumps({"message": b["__error"]}))
         return route.fulfill(status=200, content_type="application/json", body=json.dumps(b))
-    if "/functions/v1/" in u: return route.fulfill(status=200, content_type="application/json", body='{"ok":true}')
+    if "/functions/v1/" in u:
+        try: body = json.loads(route.request.post_data or "{}")
+        except Exception: body = {}
+        CALLS.append(("bot:" + str(body.get("action", "")), body))
+        return route.fulfill(status=200, content_type="application/json", body='{"ok":true}')
     return route.fulfill(status=200, body="")
 _srv = None
 def serve():

@@ -1,6 +1,6 @@
 /* Server (Supabase) bilan aloqa. Barcha yozuvlar shaxsiy kalit bilan. */
 import { S, persist, bump } from "./state";
-import { accStats } from "./score";
+import { accStats, recalcWeek } from "./score";
 import { setLigaStart } from "./time";
 import { tgUser, inTelegram, W } from "../lib/tg";
 import { t } from "../lib/i18n";
@@ -49,6 +49,19 @@ export async function pushMe() {
       p_week_stages: S.week.stages || {}, p_region: S.user.region || null, p_acc_ok: ac.ok, p_acc_total: ac.n });
   } catch (e) { if (/bad_token/.test(String((e as any).message))) { S.token = ""; S.tokenLost = true; persist(); } }
 }
+/* serverdagi ball telefondagidan katta bo'lsa (yangi telefon, xotira tozalangan) — olib kelinadi */
+async function mergeMe() {
+  try {
+    const m = (await rpc<any[]>("liga_me", { p_id: S.pid, p_token: S.token }))?.[0]; if (!m) return;
+    let ch = false;
+    if ((m.xp || 0) > S.xp) { S.xp = m.xp; ch = true; }
+    if (m.week_id && m.week_id === S.week.id && m.week_id === m.cur_week) {
+      for (const [k, v] of Object.entries(m.week_stages || {})) if ((Number(v) || 0) > (S.week.stages[k] || 0)) { S.week.stages[k] = Number(v); ch = true; }
+      if (ch) recalcWeek();
+    }
+    if (ch) { persist(); bump(); }
+  } catch { /* */ }
+}
 let lastPull = 0, pulling = false;
 export async function pull(force = false) {
   if (pulling || (!force && Date.now() - lastPull < 40000)) return;
@@ -72,6 +85,7 @@ export async function pull(force = false) {
       if (ch) S.champs = ch; if (wq) S.wq = wq[0] || null; if (fin) S.fin = fin[0] || null; if (reg) S.regL = reg;
       if (me && me[0]) { S.me = { ...me[0] }; S.tier = me[0].tier; }
       if (cq) S.customQ = cq; if (certs) S.certs = certs;
+      if (S.token) await mergeMe();
     }
     rpc<any[]>("liga_pay_config2").then((c) => { if (c && c[0]) { S.payCfg = c[0]; persist(); } }).catch(() => {});
     if (S.adminPin) rpc<any[]>("liga_admin_list2", { p_pin: S.adminPin }).then((x) => { S.adminRows = x; persist(); }).catch(() => {});
@@ -89,6 +103,12 @@ export async function botApp(action: string, extra: Record<string, unknown> = {}
     body: JSON.stringify({ action, initData: inTelegram ? W.initData : "", p_id: S.pid, token: S.token, ...extra }) });
   const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error(j.error || "net"); return j;
 }
+/* bosqich yakunlandi — bot o'yinchiga shaxsan natijasini yuboradi (Telegram ulangan bo'lsa) */
+export async function stageDoneNotify(si: number, right: number, total: number, stars: number) {
+  if (!S.pid || !S.token) return; try { await botApp("stage_done", { si, right, total, stars }); } catch { /* ulanmagan */ }
+}
+/* Telegram'ga ulash havolasi (bot /start link_KOD) */
+export async function tgLinkCode(): Promise<string> { return rpc<string>("liga_tg_link_code", { p_id: S.pid, p_token: S.token }); }
 export async function linkTelegram() {
   if (!inTelegram || !S.pid || !S.token || !tgUser()) return;
   const uid = String(tgUser().id); if (S.tgLinked === uid as any) return;

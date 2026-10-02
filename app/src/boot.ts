@@ -36,8 +36,10 @@ export function boot() {
   if (S.user.first && (!S.pid || (!S.token && !S.tokenLost))) joinServer().then(() => pull(true)); else pull(true);
   linkTelegram();
   flushFinal();
-  setInterval(() => { if (document.visibilityState === "visible") pull(); }, 60000);
-  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pull(); });
+  /* ilova ochiq turganda juma 12:00 o'tsa — hafta yangilanadi (eski hafta bali yangi haftaga o'tib ketmaydi) */
+  const tick = () => { if (checkWeek()) { go("weekEnd"); pull(true); } };
+  setInterval(() => { if (document.visibilityState === "visible") { tick(); pull(); } }, 60000);
+  document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { tick(); pull(); } });
   try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); } catch { /* */ }
   try { (window as any).Telegram?.WebApp?.onEvent?.("themeChanged", applyTheme); } catch { /* */ }
 }

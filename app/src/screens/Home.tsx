@@ -1,21 +1,37 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { entry } from "../boot";
-import { Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame } from "lucide-react";
+import { Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing } from "lucide-react";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, toast } from "../lib/nav";
 import { C, startDaily, startBlitz, startErrs, startGift, startPractice } from "../engine/run";
 import { rankOf, saLeft, saBad, giftDone, giftReady, giftCorrect, GIFT_NEED, WEEK_GOAL } from "../engine/score";
-import { stageState, todayStage, tzNow, isWeekend, weekDays, stageOfDate, dkey, OPEN_H, CLOSE_H, hm, weekEnd, stageDay } from "../engine/time";
-import { joinServer, pull } from "../engine/server";
+import { stageState, todayStage, tzNow, isWeekend, weekDays, stageOfDate, dkey, OPEN_H, closeH, closeStr, hm, weekEnd, stageDay } from "../engine/time";
+import { joinServer, pull, tgLinkCode } from "../engine/server";
 import { CountUp, TierBadge, useNow } from "../components/ui";
-import { canHomeScreen, addToHomeScreen } from "../lib/tg";
+import { canHomeScreen, addToHomeScreen, inTelegram, openTg, BOT_LINK } from "../lib/tg";
 import { persist } from "../engine/state";
 import { lessonOfDay } from "./Lessons";
 import { finalCanPlay } from "./FinalLive";
 import { sfx } from "../lib/fx";
 
+/* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
+export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
+export async function connectTelegram() {
+  try { const c = await tgLinkCode(); openTg(BOT_LINK + "?start=" + c); setTimeout(() => pull(true), 15000); }
+  catch { toast(t("Serverga ulanib bo'lmadi — internetni tekshiring")); }
+}
+export function TgLinkCard() {
+  if (!needTgLink()) return null;
+  return (
+    <button className="card tglink" onClick={connectTelegram}>
+      <span className="ic"><BellRing size={22} /></span>
+      <span className="grow"><b>{t("Natijangiz Telegram'ga kelsin")}</b>
+        <span className="small">{t("Har bosqichdan keyin balingiz, ertalab bosqich eslatmasi, juma kuni o'rningiz — shaxsan sizga.")}</span></span>
+      <span className="chip blue">{t("Ulash")}<ChevronRight size={13} /></span>
+    </button>);
+}
 export const playerBlocked = () => !!(S.me && S.me.personal && S.me.ok === false);
 export const groupBlocked = () => !!(S.group && S.group.ok === false);
 const WD = ["Du", "Se", "Ch", "Pa", "Ju"];
@@ -51,7 +67,7 @@ function Ticket() {
       </div>);
   }
   const ss = stageState(si), left = saLeft(si).length, total = c.STAGES[si].tasks.length, done = total - left, n = tzNow();
-  const until = ss === "future" ? hm((OPEN_H - n.h) * 3600e3) : hm((CLOSE_H - n.h) * 3600e3);
+  const until = ss === "future" ? hm((OPEN_H - n.h) * 3600e3) : hm((closeH(n.wd) - n.h) * 3600e3);
   const finished = left === 0;
   return (
     <motion.div className="ticket" initial={{ y: 10, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
@@ -62,10 +78,10 @@ function Ticket() {
         <div className="grow" style={{ paddingTop: 4 }}>
           <div className="t-title">{c.STAGES[si].title}</div>
           <div className="t-meta">
-            {ss === "future" && t("Bugun 09:00 da ochiladi · {h} soat {m} daqiqa qoldi", { h: until.h, m: until.m })}
-            {ss === "open" && !finished && <>{t("{d}/{n} savol", { d: done, n: total })} · <Clock3 size={13} style={{ verticalAlign: -2 }} /> {t("17:00 gacha {h} soat {m} daqiqa", { h: until.h, m: until.m })}</>}
+            {ss === "future" && (until.h > 0 ? t("Bugun 09:00 da ochiladi · {h} soat {m} daqiqa qoldi", { h: until.h, m: until.m }) : t("Bugun 09:00 da ochiladi · {m} daqiqa qoldi", { m: until.m }))}
+            {ss === "open" && !finished && <>{t("{d}/{n} savol", { d: done, n: total })} · <Clock3 size={13} style={{ verticalAlign: -2 }} /> {until.h > 0 ? t("{c} gacha {h} soat {m} daqiqa", { c: closeStr(), h: until.h, m: until.m }) : t("{c} gacha {m} daqiqa", { c: closeStr(), m: until.m })}</>}
             {ss === "open" && finished && t("✅ {ok} to'g'ri · ❌ {bad} xato · {xp} XP", { ok: total - saBad(si), bad: saBad(si), xp: S.week.stages[si] || 0 })}
-            {ss === "closed" && (finished ? t("✅ Bajarilgan · {xp} XP", { xp: S.week.stages[si] || 0 }) : t("17:00 da yopildi"))}
+            {ss === "closed" && (finished ? t("✅ Bajarilgan · {xp} XP", { xp: S.week.stages[si] || 0 }) : t("{c} da yopildi", { c: closeStr() }))}
           </div>
         </div>
       </div>
@@ -80,10 +96,10 @@ function Ticket() {
 function WeekLedger() {
   useNow(60000);
   const days = weekDays(), my = S.week.my, td = tzNow().day;
-  const ms = weekEnd().getTime() - Date.now(), d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5);
+  const ms = weekEnd().getTime() - Date.now(), d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5), mi = Math.max(1, Math.floor((ms % 36e5) / 6e4));
   return (
     <section className="card">
-      <div className="card-h"><h3>{t("Haftalik liga")}</h3><span className="chip"><Clock3 size={13} />{d > 0 ? t("{d} kun {h} soat", { d, h }) : t("{h} soat", { h })}</span></div>
+      <div className="card-h"><h3>{t("Haftalik liga")}</h3><span className="chip"><Clock3 size={13} />{d > 0 ? t("{d} kun {h} soat", { d, h }) : h > 0 ? t("{h} soat", { h }) : t("{m} daqiqa", { m: mi })}</span></div>
       <div className="ledger-week">
         {days.map((dt, i) => {
           const k = dkey(dt), si = stageOfDate(dt), xp = si != null ? S.week.stages[si] : undefined, isT = k === td, past = k < td;
@@ -124,6 +140,7 @@ export default function Home() {
         {fin && finalCanPlay() && <button className="ticket" style={{ textAlign: "left" }} onClick={() => go("finalLive")}>
           <div className="t-top"><Trophy size={40} color="var(--gold)" /><div className="grow"><div className="t-title">{t("Oylik final boshlandi!")}</div><div className="t-meta">{t("Siz saralangansiz · 13:00 gacha")}</div></div><ChevronRight /></div></button>}
         <Ticket />
+        <TgLinkCard />
         {S.streak > 1 && <div className="row small" style={{ fontWeight: 800, color: "var(--ink-2)" }}><Flame size={18} color="#E8590C" fill="#FFB020" />{t("{n} kunlik seriya — davom eting!", { n: S.streak })}</div>}
         {wq && wq.q_id && !(S.wqDone || {})[wq.q_id] && (
           <button className="card" style={{ textAlign: "left", borderColor: "var(--stamp)" }} onClick={() => go("wqAnswer")}>

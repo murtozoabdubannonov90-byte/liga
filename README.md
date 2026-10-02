@@ -34,7 +34,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (51 ta)
+python3 tests/app.test.py        # 2.0 testlari (61 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -43,11 +43,20 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-03 yangilanishi
+
+- **Juma** bosqichi 12:00 da yopiladi (ilova, bot, server). Yangi hafta faqat shanbadan boshlab bosqich qabul qiladi.
+- **Bot har o'yinchiga shaxsan yozadi** (Telegram ulangan bo'lsa): 09:00 — bugungi bosqich; bosqich tugashi bilan — natija (to'g'ri javoblar, bosqich bali, haftalik jami); 16:00 (juma 11:00) — bajarmaganlarga eslatma; juma 12:00 — jamoadagi o'rni.
+- **Telegram ulash**: to'lov havolasi yoki kontakt yuborilganda avtomatik; ilovada «Natijangiz Telegram'ga kelsin» kartasi (bot `/start link_KOD`).
+- **Guruhlar uchun**: 09:00 da Telegram quiz-so'rovnoma «Kunning savoli» (`public/polls.json`, `npm run build` yasaydi); 16:00/17:00 xabarlarida «jamoadan N kishi o'ynadi».
+- **Himoya**: server shu hafta ballarini va jami XP ni kamaytirmaydi (telefon almashsa ham yo'qolmaydi, ilova serverdagisini qaytarib oladi); ilova ochiq turganda juma 12:00 o'tsa hafta yangilanadi; chek 1–6 oy, bot orqali ham kuniga 5 tadan ko'p emas; 3 soniyagacha chiqib qaytish kechiriladi (qo'ng'iroq); vaqt hamma joyda Toshkent bo'yicha.
+- Baza: `db/2026-10-03_juma_shaxsiy.sql`. Bot: v12. Testlar: 61 ta.
+
 ## Qoidalar
 
 | | |
 |---|---|
-| Bosqich | Har ish kuni bittadan, **faqat o'z kunida 09:00–17:00**. 20 savol, har biriga 1 daqiqa, har savolga bir marta javob |
+| Bosqich | Har ish kuni bittadan, **faqat o'z kunida 09:00–17:00, juma 09:00–12:00** (liga juma 12:00 da tugaydi). 20 savol, har biriga 1 daqiqa, har savolga bir marta javob |
 | Liga bali | Faqat bosqichlardan. Har bir bosqichdan ko'pi bilan **450 XP** (20 × 18 + 3 yulduz × 30). Jami = bosqichlar yig'indisi |
 | Kunlik mashq, blits, sovg'a, yutuqlar | Jami XP ga qo'shiladi, ligaga emas |
 | Blits | 20 ta provodka, vaqt cheklovi yo'q, rekord — 20 dan nechta to'g'ri |

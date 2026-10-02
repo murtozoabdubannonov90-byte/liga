@@ -4,7 +4,7 @@ import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go } from "../lib/nav";
 import { C } from "../engine/run";
-import { stageState, stageDay, season, STAGE_N } from "../engine/time";
+import { stageState, stageDay, season, STAGE_N, closeStr, stageDate } from "../engine/time";
 import { saLeft } from "../engine/score";
 import { qbase } from "../engine/data";
 import { Seg } from "../components/ui";
@@ -23,7 +23,7 @@ export default function Learn() {
           <div className="path">
             {Array.from({ length: STAGE_N }, (_, i) => i).map((i) => {
               const ss = stageState(i), done = !saLeft(i).length, sc = S.stars[i] || 0;
-              const lbl = ss === "open" ? (done ? t("✅ Bajarildi · bugun") : t("Ochiq — bugun 17:00 gacha")) : ss === "future" ? stageDay(i) + " · 09:00–17:00" : done ? t("Bajarilgan · yopildi") : t("Yopildi · {d}", { d: stageDay(i) });
+              const lbl = ss === "open" ? (done ? t("✅ Bajarildi · bugun") : t("Ochiq — bugun {c} gacha", { c: closeStr() })) : ss === "future" ? stageDay(i) + " · 09:00–" + closeStr(stageDate(i).getDay()) : done ? t("Bajarilgan · yopildi") : t("Yopildi · {d}", { d: stageDay(i) });
               return (
                 <button key={i} className={"st" + (ss === "open" && !done ? " open" : done ? " done" : "")} disabled={ss !== "open"} onClick={() => go("intro", { si: i })}>
                   <span className="no">{done ? <Check size={24} /> : ss === "future" ? <Lock size={20} /> : i + 1}</span>
@@ -32,7 +32,7 @@ export default function Learn() {
                 </button>);
             })}
           </div>
-          <p className="small muted" style={{ fontWeight: 600 }}>{t("Har ish kuni bittadan bosqich: faqat o'z kunida 09:00 dan 17:00 gacha ochiq.")}</p>
+          <p className="small muted" style={{ fontWeight: 600 }}>{t("Har ish kuni bittadan bosqich: faqat o'z kunida 09:00 dan 17:00 gacha ochiq, juma kuni 12:00 gacha.")}</p>
         </>}
         {tb === "more" && <div className="stack">
           <button className="card row" style={{ textAlign: "left" }} onClick={() => go("topics")}>
