@@ -1,0 +1,3100 @@
+[
+ {
+  "title": "Birinchi ish kuni",
+  "icon": "☕",
+  "story": "Siz «Omad Savdo» MCHJga buxgalter bo'lib keldingiz. Direktor stolga qalin papka qo'ydi: «Avval hisobvaraqlarni tanib ol».",
+  "theory": "<p>Har bir narsaning o'z <b>hisobvarag'i</b> (schyoti) bor — javonning raqamli tortmalari kabi.</p>\n <ul><li><b>Aktiv</b> — firmada bor narsa: pul, tovar, uskuna, sizga qarzdorlar.</li>\n <li><b>Passiv</b> — u qayerdan kelgani: ustav kapital va sizning qarzlaringiz.</li></ul>\n <p>Birinchi raqam guruhni bildiradi: <b>0</b> uzoq muddatli aktivlar, <b>1</b> materiallar, <b>2</b> tovar-zaxiralar, <b>4</b> debitorlar, <b>5</b> pul, <b>6</b> majburiyatlar, <b>8</b> kapital, <b>9</b> daromad va xarajat.</p>",
+  "example": null,
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Bankdan kassaga 2 mln so'm naqd olindi.",
+    "dt": "5010",
+    "kt": "5110",
+    "o": [
+     "4220",
+     "4410",
+     "5110",
+     "6010",
+     "5010",
+     "2910"
+    ],
+    "e": "Kassa ko'paydi (Dt 5010), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Kassadagi 1,5 mln so'm bankka topshirildi.",
+    "dt": "5110",
+    "kt": "5010",
+    "o": [
+     "9810",
+     "4220",
+     "4410",
+     "5110",
+     "9610",
+     "5010"
+    ],
+    "e": "Bank ko'paydi (Dt 5110), kassa kamaydi (Kt 5010)."
+   },
+   {
+    "t": "pv",
+    "q": "Omborga sotish uchun tovar keldi, pul keyin to'lanadi.",
+    "dt": "2910",
+    "kt": "6010",
+    "o": [
+     "6410",
+     "5210",
+     "6010",
+     "5910",
+     "6710",
+     "2910"
+    ],
+    "e": "Tovar ko'paydi (Dt 2910), yetkazib beruvchiga qarz (Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Yetkazib beruvchiga qarz bankdan to'landi.",
+    "dt": "6010",
+    "kt": "5110",
+    "o": [
+     "9310",
+     "7810",
+     "9010",
+     "5110",
+     "6010",
+     "6610"
+    ],
+    "e": "Qarz yopildi (Dt 6010), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Xaridor eski qarzini bank hisob raqamiga o'tkazdi.",
+    "dt": "5110",
+    "kt": "4010",
+    "o": [
+     "1010",
+     "2910",
+     "9030",
+     "5110",
+     "4010",
+     "6810"
+    ],
+    "e": "Bank ko'paydi (Dt 5110), xaridor qarzi kamaydi (Kt 4010)."
+   },
+   {
+    "t": "pv",
+    "q": "Ishlab chiqarish uchun xomashyo keldi, to'lov keyin.",
+    "dt": "1010",
+    "kt": "6010",
+    "o": [
+     "5210",
+     "5110",
+     "9310",
+     "6010",
+     "1010",
+     "4410"
+    ],
+    "e": "Xomashyo ko'paydi (Dt 1010), qarz paydo bo'ldi (Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Buxgalterga oylik ish haqi hisoblandi.",
+    "dt": "9420",
+    "kt": "6710",
+    "o": [
+     "2010",
+     "6710",
+     "9420",
+     "0230",
+     "6310",
+     "4610"
+    ],
+    "e": "Ma'muriy xodim oyligi — davr xarajati (Dt 9420), xodim oldida qarz (Kt 6710)."
+   },
+   {
+    "t": "pv",
+    "q": "Hisoblangan oylik kassadan naqd berildi.",
+    "dt": "6710",
+    "kt": "5010",
+    "o": [
+     "9020",
+     "9390",
+     "6710",
+     "5910",
+     "8330",
+     "5010"
+    ],
+    "e": "Xodimga qarz yopildi (Dt 6710), kassa kamaydi (Kt 5010)."
+   },
+   {
+    "t": "pv",
+    "q": "Budjet oldidagi soliq qarzi bankdan to'landi.",
+    "dt": "6410",
+    "kt": "5110",
+    "o": [
+     "6920",
+     "5110",
+     "8710",
+     "6410",
+     "4310",
+     "6610"
+    ],
+    "e": "Budjetga qarz yopildi (Dt 6410), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Xaridor tovar uchun oldindan bankka pul o'tkazdi (tovar hali berilmagan).",
+    "dt": "5110",
+    "kt": "6310",
+    "o": [
+     "5110",
+     "6310",
+     "0130",
+     "2910",
+     "9810",
+     "9390"
+    ],
+    "e": "Pul keldi (Dt 5110), lekin tovar berilmagan — bu majburiyat, bo'nak (Kt 6310)."
+   },
+   {
+    "t": "pv",
+    "q": "Yetkazib beruvchiga tovar uchun oldindan pul berildi.",
+    "dt": "4310",
+    "kt": "5110",
+    "o": [
+     "5110",
+     "6710",
+     "4410",
+     "4730",
+     "4310",
+     "9430"
+    ],
+    "e": "Berilgan bo'nak — debitorlik (Dt 4310), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Ombordagi xomashyo sexga ishlab chiqarishga berildi.",
+    "dt": "2010",
+    "kt": "1010",
+    "o": [
+     "9610",
+     "9430",
+     "6920",
+     "9390",
+     "2010",
+     "1010"
+    ],
+    "e": "Ishlab chiqarish xarajati (Dt 2010), xomashyo kamaydi (Kt 1010)."
+   },
+   {
+    "t": "mc",
+    "q": "Buxgalteriyada hisobot yili qaysi davr?",
+    "o": [
+     "1-yanvardan 31-dekabrgacha",
+     "1-apreldan 31-martgacha",
+     "Ro'yxatdan o'tgan kundan 12 oy",
+     "Direktor belgilagan davr"
+    ],
+    "a": 0,
+    "e": "Hisobot yili — kalendar yil: 1-yanvardan 31-dekabrgacha."
+   },
+   {
+    "t": "mc",
+    "q": "Muomala sodir bo'lganini tasdiqlovchi hujjat nima deyiladi?",
+    "o": [
+     "Birlamchi hujjat",
+     "Bosh kitob",
+     "Aylanma qaydnoma",
+     "Balans"
+    ],
+    "a": 0,
+    "e": "Har bir provodka birlamchi hujjatga (faktura, order, dalolatnoma) asoslanadi."
+   },
+   {
+    "t": "mc",
+    "q": "Har bir xaridor bo'yicha alohida qarzni ko'rsatadigan hisob qanday ataladi?",
+    "o": [
+     "Analitik hisob",
+     "Sintetik hisob",
+     "Kassa hisobi",
+     "Soliq hisobi"
+    ],
+    "a": 0,
+    "e": "Sintetik — umumlashgan (4010 jami), analitik — batafsil (har bir xaridor bo'yicha)."
+   },
+   {
+    "t": "calc",
+    "q": "Firmaning aktivlari 500 000 000, majburiyatlari 180 000 000. Kapital qancha?",
+    "a": 320000000,
+    "e": "Kapital = Aktiv − Majburiyat = 500 − 180 = 320 000 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "Aylanma (oborot) qaydnomada qaysi tenglik doim bajariladi?",
+    "o": [
+     "Jami Dt oborot = jami Kt oborot",
+     "Aktiv = daromad",
+     "Dt qoldiq doim 0",
+     "Kt oborot Dt oborotdan katta"
+    ],
+    "a": 0,
+    "e": "Har provodka bir xil summada Dt va Kt ga yoziladi — shuning uchun jami oborotlar teng."
+   },
+   {
+    "t": "calc",
+    "q": "4010 (aktiv): oy boshi 18 000 000. Oy davomida 42 000 000 lik tovar sotildi, xaridorlar 37 000 000 to'ladi. Oy oxiri qoldig'i?",
+    "a": 23000000,
+    "e": "Aktivda: boshlang'ich + Dt − Kt = 18 + 42 − 37 = 23 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Kassa 2 mln, bank 48 mln, tovar 70 mln, yetkazib beruvchiga qarz 35 mln, budjetga qarz 5 mln. Kapital qancha?",
+    "a": 80000000,
+    "e": "Aktiv 120 mln − majburiyat 40 mln = 80 000 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "6010 hisobvarag'ida oy oxirida DEBET qoldiq chiqdi. Bu nimani bildiradi?",
+    "o": [
+     "Yetkazib beruvchiga ortiqcha to'langan — endi u bizga qarzdor",
+     "Biz yetkazib beruvchiga qarzdormiz",
+     "Omborda tovar ko'payganini",
+     "Kassa kamomadini"
+    ],
+    "a": 0,
+    "e": "6010 — passiv, odatda kredit qoldiq. Debet qoldiq — ortiqcha to'lov, ya'ni debitorlik."
+   }
+  ]
+ },
+ {
+  "title": "Firma tug'iladi",
+  "icon": "🏢",
+  "story": "Ta'sischi 100 million so'm ustav kapital e'lon qildi. Pul hali bankka tushmagan. Birinchi provodkangizni yozish vaqti!",
+  "theory": "<p><b>Provodka</b> — bitta muomalani ikki hisobvaraqda yozish: <b>Debet (Dt)</b> va <b>Kredit (Kt)</b>, summa bir xil. Bu — <b>ikki yoqlama yozuv</b>.</p>\n <ul><li>Aktiv <b>ko'paysa</b> — Debet, <b>kamaysa</b> — Kredit.</li><li>Passiv <b>ko'paysa</b> — Kredit, <b>kamaysa</b> — Debet.</li></ul>\n <p>O'zingizga savol bering: «Nima keldi?» — Debetga. «Qayerdan keldi?» — Kreditga.</p>",
+  "example": {
+   "t": "Ta'sischi ulush qo'shishi kerak, kapital shakllandi:",
+   "dt": "4610",
+   "kt": "8330"
+  },
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Ta'sischilar 100 mln so'm ustav kapital e'lon qildi.",
+    "dt": "4610",
+    "kt": "8330",
+    "o": [
+     "7810",
+     "5910",
+     "9210",
+     "4610",
+     "2010",
+     "8330"
+    ],
+    "e": "Ta'sischining qarzi (Dt 4610), ustav kapital shakllandi (Kt 8330)."
+   },
+   {
+    "t": "pv",
+    "q": "Ta'sischi ulushini bank hisob raqamiga o'tkazdi.",
+    "dt": "5110",
+    "kt": "4610",
+    "o": [
+     "4410",
+     "9110",
+     "9430",
+     "1010",
+     "4610",
+     "5110"
+    ],
+    "e": "Bank ko'paydi (Dt 5110), ta'sischi qarzi yopildi (Kt 4610)."
+   },
+   {
+    "t": "pv",
+    "q": "Ta'sischi ulush o'rniga foydalanishga tayyor uskuna topshirdi.",
+    "dt": "0130",
+    "kt": "4610",
+    "o": [
+     "6310",
+     "4610",
+     "9020",
+     "0130",
+     "9620",
+     "9210"
+    ],
+    "e": "Asosiy vosita keldi (Dt 0130), ta'sischi qarzi kamaydi (Kt 4610)."
+   },
+   {
+    "t": "pv",
+    "q": "Ta'sischi ulush o'rniga sotish uchun tovar olib keldi.",
+    "dt": "2910",
+    "kt": "4610",
+    "o": [
+     "4610",
+     "4410",
+     "9610",
+     "2910",
+     "9910",
+     "5210"
+    ],
+    "e": "Tovar keldi (Dt 2910), ta'sischi qarzi kamaydi (Kt 4610)."
+   },
+   {
+    "t": "pv",
+    "q": "Bankdan 6 oyga kredit olindi.",
+    "dt": "5110",
+    "kt": "6810",
+    "o": [
+     "5110",
+     "6810",
+     "9910",
+     "4610",
+     "4730",
+     "9210"
+    ],
+    "e": "Pul keldi (Dt 5110), qisqa muddatli qarz — 1 yilgacha (Kt 6810)."
+   },
+   {
+    "t": "pv",
+    "q": "Bankdan 3 yilga kredit olindi.",
+    "dt": "5110",
+    "kt": "7810",
+    "o": [
+     "2810",
+     "2010",
+     "9390",
+     "0230",
+     "7810",
+     "5110"
+    ],
+    "e": "Pul keldi (Dt 5110), uzoq muddatli qarz — 1 yildan ortiq (Kt 7810)."
+   },
+   {
+    "t": "pv",
+    "q": "Kredit bo'yicha oylik foiz hisoblandi, hali to'lanmagan.",
+    "dt": "9610",
+    "kt": "6920",
+    "o": [
+     "4010",
+     "8330",
+     "6920",
+     "0130",
+     "0230",
+     "9610"
+    ],
+    "e": "Foiz — moliyaviy xarajat (Dt 9610), to'lanadigan foiz (Kt 6920)."
+   },
+   {
+    "t": "pv",
+    "q": "Hisoblangan kredit foizi bankdan to'landi.",
+    "dt": "6920",
+    "kt": "5110",
+    "o": [
+     "6920",
+     "6010",
+     "9910",
+     "5110",
+     "9390",
+     "5910"
+    ],
+    "e": "Foiz qarzi yopildi (Dt 6920), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Uzoq muddatli kreditning bir qismi bankka qaytarildi.",
+    "dt": "7810",
+    "kt": "5110",
+    "o": [
+     "7810",
+     "5910",
+     "1010",
+     "4730",
+     "9110",
+     "5110"
+    ],
+    "e": "Kredit qarzi kamaydi (Dt 7810), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Xodimga xizmat safari uchun kassadan pul berildi.",
+    "dt": "4220",
+    "kt": "5010",
+    "o": [
+     "4410",
+     "9430",
+     "5010",
+     "4220",
+     "9390",
+     "6610"
+    ],
+    "e": "Hisobdor shaxsga bo'nak (Dt 4220), kassa kamaydi (Kt 5010)."
+   },
+   {
+    "t": "pv",
+    "q": "Safar hisobotiga ko'ra mehmonxona va yo'l xarajatlari tan olindi.",
+    "dt": "9420",
+    "kt": "4220",
+    "o": [
+     "9810",
+     "9430",
+     "9610",
+     "6310",
+     "4220",
+     "9420"
+    ],
+    "e": "Xarajat (Dt 9420), berilgan bo'nak yopildi (Kt 4220)."
+   },
+   {
+    "t": "pv",
+    "q": "Safardan ortib qolgan pul xodim tomonidan kassaga qaytarildi.",
+    "dt": "5010",
+    "kt": "4220",
+    "o": [
+     "4730",
+     "7810",
+     "5910",
+     "4010",
+     "4220",
+     "5010"
+    ],
+    "e": "Kassa ko'paydi (Dt 5010), hisobdor qarzi yopildi (Kt 4220)."
+   },
+   {
+    "t": "mc",
+    "q": "Ustav kapital miqdori qaysi hujjatda belgilanadi?",
+    "o": [
+     "Ta'sis hujjati (ustav)",
+     "Mehnat shartnomasi",
+     "Hisob-faktura",
+     "Kassa orderi"
+    ],
+    "a": 0,
+    "e": "Ustav kapital ta'sis hujjatlarida qayd etiladi va 8330 da hisobga olinadi."
+   },
+   {
+    "t": "mc",
+    "q": "Bankdan 18 oyga kredit olindi. Qaysi hisobvaraq?",
+    "o": [
+     "7810",
+     "6810",
+     "5110",
+     "8330"
+    ],
+    "a": 0,
+    "e": "1 yildan ortiq — uzoq muddatli kredit (7810)."
+   },
+   {
+    "t": "mc",
+    "q": "Ta'sischi ulushini to'liq kiritmaguncha uning qarzi qaysi hisobvaraqda turadi?",
+    "o": [
+     "4610",
+     "8330",
+     "6610",
+     "4010"
+    ],
+    "a": 0,
+    "e": "4610 — ta'sischilarning ustav kapitalga ulushlar bo'yicha qarzi."
+   },
+   {
+    "t": "calc",
+    "q": "Kredit 60 000 000, yillik foiz 24%. Bir oylik foiz qancha?",
+    "a": 1200000,
+    "e": "60 000 000 × 24% ÷ 12 = 1 200 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Xodimga safarga 3 000 000 berildi. Hisobot bo'yicha xarajat 2 650 000. Kassaga qancha qaytariladi?",
+    "a": 350000,
+    "e": "3 000 000 − 2 650 000 = 350 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Kredit 120 000 000, 24 oyga, asosiy qarz teng ulushda qaytariladi. Har oy asosiy qarz to'lovi?",
+    "a": 5000000,
+    "e": "120 000 000 ÷ 24 = 5 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Kredit 120 000 000, yillik 24% (oyiga 2%). 1-oyda 5 000 000 asosiy qarz qaytarildi. 2-oy foizi (qolgan qarzga)?",
+    "a": 2300000,
+    "e": "Qoldiq 115 000 000 × 2% = 2 300 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "Uzoq muddatli kreditning keyingi 12 oyda to'lanadigan qismi balansda qanday ko'rsatiladi?",
+    "o": [
+     "Joriy (qisqa muddatli) majburiyat sifatida",
+     "Kapital sifatida",
+     "Uzoq muddatli aktiv sifatida",
+     "Ko'rsatilmaydi"
+    ],
+    "a": 0,
+    "e": "Yaqin 12 oyda qaytariladigan qism qisqa muddatli majburiyatga o'tkaziladi."
+   }
+  ]
+ },
+ {
+  "title": "Tovar keldi",
+  "icon": "📦",
+  "story": "«Mega Opt» dan 10 mln so'mlik tovar keldi, ustiga 12% QQS. Elektron faktura imzolandi. Endi uni hisobga oling.",
+  "theory": "<p>Xaridda ikki narsa yoziladi: <b>tovarning o'zi</b> (QQSsiz) va <b>kirim QQS</b> (keyin budjetdan hisobga olinadi).</p>\n <p>QQS = summa × 12%. Jami to'lov = summa + QQS.</p>\n <p>Summa QQS bilan berilsa: <b>QQS = jami × 12 / 112</b>.</p>\n <p>Pul to'langanda: Dt 6010 — Kt 5110.</p>",
+  "example": {
+   "t": "Tovar omborga kirdi, qarz paydo bo'ldi:",
+   "dt": "2910",
+   "kt": "6010"
+  },
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Tovar omborga kirim qilindi (QQSsiz summa), pul keyin.",
+    "dt": "2910",
+    "kt": "6010",
+    "o": [
+     "9610",
+     "2910",
+     "6010",
+     "4310",
+     "2810",
+     "8710"
+    ],
+    "e": "Tovar (Dt 2910), yetkazib beruvchiga qarz (Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Elektron faktura bo'yicha kirim QQS aks ettirildi.",
+    "dt": "4410",
+    "kt": "6010",
+    "o": [
+     "7810",
+     "4410",
+     "9030",
+     "6010",
+     "6610",
+     "9410"
+    ],
+    "e": "Hisobga olinadigan QQS (Dt 4410), u ham yetkazib beruvchiga qarz (Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Faktura summasi (QQS bilan) bankdan to'landi.",
+    "dt": "6010",
+    "kt": "5110",
+    "o": [
+     "4010",
+     "7810",
+     "9430",
+     "6010",
+     "5110",
+     "9420"
+    ],
+    "e": "Qarz yopildi (Dt 6010), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Tovar kelishidan oldin yetkazib beruvchiga bo'nak o'tkazildi.",
+    "dt": "4310",
+    "kt": "5110",
+    "o": [
+     "4310",
+     "5210",
+     "0230",
+     "9030",
+     "4730",
+     "5110"
+    ],
+    "e": "Berilgan bo'nak (Dt 4310), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Tovar keldi, ilgari berilgan bo'nak hisobga olindi.",
+    "dt": "6010",
+    "kt": "4310",
+    "o": [
+     "9010",
+     "6010",
+     "4310",
+     "9410",
+     "5110",
+     "0130"
+    ],
+    "e": "Qarz bo'nak hisobiga yopildi (Dt 6010 — Kt 4310)."
+   },
+   {
+    "t": "pv",
+    "q": "Tovarni olib kelish xizmati tovar qiymatiga qo'shildi (transportchiga qarz).",
+    "dt": "2910",
+    "kt": "6010",
+    "o": [
+     "9420",
+     "0130",
+     "9010",
+     "2910",
+     "6010",
+     "9410"
+    ],
+    "e": "Yetkazish xarajati tovar tannarxiga kiradi (Dt 2910), transportchiga qarz (Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Ishlab chiqarish uchun xomashyo keldi, faktura imzolandi.",
+    "dt": "1010",
+    "kt": "6010",
+    "o": [
+     "4310",
+     "1010",
+     "4010",
+     "6010",
+     "9210",
+     "6410"
+    ],
+    "e": "Xomashyo (Dt 1010), qarz (Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Sifatsiz tovar yetkazib beruvchiga qaytarildi (QQSsiz summa).",
+    "dt": "6010",
+    "kt": "2910",
+    "o": [
+     "2910",
+     "0130",
+     "9610",
+     "9120",
+     "6010",
+     "9210"
+    ],
+    "e": "Qarz kamaydi (Dt 6010), ombordagi tovar kamaydi (Kt 2910)."
+   },
+   {
+    "t": "pv",
+    "q": "Qaytarilgan tovar bo'yicha kirim QQS ham kamaytirildi.",
+    "dt": "6010",
+    "kt": "4410",
+    "o": [
+     "4730",
+     "5110",
+     "9120",
+     "6010",
+     "4410",
+     "1010"
+    ],
+    "e": "Qarz kamaydi (Dt 6010), hisobga olinadigan QQS kamaydi (Kt 4410)."
+   },
+   {
+    "t": "pv",
+    "q": "Ofis uchun kassadan qog'oz va ruchka olinib, darhol ishlatildi.",
+    "dt": "9420",
+    "kt": "5010",
+    "o": [
+     "9420",
+     "5010",
+     "9110",
+     "7810",
+     "4010",
+     "4220"
+    ],
+    "e": "Darhol ishlatilgan ofis xarajati (Dt 9420), kassa kamaydi (Kt 5010)."
+   },
+   {
+    "t": "pv",
+    "q": "Oy yakunida kirim QQS budjetga to'lanadigan QQSdan chegirildi.",
+    "dt": "6410",
+    "kt": "4410",
+    "o": [
+     "4410",
+     "9910",
+     "9210",
+     "6410",
+     "4010",
+     "4310"
+    ],
+    "e": "Budjetga qarz kamaydi (Dt 6410), kirim QQS yopildi (Kt 4410)."
+   },
+   {
+    "t": "pv",
+    "q": "Import: bojxonada tovar uchun QQS bankdan to'landi.",
+    "dt": "4410",
+    "kt": "5110",
+    "o": [
+     "0130",
+     "4410",
+     "2010",
+     "5110",
+     "6310",
+     "4310"
+    ],
+    "e": "Importda to'langan QQS hisobga olinadi (Dt 4410), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "mc",
+    "q": "Yetkazib beruvchiga qarz (6010) qaysi tomonda ko'payadi?",
+    "o": [
+     "Kreditda",
+     "Debetda",
+     "Ikkalasida",
+     "Hech qaysida"
+    ],
+    "a": 0,
+    "e": "6010 — passiv: ko'payishi kreditda, kamayishi debetda."
+   },
+   {
+    "t": "calc",
+    "q": "Tovar QQSsiz 7 500 000. QQS bilan jami qancha?",
+    "a": 8400000,
+    "e": "7 500 000 × 1,12 = 8 400 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Faktura QQS bilan 13 440 000. QQSsiz qiymati?",
+    "a": 12000000,
+    "e": "13 440 000 × 100 / 112 = 12 000 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "Hisobga olinadigan kirim QQS qaysi hisobvaraqda yig'iladi?",
+    "o": [
+     "4410",
+     "6410",
+     "6010",
+     "9430"
+    ],
+    "a": 0,
+    "e": "4410 — budjetga bo'naklar (kirim QQS)."
+   },
+   {
+    "t": "calc",
+    "q": "1 200 dona × 15 000 (QQSsiz) tovar keldi, yetkazish 600 000. 1 dona tannarxi?",
+    "a": 15500,
+    "e": "(18 000 000 + 600 000) ÷ 1 200 = 15 500 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "4310 da 8 000 000 bo'nak bor edi. QQS bilan 11 200 000 lik tovar keldi, bo'nak hisobga olindi. Yana qancha to'lanadi?",
+    "a": 3200000,
+    "e": "11 200 000 − 8 000 000 = 3 200 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Import: bojxona qiymati 50 000 000, boj 10%. QQS bazasi = bojxona qiymati + boj. Import QQS?",
+    "a": 6600000,
+    "e": "Baza 55 000 000 × 12% = 6 600 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "Fakturada QQS xato 15% yozilgan. Nima qilinadi?",
+    "o": [
+     "Tuzatuvchi hisob-faktura rasmiylashtiriladi",
+     "Faktura shundayligicha qabul qilinadi",
+     "15% hisobga olinadi",
+     "QQS umuman hisobga olinmaydi"
+    ],
+    "a": 0,
+    "e": "Xato faktura tuzatuvchi hisob-faktura bilan to'g'rilanadi, keyin 12% hisobga olinadi."
+   }
+  ]
+ },
+ {
+  "title": "Birinchi savdo",
+  "icon": "🛒",
+  "story": "«Baraka Market» sizdan tovar oldi: 5 600 000 so'm (QQS bilan). Tannarxi 3 500 000 so'm edi. Daromadni to'g'ri ko'rsating!",
+  "theory": "<p>Sotuvda uchta yozuv:</p>\n <ul><li>Daromad (QQSsiz): Dt 4010 — Kt 9020</li><li>Chiqim QQS: Dt 4010 — Kt 6410</li><li>Tannarx: Dt 9120 — Kt 2910</li></ul>\n <p><b>To'lanadigan QQS = chiqim QQS − kirim QQS.</b></p>",
+  "example": {
+   "t": "Tovar ombordan chiqdi, qiymati xarajatga o'tdi:",
+   "dt": "9120",
+   "kt": "2910"
+  },
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Tovar sotildi — daromad (QQSsiz) aks ettirildi.",
+    "dt": "4010",
+    "kt": "9020",
+    "o": [
+     "9110",
+     "4010",
+     "4610",
+     "9020",
+     "5210",
+     "9810"
+    ],
+    "e": "Xaridor qarzdor (Dt 4010), daromad (Kt 9020)."
+   },
+   {
+    "t": "pv",
+    "q": "Sotuv bo'yicha chiqim QQS hisoblandi.",
+    "dt": "4010",
+    "kt": "6410",
+    "o": [
+     "0130",
+     "6410",
+     "8330",
+     "4010",
+     "9430",
+     "4220"
+    ],
+    "e": "Xaridor QQSni ham to'laydi (Dt 4010), bu pul budjetniki (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Sotilgan tovar tannarxi hisobdan chiqarildi.",
+    "dt": "9120",
+    "kt": "2910",
+    "o": [
+     "0130",
+     "2910",
+     "9910",
+     "9810",
+     "9120",
+     "0820"
+    ],
+    "e": "Tannarx xarajatga (Dt 9120), ombor kamaydi (Kt 2910)."
+   },
+   {
+    "t": "pv",
+    "q": "Xaridor tovar puli va QQSni bankka o'tkazdi.",
+    "dt": "5110",
+    "kt": "4010",
+    "o": [
+     "4010",
+     "9390",
+     "5110",
+     "4220",
+     "9410",
+     "5210"
+    ],
+    "e": "Bank ko'paydi (Dt 5110), xaridor qarzi yopildi (Kt 4010)."
+   },
+   {
+    "t": "pv",
+    "q": "Do'konda naqd savdo: tushum kassaga olindi (QQSsiz qismi).",
+    "dt": "5010",
+    "kt": "9020",
+    "o": [
+     "5010",
+     "5210",
+     "9020",
+     "6710",
+     "4610",
+     "9410"
+    ],
+    "e": "Kassa ko'paydi (Dt 5010), daromad (Kt 9020)."
+   },
+   {
+    "t": "pv",
+    "q": "Xaridordan olingan bo'nak tovar jo'natilgach hisobga olindi.",
+    "dt": "6310",
+    "kt": "4010",
+    "o": [
+     "6920",
+     "6310",
+     "9410",
+     "0130",
+     "4010",
+     "9430"
+    ],
+    "e": "Bo'nak majburiyati yopildi (Dt 6310), xaridor qarzi kamaydi (Kt 4010)."
+   },
+   {
+    "t": "pv",
+    "q": "Tovarni xaridorga yetkazish uchun transport firmasiga qarz yozildi.",
+    "dt": "9410",
+    "kt": "6010",
+    "o": [
+     "2910",
+     "6010",
+     "9620",
+     "4010",
+     "4310",
+     "9410"
+    ],
+    "e": "Yetkazish — sotish xarajati (Dt 9410), transportchiga qarz (Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Xaridor tovarni qaytardi — sotishdan daromad kamaytirildi (QQSsiz summa).",
+    "dt": "9020",
+    "kt": "4010",
+    "o": [
+     "0820",
+     "4010",
+     "2910",
+     "9390",
+     "9020",
+     "6010"
+    ],
+    "e": "Daromad storno qilindi (Dt 9020), xaridor qarzi kamaydi (Kt 4010)."
+   },
+   {
+    "t": "pv",
+    "q": "Qaytarilgan tovar tannarxi bo'yicha omborga qayta kirim qilindi.",
+    "dt": "2910",
+    "kt": "9120",
+    "o": [
+     "9310",
+     "4730",
+     "5110",
+     "6710",
+     "9120",
+     "2910"
+    ],
+    "e": "Tovar omborga qaytdi (Dt 2910), tannarx kamaydi (Kt 9120)."
+   },
+   {
+    "t": "pv",
+    "q": "O'zimiz ishlab chiqargan tayyor mahsulot omborga topshirildi.",
+    "dt": "2810",
+    "kt": "2010",
+    "o": [
+     "9390",
+     "1010",
+     "6410",
+     "9910",
+     "2810",
+     "2010"
+    ],
+    "e": "Tayyor mahsulot (Dt 2810), ishlab chiqarish xarajatlari yopildi (Kt 2010)."
+   },
+   {
+    "t": "pv",
+    "q": "Tayyor mahsulot sotildi — daromad (QQSsiz).",
+    "dt": "4010",
+    "kt": "9010",
+    "o": [
+     "4310",
+     "9390",
+     "5910",
+     "4010",
+     "6710",
+     "9010"
+    ],
+    "e": "Xaridor qarzdor (Dt 4010), tayyor mahsulot sotishdan daromad (Kt 9010)."
+   },
+   {
+    "t": "pv",
+    "q": "Sotilgan tayyor mahsulot tannarxi hisobdan chiqarildi.",
+    "dt": "9110",
+    "kt": "2810",
+    "o": [
+     "5110",
+     "2810",
+     "5910",
+     "9110",
+     "1010",
+     "4010"
+    ],
+    "e": "Tannarx (Dt 9110), ombordagi tayyor mahsulot kamaydi (Kt 2810)."
+   },
+   {
+    "t": "calc",
+    "q": "Tovar QQSsiz 9 000 000 ga sotildi. Xaridor jami qancha to'laydi?",
+    "a": 10080000,
+    "e": "9 000 000 × 1,12 = 10 080 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Kassaga QQS bilan 2 240 000 tushum keldi. Shundan chiqim QQS qancha?",
+    "a": 240000,
+    "e": "2 240 000 × 12 / 112 = 240 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "Hisoblash tamoyiliga ko'ra sotuv daromadi qachon tan olinadi?",
+    "o": [
+     "Tovar xaridorga topshirilganda",
+     "Pul kelganda",
+     "Shartnoma imzolanganda",
+     "Yil oxirida"
+    ],
+    "a": 0,
+    "e": "Daromad pul tushganda emas, tovar topshirilganda tan olinadi."
+   },
+   {
+    "t": "calc",
+    "q": "Sotuv 30 mln (QQSsiz), tannarx 21 mln, sotish xarajatlari 2,5 mln. Sotishdan foyda?",
+    "a": 6500000,
+    "e": "30 − 21 − 2,5 = 6 500 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Tannarx 8 000 000, sotuv narxi (QQSsiz) 10 000 000. Ustama necha foiz?",
+    "a": 25,
+    "e": "(10 − 8) ÷ 8 = 25%.",
+    "unit": "%"
+   },
+   {
+    "t": "calc",
+    "q": "Daromad 40 mln, sof foyda 6 mln. Sotish rentabelligi necha foiz?",
+    "a": 15,
+    "e": "6 ÷ 40 = 15%.",
+    "unit": "%"
+   },
+   {
+    "t": "calc",
+    "q": "Omborda 200 dona × 40 000 bor edi, yana 300 dona × 45 000 keldi. O'rtacha usulda 350 dona sotildi. Qolgan tovar qiymati?",
+    "a": 6450000,
+    "e": "O'rtacha 43 000; qoldiq 150 × 43 000 = 6 450 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "FIFO usuli: avval 200 dona × 40 000, keyin 300 dona × 45 000 keldi. 350 dona sotildi. Qolgan tovar qiymati?",
+    "a": 6750000,
+    "e": "Avval eskilari sotiladi; qolgan 150 dona yangi narxda: 150 × 45 000 = 6 750 000 so'm."
+   }
+  ]
+ },
+ {
+  "title": "Ish haqi kuni",
+  "icon": "💸",
+  "story": "Oy oxiri. Menejer Dilnozaning oyligi 8 000 000 so'm. Xodimlar kutyapti — xato qilmang!",
+  "theory": "<p>Ish haqi uch bosqichda:</p>\n <ul><li><b>Hisoblash</b>: Dt 9420 — Kt 6710</li><li><b>JShDS ushlash (12%)</b>: Dt 6710 — Kt 6410</li><li><b>To'lash</b>: Dt 6710 — Kt 5110</li></ul>\n <p>Ijtimoiy soliq (12%) xodimdan ushlanmaydi — uni <b>firma o'z hisobidan</b> to'laydi.</p>\n <p>JShDS va ijtimoiy soliq hisoboti — keyingi oyning <b>15-sanasigacha</b>.</p>",
+  "example": {
+   "t": "Oylik hisoblandi (ma'muriy xodim):",
+   "dt": "9420",
+   "kt": "6710"
+  },
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Menejerga oylik ish haqi hisoblandi.",
+    "dt": "9420",
+    "kt": "6710",
+    "o": [
+     "7810",
+     "9210",
+     "9120",
+     "0820",
+     "9420",
+     "6710"
+    ],
+    "e": "Ma'muriy xarajat (Dt 9420), xodim oldida qarz (Kt 6710)."
+   },
+   {
+    "t": "pv",
+    "q": "Ish haqidan JShDS (12%) ushlandi.",
+    "dt": "6710",
+    "kt": "6410",
+    "o": [
+     "9810",
+     "6410",
+     "9420",
+     "9430",
+     "9620",
+     "6710"
+    ],
+    "e": "Xodimga qarz kamaydi (Dt 6710), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Ish haqi bankdan xodim kartasiga o'tkazildi.",
+    "dt": "6710",
+    "kt": "5110",
+    "o": [
+     "9620",
+     "6710",
+     "9430",
+     "5910",
+     "9210",
+     "5110"
+    ],
+    "e": "Qarz yopildi (Dt 6710), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Ushlangan JShDS budjetga to'landi.",
+    "dt": "6410",
+    "kt": "5110",
+    "o": [
+     "4010",
+     "6410",
+     "6810",
+     "0820",
+     "9540",
+     "5110"
+    ],
+    "e": "Budjetga qarz yopildi (Dt 6410), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Oy o'rtasida xodimga kassadan avans berildi.",
+    "dt": "6710",
+    "kt": "5010",
+    "o": [
+     "5010",
+     "9540",
+     "2810",
+     "5110",
+     "8710",
+     "6710"
+    ],
+    "e": "Avans — oylikning oldindan to'langan qismi (Dt 6710), kassa kamaydi (Kt 5010)."
+   },
+   {
+    "t": "pv",
+    "q": "Sexdagi ishchiga ish haqi hisoblandi.",
+    "dt": "2010",
+    "kt": "6710",
+    "o": [
+     "6920",
+     "5010",
+     "9020",
+     "2010",
+     "0130",
+     "6710"
+    ],
+    "e": "Ishchi mehnati mahsulot tannarxiga kiradi (Dt 2010), xodimga qarz (Kt 6710)."
+   },
+   {
+    "t": "pv",
+    "q": "Do'kon sotuvchisiga ish haqi hisoblandi.",
+    "dt": "9410",
+    "kt": "6710",
+    "o": [
+     "6920",
+     "6710",
+     "9610",
+     "9410",
+     "9030",
+     "5110"
+    ],
+    "e": "Sotuvchi mehnati — sotish xarajati (Dt 9410), xodimga qarz (Kt 6710)."
+   },
+   {
+    "t": "pv",
+    "q": "Menejer oyligiga 12% ijtimoiy soliq hisoblandi.",
+    "dt": "9420",
+    "kt": "6410",
+    "o": [
+     "9210",
+     "4730",
+     "9020",
+     "6410",
+     "9540",
+     "9420"
+    ],
+    "e": "Ijtimoiy soliq — firmaning xarajati (Dt 9420), budjetga qarz (Kt 6410). Xodimdan ushlanmaydi."
+   },
+   {
+    "t": "pv",
+    "q": "Sex ishchisi oyligiga ijtimoiy soliq hisoblandi.",
+    "dt": "2010",
+    "kt": "6410",
+    "o": [
+     "9310",
+     "6710",
+     "6310",
+     "4220",
+     "2010",
+     "6410"
+    ],
+    "e": "Ishlab chiqarish ishchisi bo'yicha ijtimoiy soliq ham tannarxga kiradi (Dt 2010), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Ijtimoiy soliq budjetga to'landi.",
+    "dt": "6410",
+    "kt": "5110",
+    "o": [
+     "5110",
+     "5210",
+     "6710",
+     "6410",
+     "0820",
+     "0230"
+    ],
+    "e": "Budjetga qarz yopildi (Dt 6410), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Xodim aybi bilan yuzaga kelgan kamomad uning ish haqidan ushlandi.",
+    "dt": "6710",
+    "kt": "4730",
+    "o": [
+     "6710",
+     "1010",
+     "6010",
+     "9030",
+     "4730",
+     "6610"
+    ],
+    "e": "Xodimga to'lanadigan oylik kamaydi (Dt 6710), uning moddiy zarar qarzi yopildi (Kt 4730)."
+   },
+   {
+    "t": "pv",
+    "q": "Safar bo'nagining qaytarilmagan qismi xodim oyligidan ushlandi.",
+    "dt": "6710",
+    "kt": "4220",
+    "o": [
+     "6920",
+     "4220",
+     "9020",
+     "9910",
+     "6710",
+     "0130"
+    ],
+    "e": "Oylik kamaydi (Dt 6710), hisobdor shaxs qarzi yopildi (Kt 4220)."
+   },
+   {
+    "t": "mc",
+    "q": "Ish haqidan xodimning o'zidan qaysi soliq ushlanadi?",
+    "o": [
+     "JShDS",
+     "Ijtimoiy soliq",
+     "QQS",
+     "Mol-mulk solig'i"
+    ],
+    "a": 0,
+    "e": "Xodimdan faqat JShDS ushlanadi; ijtimoiy soliqni firma to'laydi."
+   },
+   {
+    "t": "calc",
+    "q": "Oylik 6 500 000. JShDS 12%. Qo'lga qancha?",
+    "a": 5720000,
+    "e": "6 500 000 − 780 000 = 5 720 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Oylik 9 000 000. Firmaning ish haqi bo'yicha jami xarajati (ijtimoiy soliq 12% bilan)?",
+    "a": 10080000,
+    "e": "9 000 000 + 1 080 000 = 10 080 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "Mehnat kodeksiga ko'ra yillik asosiy ta'tilning eng kam muddati?",
+    "o": [
+     "21 kalendar kun",
+     "15 kalendar kun",
+     "24 ish kuni",
+     "30 kalendar kun"
+    ],
+    "a": 0,
+    "e": "Yillik asosiy mehnat ta'tili kamida 21 kalendar kun."
+   },
+   {
+    "t": "calc",
+    "q": "Oklad 22 000 000, oyda 22 ish kuni. Xodim 17 kun ishladi va 3 600 000 ta'til puli hisoblandi. Jami hisoblangan?",
+    "a": 20600000,
+    "e": "17 kun × 1 000 000 = 17 000 000 + 3 600 000 = 20 600 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "5 xodim: 3 tasi 6 mln, 2 tasi 9 mln oylik oladi. Ijtimoiy soliq 12%?",
+    "a": 4320000,
+    "e": "Fond 36 000 000 × 12% = 4 320 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Xodim qo'liga 8 800 000 olishi kerak. Firmaning jami xarajati (JShDS 12%, ijtimoiy soliq 12%)?",
+    "a": 11200000,
+    "e": "Hisoblanadi 10 000 000; + ijtimoiy soliq 1 200 000 = 11 200 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Oylik 10 000 000. JShDS ushlangach, kamomad uchun yana 1 500 000 ushlanadi. Qo'lga?",
+    "a": 7300000,
+    "e": "10 000 000 − 1 200 000 − 1 500 000 = 7 300 000 so'm."
+   }
+  ]
+ },
+ {
+  "title": "Yangi uskuna",
+  "icon": "⚙️",
+  "story": "Firma 60 mln so'mga qadoqlash uskunasi sotib oldi. Uni ishga tushiring va eskirishini hisoblang.",
+  "theory": "<p>Asosiy vosita avval <b>0820</b> da yig'iladi (narx, yetkazish, o'rnatish), foydalanishga topshirilganda <b>0130</b> ga o'tadi.</p>\n <p>Yillik amortizatsiya = (boshlang'ich qiymat − tugatish qiymati) ÷ foydalanish yillari. Oylik = yillik ÷ 12.</p>\n <p>Soliq hisobida amortizatsiya — SK <b>306-modda</b>.</p>",
+  "example": {
+   "t": "Uskuna xarid qilindi, pul keyin to'lanadi:",
+   "dt": "0820",
+   "kt": "6010"
+  },
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Uskuna sotib olindi, pul keyin to'lanadi (QQSsiz summa).",
+    "dt": "0820",
+    "kt": "6010",
+    "o": [
+     "6010",
+     "0820",
+     "9910",
+     "9390",
+     "4010",
+     "9610"
+    ],
+    "e": "Kapital qo'yilma (Dt 0820), yetkazib beruvchiga qarz (Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Uskuna fakturasi bo'yicha kirim QQS aks ettirildi.",
+    "dt": "4410",
+    "kt": "6010",
+    "o": [
+     "6310",
+     "8330",
+     "4410",
+     "9020",
+     "6010",
+     "2810"
+    ],
+    "e": "Hisobga olinadigan QQS (Dt 4410), qarzning bir qismi (Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Uskunani olib kelish xizmati uchun transportchiga qarz yozildi.",
+    "dt": "0820",
+    "kt": "6010",
+    "o": [
+     "9410",
+     "2010",
+     "4220",
+     "4410",
+     "6010",
+     "0820"
+    ],
+    "e": "Yetkazish uskuna qiymatiga qo'shiladi (Dt 0820)."
+   },
+   {
+    "t": "pv",
+    "q": "Uskuna o'rnatilib, foydalanishga topshirildi.",
+    "dt": "0130",
+    "kt": "0820",
+    "o": [
+     "0820",
+     "0130",
+     "4610",
+     "9110",
+     "9540",
+     "6410"
+    ],
+    "e": "Asosiy vosita tayyor (Dt 0130), qo'yilma yopildi (Kt 0820)."
+   },
+   {
+    "t": "pv",
+    "q": "Ofis kompyuterining oylik amortizatsiyasi hisoblandi.",
+    "dt": "9420",
+    "kt": "0230",
+    "o": [
+     "6010",
+     "9540",
+     "7810",
+     "9010",
+     "0230",
+     "9420"
+    ],
+    "e": "Ma'muriy xarajat (Dt 9420), eskirish to'plandi (Kt 0230)."
+   },
+   {
+    "t": "pv",
+    "q": "Sexdagi dastgohning oylik amortizatsiyasi hisoblandi.",
+    "dt": "2010",
+    "kt": "0230",
+    "o": [
+     "0230",
+     "9010",
+     "9410",
+     "4730",
+     "0130",
+     "2010"
+    ],
+    "e": "Ishlab chiqarish uskunasi eskirishi tannarxga (Dt 2010)."
+   },
+   {
+    "t": "pv",
+    "q": "Do'kondagi savdo vitrinasining amortizatsiyasi hisoblandi.",
+    "dt": "9410",
+    "kt": "0230",
+    "o": [
+     "6610",
+     "4310",
+     "1010",
+     "0230",
+     "9410",
+     "9010"
+    ],
+    "e": "Sotish bilan bog'liq vosita — sotish xarajati (Dt 9410)."
+   },
+   {
+    "t": "pv",
+    "q": "Eski uskuna sotildi: boshlang'ich qiymati hisobdan chiqarildi.",
+    "dt": "9210",
+    "kt": "0130",
+    "o": [
+     "2810",
+     "0230",
+     "0130",
+     "9210",
+     "9420",
+     "0820"
+    ],
+    "e": "Chiqib ketish hisobiga boshlang'ich qiymat (Dt 9210 — Kt 0130)."
+   },
+   {
+    "t": "pv",
+    "q": "Sotilgan uskunaning to'plangan eskirishi hisobdan chiqarildi.",
+    "dt": "0230",
+    "kt": "9210",
+    "o": [
+     "9210",
+     "9020",
+     "0230",
+     "4410",
+     "6920",
+     "6010"
+    ],
+    "e": "Eskirish yopildi (Dt 0230), chiqib ketish qiymatini kamaytiradi (Kt 9210)."
+   },
+   {
+    "t": "pv",
+    "q": "Uskuna xaridorga sotildi — sotuv narxi (QQSsiz) aks ettirildi.",
+    "dt": "4010",
+    "kt": "9210",
+    "o": [
+     "9020",
+     "9110",
+     "9210",
+     "9390",
+     "9910",
+     "4010"
+    ],
+    "e": "Xaridor qarzdor (Dt 4010), sotuv narxi chiqib ketish hisobiga (Kt 9210)."
+   },
+   {
+    "t": "pv",
+    "q": "Uskuna qoldiq qiymatidan qimmat sotildi — foyda aniqlandi.",
+    "dt": "9210",
+    "kt": "9310",
+    "o": [
+     "9310",
+     "4610",
+     "6920",
+     "9210",
+     "6310",
+     "5210"
+    ],
+    "e": "9210 yopildi (Dt 9210), asosiy vosita sotishdan foyda (Kt 9310)."
+   },
+   {
+    "t": "pv",
+    "q": "Ishdan chiqqan uskuna tugatildi — qolgan qoldiq qiymati zarar sifatida yozildi.",
+    "dt": "9430",
+    "kt": "9210",
+    "o": [
+     "9610",
+     "2810",
+     "5110",
+     "9430",
+     "0130",
+     "9210"
+    ],
+    "e": "Qoldiq qiymat boshqa operatsion xarajatga (Dt 9430), 9210 yopildi (Kt 9210)."
+   },
+   {
+    "t": "mc",
+    "q": "Asosiy vositalar qaysi BHMS bo'yicha hisobga olinadi?",
+    "o": [
+     "BHMS 5",
+     "BHMS 4",
+     "BHMS 7",
+     "BHMS 21"
+    ],
+    "a": 0,
+    "e": "BHMS 5 — asosiy vositalar. 4 — zaxiralar, 7 — nomoddiy aktivlar."
+   },
+   {
+    "t": "calc",
+    "q": "Kompyuter 18 000 000, muddat 3 yil. Oylik amortizatsiya?",
+    "a": 500000,
+    "e": "18 000 000 ÷ 36 oy = 500 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Avtomobil 240 000 000, tugatish qiymati 40 000 000, muddat 5 yil. Yillik amortizatsiya?",
+    "a": 40000000,
+    "e": "(240 − 40) ÷ 5 = 40 000 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "Amortizatsiya odatda qachondan hisoblana boshlaydi?",
+    "o": [
+     "Foydalanishga topshirilgan oydan keyingi oydan",
+     "Xarid qilingan kundan",
+     "Yil boshidan",
+     "Pul to'langan kundan"
+    ],
+    "a": 0,
+    "e": "Vosita foydalanishga topshirilgan oydan keyingi oyning 1-sanasidan amortizatsiya boshlanadi."
+   },
+   {
+    "t": "calc",
+    "q": "Bino 600 000 000, muddat 20 yil. 3 yil 6 oydan keyin qoldiq qiymati?",
+    "a": 495000000,
+    "e": "Yillik 30 mln × 3,5 = 105 mln. 600 − 105 = 495 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Ishlab chiqarish usuli: uskuna 100 000 000, jami resurs 50 000 soat. Oyda 1 200 soat ishladi. Oylik amortizatsiya?",
+    "a": 2400000,
+    "e": "1 soat = 2 000 so'm; 1 200 × 2 000 = 2 400 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Uskuna 80 000 000, eskirish 60 000 000. 15 000 000 ga (QQSsiz) sotildi. Sotishdan zarar qancha?",
+    "a": 5000000,
+    "e": "Qoldiq 20 mln, sotuv 15 mln — zarar 5 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Kamayib boruvchi qoldiq usuli, stavka 30%. Uskuna 50 000 000. 3-yil amortizatsiyasi?",
+    "a": 7350000,
+    "e": "1-yil 15 mln; 2-yil 10,5 mln; 3-yil 24,5 mln × 30% = 7 350 000 so'm."
+   }
+  ]
+ },
+ {
+  "title": "Soliqlar xaritasi",
+  "icon": "🧾",
+  "story": "Direktor: «Qaysi soliqni qancha to'laymiz, qonunning qaysi moddasida yozilgan?» Soliq kodeksini ochish vaqti.",
+  "theory": "<p>Soliq kodeksi — 2019-yil 30-dekabrdagi <b>O'RQ-599</b> qonun, 2020-yil 1-yanvardan amalda. 2026-yilda asosiy stavkalar o'zgarmadi:</p>\n <ul><li>QQS — <b>12%</b> (258-modda)</li><li>Foyda solig'i — <b>15%</b> (337-modda)</li>\n <li>JShDS — <b>12%</b>, dividend — <b>5%</b> (381-modda)</li><li>Ijtimoiy soliq — <b>12%</b>, budjet tashkilotlari 25% (405-modda)</li>\n <li>Yuridik shaxs mol-mulk solig'i — <b>1,5%</b> (415-modda)</li><li>Aylanmadan olinadigan soliq — <b>4%</b> (461, 467-moddalar)</li></ul>",
+  "example": null,
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Xizmat ko'rsatildi — 12% chiqim QQS budjetga qarz sifatida yozildi.",
+    "dt": "4010",
+    "kt": "6410",
+    "o": [
+     "6610",
+     "6410",
+     "4010",
+     "9010",
+     "8330",
+     "6920"
+    ],
+    "e": "Xaridordan olinadigan QQS (Dt 4010), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Oylik QQS budjetga to'landi.",
+    "dt": "6410",
+    "kt": "5110",
+    "o": [
+     "6410",
+     "5110",
+     "6710",
+     "9210",
+     "8710",
+     "6310"
+    ],
+    "e": "Budjetga qarz yopildi (Dt 6410), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Chorak uchun foyda solig'i hisoblandi.",
+    "dt": "9810",
+    "kt": "6410",
+    "o": [
+     "0230",
+     "6410",
+     "5910",
+     "2810",
+     "5210",
+     "9810"
+    ],
+    "e": "Foyda solig'i xarajati (Dt 9810), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Foyda solig'i budjetga to'landi.",
+    "dt": "6410",
+    "kt": "5110",
+    "o": [
+     "5110",
+     "4310",
+     "6410",
+     "5010",
+     "6710",
+     "7810"
+    ],
+    "e": "Dt 6410 — Kt 5110."
+   },
+   {
+    "t": "pv",
+    "q": "Kirim QQS chiqim QQSdan chegirildi (oy yakuni).",
+    "dt": "6410",
+    "kt": "4410",
+    "o": [
+     "6410",
+     "0820",
+     "9430",
+     "9020",
+     "4410",
+     "9310"
+    ],
+    "e": "Budjetga qarz kamaydi (Dt 6410), kirim QQS yopildi (Kt 4410)."
+   },
+   {
+    "t": "pv",
+    "q": "Yuridik shaxs mol-mulk solig'i (1,5%) hisoblandi.",
+    "dt": "9430",
+    "kt": "6410",
+    "o": [
+     "4220",
+     "6410",
+     "8710",
+     "9430",
+     "0820",
+     "2910"
+    ],
+    "e": "Mol-mulk solig'i — boshqa operatsion xarajat (Dt 9430), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Yer solig'i hisoblandi.",
+    "dt": "9430",
+    "kt": "6410",
+    "o": [
+     "9030",
+     "5910",
+     "4730",
+     "9430",
+     "6410",
+     "6710"
+    ],
+    "e": "Boshqa operatsion xarajat (Dt 9430), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Ta'sischiga (jismoniy shaxs) hisoblangan dividenddan 5% JShDS ushlandi.",
+    "dt": "6610",
+    "kt": "6410",
+    "o": [
+     "6810",
+     "2910",
+     "8330",
+     "6610",
+     "6410",
+     "9410"
+    ],
+    "e": "Dividend qarzi kamaydi (Dt 6610), budjetga qarz (Kt 6410) — SK 381-modda."
+   },
+   {
+    "t": "pv",
+    "q": "Soliq hisobotini kechiktirgani uchun jarima hisoblandi.",
+    "dt": "9430",
+    "kt": "6410",
+    "o": [
+     "7810",
+     "4220",
+     "2910",
+     "9430",
+     "6410",
+     "9010"
+    ],
+    "e": "Jarima — boshqa operatsion xarajat (Dt 9430), budjetga qarz (Kt 6410). Foyda solig'i bazasidan chegirilmaydi (SK 317-modda)."
+   },
+   {
+    "t": "pv",
+    "q": "Import qilingan tovar uchun bojxona boji hisoblandi (tovar qiymatiga kiradi).",
+    "dt": "2910",
+    "kt": "6410",
+    "o": [
+     "5110",
+     "6410",
+     "6310",
+     "2910",
+     "1010",
+     "9610"
+    ],
+    "e": "Boj tovar tannarxiga qo'shiladi (Dt 2910), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Norezidentdan xizmat olindi: soliq agenti sifatida QQS hisoblandi (keyin hisobga olinadi).",
+    "dt": "4410",
+    "kt": "6410",
+    "o": [
+     "2910",
+     "4410",
+     "9310",
+     "6410",
+     "9910",
+     "0820"
+    ],
+    "e": "Soliq agenti hisoblagan QQS — kirim QQS (Dt 4410), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Norezidentga to'lanadigan daromaddan soliq agenti foyda solig'ini ushlab qoldi.",
+    "dt": "6010",
+    "kt": "6410",
+    "o": [
+     "6610",
+     "9910",
+     "6010",
+     "9390",
+     "4010",
+     "6410"
+    ],
+    "e": "Norezidentga qarz kamaydi (Dt 6010), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "mc",
+    "q": "Aylanmadan olinadigan soliqning umumiy stavkasi?",
+    "o": [
+     "4%",
+     "1%",
+     "12%",
+     "15%"
+    ],
+    "a": 0,
+    "e": "Aylanma soliq — 4% (SK 467-modda)."
+   },
+   {
+    "t": "mc",
+    "q": "2026-yildan YaTT (yillik daromad 1 mlrd gacha) uchun aylanma soliqning yagona stavkasi?",
+    "o": [
+     "1%",
+     "4%",
+     "12%",
+     "6%"
+    ],
+    "a": 0,
+    "e": "2026-yildan YaTT va o'zini o'zi band qilganlar uchun yagona 1% stavka."
+   },
+   {
+    "t": "calc",
+    "q": "Foyda solig'i bazasi 84 000 000. Stavka 15%. Soliq?",
+    "a": 12600000,
+    "e": "84 000 000 × 15% = 12 600 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Ish haqi fondi 35 000 000. Ijtimoiy soliq 12%?",
+    "a": 4200000,
+    "e": "35 000 000 × 12% = 4 200 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "Mol-mulk solig'i stavkalari Soliq kodeksining qaysi moddasida?",
+    "o": [
+     "415-modda",
+     "405-modda",
+     "337-modda",
+     "258-modda"
+    ],
+    "a": 0,
+    "e": "415 — mol-mulk solig'i stavkalari; 405 — ijtimoiy soliq; 337 — foyda; 258 — QQS."
+   },
+   {
+    "t": "mc",
+    "q": "Foyda solig'ida chegirilmaydigan xarajatlar qaysi moddada?",
+    "o": [
+     "317-modda",
+     "304-modda",
+     "306-modda",
+     "239-modda"
+    ],
+    "a": 0,
+    "e": "317 — chegirilmaydigan xarajatlar (jarima, penya va h.k.)."
+   },
+   {
+    "t": "calc",
+    "q": "Yillik yer solig'i 24 000 000, har oy 1/12 qismdan to'lanadi. Oylik to'lov?",
+    "a": 2000000,
+    "e": "24 000 000 ÷ 12 = 2 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Sof foyda 120 mln. 60% i jismoniy shaxs ta'sischilarga dividendga ajratildi (soliq 5%). Budjetga dividend solig'i?",
+    "a": 3600000,
+    "e": "Dividend 72 000 000 × 5% = 3 600 000 so'm."
+   }
+  ]
+ },
+ {
+  "title": "Hisobotlar taqvimi",
+  "icon": "📅",
+  "story": "Oyning 14-sanasi. Direktor: «Bugun nima topshiramiz, ertaga nima?» Taqvimni yod bilgan buxgalter jarima to'lamaydi.",
+  "theory": "<p>Asosiy muddatlar (keyingi oyning):</p>\n <ul><li><b>15-sanasi</b> — JShDS va ijtimoiy soliq hisoboti va to'lovi</li>\n <li><b>20-sanasi</b> — QQS, aylanmadan olinadigan soliq hisoboti va to'lovi; chorak yakunida foyda solig'i hisob-kitobi</li></ul>\n <p>Moliyaviy hisobot: <b>1-shakl</b> — buxgalteriya balansi, <b>2-shakl</b> — moliyaviy natijalar to'g'risida hisobot.</p>\n <p>Soliq hisobotini shakllantirish — SK <b>81-modda</b>. Idorada hisobotlar asosida tekshirish — <b>kameral</b> tekshiruv (138-modda).</p>",
+  "example": null,
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Inventarizatsiyada tovar kamomadi aniqlandi.",
+    "dt": "5910",
+    "kt": "2910",
+    "o": [
+     "2810",
+     "5910",
+     "2910",
+     "9110",
+     "9030",
+     "4730"
+    ],
+    "e": "Kamomad avval 5910 ga yig'iladi (Dt 5910), ombor kamaydi (Kt 2910)."
+   },
+   {
+    "t": "pv",
+    "q": "Kamomad aybdor omborchiga yuklandi.",
+    "dt": "4730",
+    "kt": "5910",
+    "o": [
+     "9540",
+     "4730",
+     "7810",
+     "9610",
+     "4410",
+     "5910"
+    ],
+    "e": "Xodim qarzdor (Dt 4730), kamomad yopildi (Kt 5910)."
+   },
+   {
+    "t": "pv",
+    "q": "Omborchi kamomad summasini kassaga to'ladi.",
+    "dt": "5010",
+    "kt": "4730",
+    "o": [
+     "6610",
+     "5010",
+     "6310",
+     "4730",
+     "2910",
+     "9620"
+    ],
+    "e": "Kassa ko'paydi (Dt 5010), xodim qarzi yopildi (Kt 4730)."
+   },
+   {
+    "t": "pv",
+    "q": "Inventarizatsiyada ortiqcha tovar chiqdi va kirim qilindi.",
+    "dt": "2910",
+    "kt": "9390",
+    "o": [
+     "6410",
+     "9120",
+     "9390",
+     "6610",
+     "2010",
+     "2910"
+    ],
+    "e": "Tovar ko'paydi (Dt 2910), boshqa operatsion daromad (Kt 9390)."
+   },
+   {
+    "t": "pv",
+    "q": "Kassani sanashda ortiqcha naqd pul aniqlandi.",
+    "dt": "5010",
+    "kt": "9390",
+    "o": [
+     "8330",
+     "6710",
+     "5010",
+     "5910",
+     "9390",
+     "9010"
+    ],
+    "e": "Kassa ko'paydi (Dt 5010), boshqa operatsion daromad (Kt 9390)."
+   },
+   {
+    "t": "pv",
+    "q": "Omborda buzilgan (yaroqsiz) xomashyo aniqlandi.",
+    "dt": "5910",
+    "kt": "1010",
+    "o": [
+     "9010",
+     "9910",
+     "5010",
+     "1010",
+     "4220",
+     "5910"
+    ],
+    "e": "Zarar 5910 ga (Dt 5910), xomashyo kamaydi (Kt 1010)."
+   },
+   {
+    "t": "pv",
+    "q": "Kamomad uchun aybdor topilmadi — xarajatga yozildi.",
+    "dt": "9430",
+    "kt": "5910",
+    "o": [
+     "5110",
+     "5210",
+     "4730",
+     "5910",
+     "9430",
+     "0130"
+    ],
+    "e": "Boshqa operatsion xarajat (Dt 9430), 5910 yopildi (Kt 5910)."
+   },
+   {
+    "t": "pv",
+    "q": "Muddati o'tgan, undirib bo'lmaydigan xaridor qarzi hisobdan chiqarildi.",
+    "dt": "9430",
+    "kt": "4010",
+    "o": [
+     "4410",
+     "6310",
+     "8710",
+     "4010",
+     "9430",
+     "0230"
+    ],
+    "e": "Zarar (Dt 9430), debitorlik qarzi yopildi (Kt 4010)."
+   },
+   {
+    "t": "pv",
+    "q": "Da'vo muddati o'tgan yetkazib beruvchi qarzi daromadga olindi.",
+    "dt": "6010",
+    "kt": "9390",
+    "o": [
+     "2010",
+     "9810",
+     "9390",
+     "9110",
+     "4730",
+     "6010"
+    ],
+    "e": "Kreditorlik qarzi yopildi (Dt 6010), boshqa operatsion daromad (Kt 9390)."
+   },
+   {
+    "t": "pv",
+    "q": "Oy oxirida valyuta qoldig'i qayta baholandi — kurs tushgani uchun zarar.",
+    "dt": "9620",
+    "kt": "5210",
+    "o": [
+     "9310",
+     "0130",
+     "6920",
+     "5210",
+     "9620",
+     "1010"
+    ],
+    "e": "Kurs farqidan zarar (Dt 9620), valyuta qoldig'i kamaydi (Kt 5210)."
+   },
+   {
+    "t": "pv",
+    "q": "Oy oxirida valyuta qoldig'i qayta baholandi — kurs oshgani uchun daromad.",
+    "dt": "5210",
+    "kt": "9540",
+    "o": [
+     "5210",
+     "6610",
+     "9910",
+     "9540",
+     "4310",
+     "1010"
+    ],
+    "e": "Valyuta qoldig'i oshdi (Dt 5210), kurs farqidan daromad (Kt 9540)."
+   },
+   {
+    "t": "pv",
+    "q": "Chorak hisobotini tayyorlashda hisoblanmay qolgan kredit foizi aks ettirildi.",
+    "dt": "9610",
+    "kt": "6920",
+    "o": [
+     "2910",
+     "6410",
+     "9610",
+     "0230",
+     "6920",
+     "6810"
+    ],
+    "e": "Moliyaviy xarajat (Dt 9610), to'lanadigan foiz (Kt 6920) — hisoblash tamoyili."
+   },
+   {
+    "t": "mc",
+    "q": "Yillik moliyaviy hisobotdan oldin nima majburiy o'tkaziladi?",
+    "o": [
+     "Inventarizatsiya",
+     "Ustavni o'zgartirish",
+     "Direktorni almashtirish",
+     "Bankni almashtirish"
+    ],
+    "a": 0,
+    "e": "Yillik hisobot oldidan aktiv va majburiyatlar inventarizatsiya qilinadi."
+   },
+   {
+    "t": "mc",
+    "q": "Mart oyi uchun QQS hisoboti qaysi sanagacha topshiriladi?",
+    "o": [
+     "20-aprel",
+     "15-aprel",
+     "10-aprel",
+     "31-mart"
+    ],
+    "a": 0,
+    "e": "QQS — keyingi oyning 20-sanasigacha."
+   },
+   {
+    "t": "mc",
+    "q": "Avgust ish haqi bo'yicha JShDS va ijtimoiy soliq hisoboti qachongacha?",
+    "o": [
+     "15-sentabr",
+     "20-sentabr",
+     "10-sentabr",
+     "31-avgust"
+    ],
+    "a": 0,
+    "e": "JShDS va ijtimoiy soliq — keyingi oyning 15-sanasigacha."
+   },
+   {
+    "t": "mc",
+    "q": "2026 taqvimiga ko'ra yer va mol-mulk solig'ining oylik qismi qaysi sanagacha to'lanadi?",
+    "o": [
+     "10-sana",
+     "15-sana",
+     "20-sana",
+     "25-sana"
+    ],
+    "a": 0,
+    "e": "Yillik summaning 1/12 qismi har oyning 10-sanasigacha to'lanadi."
+   },
+   {
+    "t": "mc",
+    "q": "O'tgan yil daromadi 20 mlrd so'mdan ortiq firma foyda solig'i bo'nagini qachon to'laydi?",
+    "o": [
+     "Har oyning 23-sanasigacha",
+     "Chorakda bir marta 20-sanagacha",
+     "Yilda bir marta",
+     "To'lamaydi"
+    ],
+    "a": 0,
+    "e": "Yirik to'lovchilar oylik bo'nakni joriy oyning 23-sanasigacha to'laydi."
+   },
+   {
+    "t": "mc",
+    "q": "2026-yildan soliq organi avtomatik tayyorlagan hisobotga to'lovchi necha kun ichida tuzatish kiritishi mumkin?",
+    "o": [
+     "5 kun",
+     "10 kun",
+     "15 kun",
+     "30 kun"
+    ],
+    "a": 0,
+    "e": "SK 81-modda (2026): to'lovchiga 5 kun beriladi."
+   },
+   {
+    "t": "calc",
+    "q": "Avtomatik QQS hisobotida kirim QQS 1 200 000 kam ko'rsatilgan. Tuzatilgach to'lanadigan QQS qanchaga kamayadi?",
+    "a": 1200000,
+    "e": "Kirim QQS ko'paysa, to'lanadigan QQS ham shuncha kamayadi: 1 200 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Aylanma qaydnomada aktivlar qoldig'i 410 mln, passivlar qoldig'i 395 mln chiqdi. Qidirilishi kerak bo'lgan farq?",
+    "a": 15000000,
+    "e": "410 − 395 = 15 000 000 so'm — balans teng bo'lishi kerak, demak xato bor."
+   }
+  ]
+ },
+ {
+  "title": "Imtiyozlar",
+  "icon": "🎁",
+  "story": "Mijoz: «Bizga qanday imtiyoz bor?» To'g'ri imtiyoz — qonuniy tejash. Noto'g'ri qo'llangan imtiyoz — jarima.",
+  "theory": "<p><b>0% stavka</b> va <b>QQSdan ozod</b> — har xil narsa:</p>\n <ul><li><b>0%</b> (masalan, eksport) — chiqim QQS 0, lekin <b>kirim QQS hisobga olinadi</b> va qaytarilishi mumkin (SK 264, 274-moddalar).</li>\n <li><b>Ozod</b> (masalan, tibbiy, ta'lim xizmatlari) — QQS yo'q, <b>kirim QQS hisobga olinmaydi</b>.</li></ul>\n <p>2026-yil yangiliklari: soddalashtirilgandan umumiy tizimga birinchi marta o'tganlarga 1 yil foyda solig'idan ozodlik; kontent yaratuvchilar, issiqxonalar uchun ijtimoiy soliq 1%.</p>",
+  "example": null,
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Tovar eksportga sotildi (QQS 0%) — daromad aks ettirildi.",
+    "dt": "4010",
+    "kt": "9020",
+    "o": [
+     "9540",
+     "9430",
+     "6410",
+     "9020",
+     "4010",
+     "4410"
+    ],
+    "e": "Xaridor qarzdor (Dt 4010), daromad (Kt 9020). 0% stavkada chiqim QQS nol."
+   },
+   {
+    "t": "pv",
+    "q": "Eksport qilingan tovar tannarxi hisobdan chiqarildi.",
+    "dt": "9120",
+    "kt": "2910",
+    "o": [
+     "6810",
+     "9120",
+     "2910",
+     "9540",
+     "4310",
+     "9430"
+    ],
+    "e": "Dt 9120 — Kt 2910."
+   },
+   {
+    "t": "pv",
+    "q": "Chet ellik xaridordan dollar valyuta schyotiga tushdi.",
+    "dt": "5210",
+    "kt": "4010",
+    "o": [
+     "4010",
+     "5210",
+     "9110",
+     "9410",
+     "4610",
+     "7810"
+    ],
+    "e": "Valyuta keldi (Dt 5210), xaridor qarzi yopildi (Kt 4010)."
+   },
+   {
+    "t": "pv",
+    "q": "Chet ellik xaridor eksport uchun oldindan valyutada bo'nak o'tkazdi.",
+    "dt": "5210",
+    "kt": "6310",
+    "o": [
+     "0820",
+     "6010",
+     "6310",
+     "7810",
+     "9030",
+     "5210"
+    ],
+    "e": "Valyuta keldi (Dt 5210), tovar hali berilmagan — bo'nak (Kt 6310)."
+   },
+   {
+    "t": "pv",
+    "q": "Tibbiy xizmat ko'rsatildi (QQSdan ozod) — daromad aks ettirildi.",
+    "dt": "4010",
+    "kt": "9030",
+    "o": [
+     "2810",
+     "9030",
+     "4010",
+     "6410",
+     "6920",
+     "6710"
+    ],
+    "e": "Mijoz qarzdor (Dt 4010), xizmatdan daromad (Kt 9030). QQS hisoblanmaydi."
+   },
+   {
+    "t": "pv",
+    "q": "Faqat QQSdan ozod faoliyat uchun olingan tovarning QQSi tovar qiymatiga qo'shildi.",
+    "dt": "2910",
+    "kt": "6010",
+    "o": [
+     "2910",
+     "2010",
+     "9010",
+     "9910",
+     "6010",
+     "9420"
+    ],
+    "e": "Ozod aylanmada kirim QQS hisobga olinmaydi — tovar QQS bilan kirim qilinadi (Dt 2910 — Kt 6010)."
+   },
+   {
+    "t": "pv",
+    "q": "Kirim QQSning soliq solinadigan aylanmaga to'g'ri keladigan qismi hisobga olindi.",
+    "dt": "6410",
+    "kt": "4410",
+    "o": [
+     "6410",
+     "9810",
+     "6010",
+     "4410",
+     "5010",
+     "5110"
+    ],
+    "e": "Budjetga qarz kamaydi (Dt 6410), kirim QQS yopildi (Kt 4410)."
+   },
+   {
+    "t": "pv",
+    "q": "Kirim QQSning ozod aylanmaga to'g'ri keladigan qismi xarajatga o'tkazildi.",
+    "dt": "9430",
+    "kt": "4410",
+    "o": [
+     "5910",
+     "5210",
+     "9310",
+     "9430",
+     "2810",
+     "4410"
+    ],
+    "e": "Hisobga olinmaydigan QQS xarajatga (Dt 9430), 4410 yopildi (Kt 4410) — proporsional usul."
+   },
+   {
+    "t": "pv",
+    "q": "Imtiyozli firma: ijtimoiy soliq 1% stavkada hisoblandi (ma'muriy xodimlar).",
+    "dt": "9420",
+    "kt": "6410",
+    "o": [
+     "6410",
+     "0130",
+     "2810",
+     "2910",
+     "4410",
+     "9420"
+    ],
+    "e": "Stavka imtiyozli bo'lsa ham provodka o'sha: Dt 9420 — Kt 6410."
+   },
+   {
+    "t": "pv",
+    "q": "Foyda solig'idan ozod firma yil yakunida sof foydani yopdi.",
+    "dt": "9910",
+    "kt": "8710",
+    "o": [
+     "8330",
+     "9910",
+     "6920",
+     "6810",
+     "8710",
+     "9620"
+    ],
+    "e": "Natija yopildi (Dt 9910), taqsimlanmagan foyda (Kt 8710). 9810 ishtirok etmaydi."
+   },
+   {
+    "t": "pv",
+    "q": "Qishloq xo'jaligi mahsuloti (QQS 0%) uchun xaridordan bankka bo'nak tushdi.",
+    "dt": "5110",
+    "kt": "6310",
+    "o": [
+     "6710",
+     "6010",
+     "5110",
+     "4010",
+     "6310",
+     "4220"
+    ],
+    "e": "Pul keldi (Dt 5110), bo'nak majburiyati (Kt 6310)."
+   },
+   {
+    "t": "pv",
+    "q": "Budjetdan eksport bo'yicha ortiqcha QQS bankka qaytarildi.",
+    "dt": "5110",
+    "kt": "4410",
+    "o": [
+     "9210",
+     "9420",
+     "4610",
+     "6610",
+     "4410",
+     "5110"
+    ],
+    "e": "Bank ko'paydi (Dt 5110), budjetdan olinadigan (ortiqcha) QQS kamaydi (Kt 4410) — SK 274-modda."
+   },
+   {
+    "t": "mc",
+    "q": "QQS bo'yicha 0% stavka qo'llanadigan holatlar qaysi moddada?",
+    "o": [
+     "264-modda",
+     "258-modda",
+     "266-modda",
+     "274-modda"
+    ],
+    "a": 0,
+    "e": "264 — nol stavka; 258 — stavkalar; 266 — hisobga olish; 274 — qaytarish."
+   },
+   {
+    "t": "mc",
+    "q": "Litsenziyaga ega ta'lim muassasasining ta'lim xizmatlari QQS bo'yicha qanday?",
+    "o": [
+     "QQSdan ozod",
+     "12%",
+     "0%",
+     "4%"
+    ],
+    "a": 0,
+    "e": "Ta'lim xizmatlari QQSdan ozod aylanmalar qatorida."
+   },
+   {
+    "t": "mc",
+    "q": "Elektromobil quvvatlash stansiyasi uchun 2028-yilgacha mol-mulk solig'i stavkasi?",
+    "o": [
+     "1%",
+     "0%",
+     "1,5%",
+     "2%"
+    ],
+    "a": 0,
+    "e": "2028-yilgacha mol-mulk va yer solig'i 1%."
+   },
+   {
+    "t": "calc",
+    "q": "Eksport 300 mln (0%), ichki sotuv 200 mln (QQSsiz). Ichki sotuv bo'yicha chiqim QQS?",
+    "a": 24000000,
+    "e": "Faqat ichki sotuvga 12%: 24 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Chiqim QQS 24 mln, kirim QQS 30 mln (hammasi hisobga olinadi). Ortiqcha QQS?",
+    "a": 6000000,
+    "e": "30 − 24 = 6 000 000 so'm — qaytarishga yoki keyingi oyga."
+   },
+   {
+    "t": "calc",
+    "q": "Ozod aylanma 25%, soliq solinadigan 75%. Kirim QQS 8 000 000. Hisobga olinadigan qismi?",
+    "a": 6000000,
+    "e": "8 000 000 × 75% = 6 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Issiqxona firmasi: ish haqi fondi 80 mln, imtiyozli ijtimoiy soliq 1%. To'lanadi?",
+    "a": 800000,
+    "e": "80 000 000 × 1% = 800 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Birinchi marta umumiy tizimga o'tgan firma (2026 imtiyozi): foyda 200 mln, shundan 20 mln — bank depoziti foizi. Foyda solig'i (15%)?",
+    "a": 3000000,
+    "e": "Imtiyoz foiz va dividendga tatbiq etilmaydi: 20 000 000 × 15% = 3 000 000 so'm."
+   }
+  ]
+ },
+ {
+  "title": "Qonun va qarorlar",
+  "icon": "📜",
+  "story": "Auditor savol berdi: «Qaysi hujjatga asoslanib ishlayapsiz?» Qonun va Prezident qarorlarini bilgan buxgalterga ishonishadi.",
+  "theory": "<ul><li><b>O'RQ-404</b> (13.04.2016) — «Buxgalteriya hisobi to'g'risida»gi qonun.</li>\n <li><b>O'RQ-599</b> (30.12.2019) — Soliq kodeksi.</li>\n <li><b>PF-5468</b> (29.06.2018) — Soliq siyosatini takomillashtirish konsepsiyasi.</li>\n <li><b>PQ-4611</b> (24.02.2020) — Moliyaviy hisobotning xalqaro standartlariga (MHXS) o'tish bo'yicha qo'shimcha chora-tadbirlar.</li>\n <li><b>PF-60</b> (28.01.2022) — 2022–2026-yillarga Yangi O'zbekistonning taraqqiyot strategiyasi.</li>\n <li><b>PF-158</b> (11.09.2023) — «O'zbekiston — 2030» strategiyasi.</li></ul>\n <p>2026-yil 1-sentabrdan: eng kam oylik <b>1 360 000</b>, BHM <b>440 000</b> so'm.</p>",
+  "example": null,
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Ta'sischilar yig'ilishi dividend taqsimlashga qaror qildi.",
+    "dt": "8710",
+    "kt": "6610",
+    "o": [
+     "9310",
+     "9120",
+     "6310",
+     "8710",
+     "6710",
+     "6610"
+    ],
+    "e": "Taqsimlanmagan foyda kamaydi (Dt 8710), ta'sischilarga qarz (Kt 6610)."
+   },
+   {
+    "t": "pv",
+    "q": "Dividenddan 5% JShDS ushlandi (jismoniy shaxs ta'sischi).",
+    "dt": "6610",
+    "kt": "6410",
+    "o": [
+     "6410",
+     "4310",
+     "5010",
+     "6610",
+     "9420",
+     "9310"
+    ],
+    "e": "Dt 6610 — Kt 6410 (SK 381-modda)."
+   },
+   {
+    "t": "pv",
+    "q": "Soliq ushlangan dividend ta'sischi kartasiga o'tkazildi.",
+    "dt": "6610",
+    "kt": "5110",
+    "o": [
+     "5110",
+     "9620",
+     "7810",
+     "6610",
+     "4010",
+     "6810"
+    ],
+    "e": "Dividend qarzi yopildi (Dt 6610), bank kamaydi (Kt 5110)."
+   },
+   {
+    "t": "pv",
+    "q": "Yig'ilish qarori bilan ustav kapital oshirildi — ta'sischi qo'shimcha hissa qo'shishi kerak.",
+    "dt": "4610",
+    "kt": "8330",
+    "o": [
+     "6310",
+     "9110",
+     "2810",
+     "4610",
+     "4010",
+     "8330"
+    ],
+    "e": "Ta'sischi qarzi (Dt 4610), ustav kapital oshdi (Kt 8330)."
+   },
+   {
+    "t": "pv",
+    "q": "Ta'sischi qo'shimcha hissani bankka kiritdi.",
+    "dt": "5110",
+    "kt": "4610",
+    "o": [
+     "9030",
+     "5110",
+     "9430",
+     "8330",
+     "5210",
+     "4610"
+    ],
+    "e": "Dt 5110 — Kt 4610."
+   },
+   {
+    "t": "pv",
+    "q": "Ustav kapital taqsimlanmagan foyda hisobidan oshirildi.",
+    "dt": "8710",
+    "kt": "8330",
+    "o": [
+     "6010",
+     "8330",
+     "9120",
+     "1010",
+     "8710",
+     "9010"
+    ],
+    "e": "Foyda kapitallashtirildi: Dt 8710 — Kt 8330."
+   },
+   {
+    "t": "pv",
+    "q": "5 BHM miqdorida ma'muriy jarima hisoblandi.",
+    "dt": "9430",
+    "kt": "6410",
+    "o": [
+     "9430",
+     "6810",
+     "0230",
+     "6410",
+     "9310",
+     "2910"
+    ],
+    "e": "Jarima — boshqa operatsion xarajat (Dt 9430), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Jarima budjetga to'landi.",
+    "dt": "6410",
+    "kt": "5110",
+    "o": [
+     "5110",
+     "6410",
+     "9010",
+     "1010",
+     "7810",
+     "6010"
+    ],
+    "e": "Dt 6410 — Kt 5110."
+   },
+   {
+    "t": "pv",
+    "q": "1-sentabrdan eng kam oylik oshgani uchun xodimlarga farq hisoblandi.",
+    "dt": "9420",
+    "kt": "6710",
+    "o": [
+     "6710",
+     "9420",
+     "0820",
+     "0130",
+     "9620",
+     "0230"
+    ],
+    "e": "Qo'shimcha ish haqi (Dt 9420), xodimlarga qarz (Kt 6710)."
+   },
+   {
+    "t": "pv",
+    "q": "Soliq tekshiruvi qo'shimcha mol-mulk solig'i hisobladi.",
+    "dt": "9430",
+    "kt": "6410",
+    "o": [
+     "9430",
+     "2010",
+     "2910",
+     "5010",
+     "4220",
+     "6410"
+    ],
+    "e": "Dt 9430 — Kt 6410."
+   },
+   {
+    "t": "pv",
+    "q": "Soliq tekshiruvi o'tgan davr uchun qo'shimcha foyda solig'i hisobladi.",
+    "dt": "9810",
+    "kt": "6410",
+    "o": [
+     "9110",
+     "9810",
+     "0820",
+     "9210",
+     "6410",
+     "9910"
+    ],
+    "e": "Foyda solig'i xarajati (Dt 9810), budjetga qarz (Kt 6410)."
+   },
+   {
+    "t": "pv",
+    "q": "Jismoniy shaxsdan ofis ijaraga olindi: ijara haqidan soliq agenti JShDSni ushlab qoldi.",
+    "dt": "6010",
+    "kt": "6410",
+    "o": [
+     "6010",
+     "0820",
+     "2010",
+     "6410",
+     "6610",
+     "9120"
+    ],
+    "e": "Ijaraga beruvchiga qarz kamaydi (Dt 6010), budjetga qarz (Kt 6410) — soliq agenti majburiyati."
+   },
+   {
+    "t": "mc",
+    "q": "Yangi tahrirdagi Mehnat kodeksi qaysi qonun bilan qabul qilingan?",
+    "o": [
+     "O'RQ-798",
+     "O'RQ-599",
+     "O'RQ-404",
+     "PF-60"
+    ],
+    "a": 0,
+    "e": "Mehnat kodeksi — O'RQ-798 (2022), 2023-yil 30-apreldan kuchga kirgan."
+   },
+   {
+    "t": "mc",
+    "q": "PF-115 (2026) farmoniga ko'ra 1-iyuldan pensiya va nafaqalar necha foizga oshdi?",
+    "o": [
+     "7%",
+     "5%",
+     "10%",
+     "12%"
+    ],
+    "a": 0,
+    "e": "Pensiya va nafaqalar 1-iyuldan, ish haqi 1-sentabrdan — 7% ga."
+   },
+   {
+    "t": "calc",
+    "q": "BHM 440 000. 10 BHM miqdoridagi jarima?",
+    "a": 4400000,
+    "e": "10 × 440 000 = 4 400 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "2026-yil minimal iste'mol xarajatlari — kishi boshiga oyiga 715 000 so'm. 4 kishilik oila uchun?",
+    "a": 2860000,
+    "e": "4 × 715 000 = 2 860 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Eng kam oylik 1 360 000. Xodim oyligi uning 2,5 barobari. Oylik?",
+    "a": 3400000,
+    "e": "1 360 000 × 2,5 = 3 400 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "PF-115 farmoni qachon imzolangan?",
+    "o": [
+     "23.06.2026",
+     "01.09.2026",
+     "11.09.2023",
+     "28.01.2022"
+    ],
+    "a": 0,
+    "e": "PF-115 — 2026-yil 23-iyun."
+   },
+   {
+    "t": "mc",
+    "q": "PQ-4611 bo'yicha MHXSga majburiy o'tish qaysilariga TEGISHLI EMAS edi?",
+    "o": [
+     "Kichik biznes (mikrofirmalar)",
+     "Aksiyadorlik jamiyatlari",
+     "Tijorat banklari",
+     "Sug'urta tashkilotlari"
+    ],
+    "a": 0,
+    "e": "Majburiy o'tish AJ, bank, sug'urta va yirik soliq to'lovchilarga tegishli edi."
+   },
+   {
+    "t": "mc",
+    "q": "Soliq qarzini to'lovchining debitorlik qarzi hisobidan undirish (2026) Soliq kodeksining qaysi moddasida?",
+    "o": [
+     "121-1-modda",
+     "100-modda",
+     "112-modda",
+     "81-modda"
+    ],
+    "a": 0,
+    "e": "121-1-modda — debitor tasdiqlagandan keyin (10 kun) qarzni hisobga olish."
+   }
+  ]
+ },
+ {
+  "title": "Yil yakuni",
+  "icon": "🎆",
+  "story": "31-dekabr. Direktor so'raydi: «Xo'sh, foyda qildikmi? Ta'sischilarga qancha dividend?» Hisobvaraqlarni yopib, javob bering.",
+  "theory": "<p>Yil oxirida 9-guruh <b>9910 — Yakuniy moliyaviy natija</b> ga yopiladi:</p>\n <ul><li>Daromad: Dt 9020 — Kt 9910</li><li>Xarajatlar: Dt 9910 — Kt 9120, 9410, 9420</li></ul>\n <p>Foyda solig'i: Dt 9810 — Kt 6410. Sof foyda: Dt 9910 — Kt 8710. Dividend: Dt 8710 — Kt 6610.</p>\n <p><b>Soliq bazasi</b> = buxgalteriya foydasi + chegirilmaydigan xarajatlar (SK 317-modda: jarimalar, penyalar va h.k.).</p>",
+  "example": {
+   "t": "Daromad yakuniy natijaga yopildi:",
+   "dt": "9020",
+   "kt": "9910"
+  },
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Yil yakunida tovar sotishdan daromad yopildi.",
+    "dt": "9020",
+    "kt": "9910",
+    "o": [
+     "9210",
+     "4410",
+     "9620",
+     "9910",
+     "9810",
+     "9020"
+    ],
+    "e": "Daromad yakuniy natijaga (Dt 9020 — Kt 9910)."
+   },
+   {
+    "t": "pv",
+    "q": "Sotilgan tovar tannarxi yakuniy natijaga yopildi.",
+    "dt": "9910",
+    "kt": "9120",
+    "o": [
+     "0820",
+     "9910",
+     "9120",
+     "9020",
+     "4010",
+     "9810"
+    ],
+    "e": "Dt 9910 — Kt 9120."
+   },
+   {
+    "t": "pv",
+    "q": "Ma'muriy xarajatlar yopildi.",
+    "dt": "9910",
+    "kt": "9420",
+    "o": [
+     "9420",
+     "4010",
+     "9620",
+     "0230",
+     "9810",
+     "9910"
+    ],
+    "e": "Dt 9910 — Kt 9420."
+   },
+   {
+    "t": "pv",
+    "q": "Sotish xarajatlari yopildi.",
+    "dt": "9910",
+    "kt": "9410",
+    "o": [
+     "9910",
+     "2810",
+     "9390",
+     "4010",
+     "0130",
+     "9410"
+    ],
+    "e": "Dt 9910 — Kt 9410."
+   },
+   {
+    "t": "pv",
+    "q": "Asosiy vosita sotishdan foyda yopildi.",
+    "dt": "9310",
+    "kt": "9910",
+    "o": [
+     "9310",
+     "0230",
+     "6010",
+     "9910",
+     "4010",
+     "9390"
+    ],
+    "e": "Daromad natijaga (Dt 9310 — Kt 9910)."
+   },
+   {
+    "t": "pv",
+    "q": "Kredit foizi xarajatlari yopildi.",
+    "dt": "9910",
+    "kt": "9610",
+    "o": [
+     "6010",
+     "2010",
+     "7810",
+     "9610",
+     "9910",
+     "9430"
+    ],
+    "e": "Dt 9910 — Kt 9610."
+   },
+   {
+    "t": "pv",
+    "q": "Valyuta kursi farqidan daromad yopildi.",
+    "dt": "9540",
+    "kt": "9910",
+    "o": [
+     "9410",
+     "9110",
+     "5010",
+     "9910",
+     "9210",
+     "9540"
+    ],
+    "e": "Dt 9540 — Kt 9910."
+   },
+   {
+    "t": "pv",
+    "q": "Yillik foyda solig'i hisoblandi.",
+    "dt": "9810",
+    "kt": "6410",
+    "o": [
+     "0130",
+     "6810",
+     "6410",
+     "9610",
+     "9810",
+     "9110"
+    ],
+    "e": "Dt 9810 — Kt 6410."
+   },
+   {
+    "t": "pv",
+    "q": "Foyda solig'i xarajati yakuniy natijaga yopildi.",
+    "dt": "9910",
+    "kt": "9810",
+    "o": [
+     "9910",
+     "2810",
+     "9810",
+     "0820",
+     "8710",
+     "4220"
+    ],
+    "e": "Dt 9910 — Kt 9810."
+   },
+   {
+    "t": "pv",
+    "q": "Sof foyda taqsimlanmagan foydaga o'tkazildi.",
+    "dt": "9910",
+    "kt": "8710",
+    "o": [
+     "8710",
+     "0130",
+     "9910",
+     "1010",
+     "9010",
+     "5110"
+    ],
+    "e": "Dt 9910 — Kt 8710."
+   },
+   {
+    "t": "pv",
+    "q": "Yil zarar bilan yakunlandi — zarar taqsimlanmagan foydaga o'tkazildi.",
+    "dt": "8710",
+    "kt": "9910",
+    "o": [
+     "9910",
+     "2910",
+     "2010",
+     "9540",
+     "8710",
+     "9310"
+    ],
+    "e": "Zarar kapitalni kamaytiradi (Dt 8710), 9910 yopildi (Kt 9910)."
+   },
+   {
+    "t": "pv",
+    "q": "Sof foyda hisobidan ta'sischilarga dividend e'lon qilindi.",
+    "dt": "8710",
+    "kt": "6610",
+    "o": [
+     "2010",
+     "5010",
+     "8710",
+     "6610",
+     "0230",
+     "5210"
+    ],
+    "e": "Dt 8710 — Kt 6610."
+   },
+   {
+    "t": "mc",
+    "q": "Yil yakunida 9-guruh hisobvaraqlari qayerga yopiladi?",
+    "o": [
+     "9910",
+     "8710",
+     "8330",
+     "5110"
+    ],
+    "a": 0,
+    "e": "Daromad va xarajatlar 9910 — Yakuniy moliyaviy natijaga yopiladi."
+   },
+   {
+    "t": "mc",
+    "q": "Sof foyda yil yakunida qaysi hisobvaraqda qoladi?",
+    "o": [
+     "8710",
+     "9910",
+     "6610",
+     "8330"
+    ],
+    "a": 0,
+    "e": "Sof foyda 9910 dan 8710 — Taqsimlanmagan foydaga o'tadi."
+   },
+   {
+    "t": "calc",
+    "q": "Daromad 400 mln, xarajatlar jami 340 mln. Soliqqacha foyda?",
+    "a": 60000000,
+    "e": "400 − 340 = 60 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Soliqqacha foyda 60 mln, foyda solig'i 15%. Sof foyda?",
+    "a": 51000000,
+    "e": "60 − 9 = 51 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "8710: yil boshida 30 mln. Yil sof foydasi 51 mln, dividend 20 mln e'lon qilindi. Yil oxiri qoldig'i?",
+    "a": 61000000,
+    "e": "30 + 51 − 20 = 61 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Foyda 90 mln, chegirilmaydigan xarajatlar 6 mln, soliqqa tortilmaydigan daromad 12 mln. Foyda solig'i 15%?",
+    "a": 12600000,
+    "e": "Baza 84 mln × 15% = 12 600 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "8710: yil boshida 40 mln. Yil 25 mln zarar bilan yakunlandi. Yil oxiri qoldig'i?",
+    "a": 15000000,
+    "e": "40 − 25 = 15 000 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Yillik foyda solig'i 21 mln. 3 chorakda 5,5 mln dan to'langan. Yil yakunida qo'shimcha to'lov?",
+    "a": 4500000,
+    "e": "21 − 16,5 = 4 500 000 so'm."
+   }
+  ]
+ },
+ {
+  "title": "Boss: soliq tekshiruvi",
+  "icon": "🕵️",
+  "story": "Eshik taqilladi. Soliq inspektori: «Hujjatlaringizni ko'rsak bo'ladimi?» Hamma bilimingiz kerak. Faqat 3 ta jon!",
+  "theory": "<p>Yakuniy sinov — barcha bosqichlardan aralash, eng qiyin savollar. Esda tuting:</p>\n <ul><li>Aktiv qoldiq = boshlang'ich + Dt oborot − Kt oborot.</li><li>Astatka = boshlang'ich + kirim − chiqim − hisobdan chiqarilgan.</li>\n <li>QQS ichida: jami × 12 / 112.</li><li>To'lanadigan QQS = chiqim QQS − kirim QQS.</li><li>Soliq bazasi = foyda + chegirilmaydigan xarajatlar.</li></ul>",
+  "example": null,
+  "tasks": [
+   {
+    "t": "pv",
+    "q": "Soliq tekshiruvi oldidan: oylik QQS qarzi bankdan to'landi.",
+    "dt": "6410",
+    "kt": "5110",
+    "o": [
+     "4730",
+     "5110",
+     "6410",
+     "6010",
+     "9540",
+     "6920"
+    ],
+    "e": "Dt 6410 — Kt 5110."
+   },
+   {
+    "t": "pv",
+    "q": "Tekshiruvda omborda tovar yetishmasligi aniqlandi.",
+    "dt": "5910",
+    "kt": "2910",
+    "o": [
+     "6610",
+     "2910",
+     "9810",
+     "5910",
+     "9210",
+     "4220"
+    ],
+    "e": "Dt 5910 — Kt 2910."
+   },
+   {
+    "t": "pv",
+    "q": "Aniqlangan kamomad moddiy javobgar xodimga yuklandi.",
+    "dt": "4730",
+    "kt": "5910",
+    "o": [
+     "4010",
+     "4730",
+     "6410",
+     "5910",
+     "9390",
+     "8330"
+    ],
+    "e": "Dt 4730 — Kt 5910."
+   },
+   {
+    "t": "pv",
+    "q": "Xaridordan ilgari olingan bo'nak tovar jo'natilgach hisobga olinmay qolgan edi — tuzatildi.",
+    "dt": "6310",
+    "kt": "4010",
+    "o": [
+     "5110",
+     "4010",
+     "5910",
+     "6310",
+     "9620",
+     "9110"
+    ],
+    "e": "Dt 6310 — Kt 4010."
+   },
+   {
+    "t": "pv",
+    "q": "Tekshiruvchi: sotilgan uskunaning boshlang'ich qiymati 9210 ga o'tkazilmagan — tuzating.",
+    "dt": "9210",
+    "kt": "0130",
+    "o": [
+     "5010",
+     "9210",
+     "4610",
+     "2910",
+     "0130",
+     "9420"
+    ],
+    "e": "Dt 9210 — Kt 0130."
+   },
+   {
+    "t": "pv",
+    "q": "Sotilgan uskuna eskirishi hisobdan chiqarilmagan — tuzating.",
+    "dt": "0230",
+    "kt": "9210",
+    "o": [
+     "4410",
+     "9210",
+     "8710",
+     "0230",
+     "6310",
+     "4310"
+    ],
+    "e": "Dt 0230 — Kt 9210."
+   },
+   {
+    "t": "pv",
+    "q": "Norezident xizmati bo'yicha soliq agenti QQSi hisoblanmagan — tuzating.",
+    "dt": "4410",
+    "kt": "6410",
+    "o": [
+     "4410",
+     "6410",
+     "0820",
+     "8710",
+     "4220",
+     "9110"
+    ],
+    "e": "Dt 4410 — Kt 6410."
+   },
+   {
+    "t": "pv",
+    "q": "Ozod aylanmaga tegishli kirim QQS noto'g'ri hisobga olingan — xarajatga o'tkazing.",
+    "dt": "9430",
+    "kt": "4410",
+    "o": [
+     "4010",
+     "7810",
+     "6310",
+     "9430",
+     "4410",
+     "2910"
+    ],
+    "e": "Dt 9430 — Kt 4410."
+   },
+   {
+    "t": "pv",
+    "q": "Da'vo muddati o'tgan kreditorlik qarzi daromadga olinmagan — tuzating.",
+    "dt": "6010",
+    "kt": "9390",
+    "o": [
+     "9010",
+     "6010",
+     "9620",
+     "9610",
+     "9390",
+     "6710"
+    ],
+    "e": "Dt 6010 — Kt 9390."
+   },
+   {
+    "t": "pv",
+    "q": "Undirib bo'lmaydigan debitorlik qarzi hisobda qolib ketgan — chiqaring.",
+    "dt": "9430",
+    "kt": "4010",
+    "o": [
+     "9430",
+     "4010",
+     "9390",
+     "6610",
+     "9110",
+     "9420"
+    ],
+    "e": "Dt 9430 — Kt 4010."
+   },
+   {
+    "t": "pv",
+    "q": "Yil oxirida valyuta qoldig'i qayta baholanmagan: kurs oshgan — tuzating.",
+    "dt": "5210",
+    "kt": "9540",
+    "o": [
+     "4310",
+     "9910",
+     "5210",
+     "9210",
+     "9020",
+     "9540"
+    ],
+    "e": "Dt 5210 — Kt 9540."
+   },
+   {
+    "t": "pv",
+    "q": "Tekshiruv natijasida hisoblangan penya va jarima aks ettirildi.",
+    "dt": "9430",
+    "kt": "6410",
+    "o": [
+     "6410",
+     "1010",
+     "5910",
+     "9430",
+     "9620",
+     "9910"
+    ],
+    "e": "Dt 9430 — Kt 6410. Penya va jarimalar foyda solig'i bazasini kamaytirmaydi (SK 317-modda)."
+   },
+   {
+    "t": "calc",
+    "q": "Kassa: oy boshi 1 200 000, kirim 9 800 000, chiqim 10 400 000. Sanoqda 500 000 chiqdi. Kamomad?",
+    "a": 100000,
+    "e": "Hisob bo'yicha 600 000; sanoqda 500 000 — kamomad 100 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Tovar: hisob bo'yicha 1 500 dona, sanoqda 1 470 dona. 1 dona 32 000. Kamomad summasi?",
+    "a": 960000,
+    "e": "30 × 32 000 = 960 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Sotuv QQS bilan 89 600 000, xarid QQS bilan 56 000 000, shundan 5 600 000 lik faktura rad etilgan. To'lanadigan QQS?",
+    "a": 4200000,
+    "e": "Chiqim 9,6 mln; kirim (50,4 mln dan) 5,4 mln. To'lanadi 4 200 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Ish haqi 11 000 000 ga ijtimoiy soliq 12% o'rniga 10% hisoblangan ekan. Qo'shimcha to'lanadi?",
+    "a": 220000,
+    "e": "11 000 000 × 2% = 220 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Uskuna 96 mln, muddat 8 yil. Buxgalter 2 yil davomida 10 yil deb amortizatsiya qilgan. Kam hisoblangan summa?",
+    "a": 4800000,
+    "e": "To'g'ri 24 mln, hisoblangan 19,2 mln — farq 4 800 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Valyuta schyotida 5 000 $. Kurs 12 800 dan 12 650 ga tushdi. Kurs farqidan zarar?",
+    "a": 750000,
+    "e": "5 000 × 150 = 750 000 so'm."
+   },
+   {
+    "t": "calc",
+    "q": "Faraz qiling: penya kuniga 0,033%. Qarz 10 000 000, 30 kun kechikdi. Penya?",
+    "a": 99000,
+    "e": "10 000 000 × 0,033% × 30 = 99 000 so'm."
+   },
+   {
+    "t": "mc",
+    "q": "2026-yildan bir oyda 3 ta soliq hisoboti kechiktirilsa, nechta jarima qo'llanadi?",
+    "o": [
+     "1 ta",
+     "3 ta",
+     "2 ta",
+     "Jarima yo'q"
+    ],
+    "a": 0,
+    "e": "2026-yil o'zgarishi: bir oy ichidagi bir nechta kechikish uchun bitta jarima."
+   }
+  ]
+ }
+]

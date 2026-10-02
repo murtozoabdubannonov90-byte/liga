@@ -1,0 +1,962 @@
+[
+ {
+  "id": "L01",
+  "topic": "provodka",
+  "uz": {
+   "title": "Provodka nima?",
+   "body": "Provodka — bitta muomalani ikki hisobvaraqda bir xil summada yozish: biri Debetda (Dt), biri Kreditda (Kt). Bu ikki yoqlama yozuv deyiladi. Shuning uchun barcha debet oborotlari yig'indisi doim kredit oborotlariga teng bo'ladi.",
+   "tip": "Eslab qoling: «Nima keldi?» — Debetga, «Qayerdan keldi?» — Kreditga.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Что такое проводка?",
+   "body": "Проводка — запись одной операции на двух счетах в одинаковой сумме: по дебету (Дт) одного и кредиту (Кт) другого. Это двойная запись. Поэтому сумма всех дебетовых оборотов всегда равна сумме кредитовых.",
+   "tip": "Запомните: «Что пришло?» — в дебет, «Откуда пришло?» — в кредит."
+  }
+ },
+ {
+  "id": "L02",
+  "topic": "provodka",
+  "uz": {
+   "title": "Aktiv va passiv: qaysi tomonda ko'payadi?",
+   "body": "Aktiv — firmada bor narsa: pul, tovar, uskuna, debitorlar. Passiv — mablag' manbai: kapital va majburiyatlar. Aktiv ko'paysa Debet, kamaysa Kredit; passiv esa aksincha — ko'paysa Kredit, kamaysa Debet.",
+   "tip": "Eslab qoling: 5010, 2910, 4010 — aktiv; 6010, 6710, 8330 — passiv.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Актив и пассив: где растёт остаток?",
+   "body": "Актив — то, что есть у фирмы: деньги, товары, оборудование, дебиторы. Пассив — источник средств: капитал и обязательства. Актив увеличивается по дебету, уменьшается по кредиту; пассив — наоборот: растёт по кредиту, уменьшается по дебету.",
+   "tip": "Запомните: 5010, 2910, 4010 — активные; 6010, 6710, 8330 — пассивные."
+  }
+ },
+ {
+  "id": "L03",
+  "topic": "provodka",
+  "uz": {
+   "title": "Bankdan kassaga naqd pul olish",
+   "body": "Bankdan naqd pul olinganda kassa ko'payadi, hisob-kitob schyoti kamayadi. Ikkalasi ham aktiv, shuning uchun bitta aktiv ko'payib, boshqasi kamayadi — balans yig'indisi o'zgarmaydi. Asos — bank ko'chirmasi va kirim kassa orderi.",
+   "tip": "Eslab qoling: kassaga kirgan har bir so'm kirim kassa orderi bilan rasmiylashtiriladi.",
+   "dt": "5010",
+   "kt": "5110"
+  },
+  "ru": {
+   "title": "Получение наличных из банка в кассу",
+   "body": "При снятии наличных касса увеличивается, расчётный счёт уменьшается. Оба счёта активные: один актив растёт, другой уменьшается — валюта баланса не меняется. Основание — банковская выписка и приходный кассовый ордер.",
+   "tip": "Запомните: каждый сум, поступивший в кассу, оформляется приходным кассовым ордером."
+  }
+ },
+ {
+  "id": "L04",
+  "topic": "provodka",
+  "uz": {
+   "title": "Kassadagi pulni bankka topshirish",
+   "body": "Kassadagi tushum bankka topshirilganda hisob-kitob schyoti ko'payadi, kassa kamayadi. Bu oldingi provodkaning teskarisi. Asos — chiqim kassa orderi va bank ko'chirmasi; summalar bir-biriga mos kelishi shart.",
+   "tip": "Eslab qoling: kassa qoldig'i hech qachon manfiy bo'lmaydi — bo'lsa, xato bor.",
+   "dt": "5110",
+   "kt": "5010"
+  },
+  "ru": {
+   "title": "Сдача наличных из кассы в банк",
+   "body": "При сдаче выручки в банк расчётный счёт увеличивается, касса уменьшается. Это обратная предыдущей проводка. Основание — расходный кассовый ордер и выписка банка; суммы должны совпадать.",
+   "tip": "Запомните: остаток кассы не может быть отрицательным — если так, есть ошибка."
+  }
+ },
+ {
+  "id": "L05",
+  "topic": "provodka",
+  "uz": {
+   "title": "Tovar keldi, pul keyin",
+   "body": "Sotish uchun olingan tovar 2910 ga QQSsiz summada kirim qilinadi. To'lov hali qilinmagan bo'lsa, yetkazib beruvchi oldida qarz paydo bo'ladi — 6010 kreditlanadi. Asos — elektron hisobvaraq-faktura va yuk xati.",
+   "tip": "Eslab qoling: tovar qiymatiga QQS kirmaydi — u alohida 4410 da yoziladi.",
+   "dt": "2910",
+   "kt": "6010"
+  },
+  "ru": {
+   "title": "Товар поступил, оплата позже",
+   "body": "Товар для перепродажи приходуется на 2910 в сумме без НДС. Если оплата ещё не произведена, возникает долг перед поставщиком — кредит 6010. Основание — электронная счёт-фактура и накладная.",
+   "tip": "Запомните: НДС в стоимость товара не входит — он отражается отдельно на 4410."
+  }
+ },
+ {
+  "id": "L06",
+  "topic": "provodka",
+  "uz": {
+   "title": "Yetkazib beruvchiga qarzni to'lash",
+   "body": "Bankdan to'langanda yetkazib beruvchiga qarz kamayadi (Dt 6010), bank kamayadi (Kt 5110). To'lov summasi fakturaning QQS bilan jami summasiga teng bo'ladi. Har bir yetkazib beruvchi bo'yicha qarz alohida (analitik) yuritiladi.",
+   "tip": "Eslab qoling: 6010 da debet qoldiq chiqsa — ortiqcha to'lov yoki bo'nak bor, tekshiring.",
+   "dt": "6010",
+   "kt": "5110"
+  },
+  "ru": {
+   "title": "Оплата долга поставщику",
+   "body": "При оплате через банк долг перед поставщиком уменьшается (Дт 6010), деньги на счёте уменьшаются (Кт 5110). Сумма платежа равна итогу счёт-фактуры с НДС. Расчёты ведутся по каждому поставщику отдельно (аналитика).",
+   "tip": "Запомните: дебетовое сальдо на 6010 — признак переплаты или аванса, проверьте."
+  }
+ },
+ {
+  "id": "L07",
+  "topic": "provodka",
+  "uz": {
+   "title": "Xaridor qarzini to'ladi",
+   "body": "Xaridor pul o'tkazganda bank ko'payadi (Dt 5110), uning qarzi kamayadi (Kt 4010). Daromad bu paytda emas, tovar jo'natilganda tan olingan edi. Shuning uchun pul tushishi daromadni oshirmaydi.",
+   "tip": "Eslab qoling: pul tushdi — bu hali daromad emas; daromad jo'natishda tan olinadi.",
+   "dt": "5110",
+   "kt": "4010"
+  },
+  "ru": {
+   "title": "Покупатель погасил долг",
+   "body": "При поступлении оплаты деньги на счёте растут (Дт 5110), долг покупателя уменьшается (Кт 4010). Выручка признана раньше — при отгрузке. Поэтому поступление денег доход не увеличивает.",
+   "tip": "Запомните: поступление денег — ещё не доход; доход признаётся при отгрузке."
+  }
+ },
+ {
+  "id": "L08",
+  "topic": "qqs",
+  "uz": {
+   "title": "QQSni hisoblash: 12% va 12/112",
+   "body": "QQS stavkasi 12%. Summa QQSsiz berilsa: QQS = summa × 12%, jami = summa + QQS. Summa QQS bilan berilsa: QQS = jami × 12 / 112. Masalan, 11 200 000 so'm ichida QQS 1 200 000 so'm.",
+   "tip": "Eslab qoling: «ichidagi» QQS hech qachon jami × 12% emas — bu eng ko'p uchraydigan xato.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Расчёт НДС: 12% и 12/112",
+   "body": "Ставка НДС — 12%. Если сумма без НДС: НДС = сумма × 12%, итого = сумма + НДС. Если сумма с НДС: НДС = итого × 12 / 112. Например, в 11 200 000 сум НДС составляет 1 200 000 сум.",
+   "tip": "Запомните: НДС «в том числе» никогда не равен итог × 12% — это самая частая ошибка."
+  }
+ },
+ {
+  "id": "L09",
+  "topic": "qqs",
+  "uz": {
+   "title": "Kirim QQS: 4410 da yig'iladi",
+   "body": "Xarid fakturasidagi QQS tovar qiymatiga qo'shilmaydi, balki budjetdan hisobga olinadigan summa sifatida 4410 ga yoziladi. Qarz yetkazib beruvchiga QQS bilan birga bo'ladi. Faqat to'g'ri rasmiylashtirilgan elektron faktura asos bo'ladi.",
+   "tip": "Eslab qoling: tovar — Dt 2910, QQS — Dt 4410, ikkalasi ham Kt 6010.",
+   "dt": "4410",
+   "kt": "6010"
+  },
+  "ru": {
+   "title": "Входящий НДС: собирается на 4410",
+   "body": "НДС из счёт-фактуры поставщика не включается в стоимость товара, а отражается на 4410 как сумма к зачёту из бюджета. Долг поставщику — вместе с НДС. Основание — только правильно оформленная электронная счёт-фактура.",
+   "tip": "Запомните: товар — Дт 2910, НДС — Дт 4410, оба — Кт 6010."
+  }
+ },
+ {
+  "id": "L10",
+  "topic": "provodka",
+  "uz": {
+   "title": "Yetkazib beruvchiga bo'nak berish",
+   "body": "Tovar kelmasdan oldin to'langan pul xarajat ham, tovar ham emas — bu berilgan bo'nak, ya'ni debitorlik. U 4310 da turadi, toki tovar kelib, hisob-kitob qilinmaguncha. Bo'nakni to'g'ridan-to'g'ri 6010 ga yozish analitikani chalkashtiradi.",
+   "tip": "Eslab qoling: tovarsiz to'lov — Dt 4310, tovar kelgandan keyingi to'lov — Dt 6010.",
+   "dt": "4310",
+   "kt": "5110"
+  },
+  "ru": {
+   "title": "Аванс поставщику",
+   "body": "Деньги, перечисленные до поставки, — не расход и не товар, а выданный аванс, то есть дебиторка. Он числится на 4310 до получения товара и зачёта. Запись аванса прямо на 6010 запутывает аналитику расчётов.",
+   "tip": "Запомните: оплата до поставки — Дт 4310, оплата после поставки — Дт 6010."
+  }
+ },
+ {
+  "id": "L11",
+  "topic": "provodka",
+  "uz": {
+   "title": "Tovar keldi — bo'nakni hisobga olish",
+   "body": "Avval tovar kirim qilinadi: Dt 2910 — Kt 6010. Keyin ilgari berilgan bo'nak qarzga hisoblanadi: Dt 6010 — Kt 4310. Natijada 4310 ham, 6010 ham yopiladi (agar summalar teng bo'lsa).",
+   "tip": "Eslab qoling: bo'nak hisobga olinmasa, 4310 da «osilib qolgan» debitorlik va 6010 da soxta qarz turadi.",
+   "dt": "6010",
+   "kt": "4310"
+  },
+  "ru": {
+   "title": "Товар получен — зачёт аванса",
+   "body": "Сначала товар приходуется: Дт 2910 — Кт 6010. Затем ранее выданный аванс засчитывается в счёт долга: Дт 6010 — Кт 4310. В итоге закрываются и 4310, и 6010 (если суммы равны).",
+   "tip": "Запомните: без зачёта на 4310 «висит» дебиторка, а на 6010 — мнимый долг."
+  }
+ },
+ {
+  "id": "L12",
+  "topic": "provodka",
+  "uz": {
+   "title": "Xaridordan bo'nak olindi",
+   "body": "Tovar jo'natilmasdan oldin olingan pul daromad emas, balki majburiyat: firma xaridorga tovar berishi shart. Shuning uchun Kt 6310 — xaridordan olingan bo'naklar. Uni 4010 ga yozsangiz, xaridor qarzi noto'g'ri kamayadi.",
+   "tip": "Eslab qoling: tovar berilmagan bo'lsa — Kt 6310, berilgan bo'lsa — Kt 4010.",
+   "dt": "5110",
+   "kt": "6310"
+  },
+  "ru": {
+   "title": "Получен аванс от покупателя",
+   "body": "Деньги, полученные до отгрузки, — не доход, а обязательство: фирма должна поставить товар. Поэтому Кт 6310 — полученные авансы. Если записать на 4010, долг покупателя ошибочно уменьшится.",
+   "tip": "Запомните: товар не отгружен — Кт 6310, отгружен — Кт 4010."
+  }
+ },
+ {
+  "id": "L13",
+  "topic": "provodka",
+  "uz": {
+   "title": "Tovar jo'natildi — olingan bo'nakni yopish",
+   "body": "Jo'natishda daromad va chiqim QQS 4010 orqali yoziladi. So'ng xaridordan olingan bo'nak uning qarziga hisoblanadi: Dt 6310 — Kt 4010. Shundan keyin 4010 da faqat to'lanmagan qoldiq qoladi.",
+   "tip": "Eslab qoling: oy oxirida bir xaridor bo'yicha ham 4010, ham 6310 da qoldiq bo'lsa — zachyot unutilgan.",
+   "dt": "6310",
+   "kt": "4010"
+  },
+  "ru": {
+   "title": "Отгрузка — зачёт полученного аванса",
+   "body": "При отгрузке выручка и исходящий НДС отражаются через 4010. Затем полученный аванс засчитывается в долг покупателя: Дт 6310 — Кт 4010. После этого на 4010 остаётся только неоплаченная часть.",
+   "tip": "Запомните: сальдо по одному покупателю и на 4010, и на 6310 — забыли зачёт."
+  }
+ },
+ {
+  "id": "L14",
+  "topic": "provodka",
+  "uz": {
+   "title": "Tovar sotildi: daromad",
+   "body": "Tovar xaridorga jo'natilganda sotishdan daromad QQSsiz summada tan olinadi: Dt 4010 — Kt 9020. Tayyor mahsulot uchun 9010, ish va xizmatlar uchun 9030 ishlatiladi. Pul qachon kelishidan qat'i nazar daromad shu kuni yoziladi.",
+   "tip": "Eslab qoling: 9020 ga faqat QQSsiz summa tushadi.",
+   "dt": "4010",
+   "kt": "9020"
+  },
+  "ru": {
+   "title": "Продажа товара: выручка",
+   "body": "При отгрузке товара выручка признаётся в сумме без НДС: Дт 4010 — Кт 9020. Для готовой продукции — 9010, для работ и услуг — 9030. Выручка отражается в день отгрузки, независимо от даты оплаты.",
+   "tip": "Запомните: на 9020 попадает только сумма без НДС."
+  }
+ },
+ {
+  "id": "L15",
+  "topic": "qqs",
+  "uz": {
+   "title": "Chiqim QQS: budjet oldidagi qarz",
+   "body": "Sotuvda xaridorga QQS qo'shib hisob beriladi. Bu QQS firmaning daromadi emas — u budjetga tegishli. Shuning uchun Dt 4010 — Kt 6410. Xaridorning umumiy qarzi = daromad + chiqim QQS.",
+   "tip": "Eslab qoling: QQS hech qachon 9020 ga tushmaydi — u doim 6410 da.",
+   "dt": "4010",
+   "kt": "6410"
+  },
+  "ru": {
+   "title": "Исходящий НДС: долг перед бюджетом",
+   "body": "При продаже покупателю выставляется НДС сверх цены. Этот НДС — не доход фирмы, он принадлежит бюджету. Поэтому Дт 4010 — Кт 6410. Общий долг покупателя = выручка + исходящий НДС.",
+   "tip": "Запомните: НДС никогда не попадает на 9020 — он всегда на 6410."
+  }
+ },
+ {
+  "id": "L16",
+  "topic": "provodka",
+  "uz": {
+   "title": "Sotilgan tovar tannarxi",
+   "body": "Sotuvda ikkinchi qadam — tovarni ombordan chiqarish. Uning tannarxi (xarid qiymati) xarajatga o'tadi: Dt 9120 — Kt 2910. Daromad (9020) minus tannarx (9120) — yalpi foyda.",
+   "tip": "Eslab qoling: tannarx yozilmasa, foyda sun'iy oshadi, ombor qoldig'i esa noto'g'ri bo'ladi.",
+   "dt": "9120",
+   "kt": "2910"
+  },
+  "ru": {
+   "title": "Себестоимость проданного товара",
+   "body": "Второй шаг продажи — списание товара со склада. Его себестоимость (покупная стоимость) переходит в расходы: Дт 9120 — Кт 2910. Выручка (9020) минус себестоимость (9120) — валовая прибыль.",
+   "tip": "Запомните: без списания себестоимости прибыль завышена, а остаток склада неверен."
+  }
+ },
+ {
+  "id": "L17",
+  "topic": "qqs",
+  "uz": {
+   "title": "Oy yakuni: kirim QQSni hisobga olish",
+   "body": "Oy oxirida kirim QQS budjetga to'lanadigan chiqim QQSdan chegiriladi: Dt 6410 — Kt 4410. To'lanadigan QQS = chiqim QQS − kirim QQS. Kirim ko'p bo'lsa, farq keyingi davrga o'tadi yoki qonunda belgilangan hollarda qaytariladi.",
+   "tip": "Eslab qoling: faqat tasdiqlangan elektron fakturadagi kirim QQS hisobga olinadi.",
+   "dt": "6410",
+   "kt": "4410"
+  },
+  "ru": {
+   "title": "Конец месяца: зачёт входящего НДС",
+   "body": "В конце месяца входящий НДС зачитывается против начисленного: Дт 6410 — Кт 4410. НДС к уплате = исходящий НДС − входящий НДС. Если входящий больше, разница переносится или возмещается в установленных законом случаях.",
+   "tip": "Запомните: к зачёту принимается НДС только по подтверждённым электронным счёт-фактурам."
+  }
+ },
+ {
+  "id": "L18",
+  "topic": "ish",
+  "uz": {
+   "title": "Ish haqini hisoblash",
+   "body": "Ish haqi to'langanda emas, hisoblanganda xarajat bo'ladi. Ma'muriy xodim (direktor, buxgalter, menejer) oyligi — davr xarajati: Dt 9420 — Kt 6710. 6710 — firmaning xodimlar oldidagi qarzi.",
+   "tip": "Eslab qoling: avval hisoblash (Kt 6710), keyin ushlash va to'lash (Dt 6710).",
+   "dt": "9420",
+   "kt": "6710"
+  },
+  "ru": {
+   "title": "Начисление заработной платы",
+   "body": "Зарплата становится расходом при начислении, а не при выплате. Оклад административного персонала (директор, бухгалтер, менеджер) — расход периода: Дт 9420 — Кт 6710. 6710 — долг фирмы перед работниками.",
+   "tip": "Запомните: сначала начисление (Кт 6710), потом удержания и выплата (Дт 6710)."
+  }
+ },
+ {
+  "id": "L19",
+  "topic": "ish",
+  "uz": {
+   "title": "Oylik qaysi schyotga: 2010, 9410 yoki 9420?",
+   "body": "Debet xodim qayerda ishlashiga bog'liq. Sex ishchisi — 2010 (mahsulot tannarxiga kiradi). Sotuvchi, ekspeditor — 9410 sotish xarajatlari. Ofis xodimi — 9420 ma'muriy xarajatlar. Kredit doim 6710.",
+   "tip": "Eslab qoling: ishlab chiqarish ishchisi oyligini 9420 ga yozsangiz, tannarx kamayib ketadi.",
+   "dt": "2010",
+   "kt": "6710"
+  },
+  "ru": {
+   "title": "Зарплата: 2010, 9410 или 9420?",
+   "body": "Дебет зависит от того, где работает сотрудник. Рабочий цеха — 2010 (входит в себестоимость продукции). Продавец, экспедитор — 9410, расходы по реализации. Офис — 9420, административные расходы. Кредит всегда 6710.",
+   "tip": "Запомните: зарплата рабочих на 9420 занижает себестоимость продукции."
+  }
+ },
+ {
+  "id": "L20",
+  "topic": "ish",
+  "uz": {
+   "title": "JShDSni ushlash (12%)",
+   "body": "Jismoniy shaxslardan olinadigan daromad solig'i xodim daromadidan ushlanadi: Dt 6710 — Kt 6410. Firma bu yerda soliq agenti — pulni xodim nomidan budjetga o'tkazadi. Xodim qo'liga hisoblangan summa minus ushlanmalar tegadi.",
+   "tip": "Eslab qoling: 5 000 000 so'm oylikdan JShDS 600 000, qo'lga 4 400 000 so'm.",
+   "dt": "6710",
+   "kt": "6410"
+  },
+  "ru": {
+   "title": "Удержание НДФЛ (12%)",
+   "body": "Налог на доходы физических лиц удерживается из дохода работника: Дт 6710 — Кт 6410. Фирма здесь — налоговый агент: перечисляет деньги в бюджет за работника. На руки работник получает начисленное минус удержания.",
+   "tip": "Запомните: с оклада 5 000 000 сум НДФЛ 600 000, на руки 4 400 000 сум."
+  }
+ },
+ {
+  "id": "L21",
+  "topic": "ish",
+  "uz": {
+   "title": "Ijtimoiy soliq — firma hisobidan",
+   "body": "Ijtimoiy soliq (12%) xodim oyligidan ushlanmaydi — uni firma o'z mablag'idan to'laydi. U oylik qaysi schyotga yozilgan bo'lsa, o'sha xarajatga qo'shiladi: ofis uchun Dt 9420 — Kt 6410, sex uchun Dt 2010 — Kt 6410.",
+   "tip": "Eslab qoling: ijtimoiy soliqni Dt 6710 ga yozish — xodimning qonuniy maoshini kamaytirish degani, bu xato.",
+   "dt": "9420",
+   "kt": "6410"
+  },
+  "ru": {
+   "title": "Социальный налог — за счёт фирмы",
+   "body": "Социальный налог (12%) из зарплаты работника не удерживается — его платит фирма за свой счёт. Он относится на тот же счёт затрат, что и зарплата: офис — Дт 9420 — Кт 6410, цех — Дт 2010 — Кт 6410.",
+   "tip": "Запомните: соцналог по Дт 6710 — это незаконное уменьшение зарплаты работника, ошибка."
+  }
+ },
+ {
+  "id": "L22",
+  "topic": "ish",
+  "uz": {
+   "title": "Ish haqini kartaga o'tkazish",
+   "body": "Ushlanmalardan keyingi summa bankdan xodim kartasiga o'tkaziladi: Dt 6710 — Kt 5110. To'lovdan keyin 6710 da qoldiq qolmasligi kerak (agar barcha hisoblangan oylik berilgan bo'lsa). Ushlangan JShDS alohida to'lov bilan budjetga o'tkaziladi.",
+   "tip": "Eslab qoling: 6710 dagi kredit qoldiq — xodimlarga hali to'lanmagan oylik.",
+   "dt": "6710",
+   "kt": "5110"
+  },
+  "ru": {
+   "title": "Перечисление зарплаты на карту",
+   "body": "Сумма после удержаний перечисляется с расчётного счёта на карту работника: Дт 6710 — Кт 5110. После выплаты на 6710 не должно оставаться сальдо (если выплачено всё начисленное). Удержанный НДФЛ перечисляется в бюджет отдельным платежом.",
+   "tip": "Запомните: кредитовое сальдо 6710 — невыплаченная работникам зарплата."
+  }
+ },
+ {
+  "id": "L23",
+  "topic": "provodka",
+  "uz": {
+   "title": "Xizmat safari uchun pul berish",
+   "body": "Safarga berilgan pul hali xarajat emas — xodim uni hisobot bilan oqlashi kerak. Shuning uchun u 4220 da xodimning qarzi sifatida turadi: Dt 4220 — Kt 5010. Asos — buyruq va chiqim kassa orderi.",
+   "tip": "Eslab qoling: pul berilishi bilan 9420 ga yozish — hujjatsiz xarajat tan olish demak.",
+   "dt": "4220",
+   "kt": "5010"
+  },
+  "ru": {
+   "title": "Выдача денег на командировку",
+   "body": "Деньги на командировку — ещё не расход: работник должен отчитаться документами. Поэтому они числятся на 4220 как долг работника: Дт 4220 — Кт 5010. Основание — приказ и расходный кассовый ордер.",
+   "tip": "Запомните: списывать на 9420 при выдаче — значит признать расход без документов."
+  }
+ },
+ {
+  "id": "L24",
+  "topic": "provodka",
+  "uz": {
+   "title": "Safar hisoboti tasdiqlandi",
+   "body": "Xodim chiptalar, mehmonxona cheklari bilan hisobot topshiradi. Tasdiqlangan summa xarajatga o'tadi: Dt 9420 — Kt 4220. Ortgan pul kassaga qaytariladi (Dt 5010 — Kt 4220), qaytarilmasa oylikdan ushlanishi mumkin (Dt 6710 — Kt 4220).",
+   "tip": "Eslab qoling: hisobotdan keyin 4220 da shu xodim bo'yicha qoldiq qolmasligi kerak.",
+   "dt": "9420",
+   "kt": "4220"
+  },
+  "ru": {
+   "title": "Утверждён авансовый отчёт",
+   "body": "Работник сдаёт отчёт с билетами и чеками гостиницы. Утверждённая сумма списывается в расходы: Дт 9420 — Кт 4220. Остаток возвращается в кассу (Дт 5010 — Кт 4220), а не возвращённый может удерживаться из зарплаты (Дт 6710 — Кт 4220).",
+   "tip": "Запомните: после отчёта сальдо 4220 по работнику должно быть нулевым."
+  }
+ },
+ {
+  "id": "L25",
+  "topic": "tmz",
+  "uz": {
+   "title": "Xomashyo kirimi: 1010",
+   "body": "Ishlab chiqarish uchun olingan xomashyo 2910 ga emas, 1010 ga kirim qilinadi. Tovar — qayta sotish uchun, xomashyo — mahsulotga aylantirish uchun. Kirim QQS alohida 4410 da yoziladi.",
+   "tip": "Eslab qoling: maqsad schyotni belgilaydi — sotish uchun 2910, ishlab chiqarish uchun 1010.",
+   "dt": "1010",
+   "kt": "6010"
+  },
+  "ru": {
+   "title": "Поступление сырья: 1010",
+   "body": "Сырьё для производства приходуется не на 2910, а на 1010. Товар — для перепродажи, сырьё — для переработки в продукцию. Входящий НДС отражается отдельно на 4410.",
+   "tip": "Запомните: счёт определяет назначение — для продажи 2910, для производства 1010."
+  }
+ },
+ {
+  "id": "L26",
+  "topic": "tmz",
+  "uz": {
+   "title": "Xomashyoni ishlab chiqarishga berish",
+   "body": "Ombordan sexga berilgan xomashyo ishlab chiqarish xarajatiga aylanadi: Dt 2010 — Kt 1010. Asos — talabnoma yoki yuk xati. Qiymat tanlangan usul bo'yicha (masalan, o'rtacha qiymat yoki FIFO) aniqlanadi va yil davomida o'zgartirilmaydi.",
+   "tip": "Eslab qoling: hisob siyosatida tanlangan TMZ baholash usuliga yil bo'yi amal qiling.",
+   "dt": "2010",
+   "kt": "1010"
+  },
+  "ru": {
+   "title": "Отпуск сырья в производство",
+   "body": "Сырьё, переданное со склада в цех, становится затратами производства: Дт 2010 — Кт 1010. Основание — требование или накладная. Стоимость определяется выбранным методом (например, по средней или ФИФО) и в течение года не меняется.",
+   "tip": "Запомните: метод оценки ТМЗ из учётной политики применяйте весь год."
+  }
+ },
+ {
+  "id": "L27",
+  "topic": "tmz",
+  "uz": {
+   "title": "Tayyor mahsulot omborga topshirildi",
+   "body": "2010 da yig'ilgan xarajatlar (xomashyo, ishchilar oyligi, ijtimoiy soliq, dastgoh amortizatsiyasi) tayyor mahsulot tannarxini tashkil qiladi. Mahsulot omborga topshirilganda: Dt 2810 — Kt 2010. Sotilganda tannarx 9110 ga o'tadi.",
+   "tip": "Eslab qoling: tovar — 2910/9120, o'z mahsuloti — 2810/9110.",
+   "dt": "2810",
+   "kt": "2010"
+  },
+  "ru": {
+   "title": "Готовая продукция сдана на склад",
+   "body": "Затраты, собранные на 2010 (сырьё, зарплата рабочих, соцналог, амортизация станков), формируют себестоимость готовой продукции. При сдаче на склад: Дт 2810 — Кт 2010. При продаже себестоимость переходит на 9110.",
+   "tip": "Запомните: товар — 2910/9120, собственная продукция — 2810/9110."
+  }
+ },
+ {
+  "id": "L28",
+  "topic": "av",
+  "uz": {
+   "title": "Asosiy vosita xaridi: avval 0820",
+   "body": "Uskuna sotib olinganda u darhol 0130 ga emas, 0820 — kapital qo'yilmalarga yoziladi. Bu yerda uning boshlang'ich qiymati yig'iladi: narx, yetkazish, o'rnatish, sozlash. Kirim QQS alohida 4410 da.",
+   "tip": "Eslab qoling: 0820 — «yig'ish qutisi», tayyor bo'lmagan asosiy vosita shu yerda turadi.",
+   "dt": "0820",
+   "kt": "6010"
+  },
+  "ru": {
+   "title": "Покупка ОС: сначала 0820",
+   "body": "Купленное оборудование сначала отражается не на 0130, а на 0820 — капитальные вложения. Здесь формируется его первоначальная стоимость: цена, доставка, монтаж, наладка. Входящий НДС — отдельно на 4410.",
+   "tip": "Запомните: 0820 — «накопитель», здесь ОС находится до готовности к использованию."
+  }
+ },
+ {
+  "id": "L29",
+  "topic": "av",
+  "uz": {
+   "title": "Foydalanishga topshirish",
+   "body": "Uskuna o'rnatilib, ishlashga tayyor bo'lganda dalolatnoma tuziladi va 0820 dagi to'liq qiymat 0130 ga o'tkaziladi: Dt 0130 — Kt 0820. Shu paytdan boshlab amortizatsiya hisoblashga tayyorgarlik boshlanadi.",
+   "tip": "Eslab qoling: dalolatnomasiz asosiy vosita 0820 da qoladi va amortizatsiya qilinmaydi.",
+   "dt": "0130",
+   "kt": "0820"
+  },
+  "ru": {
+   "title": "Ввод в эксплуатацию",
+   "body": "Когда оборудование смонтировано и готово к работе, составляется акт, и вся сумма с 0820 переносится на 0130: Дт 0130 — Кт 0820. С этого момента объект готов к начислению амортизации.",
+   "tip": "Запомните: без акта ввода ОС остаётся на 0820 и не амортизируется."
+  }
+ },
+ {
+  "id": "L30",
+  "topic": "av",
+  "uz": {
+   "title": "Amortizatsiya: to'g'ri chiziqli usul",
+   "body": "Yillik amortizatsiya = (boshlang'ich qiymat − tugatish qiymati) ÷ foydalanish yillari; oylik = yillik ÷ 12. Masalan, 60 mln so'mlik kompyuter jamlanmasi, 5 yil, tugatish qiymati 0: oyiga 1 mln so'm. Ofis jihozi uchun Dt 9420 — Kt 0230.",
+   "tip": "Eslab qoling: amortizatsiya 0130 ni kamaytirmaydi — u alohida 0230 da yig'iladi.",
+   "dt": "9420",
+   "kt": "0230"
+  },
+  "ru": {
+   "title": "Амортизация: линейный метод",
+   "body": "Годовая амортизация = (первоначальная стоимость − ликвидационная) ÷ срок службы в годах; месячная = годовая ÷ 12. Например, комплект компьютеров за 60 млн сум, 5 лет, ликвидационная 0: 1 млн сум в месяц. Для офиса — Дт 9420 — Кт 0230.",
+   "tip": "Запомните: амортизация не уменьшает 0130 — она накапливается отдельно на 0230."
+  }
+ },
+ {
+  "id": "L31",
+  "topic": "av",
+  "uz": {
+   "title": "Amortizatsiya qayerga: joyiga qarab",
+   "body": "Amortizatsiya ham ish haqi kabi vosita qayerda ishlatilishiga qarab taqsimlanadi. Sex dastgohi — Dt 2010 (mahsulot tannarxiga), do'kon vitrinasi — Dt 9410, ofis kompyuteri — Dt 9420. Kredit doim 0230.",
+   "tip": "Eslab qoling: qoldiq qiymat = 0130 qoldig'i − 0230 qoldig'i.",
+   "dt": "2010",
+   "kt": "0230"
+  },
+  "ru": {
+   "title": "Куда относить амортизацию",
+   "body": "Как и зарплата, амортизация распределяется по месту использования объекта. Станок в цехе — Дт 2010 (в себестоимость продукции), витрина магазина — Дт 9410, офисный компьютер — Дт 9420. Кредит всегда 0230.",
+   "tip": "Запомните: остаточная стоимость = сальдо 0130 − сальдо 0230."
+  }
+ },
+ {
+  "id": "L32",
+  "topic": "sol",
+  "uz": {
+   "title": "Asosiy soliq stavkalari xaritasi",
+   "body": "Ilovada ishlatiladigan asosiy stavkalar: QQS — 12%, foyda solig'i — 15%, JShDS — 12%, ijtimoiy soliq — 12%, jismoniy shaxs dividendi — 5%, aylanmadan olinadigan soliq — 4%. Ularning barchasi budjet bilan hisob-kitob schyoti 6410 da yuritiladi.",
+   "tip": "Eslab qoling: har bir soliq turi bo'yicha 6410 da alohida analitika yuriting, aks holda qarzlar aralashib ketadi.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Карта основных налоговых ставок",
+   "body": "Основные ставки, используемые в приложении: НДС — 12%, налог на прибыль — 15%, НДФЛ — 12%, социальный налог — 12%, дивиденды физлицам — 5%, налог с оборота — 4%. Расчёты по всем ним ведутся на счёте 6410.",
+   "tip": "Запомните: ведите на 6410 аналитику по каждому налогу, иначе долги смешаются."
+  }
+ },
+ {
+  "id": "L33",
+  "topic": "provodka",
+  "uz": {
+   "title": "Qisqa muddatli bank krediti",
+   "body": "12 oygacha muddatga olingan kredit — qisqa muddatli majburiyat: Dt 5110 — Kt 6810. Kredit daromad emas, chunki u qaytariladi. Qaytarilganda teskari yozuv: Dt 6810 — Kt 5110.",
+   "tip": "Eslab qoling: 12 oygacha — 6810, undan ko'p — 7810.",
+   "dt": "5110",
+   "kt": "6810"
+  },
+  "ru": {
+   "title": "Краткосрочный банковский кредит",
+   "body": "Кредит на срок до 12 месяцев — краткосрочное обязательство: Дт 5110 — Кт 6810. Кредит — не доход, ведь его нужно вернуть. При погашении — обратная запись: Дт 6810 — Кт 5110.",
+   "tip": "Запомните: до 12 месяцев — 6810, больше — 7810."
+  }
+ },
+ {
+  "id": "L34",
+  "topic": "provodka",
+  "uz": {
+   "title": "Uzoq muddatli kredit",
+   "body": "Bir yildan ortiq muddatga olingan kredit 7810 da yuritiladi: Dt 5110 — Kt 7810. Balansda u uzoq muddatli majburiyatlar qatorida turadi. Har bir qism qaytarilganda: Dt 7810 — Kt 5110.",
+   "tip": "Eslab qoling: kreditning asosiy summasi va foizi alohida schyotlarda — summa 7810 da, foiz 6920 da.",
+   "dt": "5110",
+   "kt": "7810"
+  },
+  "ru": {
+   "title": "Долгосрочный кредит",
+   "body": "Кредит сроком более года учитывается на 7810: Дт 5110 — Кт 7810. В балансе он показывается в долгосрочных обязательствах. При погашении каждой части: Дт 7810 — Кт 5110.",
+   "tip": "Запомните: тело кредита и проценты — на разных счетах: тело на 7810, проценты на 6920."
+  }
+ },
+ {
+  "id": "L35",
+  "topic": "provodka",
+  "uz": {
+   "title": "Kredit foizini hisoblash",
+   "body": "Foiz qaysi oyga tegishli bo'lsa, o'sha oyda xarajat bo'ladi — to'langan kuniga qaramay. Hisoblash: Dt 9610 — Kt 6920. Masalan, 120 mln so'mga yillik 24%: oyiga 2,4 mln so'm.",
+   "tip": "Eslab qoling: oy yoki chorak oxirida foizni hisoblashni unutmang, aks holda xarajat kamayib ko'rinadi.",
+   "dt": "9610",
+   "kt": "6920"
+  },
+  "ru": {
+   "title": "Начисление процентов по кредиту",
+   "body": "Проценты — расход того месяца, к которому относятся, независимо от даты оплаты. Начисление: Дт 9610 — Кт 6920. Например, 120 млн сум под 24% годовых: 2,4 млн сум в месяц.",
+   "tip": "Запомните: начисляйте проценты в конце месяца или квартала, иначе расходы занижены."
+  }
+ },
+ {
+  "id": "L36",
+  "topic": "provodka",
+  "uz": {
+   "title": "Hisoblangan foizni to'lash",
+   "body": "Bank foizni yechib olganda yoki firma to'laganda majburiyat yopiladi: Dt 6920 — Kt 5110. Xarajat bu paytda emas, hisoblanganda yozilgan. To'g'ridan-to'g'ri Dt 9610 — Kt 5110 yozish hisoblash tamoyilini buzadi.",
+   "tip": "Eslab qoling: 6920 dagi qoldiq — hisoblangan, lekin hali to'lanmagan foiz.",
+   "dt": "6920",
+   "kt": "5110"
+  },
+  "ru": {
+   "title": "Оплата начисленных процентов",
+   "body": "Когда банк списывает проценты или фирма их платит, обязательство закрывается: Дт 6920 — Кт 5110. Расход признан раньше — при начислении. Запись Дт 9610 — Кт 5110 напрямую нарушает принцип начисления.",
+   "tip": "Запомните: сальдо 6920 — начисленные, но ещё не уплаченные проценты."
+  }
+ },
+ {
+  "id": "L37",
+  "topic": "ish",
+  "uz": {
+   "title": "Oy o'rtasida avans to'lash",
+   "body": "Oy o'rtasida berilgan avans — hisoblanadigan oylikning bir qismi: Dt 6710 — Kt 5010 (yoki 5110). Oy oxirida to'liq oylik hisoblanadi, JShDS butun summadan ushlanadi va qolgani to'lanadi. Avans paytida 6710 vaqtincha debet qoldiq ko'rsatishi mumkin.",
+   "tip": "Eslab qoling: oxirgi to'lov = hisoblangan oylik − JShDS − berilgan avans.",
+   "dt": "6710",
+   "kt": "5010"
+  },
+  "ru": {
+   "title": "Выплата аванса в середине месяца",
+   "body": "Аванс в середине месяца — часть будущей зарплаты: Дт 6710 — Кт 5010 (или 5110). В конце месяца начисляется вся зарплата, НДФЛ удерживается со всей суммы, выплачивается остаток. После аванса на 6710 может временно быть дебетовое сальдо.",
+   "tip": "Запомните: окончательная выплата = начислено − НДФЛ − выданный аванс."
+  }
+ },
+ {
+  "id": "L38",
+  "topic": "ish",
+  "uz": {
+   "title": "Kamomadni oylikdan ushlash",
+   "body": "Agar xodim aybi bilan kamomad yuzaga kelgan va u 4730 ga yuklangan bo'lsa, summa uning ish haqidan ushlanishi mumkin: Dt 6710 — Kt 4730. Ushlash xodimning yozma roziligi yoki tegishli hujjat asosida, mehnat qonunchiligidagi cheklovlar doirasida amalga oshiriladi.",
+   "tip": "Eslab qoling: ushlanmalar asosi hujjatda bo'lishi shart — og'zaki kelishuv yetmaydi.",
+   "dt": "6710",
+   "kt": "4730"
+  },
+  "ru": {
+   "title": "Удержание недостачи из зарплаты",
+   "body": "Если недостача возникла по вине работника и отнесена на 4730, сумму можно удержать из зарплаты: Дт 6710 — Кт 4730. Удержание делается по письменному согласию или документу-основанию, в пределах ограничений трудового законодательства.",
+   "tip": "Запомните: основание удержания должно быть документальным — устной договорённости мало."
+  }
+ },
+ {
+  "id": "L39",
+  "topic": "tmz",
+  "uz": {
+   "title": "Inventarizatsiya: tovar kamomadi",
+   "body": "Inventarizatsiyada haqiqiy qoldiq hisobdagidan kam chiqsa, kamomad avval 5910 ga o'tkaziladi: Dt 5910 — Kt 2910. 5910 — «kutish zali»: bu yerda summa aybdor aniqlanguncha turadi. Asos — inventarizatsiya dalolatnomasi va solishtirma qaydnoma.",
+   "tip": "Eslab qoling: kamomadni darhol xarajatga yozmang — avval 5910, keyin qaror.",
+   "dt": "5910",
+   "kt": "2910"
+  },
+  "ru": {
+   "title": "Инвентаризация: недостача товара",
+   "body": "Если фактический остаток меньше учётного, недостача сначала списывается на 5910: Дт 5910 — Кт 2910. 5910 — «зал ожидания»: сумма находится здесь до решения о виновных. Основание — акт инвентаризации и сличительная ведомость.",
+   "tip": "Запомните: не списывайте недостачу сразу в расходы — сначала 5910, потом решение."
+  }
+ },
+ {
+  "id": "L40",
+  "topic": "tmz",
+  "uz": {
+   "title": "Kamomad aybdorga yuklandi",
+   "body": "Aybdor aniqlansa, kamomad uning qarziga o'tadi: Dt 4730 — Kt 5910. Xodim pulni kassaga to'laydi (Dt 5010 — Kt 4730) yoki oylikdan ushlanadi. Aybdor topilmasa, summa xarajatga yoziladi: Dt 9430 — Kt 5910.",
+   "tip": "Eslab qoling: 5910 oy oxirida yopilishi kerak — u yerda qoldiq osilib qolmasin.",
+   "dt": "4730",
+   "kt": "5910"
+  },
+  "ru": {
+   "title": "Недостача отнесена на виновного",
+   "body": "Если виновный установлен, недостача переходит в его долг: Дт 4730 — Кт 5910. Работник вносит деньги в кассу (Дт 5010 — Кт 4730) или сумма удерживается из зарплаты. Если виновных нет, сумма списывается в расходы: Дт 9430 — Кт 5910.",
+   "tip": "Запомните: 5910 закрывайте к концу месяца — сальдо там «висеть» не должно."
+  }
+ },
+ {
+  "id": "L41",
+  "topic": "qqs",
+  "uz": {
+   "title": "Tovar qaytarildi — kirim QQSni kamaytirish",
+   "body": "Sifatsiz tovar yetkazib beruvchiga qaytarilganda ikki yozuv bo'ladi: tovar summasi Dt 6010 — Kt 2910 va uning QQSi Dt 6010 — Kt 4410. Ikkinchisi unutilsa, firma o'ziga tegishli bo'lmagan kirim QQSni hisobga olgan bo'ladi.",
+   "tip": "Eslab qoling: qaytarishda tuzatuvchi elektron faktura rasmiylashtiriladi.",
+   "dt": "6010",
+   "kt": "4410"
+  },
+  "ru": {
+   "title": "Возврат товара — уменьшаем входящий НДС",
+   "body": "При возврате некачественного товара поставщику — две записи: стоимость Дт 6010 — Кт 2910 и НДС Дт 6010 — Кт 4410. Если забыть вторую, фирма примет к зачёту НДС, на который не имеет права.",
+   "tip": "Запомните: при возврате оформляется корректировочная электронная счёт-фактура."
+  }
+ },
+ {
+  "id": "L42",
+  "topic": "qqs",
+  "uz": {
+   "title": "0% stavka va QQSdan ozod — farqi nimada?",
+   "body": "0% stavka (masalan, eksport) — aylanma QQS solinadigan, lekin stavka nol: kirim QQS hisobga olinadi va qaytarilishi mumkin. Ozod aylanmada QQS umuman yo'q, kirim QQS esa hisobga olinmaydi — u xarajatga yoki tovar qiymatiga o'tadi.",
+   "tip": "Eslab qoling: 0% — kirim QQS saqlanadi, ozod — kirim QQS yo'qotiladi.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Ставка 0% и освобождение — в чём разница?",
+   "body": "Ставка 0% (например, экспорт) — оборот облагается, но по нулевой ставке: входящий НДС принимается к зачёту и может быть возмещён. При освобождении НДС нет вообще, а входящий НДС к зачёту не принимается — он идёт в расходы или в стоимость.",
+   "tip": "Запомните: 0% — входящий НДС сохраняется, освобождение — теряется."
+  }
+ },
+ {
+  "id": "L43",
+  "topic": "qqs",
+  "uz": {
+   "title": "Aralash faoliyat: kirim QQSni taqsimlash",
+   "body": "Firmada ham QQS solinadigan, ham ozod aylanma bo'lsa, umumiy xarajatlar bo'yicha kirim QQS taqsimlanadi. Solinadigan qismga to'g'ri keladigani hisobga olinadi (Dt 6410 — Kt 4410), ozod qismga tegishlisi xarajatga o'tadi: Dt 9430 — Kt 4410.",
+   "tip": "Eslab qoling: taqsimlash odatda aylanmalar ulushi bo'yicha qilinadi — hisob-kitobni hujjatlab qo'ying.",
+   "dt": "9430",
+   "kt": "4410"
+  },
+  "ru": {
+   "title": "Смешанная деятельность: распределение НДС",
+   "body": "Если у фирмы есть и облагаемые, и освобождённые обороты, входящий НДС по общим расходам распределяется. Часть по облагаемым оборотам принимается к зачёту (Дт 6410 — Кт 4410), часть по освобождённым — в расходы: Дт 9430 — Кт 4410.",
+   "tip": "Запомните: распределение обычно ведётся пропорционально оборотам — документируйте расчёт."
+  }
+ },
+ {
+  "id": "L44",
+  "topic": "qqs",
+  "uz": {
+   "title": "Norezident xizmati: soliq agenti QQSi",
+   "body": "O'zbekistonda ro'yxatdan o'tmagan chet el firmasidan xizmat olinganda QQSni xaridor soliq agenti sifatida o'zi hisoblaydi: Dt 4410 — Kt 6410. Uni budjetga to'lagandan keyin, odatda, kirim QQS sifatida hisobga olish mumkin.",
+   "tip": "Eslab qoling: norezidentga to'lov — QQS agentligini tekshirish uchun signal.",
+   "dt": "4410",
+   "kt": "6410"
+  },
+  "ru": {
+   "title": "Услуги нерезидента: НДС налогового агента",
+   "body": "При получении услуг от иностранной фирмы, не зарегистрированной в Узбекистане, покупатель сам исчисляет НДС как налоговый агент: Дт 4410 — Кт 6410. После уплаты в бюджет этот НДС, как правило, можно принять к зачёту.",
+   "tip": "Запомните: платёж нерезиденту — сигнал проверить обязанности налогового агента по НДС."
+  }
+ },
+ {
+  "id": "L45",
+  "topic": "provodka",
+  "uz": {
+   "title": "Valyuta qayta baholandi: kurs oshdi",
+   "body": "Valyuta schyotidagi qoldiq hisobda so'mda turadi. Kurs oshsa, uning so'mdagi qiymati ko'payadi: Dt 5210 — Kt 9540. Masalan, 1 000 dollar, kurs 100 so'mga oshdi — 100 000 so'm kurs farqi daromadi.",
+   "tip": "Eslab qoling: qayta baholash = valyuta summasi × (yangi kurs − eski kurs).",
+   "dt": "5210",
+   "kt": "9540"
+  },
+  "ru": {
+   "title": "Переоценка валюты: курс вырос",
+   "body": "Остаток валютного счёта в учёте числится в сумах. Если курс вырос, его сумовая стоимость увеличивается: Дт 5210 — Кт 9540. Например, 1 000 долларов, курс вырос на 100 сум — доход от курсовой разницы 100 000 сум.",
+   "tip": "Запомните: переоценка = валютная сумма × (новый курс − старый курс)."
+  }
+ },
+ {
+  "id": "L46",
+  "topic": "provodka",
+  "uz": {
+   "title": "Valyuta qayta baholandi: kurs tushdi",
+   "body": "Kurs tushsa, valyuta qoldig'ining so'mdagi qiymati kamayadi — bu kurs farqidan zarar: Dt 9620 — Kt 5210. Valyutadagi debitor va kreditor qarzlar ham shu mantiq bilan qayta baholanadi.",
+   "tip": "Eslab qoling: kurs farqi daromadi 9540, zarari 9620 — sotishdan daromad (9020) bilan aralashtirmang.",
+   "dt": "9620",
+   "kt": "5210"
+  },
+  "ru": {
+   "title": "Переоценка валюты: курс снизился",
+   "body": "При снижении курса сумовая стоимость валютного остатка уменьшается — это убыток от курсовой разницы: Дт 9620 — Кт 5210. Валютная дебиторская и кредиторская задолженность переоценивается по той же логике.",
+   "tip": "Запомните: доход от курсовой разницы — 9540, убыток — 9620; не путайте с выручкой 9020."
+  }
+ },
+ {
+  "id": "L47",
+  "topic": "av",
+  "uz": {
+   "title": "Asosiy vosita sotildi: 9210 orqali",
+   "body": "Asosiy vosita chiqib ketishi 9210 da yig'iladi. Debetga: boshlang'ich qiymat (Dt 9210 — Kt 0130). Kreditga: to'plangan eskirish (Dt 0230 — Kt 9210) va sotuv narxi QQSsiz (Dt 4010 — Kt 9210). Chiqim QQS alohida: Dt 4010 — Kt 6410.",
+   "tip": "Eslab qoling: asosiy vosita sotuvi 9020 ga yozilmaydi — u 9210 da.",
+   "dt": "9210",
+   "kt": "0130"
+  },
+  "ru": {
+   "title": "Продажа ОС: через 9210",
+   "body": "Выбытие основного средства собирается на 9210. По дебету: первоначальная стоимость (Дт 9210 — Кт 0130). По кредиту: накопленный износ (Дт 0230 — Кт 9210) и цена продажи без НДС (Дт 4010 — Кт 9210). Исходящий НДС отдельно: Дт 4010 — Кт 6410.",
+   "tip": "Запомните: продажа ОС не отражается на 9020 — только через 9210."
+  }
+ },
+ {
+  "id": "L48",
+  "topic": "av",
+  "uz": {
+   "title": "Sotuv natijasi: foyda yoki zarar",
+   "body": "Eskirish hisobdan chiqarilgach (Dt 0230 — Kt 9210), 9210 da natija qoladi. Kredit ko'p bo'lsa — foyda: Dt 9210 — Kt 9310. Debet ko'p bo'lsa — zarar: Dt 9430 — Kt 9210. Natijada 9210 to'liq yopiladi.",
+   "tip": "Eslab qoling: foyda = sotuv narxi (QQSsiz) − qoldiq qiymat.",
+   "dt": "0230",
+   "kt": "9210"
+  },
+  "ru": {
+   "title": "Результат продажи ОС: прибыль или убыток",
+   "body": "После списания износа (Дт 0230 — Кт 9210) на 9210 остаётся результат. Если больше кредит — прибыль: Дт 9210 — Кт 9310. Если больше дебет — убыток: Дт 9430 — Кт 9210. В итоге 9210 закрывается полностью.",
+   "tip": "Запомните: прибыль = цена продажи (без НДС) − остаточная стоимость."
+  }
+ },
+ {
+  "id": "L49",
+  "topic": "sol",
+  "uz": {
+   "title": "Foyda solig'i: buxgalteriya foydasi emas",
+   "body": "Foyda solig'i (15%) soliq bazasidan hisoblanadi: buxgalteriya foydasi + chegirilmaydigan xarajatlar (jarima, penya va h.k.). Hisoblash: Dt 9810 — Kt 6410. Masalan, foyda 100 mln, jarima 10 mln: baza 110 mln, soliq 16,5 mln so'm.",
+   "tip": "Eslab qoling: jarima buxgalteriyada xarajat, lekin soliq bazasini kamaytirmaydi.",
+   "dt": "9810",
+   "kt": "6410"
+  },
+  "ru": {
+   "title": "Налог на прибыль: не бухгалтерская прибыль",
+   "body": "Налог на прибыль (15%) считается от налоговой базы: бухгалтерская прибыль + невычитаемые расходы (штрафы, пени и т.п.). Начисление: Дт 9810 — Кт 6410. Пример: прибыль 100 млн, штраф 10 млн — база 110 млн, налог 16,5 млн сум.",
+   "tip": "Запомните: штраф — расход в учёте, но налоговую базу не уменьшает."
+  }
+ },
+ {
+  "id": "L50",
+  "topic": "sol",
+  "uz": {
+   "title": "Aylanmadan olinadigan soliq (4%)",
+   "body": "Aylanmadan olinadigan soliq foydadan emas, sotishdan tushgan aylanmadan hisoblanadi. Masalan, oylik tushum 50 mln so'm bo'lsa, soliq 2 mln so'm — firma zararda bo'lsa ham. Uni to'lovchilar, odatda, QQS va foyda solig'i o'rniga to'laydi.",
+   "tip": "Eslab qoling: aylanma soliqda xarajatlar bazani kamaytirmaydi — narxlashda buni hisobga oling.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Налог с оборота (4%)",
+   "body": "Налог с оборота считается не от прибыли, а от выручки. Например, при выручке 50 млн сум за месяц налог — 2 млн сум, даже если фирма в убытке. Его плательщики, как правило, платят его вместо НДС и налога на прибыль.",
+   "tip": "Запомните: при налоге с оборота расходы базу не уменьшают — учитывайте это в ценах."
+  }
+ },
+ {
+  "id": "L51",
+  "topic": "sol",
+  "uz": {
+   "title": "Jarima va penya qanday yoziladi",
+   "body": "Soliq jarimasi yoki penyasi hisoblanganda: Dt 9430 — Kt 6410, to'langanda: Dt 6410 — Kt 5110. Ular buxgalteriyada boshqa operatsion xarajat bo'ladi, ammo foyda solig'i bazasidan chegirilmaydi.",
+   "tip": "Eslab qoling: jarima va penyani alohida analitikada yuriting — yil oxirida soliq bazasiga qaytarib qo'shasiz.",
+   "dt": "9430",
+   "kt": "6410"
+  },
+  "ru": {
+   "title": "Как отражать штрафы и пени",
+   "body": "Начисление налогового штрафа или пени: Дт 9430 — Кт 6410, уплата: Дт 6410 — Кт 5110. В учёте это прочие операционные расходы, но из базы налога на прибыль они не вычитаются.",
+   "tip": "Запомните: ведите штрафы и пени отдельной аналитикой — в конце года их прибавляют к налоговой базе."
+  }
+ },
+ {
+  "id": "L52",
+  "topic": "provodka",
+  "uz": {
+   "title": "Yil yakuni: daromadlarni 9910 ga yopish",
+   "body": "Yil oxirida 9-guruh daromad schyotlari yakuniy moliyaviy natijaga yopiladi: Dt 9020 — Kt 9910 (shuningdek 9010, 9030, 9310, 9390, 9540). Daromad schyotlari kredit qoldiqqa ega bo'lgani uchun ular debetlanadi.",
+   "tip": "Eslab qoling: yopilgandan keyin 9-guruh schyotlarida qoldiq qolmaydi.",
+   "dt": "9020",
+   "kt": "9910"
+  },
+  "ru": {
+   "title": "Конец года: закрытие доходов на 9910",
+   "body": "В конце года доходные счета 9-го раздела закрываются на конечный финансовый результат: Дт 9020 — Кт 9910 (также 9010, 9030, 9310, 9390, 9540). У доходов кредитовое сальдо, поэтому их дебетуют.",
+   "tip": "Запомните: после закрытия на счетах 9-го раздела сальдо не остаётся."
+  }
+ },
+ {
+  "id": "L53",
+  "topic": "provodka",
+  "uz": {
+   "title": "Yil yakuni: xarajatlarni 9910 ga yopish",
+   "body": "Xarajat schyotlari debet qoldiqqa ega, shuning uchun ular kreditlanadi: Dt 9910 — Kt 9420 (shuningdek 9110, 9120, 9410, 9430, 9610, 9620, 9810). Shundan keyin 9910 dagi qoldiq yil natijasini ko'rsatadi.",
+   "tip": "Eslab qoling: 9910 kredit qoldig'i — foyda, debet qoldig'i — zarar.",
+   "dt": "9910",
+   "kt": "9420"
+  },
+  "ru": {
+   "title": "Конец года: закрытие расходов на 9910",
+   "body": "У расходных счетов дебетовое сальдо, поэтому их кредитуют: Дт 9910 — Кт 9420 (также 9110, 9120, 9410, 9430, 9610, 9620, 9810). После этого сальдо 9910 показывает результат года.",
+   "tip": "Запомните: кредитовое сальдо 9910 — прибыль, дебетовое — убыток."
+  }
+ },
+ {
+  "id": "L54",
+  "topic": "provodka",
+  "uz": {
+   "title": "Sof foydani taqsimlanmagan foydaga o'tkazish",
+   "body": "Foyda solig'i ham yopilgach, 9910 dagi kredit qoldiq — sof foyda. U kapitalga o'tkaziladi: Dt 9910 — Kt 8710. Yil zarar bilan yakunlansa, teskari yozuv: Dt 8710 — Kt 9910.",
+   "tip": "Eslab qoling: yopilgandan keyin 9910 nolga teng bo'lishi shart.",
+   "dt": "9910",
+   "kt": "8710"
+  },
+  "ru": {
+   "title": "Чистая прибыль — в нераспределённую",
+   "body": "После закрытия налога на прибыль кредитовое сальдо 9910 — чистая прибыль. Она переносится в капитал: Дт 9910 — Кт 8710. Если год убыточный — обратная запись: Дт 8710 — Кт 9910.",
+   "tip": "Запомните: после реформации сальдо 9910 должно быть нулевым."
+  }
+ },
+ {
+  "id": "L55",
+  "topic": "provodka",
+  "uz": {
+   "title": "Dividend e'lon qilish va 5% soliq",
+   "body": "Ta'sischilar qarori bilan dividend taqsimlanmagan foyda hisobidan e'lon qilinadi: Dt 8710 — Kt 6610. Jismoniy shaxs ta'sischidan 5% soliq ushlanadi (Dt 6610 — Kt 6410), qolgani to'lanadi (Dt 6610 — Kt 5110).",
+   "tip": "Eslab qoling: dividend xarajat emas — u 9-guruhga emas, 8710 dan to'lanadi.",
+   "dt": "8710",
+   "kt": "6610"
+  },
+  "ru": {
+   "title": "Объявление дивидендов и налог 5%",
+   "body": "По решению учредителей дивиденды объявляются за счёт нераспределённой прибыли: Дт 8710 — Кт 6610. С учредителя-физлица удерживается налог 5% (Дт 6610 — Кт 6410), остаток выплачивается (Дт 6610 — Кт 5110).",
+   "tip": "Запомните: дивиденды — не расход; они идут из 8710, а не через 9-й раздел."
+  }
+ },
+ {
+  "id": "L56",
+  "topic": "hisobot",
+  "uz": {
+   "title": "Aylanma qaydnoma — xatolar tekshiruvi",
+   "body": "Aylanma (oborot-saldo) qaydnomada har bir schyot bo'yicha boshlang'ich qoldiq, debet va kredit oborotlari hamda oxirgi qoldiq ko'rinadi. Jami debet oborotlari jami kredit oborotlariga, debet qoldiqlar yig'indisi kredit qoldiqlar yig'indisiga teng bo'lishi kerak.",
+   "tip": "Eslab qoling: aktiv schyot qoldig'i = boshlang'ich + Dt oborot − Kt oborot.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Оборотно-сальдовая ведомость — проверка",
+   "body": "В оборотно-сальдовой ведомости по каждому счёту видны начальное сальдо, обороты по дебету и кредиту и конечное сальдо. Итог дебетовых оборотов должен равняться итогу кредитовых, а сумма дебетовых сальдо — сумме кредитовых.",
+   "tip": "Запомните: сальдо активного счёта = начальное + обороты по Дт − обороты по Кт."
+  }
+ },
+ {
+  "id": "L57",
+  "topic": "hisobot",
+  "uz": {
+   "title": "Buxgalteriya balansi (1-shakl)",
+   "body": "Balans aktivi: I bo'lim — uzoq muddatli aktivlar, II bo'lim — joriy aktivlar. Passivi: I bo'lim — o'z mablag'lari manbalari, II bo'lim — majburiyatlar. Aktiv jami doim passiv jamiga teng. Asosiy vositalar qoldiq qiymatda (0130 − 0230) ko'rsatiladi.",
+   "tip": "Eslab qoling: balans to'g'ri chiqmasa, avval 9910 yopilganini va aylanma qaydnoma tengligini tekshiring.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Бухгалтерский баланс (форма 1)",
+   "body": "Актив баланса: раздел I — долгосрочные активы, раздел II — текущие активы. Пассив: раздел I — источники собственных средств, раздел II — обязательства. Итог актива всегда равен итогу пассива. ОС показываются по остаточной стоимости (0130 − 0230).",
+   "tip": "Запомните: если баланс не сходится, проверьте закрытие 9910 и равенство в ОСВ."
+  }
+ },
+ {
+  "id": "L58",
+  "topic": "hisobot",
+  "uz": {
+   "title": "Moliyaviy natijalar hisoboti (2-shakl)",
+   "body": "2-shakl zinapoyaga o'xshaydi: sotishdan sof tushum − sotilgan mahsulot tannarxi = yalpi foyda; − davr xarajatlari + boshqa operatsion daromadlar = asosiy faoliyat foydasi; ± moliyaviy daromad va xarajatlar = soliqqa qadar foyda; − foyda solig'i = sof foyda.",
+   "tip": "Eslab qoling: 2-shakldagi sof foyda balansdagi taqsimlanmagan foyda o'zgarishi bilan bog'lanishi kerak.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Отчёт о финансовых результатах (форма 2)",
+   "body": "Форма 2 устроена как лестница: чистая выручка − себестоимость = валовая прибыль; − расходы периода + прочие операционные доходы = прибыль от основной деятельности; ± финансовые доходы и расходы = прибыль до налогообложения; − налог на прибыль = чистая прибыль.",
+   "tip": "Запомните: чистая прибыль формы 2 должна увязываться с изменением нераспределённой прибыли в балансе."
+  }
+ },
+ {
+  "id": "L59",
+  "topic": "mhxs",
+  "uz": {
+   "title": "MHXS: hisoblash tamoyili va mazmun ustuvorligi",
+   "body": "MHXS (xalqaro standartlar) asosida hisoblash tamoyili yotadi: daromad va xarajat pul harakatiga emas, yuz bergan davrga yoziladi. Yana bir tamoyil — shakldan mazmun ustun: muomala hujjatdagi nomiga emas, iqtisodiy mohiyatiga qarab aks ettiriladi.",
+   "tip": "Eslab qoling: MHXSda «kim egalik qiladi» emas, «kim nazorat qiladi va naf oladi» muhim.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "МСФО: начисление и приоритет содержания",
+   "body": "В основе МСФО — принцип начисления: доходы и расходы относятся к периоду, когда они возникли, а не к моменту движения денег. Ещё один принцип — приоритет содержания над формой: операция отражается по экономической сути, а не по названию в документе.",
+   "tip": "Запомните: в МСФО важно не «кто владеет», а «кто контролирует и получает выгоды»."
+  }
+ },
+ {
+  "id": "L60",
+  "topic": "mhxs",
+  "uz": {
+   "title": "MHXS hisobotlari to'plami va farqlar",
+   "body": "To'liq MHXS to'plami: moliyaviy holat hisoboti, foyda-zarar va boshqa umumlashgan daromad hisoboti, kapitaldagi o'zgarishlar, pul oqimlari hisoboti va izohlar. MHXSda aktivlar qadrsizlanishga tekshiriladi, debitorlik bo'yicha kutilayotgan kredit zararlari baholanadi.",
+   "tip": "Eslab qoling: MHXSda izohlar — hisobotning to'laqonli qismi, ularsiz to'plam to'liq emas.",
+   "dt": null,
+   "kt": null
+  },
+  "ru": {
+   "title": "Комплект отчётности МСФО и отличия",
+   "body": "Полный комплект МСФО: отчёт о финансовом положении, отчёт о прибыли или убытке и прочем совокупном доходе, отчёт об изменениях в капитале, отчёт о движении денежных средств и примечания. Активы проверяются на обесценение, по дебиторке оцениваются ожидаемые кредитные убытки.",
+   "tip": "Запомните: примечания в МСФО — полноценная часть отчётности, без них комплект неполный."
+  }
+ }
+]

@@ -1,0 +1,40 @@
+# Android ilova (APK) — bepul: GitHub Actions yig'adi va "Releases" ga qo'yadi.
+# Ishga tushadi: app/ o'zgarganda yoki qo'lda (Actions → Android APK → Run workflow).
+name: Android APK
+on:
+  push:
+    branches: [main]
+    paths: ["app/**", ".github/workflows/android.yml"]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: { group: android, cancel-in-progress: true }
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: app } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: npm, cache-dependency-path: app/package-lock.json }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: 17 }
+      - run: npm ci
+      - run: npx vite build
+      - run: npx cap sync android
+      - name: Imzo kaliti (bo'lsa)
+        env: { KS: "${{ secrets.ANDROID_KEYSTORE_B64 }}" }
+        run: |
+          if [ -n "$KS" ]; then echo "$KS" | base64 -d > "$RUNNER_TEMP/liga.keystore"; echo "LIGA_KEYSTORE=$RUNNER_TEMP/liga.keystore" >> "$GITHUB_ENV"; fi
+      - name: APK yig'ish
+        working-directory: app/android
+        env: { LIGA_KEY_PASS: "${{ secrets.ANDROID_KEY_PASS }}" }
+        run: |
+          chmod +x gradlew
+          if [ -n "$LIGA_KEYSTORE" ]; then ./gradlew --no-daemon assembleRelease; cp app/build/outputs/apk/release/app-release.apk ../HisobchiLiga.apk
+          else ./gradlew --no-daemon assembleDebug; cp app/build/outputs/apk/debug/app-debug.apk ../HisobchiLiga.apk; fi
+      - name: Releases ga qo'yish
+        env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          gh release view android -R "$GITHUB_REPOSITORY" >/dev/null 2>&1 || gh release create android -R "$GITHUB_REPOSITORY" --title "Hisobchi Liga — Android" --notes "Telefonga o'rnatish: HisobchiLiga.apk ni yuklab oling va oching. Ilova har doim saytdagi eng yangi versiyani ochadi."
+          gh release upload android HisobchiLiga.apk -R "$GITHUB_REPOSITORY" --clobber

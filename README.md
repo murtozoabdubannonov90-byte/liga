@@ -6,6 +6,43 @@ Buxgalterlar uchun haftalik musobaqa: har ish kuni yangi bosqich (12 ta provodka
 - Bot: https://t.me/Buxgalterlar_Ligasi_bot
 - Baza: Supabase (MijozPro-CRM loyihasi), bot — Edge Function `liga-bot`
 
+## 2.0 versiya (2026-10-02)
+
+Ilova qaytadan yozildi: React + Vite + TypeScript, yangi dizayn ("buxgalteriya daftari + tablo"), animatsiyalar, ovoz va tebranish. Eski ilova zaxira sifatida: `/liga/v1/`.
+
+| Imkoniyat | Qayerda |
+|---|---|
+| Til tanlash: O'zbekcha, Ўзбекча, Русский | Birinchi ochilishda; keyin Profil → Sozlamalar → Til |
+| Natija kartochkasi + taklif havolasi | Reyting → «Natijani ulashish». Taklif qilingan do'st birinchi to'lov qilsa — taklif qilganga **+7 kun** obuna |
+| Liga darajalari: Bronza → Kumush → Oltin → Olmos | Reyting → Daraja. Har juma 12:10 da yangilanadi, bot shaxsan xabar beradi |
+| Duel 1 ga 1 (10 savol) | Bosh sahifa → Duel → «Duel yaratish va yuborish» |
+| Jonli oylik final | Reyting → Final (jadval har 5 soniyada yangilanadi) |
+| Ovoz, tebranish, konfetti | Profil → Sozlamalar → Ovoz va tebranish |
+| Kunning mini-darsi (60 ta dars) | Bosh sahifa → Bugungi dars; bot ham guruhga 09:00 da yuboradi |
+| Balans o'yini | Bosh sahifa → Balans o'yini |
+| Savol muharriri (jamoa savollari) | Admin panel → Savollar; superadmin → Umumiy savollar |
+| Xodim tanlash testi (ro'yxatsiz havola) | Admin panel → Testlar → «Test yaratish» → havolani nomzodga yuboring |
+| QR sertifikat | Profil → Sertifikatlar; tekshiruv: `…/liga/?v=KOD` |
+| Shaxsiy eslatma 16:00 | Bot orqali ilovani ochgan o'yinchiga, bugungi bosqich bajarilmagan bo'lsa |
+| Android ilova (APK) | GitHub → Releases → **Hisobchi Liga — Android** → `HisobchiLiga.apk` |
+
+### Dasturchi uchun
+
+```
+cd app
+npm install
+npm run dev            # localhost da ishlatish
+npm run build          # tekshiruv + yig'ish (app/dist)
+npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
+python3 tests/app.test.py        # 2.0 testlari (51 ta)
+node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
+```
+
+- Matnlar: kalit — o'zbekcha matn (`t("...")`), rus tarjimasi `app/src/lib/ru.ts`, kirill — avtomatik.
+- Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
+- Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
+- Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
 ## Qoidalar
 
 | | |

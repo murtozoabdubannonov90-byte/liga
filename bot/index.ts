@@ -25,6 +25,65 @@ const openApp = (code?: string) => ({ inline_keyboard: [[{ text: "🏆 Ligani oc
 const openBot = (code?: string) => ({ inline_keyboard: [[{ text: "🏆 Ligani ochish", url: deep(code) }]] });
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
+// ---------------- tillar ----------------
+const CYR1: Record<string, string> = { a: "а", b: "б", d: "д", e: "е", f: "ф", g: "г", h: "ҳ", i: "и", j: "ж", k: "к", l: "л", m: "м", n: "н", o: "о", p: "п", q: "қ", r: "р", s: "с", t: "т", u: "у", v: "в", x: "х", y: "й", z: "з", c: "с", w: "в" };
+function cyrWord(w: string) {
+  const s = w.replace(/[ʻʼ‘’`]/g, "'"), low = s.toLowerCase(); let out = "";
+  for (let i = 0; i < low.length; i++) {
+    const c = low[i], n = low[i + 1], n2 = low[i + 2], prev = out[out.length - 1]; let r = "";
+    if ((c === "o" || c === "g") && n === "'") { r = c === "o" ? "ў" : "ғ"; i++; }
+    else if (c === "s" && n === "h") { r = "ш"; i++; } else if (c === "c" && n === "h") { r = "ч"; i++; }
+    else if (c === "y" && n === "o" && n2 !== "'") { r = "ё"; i++; } else if (c === "y" && n === "u") { r = "ю"; i++; }
+    else if (c === "y" && n === "a") { r = "я"; i++; } else if (c === "y" && n === "e") { r = "е"; i++; }
+    else if (c === "e") r = (i === 0 || (prev !== undefined && "аоиуўеэёюя".includes(prev))) ? "э" : "е";
+    else if (c === "'") r = "ъ"; else r = CYR1[c] ?? c;
+    out += r;
+  }
+  if (s.length > 1 && s === s.toUpperCase() && /[A-Z]/.test(s)) return out.toUpperCase();
+  return /^[A-Z]/.test(s) ? out.charAt(0).toUpperCase() + out.slice(1) : out;
+}
+const cyr = (t: string) => t.replace(/(<[^>]*>|@[A-Za-z0-9_]+|https?:\/\/\S+|XP|[A-Za-z][A-Za-z'ʻʼ‘’`]*[A-Za-z]|[A-Za-z])/g, (m) => (m[0] === "<" || m[0] === "@" || m.startsWith("http") || m === "XP" ? m : cyrWord(m)));
+// shaxsiy xabarlar: o'zbekcha matn kalit, rus tarjimasi shu yerda
+const RU: Record<string, string> = {
+  "⏰ <b>{n}, bugungi bosqich hali bajarilmagan!</b>\n{s}-bosqich soat 17:00 da yopiladi — 1 soat qoldi.": "⏰ <b>{n}, сегодняшний этап ещё не пройден!</b>\nЭтап {s} закроется в 17:00 — остался 1 час.",
+  "Bosqichni ochish": "Открыть этап",
+  "⚔️ <b>Duel yakunlandi!</b>\n{a} — {as} · {b} — {bs}\n\n{w}": "⚔️ <b>Дуэль завершена!</b>\n{a} — {as} · {b} — {bs}\n\n{w}",
+  "🏆 Siz yutdingiz!": "🏆 Вы победили!", "Bu safar raqib kuchliroq. Yana chaqiring!": "В этот раз соперник сильнее. Вызовите ещё раз!", "🤝 Durang!": "🤝 Ничья!",
+  "⚔️ <b>{n} duelingizni qabul qildi va o'ynadi.</b>\nEndi navbat sizda!": "⚔️ <b>{n} принял(а) ваш вызов и сыграл(а).</b>\nТеперь ваша очередь!",
+  "Duelni ochish": "Открыть дуэль",
+  "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i.": "⚔️ <b>Вас вызвали на дуэль!</b>\n10 вопросов: побеждает тот, кто ответит правильно на большее число, при равенстве — кто быстрее.",
+  "Duelga kirish": "Принять дуэль",
+  "👋 <b>Hisobchi Liga</b>ga xush kelibsiz!\nDo'stingiz sizni taklif qildi. Ro'yxatdan o'ting — haftalik ligada bellashamiz.": "👋 Добро пожаловать в <b>Hisobchi Liga</b>!\nВас пригласил друг. Зарегистрируйтесь — и соревнуйтесь в еженедельной лиге.",
+  "Ro'yxatdan o'tish": "Зарегистрироваться",
+  "🏅 <b>Tabriklaymiz! Siz {t} ligaga ko'tarildingiz.</b>": "🏅 <b>Поздравляем! Вы поднялись в лигу «{t}».</b>",
+  "Siz {t} ligaga tushdingiz. Bu hafta ko'proq bosqich bajaring — qaytasiz!": "Вы опустились в лигу «{t}». Пройдите больше этапов на этой неделе — и вернётесь!",
+  "Mening natijam — Hisobchi Liga 🏆\nSiz ham qo'shiling:": "Мой результат — Hisobchi Liga 🏆\nПрисоединяйтесь:",
+  "Kartochkangiz tayyor — endi uni istalgan chatga yuborishingiz mumkin.": "Карточка готова — теперь её можно отправить в любой чат.",
+  "Ligaga qo'shilish": "Присоединиться",
+};
+const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
+function tr(lang: string | null | undefined, uz: string, v: Record<string, string | number> = {}) {
+  let s = lang === "ru" ? (RU[uz] ?? uz) : lang === "uzc" ? cyr(uz) : uz;
+  for (const k in v) s = s.split("{" + k + "}").join(String(v[k]));
+  return s;
+}
+// Telegram Mini App initData tekshiruvi (bot tokeni bilan HMAC)
+async function hmac(key: ArrayBuffer | Uint8Array, data: string) {
+  const k = await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  return new Uint8Array(await crypto.subtle.sign("HMAC", k, new TextEncoder().encode(data)));
+}
+async function checkInit(initData: string): Promise<any | null> {
+  if (!initData) return null;
+  const p = new URLSearchParams(initData), hash = p.get("hash"); if (!hash) return null; p.delete("hash");
+  const dcs = [...p.entries()].sort(([a], [b]) => (a < b ? -1 : 1)).map(([k, v]) => k + "=" + v).join("\n");
+  const secret = await hmac(new TextEncoder().encode("WebAppData"), TOKEN);
+  const calc = [...await hmac(secret, dcs)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  if (calc !== hash) return null;
+  if (Date.now() / 1000 - Number(p.get("auth_date") || 0) > 86400 * 7) return null;
+  try { return JSON.parse(p.get("user") || "null"); } catch { return null; }
+}
+const appBtn = (text: string, q = "") => ({ inline_keyboard: [[{ text, web_app: { url: APP + q } }]] });
+
 type Chat = { chat_id: number; group_code: string };
 type Group = { code: string; name: string; start_date: string; active: boolean; paid_until: string | null };
 
@@ -245,6 +304,14 @@ async function onUpdate(u: any) {
     if (!ses) return askContact(m.chat.id);
     return cardMessage(m.chat.id, ses.months);
   }
+  if (priv && cmd === "/start" && /^r_[A-Za-z0-9]+$/i.test(arg)) {
+    const lang = m.from?.language_code === "ru" ? "ru" : "uz";
+    return reply(tr(lang, "👋 <b>Hisobchi Liga</b>ga xush kelibsiz!\nDo'stingiz sizni taklif qildi. Ro'yxatdan o'ting — haftalik ligada bellashamiz."), appBtn(tr(lang, "Ro'yxatdan o'tish"), "?r=" + arg.slice(2).toUpperCase()));
+  }
+  if (priv && cmd === "/start" && /^d_[A-Za-z0-9]+$/i.test(arg)) {
+    const lang = m.from?.language_code === "ru" ? "ru" : "uz";
+    return reply(tr(lang, "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i."), appBtn(tr(lang, "Duelga kirish"), "?d=" + arg.slice(2).toUpperCase()));
+  }
   if (cmd === "/start" || cmd === "/liga") {
     const code = priv && /^g_/i.test(arg) ? arg.slice(2).toUpperCase().replace(/[^A-Z0-9]/g, "") : (priv ? "" : await chatGroup(m.chat.id));
     let gname = "";
@@ -285,6 +352,14 @@ function todayStage(startDate: string): number | null {
   while (d.getTime() < today.getTime()) { const w = d.getUTCDay(); if (w >= 1 && w <= 5) n++; d.setUTCDate(d.getUTCDate() + 1); }
   return n % TITLES.length;
 }
+// kunning darsi (ilovadagi bilan bir xil: 01.10.2026 dan beri kunlar)
+let LESSONS: any[] | null = null;
+async function lessonOfDay() {
+  try { if (!LESSONS) LESSONS = await (await fetch(APP + "lessons.json")).json(); } catch { return null; }
+  if (!LESSONS?.length) return null;
+  const d = Math.round((tzDate().getTime() - Date.UTC(2026, 9, 1)) / 864e5);
+  return LESSONS[((d % LESSONS.length) + LESSONS.length) % LESSONS.length];
+}
 // bir kunda bir xil xabar ikki marta ketmasin
 async function once(tag: string) {
   const key = `sent_${tag}_${tzDate().toISOString().slice(0, 10)}`;
@@ -313,19 +388,45 @@ async function onCron(action: string) {
   if (action === "day_start") {
     if (w < 1 || w > 5) return { skip: "weekend" };
     if (!(await once("day_start"))) return { skip: "already" };
+    const lesson = await lessonOfDay();
     const n = await toChats((g) => {
       const si = todayStage(g.start_date);
       if (si === null) return null;                       // jamoa hali boshlanmagan
       const head = w === 1
         ? "🚀 <b>Yangi liga haftasi boshlandi!</b>\n\nLiga bugundan <b>juma soat 12:00</b> gacha davom etadi."
         : "☀️ <b>Bugungi o'yin boshlandi!</b>";
-      return `${head}\n📚 Bugun <b>${si + 1}-bosqich: ${TITLES[si]}</b> ochildi (20 savol).\n⏰ Bosqich <b>17:00</b> gacha ochiq, keyin yopiladi.\n⏱ Har savolga 1 daqiqa.\n\nOmad, buxgalterlar! 💪`;
+      return `${head}\n📚 Bugun <b>${si + 1}-bosqich: ${TITLES[si]}</b> ochildi (20 savol).\n⏰ Bosqich <b>17:00</b> gacha ochiq, keyin yopiladi.\n⏱ Har savolga 1 daqiqa.${lesson ? `\n\n📘 <b>Bugungi dars:</b> ${esc(lesson.uz.title)}\n${esc(lesson.uz.body)}` : ""}\n\nOmad, buxgalterlar! 💪`;
     });
     return { ok: true, sent: n };
   }
   if (action === "remind") {
     if (w < 1 || w > 5 || !(await once("remind"))) return { skip: true };
-    return { ok: true, sent: await toChats((g) => todayStage(g.start_date) === null ? null : "⏰ <b>Eslatma:</b> bugungi bosqich yopilishiga <b>1 soat</b> qoldi — soat 17:00 gacha bajaring!") };
+    const sent = await toChats((g) => todayStage(g.start_date) === null ? null : "⏰ <b>Eslatma:</b> bugungi bosqich yopilishiga <b>1 soat</b> qoldi — soat 17:00 gacha bajaring!");
+    // shaxsiy: bugungi bosqichni bajarmaganlarga
+    const { data: list } = await db.rpc("liga_remind_list");
+    let personal = 0;
+    for (const p of (list ?? []) as any[]) {
+      const r = await tg("sendMessage", { chat_id: p.tg, parse_mode: "HTML", text: tr(p.lang, "⏰ <b>{n}, bugungi bosqich hali bajarilmagan!</b>\n{s}-bosqich soat 17:00 da yopiladi — 1 soat qoldi.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1 }),
+        reply_markup: appBtn(tr(p.lang, "Bosqichni ochish")) });
+      if (r?.ok) personal++;
+    }
+    return { ok: true, sent, personal };
+  }
+  if (action === "tiers") {
+    if (!(await once("tiers"))) return { skip: "already" };
+    const { data: n } = await db.rpc("liga_tiers_run");
+    const { data: wk } = await db.rpc("liga_last_week_id");
+    const { data: ch } = await db.from("liga_tier_log").select("player_id,before,after").eq("week_id", wk).neq("before", -1);
+    let msg = 0;
+    for (const c of (ch ?? []) as any[]) {
+      if (c.before === c.after) continue;
+      const { data: p } = await db.from("safari_players").select("tg_user_id,lang").eq("id", c.player_id).maybeSingle();
+      if (!p?.tg_user_id) continue;
+      const tn = (p.lang === "ru" ? TIER_RU : TIER_UZ)[c.after];
+      const text = c.after > c.before ? tr(p.lang, "🏅 <b>Tabriklaymiz! Siz {t} ligaga ko'tarildingiz.</b>", { t: tn }) : tr(p.lang, "Siz {t} ligaga tushdingiz. Bu hafta ko'proq bosqich bajaring — qaytasiz!", { t: tn });
+      await tg("sendMessage", { chat_id: p.tg_user_id, parse_mode: "HTML", text, reply_markup: appBtn("🏆 Hisobchi Liga") }); msg++;
+    }
+    return { ok: true, players: n, notified: msg };
   }
   if (action === "day_end") {
     if (w < 1 || w > 5 || !(await once("day_end"))) return { skip: true };
@@ -351,7 +452,60 @@ async function onCron(action: string) {
   return { error: "unknown action" };
 }
 
+const CORS = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
+const jres = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { "content-type": "application/json", ...CORS } });
+async function authOk(pid: string, token: string) { const { data } = await db.rpc("liga_auth", { p_id: pid, p_token: token }); return data === true; }
+async function onApp(req: Request) {
+  const b = await req.json().catch(() => ({}));
+  const action = String(b.action || "");
+  if (action === "duel_done") {
+    if (!b.p_id || !(await authOk(b.p_id, b.token))) return jres({ error: "bad_token" }, 403);
+    const { data: d } = await db.from("liga_duels").select("*").eq("code", String(b.code || "").toUpperCase()).maybeSingle();
+    if (!d) return jres({ error: "not_found" }, 404);
+    const ids = [d.a_id, d.b_id].filter(Boolean);
+    const { data: ps } = await db.from("safari_players").select("id,first_name,last_name,tg_user_id,lang").in("id", ids);
+    const P = (id: string) => (ps ?? []).find((x: any) => x.id === id) as any;
+    const A = P(d.a_id), B = d.b_id ? P(d.b_id) : null, nm = (x: any) => x ? esc(((x.first_name ?? "") + " " + (x.last_name ?? "").slice(0, 1) + ".").trim()) : "—";
+    if (d.a_score != null && d.b_score != null) {
+      const win = d.a_score !== d.b_score ? (d.a_score > d.b_score ? "a" : "b") : d.a_ms === d.b_ms ? "tie" : d.a_ms < d.b_ms ? "a" : "b";
+      for (const [side, x] of [["a", A], ["b", B]] as [string, any][]) {
+        if (!x?.tg_user_id) continue;
+        const wtxt = win === "tie" ? tr(x.lang, "🤝 Durang!") : win === side ? tr(x.lang, "🏆 Siz yutdingiz!") : tr(x.lang, "Bu safar raqib kuchliroq. Yana chaqiring!");
+        await tg("sendMessage", { chat_id: x.tg_user_id, parse_mode: "HTML", text: tr(x.lang, "⚔️ <b>Duel yakunlandi!</b>\n{a} — {as} · {b} — {bs}\n\n{w}", { a: nm(A), as: d.a_score, b: nm(B), bs: d.b_score, w: wtxt }), reply_markup: appBtn(tr(x.lang, "Duelni ochish"), "?d=" + d.code) });
+      }
+    } else if (d.b_score != null && A?.tg_user_id) {
+      await tg("sendMessage", { chat_id: A.tg_user_id, parse_mode: "HTML", text: tr(A.lang, "⚔️ <b>{n} duelingizni qabul qildi va o'ynadi.</b>\nEndi navbat sizda!", { n: nm(B) }), reply_markup: appBtn(tr(A.lang, "Duelni ochish"), "?d=" + d.code) });
+    }
+    return jres({ ok: true });
+  }
+  // quyidagilar faqat Telegram ichidan (initData tekshiriladi)
+  const user = await checkInit(String(b.initData || ""));
+  if (!user) return jres({ error: "no_telegram" }, 403);
+  if (!b.p_id || !(await authOk(b.p_id, b.token))) return jres({ error: "bad_token" }, 403);
+  if (action === "link") {
+    const { data } = await db.rpc("liga_tg_link_sys", { p_id: b.p_id, p_token: b.token, p_tg: user.id });
+    return jres({ ok: data === true });
+  }
+  if (action === "card") {
+    const img = String(b.image || ""); const m = /^data:image\/(jpeg|png);base64,(.+)$/.exec(img);
+    if (!m || img.length > 3_000_000) return jres({ error: "bad_image" }, 400);
+    const { data: pl } = await db.from("safari_players").select("ref_code,lang").eq("id", b.p_id).maybeSingle();
+    const ref = `https://t.me/${BOT}?start=r_${pl?.ref_code ?? ""}`;
+    const caption = tr(pl?.lang, "Mening natijam — Hisobchi Liga 🏆\nSiz ham qo'shiling:") + " " + ref;
+    const fd = new FormData(); fd.append("chat_id", String(user.id)); fd.append("caption", tr(pl?.lang, "Kartochkangiz tayyor — endi uni istalgan chatga yuborishingiz mumkin."));
+    fd.append("photo", new Blob([Uint8Array.from(atob(m[2]), (c) => c.charCodeAt(0))], { type: "image/" + m[1] }), "liga.jpg");
+    const sent = await (await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, { method: "POST", body: fd })).json();
+    const fid = sent?.result?.photo?.slice(-1)[0]?.file_id; if (!fid) return jres({ error: "send_failed" }, 500);
+    const prep = await tg("savePreparedInlineMessage", { user_id: user.id, allow_user_chats: true, allow_group_chats: true, allow_channel_chats: true,
+      result: { type: "photo", id: "c" + Date.now(), photo_file_id: fid, caption, reply_markup: { inline_keyboard: [[{ text: tr(pl?.lang, "Ligaga qo'shilish"), url: ref }]] } } });
+    return jres({ id: prep?.result?.id ?? null });
+  }
+  return jres({ error: "unknown" }, 400);
+}
+
 Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
+  if (new URL(req.url).pathname.endsWith("/app")) { try { return await onApp(req); } catch (e) { console.error(e); return jres({ error: "server" }, 500); } }
   if (req.method !== "POST" || !TOKEN) return new Response("ok");
   const tgSecret = req.headers.get("x-telegram-bot-api-secret-token");
   if (tgSecret) {

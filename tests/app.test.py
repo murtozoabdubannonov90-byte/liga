@@ -4,7 +4,7 @@ Ishga tushirish:  python3 -m http.server 8765 &  python3 tests/app.test.py
 import json, sys
 from playwright.sync_api import sync_playwright
 
-BASE = "http://localhost:8765/index.html"
+BASE = "http://localhost:8765/v1/index.html"  # eski (1.0) ilova — v1/ papkada
 SEED = {"xp": 0, "user": {"first": "Test", "last": "User", "phone": "+998901112233", "region": "Andijon viloyati"}, "name": "Test", "key": "x", "pid": "p1", "token": "tok1",
         "stars": {}, "week": {"id": "", "my": 0, "riv": {}}, "group": {"code": "ASOSIY", "start": "2026-09-28", "ok": True}}
 fails = []

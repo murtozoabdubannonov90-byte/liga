@@ -1,0 +1,12 @@
+{
+  "appId": "uz.hisobchi.liga",
+  "appName": "Hisobchi Liga",
+  "webDir": "dist",
+  "server": {
+    "url": "https://murtozoabdubannonov90-byte.github.io/liga/",
+    "errorPath": "index.html",
+    "allowNavigation": ["murtozoabdubannonov90-byte.github.io", "*.supabase.co", "t.me", "telegram.org"]
+  },
+  "android": { "backgroundColor": "#EEF3F0" },
+  "plugins": { "SplashScreen": { "launchShowDuration": 600, "backgroundColor": "#EEF3F0" } }
+}
