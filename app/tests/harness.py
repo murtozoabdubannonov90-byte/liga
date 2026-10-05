@@ -54,7 +54,7 @@ LIVE = {}
 def live_reset(**kw):
     items, ans = mk_items(10)
     LIVE.clear(); LIVE.update({"code": "LQWERTY", "status": "wait", "me": "a", "a_name": "Dilnoza K.", "b_name": None, "a_pts": 0, "b_pts": 0, "a_ms": 0, "b_ms": 0,
-        "n": 10, "cur": 0, "qsec": 30, "q_in": 0, "left": 25000, "locked": False, "opp_locked": False, "last": None, "winner": None, "items": items, "ans": ans})
+        "n": 10, "cur": 0, "qsec": 60, "q_in": 0, "left": 25000, "locked": False, "opp_locked": False, "last": None, "winner": None, "items": items, "ans": ans})
     LIVE.update(kw)
 def live_view():
     v = {k: x for k, x in LIVE.items() if k not in ("items", "ans") and x is not None}

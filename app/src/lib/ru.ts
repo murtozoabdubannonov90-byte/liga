@@ -786,7 +786,7 @@ export const RU: Record<string, string> = {
   "Jonli duellarim": "Мои живые дуэли",
   "Kechikdingiz — raqib birinchi topdi": "Не успели — соперник ответил первым",
   "Keyingi savol {s} soniyada": "Следующий вопрос через {s} с",
-  "Qoida: 10 ta savol, har biriga 30 soniya. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalangizga keyingi savol chiqadi. Xato javob bergan shu savolda qulflanadi.": "Правила: 10 вопросов, по 30 секунд. Кто первым ответит верно — получает очко, и обоим показывается следующий вопрос. Ответивший неверно блокируется на этом вопросе.",
+  "Qoida: 10 ta savol, har biriga 1 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalangizga keyingi savol chiqadi. Xato javob bergan shu savolda qulflanadi.": "Правила: 10 вопросов, по 1 минуте. Кто первым ответит верно — получает очко, и обоим показывается следующий вопрос. Ответивший неверно блокируется на этом вопросе.",
   "Raqib": "Соперник",
   "Raqib ilovani ochishini kutyapmiz": "Ждём, когда соперник откроет приложение",
   "Raqib xato qildi — javob bering!": "Соперник ошибся — отвечайте!",

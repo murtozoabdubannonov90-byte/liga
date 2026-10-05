@@ -102,7 +102,7 @@ export default function LiveDuel({ code }: { code: string }) {
       </section>
       {me === "a" && <div className="btn-row"><button className="btn ghost" onClick={() => copyText(link(code), () => toast(t("Nusxa olindi")))}><Copy size={18} />{t("Havola")}</button>
         <button className="btn" id="live-share" onClick={() => shareLive(code)}><Send size={18} />{t("Yuborish")}</button></div>}
-      <div className="note"><Zap size={18} /><span>{t("Qoida: 10 ta savol, har biriga 30 soniya. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalangizga keyingi savol chiqadi. Xato javob bergan shu savolda qulflanadi.")}</span></div>
+      <div className="note"><Zap size={18} /><span>{t("Qoida: 10 ta savol, har biriga 1 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalangizga keyingi savol chiqadi. Xato javob bergan shu savolda qulflanadi.")}</span></div>
     </div>);
 
   /* yakun */
@@ -125,7 +125,7 @@ export default function LiveDuel({ code }: { code: string }) {
 
   /* o'yin: tanaffus (oldingi savol javobi) yoki savol */
   const inPause = now < showAt.current || !item;
-  const left = Math.max(0, Math.ceil((endAt.current - now) / 1000)), qsec = v.qsec || 30;
+  const left = Math.max(0, Math.ceil((endAt.current - now) / 1000)), qsec = v.qsec || 60;
   const L = v.last;
   return (
     <div className="stack live">

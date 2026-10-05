@@ -44,7 +44,7 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
 ## 2026-10-05: jonli duel, admin uchun jamoa natijalari
-- **Jonli duel** (Asosiy → «Duel» → «Jonli duel yaratish»): ikkalasi bir vaqtda o'ynaydi, 10 savol, har biriga 30 soniya. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalasiga keyingi savol chiqadi; xato qilgan shu savolda qulflanadi. Teng ochkoda tezroq yutadi. Hammasi serverda (`liga_live_*`). Havola bot orqali (`?start=d_L…`).
+- **Jonli duel** (Asosiy → «Duel» → «Jonli duel yaratish»): ikkalasi bir vaqtda o'ynaydi, 10 savol, har biriga 1 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalasiga keyingi savol chiqadi; xato qilgan shu savolda qulflanadi. Teng ochkoda tezroq yutadi. Hammasi serverda (`liga_live_*`). Havola bot orqali (`?start=d_L…`).
 - **Jamoa natijalari** — faqat admin PIN bilan kirgan odamning Asosiy ekranida: har a'zoning bugungi bosqichi (to'g'ri/jami, ball) va haftalik bosqich bali. Kunlik mashq va blits kirmaydi. Oddiy ishtirokchilarga ko'rinmaydi.
 - Baza: `db/2026-10-05_jonli_duel.sql`. Testlar: 115 ta.
 

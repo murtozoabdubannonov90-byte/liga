@@ -1,6 +1,6 @@
 -- 2026-10-05
 --  • Jonli duel: ikki o'yinchi bir vaqtda o'ynaydi. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalasiga keyingi savol chiqadi.
---    Xato javob bergan shu savolda qulflanadi; ikkalasi xato qilsa yoki 30 soniya o'tsa — savol hech kimga bermay o'tadi.
+--    Xato javob bergan shu savolda qulflanadi; ikkalasi xato qilsa yoki 1 daqiqa o'tsa — savol hech kimga bermay o'tadi.
 --    Hamma narsa serverda: savollar javobsiz beriladi, javob serverda tekshiriladi, vaqtni server hisoblaydi.
 --  • Admin uchun jamoa natijalari (faqat bosqich ballari; kunlik mashq va blits kirmaydi) — liga_admin_live
 
@@ -20,7 +20,7 @@ alter table public.liga_live enable row level security;
 create index if not exists liga_live_a on public.liga_live(a_id, created_at desc);
 create index if not exists liga_live_b on public.liga_live(b_id, created_at desc);
 
-create or replace function public.liga_live_qsec() returns int language sql immutable as $$ select 30 $$;
+create or replace function public.liga_live_qsec() returns int language sql immutable as $$ select 60 $$;
 
 -- keyingi savolga o'tish (qisqa tanaffus — oldingi savol javobi ko'rsatiladi)
 create or replace function public.liga_live_next(p_code text, p_w text)
