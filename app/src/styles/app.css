@@ -422,3 +422,21 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .err-card{display:grid;gap:10px}
 .err-card>button{text-align:left;display:flex;gap:10px;align-items:flex-start}
 .err-card .q{font-weight:800;line-height:1.35}
+
+/* --- jonli duel --- */
+.live-ticket{background:linear-gradient(135deg,var(--board),#1d3f8a)}
+.live-score{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;background:var(--board);color:var(--on-board);border-radius:var(--r-l);padding:12px 16px;box-shadow:var(--lift)}
+.live-score .ls{display:grid;gap:2px;min-width:0}
+.live-score .ls.op{text-align:right}
+.live-score .ls b{font-family:var(--display);font-size:32px;font-weight:700;line-height:1}
+.live-score .ls span{font-size:12.5px;font-weight:700;color:var(--on-board-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.live-score .ls.me b{color:#7CE3B0} .live-score .ls.op b{color:#FFB4A8}
+.live-score .ls.win b{color:var(--gold)}
+.live-score .ls-mid{display:grid;justify-items:center;gap:2px;color:var(--gold)}
+.live-score .ls-mid small{font-weight:800;color:var(--on-board-2)}
+.live-lobby{display:grid;gap:10px;justify-items:center;text-align:center;padding:24px 16px}
+.live-pause{display:grid;gap:10px;justify-items:center;text-align:center;padding:26px 16px;min-height:220px;align-content:center}
+.live-count{font-size:72px;font-weight:800;color:var(--stamp);line-height:1}
+.live-who{font-family:var(--display);font-size:20px;font-weight:700}
+.live-who.ok{color:var(--green)} .live-who.bad{color:var(--red)}
+.team-live .board .r .n small{white-space:normal}

@@ -1,5 +1,7 @@
 /* G'oliblar: kunlik kuchli uchlik mukofoti (bosqich boshida va oxirida), bosh sahifadagi «Imtiyozlaringiz», reytingdagi kunlik uchlik */
-import { Timer, Award, Trophy, HelpCircle, ChevronRight, Medal } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Timer, Award, Trophy, HelpCircle, ChevronRight, Medal, Eye } from "lucide-react";
+import { rpc } from "../engine/server";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go } from "../lib/nav";
@@ -71,5 +73,34 @@ export function DayTopCard() {
       <div className="card-h"><Trophy size={20} color="var(--gold)" /><h3>{t("Kunlik kuchli uchlik")}</h3></div>
       {today.length > 0 && <><p className="small muted" style={{ fontWeight: 700 }}>{t("Bugun")} · {t("mukofot {d}", { d: nextWord() })}</p><TopList rows={today} /></>}
       {prev.length > 0 && <><p className="small muted" style={{ fontWeight: 700, marginTop: today.length ? 10 : 0 }}>{fmtDay(d.prev_day)} · {t("mukofot bugun")}</p><TopList rows={prev} /></>}
+    </section>);
+}
+
+/* faqat admin (PIN bilan kirgan) uchun: jamoa a'zolarining bosqich ballari — bugungi va haftalik. Kunlik mashq va blits kirmaydi. */
+export function TeamLiveCard() {
+  const pin = S.adminPin || S.superPin;
+  const [rows, setRows] = useState<any[] | null>(null);
+  useEffect(() => {
+    if (!pin) return; let on = true;
+    const load = () => rpc<any[]>("liga_admin_live", { p_pin: pin }).then((r) => on && setRows(r || [])).catch(() => on && setRows([]));
+    load(); const iv = setInterval(load, 60000); return () => { on = false; clearInterval(iv); };
+  }, [pin]);
+  if (!pin || !rows || !rows.length) return null;
+  const played = rows.filter((r) => r.today_done > 0).length;
+  return (
+    <section className="card team-live" id="team-live">
+      <div className="card-h"><Eye size={20} color="var(--stamp)" /><h3>{t("Jamoa natijalari")}</h3><span className="chip blue">{t("faqat sizga")}</span></div>
+      <p className="small muted" style={{ fontWeight: 600, marginBottom: 8 }}>{t("Faqat bosqich ballari (kunlik mashq va blits kirmaydi). Bugun o'ynaganlar: {a}/{b}.", { a: played, b: rows.length })}</p>
+      <div className="board">
+        {rows.map((r, k) => (
+          <div key={k} className={"r" + (k < 3 && r.week_pts > 0 ? " top" + (k + 1) : "")}>
+            <span className="p">{r.week_pts > 0 ? k + 1 : "·"}</span>
+            <span className="n">{r.name}<small>{r.today_done > 0
+              ? t("Bugun: {s}-bosqich · {r}/{n} to'g'ri · {p} ball", { s: (r.today_si ?? 0) + 1, r: r.today_right, n: r.today_n, p: r.today_pts }) + (r.today_finished ? " ✅" : " ⏳")
+              : t("Bugun hali o'ynamagan")}</small></span>
+            <span className="x">{r.week_pts}</span>
+          </div>))}
+      </div>
+      <p className="tiny muted" style={{ marginTop: 6, textAlign: "right" }}>{t("o'ng tomonda — haftalik bosqich bali")}</p>
     </section>);
 }

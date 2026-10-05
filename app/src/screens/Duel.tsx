@@ -11,6 +11,8 @@ import { BOT_LINK, openTg } from "../lib/tg";
 import { entry } from "../boot";
 import { sfx, burst } from "../lib/fx";
 import { playerBlocked } from "./Home";
+import LiveDuel, { isLive, createLive, shareLive } from "./LiveDuel";
+import { Zap } from "lucide-react";
 
 export const duelLink = (code: string) => BOT_LINK + "?start=d_" + code;
 export function botNotify(code: string, _x?: any) { botApp("duel_done", { code }).catch(() => {}); }
@@ -59,7 +61,15 @@ export default function Duel({ code }: { code?: string }) {
   if (entry.d && !code) entry.d = undefined;
   const [list, setList] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
-  useEffect(() => { if (!c && S.pid) rpc<any[]>("liga_my_duels", { p_id: S.pid }).then((r) => setList(r || [])).catch(() => {}); }, [c]);
+  const [live, setLive] = useState<any[]>([]);
+  useEffect(() => { if (!c && S.pid) {
+    rpc<any[]>("liga_my_duels", { p_id: S.pid }).then((r) => setList(r || [])).catch(() => {});
+    rpc<any[]>("liga_live_list", { p_id: S.pid, p_token: S.token }).then((r) => setLive(r || [])).catch(() => {}); } }, [c]);
+  const createL = async () => {
+    if (playerBlocked()) return go("pay");
+    setBusy(true); const code = await createLive(); setBusy(false);
+    if (code) { sfx("tap"); replace("duel", { code }); shareLive(code); }
+  };
   const create = async () => {
     if (playerBlocked()) return go("pay");
     setBusy(true);
@@ -69,10 +79,20 @@ export default function Duel({ code }: { code?: string }) {
   return (
     <div className="shell bare">
       <PageTitle title={t("Duel")} />
-      {c ? <DuelView code={c} /> : <div className="stack">
+      {c ? (isLive(c) ? <LiveDuel code={c} /> : <DuelView code={c} />) : <div className="stack">
+        <section className="ticket live-ticket"><div className="t-top"><Zap size={42} /><div className="grow"><div className="t-title">{t("Jonli duel — kim tezroq")}</div>
+          <div className="t-meta">{t("Ikkalangiz bir vaqtda o'ynaysiz. Kim birinchi to'g'ri javob bersa — ochko o'shaniki va keyingi savolga o'tiladi.")}</div></div></div>
+          <div className="t-bottom"><button className="btn gold" id="create-live" disabled={busy} onClick={createL}><Zap size={18} />{t("Jonli duel yaratish")}</button></div></section>
         <section className="ticket"><div className="t-top"><Swords size={42} /><div className="grow"><div className="t-title">{t("Hamkasbingizni bahsga chaqiring")}</div>
           <div className="t-meta">{t("Ikkalangizga bir xil 10 ta savol. Kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i.")}</div></div></div>
           <div className="t-bottom"><button className="btn gold" id="create" disabled={busy} onClick={create}><Send size={18} />{t("Duel yaratish va yuborish")}</button></div></section>
+        {live.length > 0 && <Card title={t("Jonli duellarim")}>
+          <div className="board">{live.map((d) => { const me = d.is_a ? "a" : "b", op = d.is_a ? "b" : "a"; const w = d.status === "done" ? (d.a_pts === d.b_pts ? "tie" : d.a_pts > d.b_pts ? "a" : "b") : null; return (
+            <button key={d.code} className="r" style={{ textAlign: "left" }} onClick={() => go("duel", { code: d.code })}>
+              <span className="p">{w ? (w === me ? <Crown size={18} color="var(--gold)" /> : w === "tie" ? "=" : "·") : <Zap size={16} />}</span>
+              <span className="n">{(d.is_a ? d.b_name : d.a_name) || t("Raqib kutilmoqda")}<small>{d.code}</small></span>
+              <span className="x">{d[me + "_pts"]}:{d[op + "_pts"]}</span></button>); })}</div>
+        </Card>}
         <Card title={t("Mening duellarim")}>
           {list.length ? <div className="board">{list.map((d) => { const w = winner(d), me = d.is_a ? "a" : "b"; return (
             <button key={d.code} className="r" style={{ textAlign: "left" }} onClick={() => go("duel", { code: d.code })}>

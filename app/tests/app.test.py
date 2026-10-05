@@ -333,6 +333,34 @@ with sync_playwright() as p:
     check("superadmin: sinov rejimi tugmasi", any(a.get("p_on") is False for a in calls("liga_super_set_trial")))
     EXTRA.pop("liga_trial", None); EXTRA.pop("liga_player_status2", None)
 
+    print("10e. Admin uchun jamoa natijalari va jonli duel")
+    pg, e = page(b); ALLERR += e
+    check("oddiy ishtirokchiga jamoa natijalari ko'rinmaydi", pg.locator("#team-live").count() == 0)
+    pg, e = page(b, seed={**SEED, "adminPin": "14"}); ALLERR += e
+    tl = pg.inner_text("#team-live") if pg.locator("#team-live").count() else ""
+    check("admin: asosiy ekranda jamoa natijalari (faqat bosqich bali)", "Aziz Rahimov" in tl and "480" in tl and "15/20" in tl and "hali o'ynamagan" in tl, tl[:200])
+    go(pg, "duel"); pg.click("#create-live"); pg.wait_for_timeout(1300)
+    check("jonli duel: kutish zali", "Raqibni kutyapmiz" in txt(pg) and "LQWERTY" in txt(pg))
+    LIVE.update({"status": "play", "b_name": "Aziz R.", "q_in": 0}); pg.wait_for_timeout(1500)
+    check("jonli duel: savol va hisob tablosi", pg.locator(".qcard .qtext").count() == 1 and pg.locator("#live-score").count() == 1)
+    def live_pick(right):
+        import re
+        k = LIVE["cur"]; x = LIVE["ans"][k]; t = LIVE["items"][k]["t"]
+        if t == "pv":
+            for c in ((x["dt"], x["kt"]) if right else (x["kt"], x["dt"])): pg.locator(".keys .key", has_text=c).first.click()
+        elif t == "mc": pg.locator(".opts .opt", has_text=["Alfa", "Beta", "Gamma", "Delta"][x["a"] if right else (x["a"] + 1) % 4]).first.click()
+        else: pg.fill("#num", str(x["a"] if right else x["a"] + 7))
+        pg.click("#live-send"); pg.wait_for_timeout(500)
+    live_pick(True)
+    check("birinchi to'g'ri javob: ochko va keyingi savolga o'tish", LIVE["cur"] == 1 and pg.locator(".cheer.ok").count() == 1 and "Siz birinchi topdingiz" in txt(pg))
+    LIVE["q_in"] = 0; pg.wait_for_timeout(1500)
+    live_pick(False)
+    check("xato javob: qulflanadi, raqibni kutadi", pg.locator("#live-locked").count() == 1)
+    LIVE.update({"cur": 2, "b_pts": 1, "locked": False, "q_in": 2500, "last": {"k": 1, "w": "b", "q": "Savol №2", "t": "mc", "o": ["Alfa", "Beta", "Gamma", "Delta"], "a": 1}}); pg.wait_for_timeout(1500)
+    check("raqib birinchi topdi — hamma keyingi savolga", "Aziz R. birinchi topdi" in txt(pg))
+    LIVE.update({"status": "done", "winner": "a", "a_pts": 6, "b_pts": 4}); pg.wait_for_timeout(1500)
+    check("jonli duel yakuni: g'olib", pg.locator("#live-done").count() == 1 and "Siz yutdingiz" in txt(pg))
+
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e
     check("tungi mavzu", pg.evaluate("()=>document.documentElement.dataset.theme") == "dark")

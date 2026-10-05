@@ -17,7 +17,7 @@ import { lessonOfDay } from "./Lessons";
 import { finalCanPlay } from "./FinalLive";
 import { sfx } from "../lib/fx";
 import { DeadlineCard, NewsCard } from "./Tools";
-import { PerksCard } from "./Perks";
+import { PerksCard, TeamLiveCard } from "./Perks";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -144,6 +144,7 @@ export default function Home() {
           <div className="t-top"><Trophy size={40} color="var(--gold)" /><div className="grow"><div className="t-title">{t("Oylik final boshlandi!")}</div><div className="t-meta">{t("Siz saralangansiz · 13:00 gacha")}</div></div><ChevronRight /></div></button>}
         <Ticket />
         <PerksCard />
+        <TeamLiveCard />
         <TgLinkCard />
         <DeadlineCard />
         <NewsCard />

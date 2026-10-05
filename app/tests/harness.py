@@ -49,8 +49,29 @@ def run_answer(a):
         r["finished"] = True
         if r["kind"] == "stage": miss = len(r["items"]) - r["right"]; r["stars"] = 3 if miss == 0 else 2 if miss <= 2 else 1; r["bonus"] = r["stars"] * 30
     return dict(run_state(rid), ok=ok, why=why, got=g, reveal=dict(x, e="Izoh: shunday hisoblanadi."))
+# ---- jonli duel taqlidi ----
+LIVE = {}
+def live_reset(**kw):
+    items, ans = mk_items(10)
+    LIVE.clear(); LIVE.update({"code": "LQWERTY", "status": "wait", "me": "a", "a_name": "Dilnoza K.", "b_name": None, "a_pts": 0, "b_pts": 0, "a_ms": 0, "b_ms": 0,
+        "n": 10, "cur": 0, "qsec": 30, "q_in": 0, "left": 25000, "locked": False, "opp_locked": False, "last": None, "winner": None, "items": items, "ans": ans})
+    LIVE.update(kw)
+def live_view():
+    v = {k: x for k, x in LIVE.items() if k not in ("items", "ans") and x is not None}
+    if LIVE["status"] == "play" and LIVE["q_in"] == 0: v["item"] = LIVE["items"][LIVE["cur"]]
+    return v
+def live_answer(a):
+    k, p = a["p_k"], a.get("p_ans") or {}; x = LIVE["ans"][k]; t = LIVE["items"][k]["t"]
+    ok = (p.get("dt") == x.get("dt") and p.get("kt") == x.get("kt")) if t == "pv" else (p.get("pick") == x.get("a")) if t == "mc" else (str(p.get("val")) == str(x.get("a")))
+    if ok:
+        LIVE["a_pts"] += 1; LIVE["last"] = dict(k=k, w="a", q=LIVE["items"][k]["q"], t=t, **{kk: vv for kk, vv in x.items()}); LIVE["cur"] += 1; LIVE["q_in"] = 2500; LIVE["locked"] = False
+    else: LIVE["locked"] = True
+    return dict(live_view(), ok=ok, why="" if ok else "wrong")
 def body_for(fn, args):
     if fn in EXTRA: return EXTRA[fn]
+    if fn == "liga_live_create": live_reset(); return "LQWERTY"
+    if fn == "liga_live_state": return live_view()
+    if fn == "liga_live_answer": return live_answer(args)
     if fn == "liga_stage_start": return run_view(new_run("stage", 20, EXTRA.get("_prefill", 0)))
     if fn == "liga_duel_start": return run_view(new_run("duel", 10))
     if fn == "liga_final_start": return run_view(new_run("final", 20))
@@ -99,7 +120,9 @@ def body_for(fn, args):
       "liga_cert_issue": [{"id": "ABCD2345", "title": "week", "detail": "1|1310|2026-09-25T07:00", "issued_at": "2026-10-01T10:00:00Z"}],
       "liga_day_info": {"prev_day": "2026-09-30", "prev_top": [{"pos": 1, "name": "Aziz R.", "me": False}, {"pos": 2, "name": "Dilnoza K.", "me": True}, {"pos": 3, "name": "Malika S.", "me": False}],
                         "extra_today": 7, "today_closed": False, "today_top": []},
-      "liga_trial": False, "liga_super_set_trial": True,
+      "liga_trial": False, "liga_live_list": [],
+      "liga_admin_live": [{"name": "Aziz Rahimov", "today_si": 5, "today_pts": 240, "today_right": 15, "today_done": 20, "today_n": 20, "today_finished": True, "week_pts": 480, "week_stages": 2, "last_at": None},
+                          {"name": "Malika Sobirova", "today_si": None, "today_pts": 0, "today_right": 0, "today_done": 0, "today_n": 0, "today_finished": False, "week_pts": 200, "week_stages": 1, "last_at": None}], "liga_super_set_trial": True,
       "liga_tg_link_code": "link_abc", "liga_me": [{"xp": 0, "stages": 0, "week_id": None, "week_stages": {}, "cur_week": "2026-10-02T07:00"}],
       "liga_receipt_submit": [{"id": 12, "paid_until": "2026-10-31"}], "liga_tg_pay_link": "pay_abc", "liga_admin_tg_link": "adm_abc",
     }

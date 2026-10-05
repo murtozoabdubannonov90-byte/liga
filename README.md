@@ -34,7 +34,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (107 ta)
+python3 tests/app.test.py        # 2.0 testlari (115 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -42,6 +42,11 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
+## 2026-10-05: jonli duel, admin uchun jamoa natijalari
+- **Jonli duel** (Asosiy → «Duel» → «Jonli duel yaratish»): ikkalasi bir vaqtda o'ynaydi, 10 savol, har biriga 30 soniya. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalasiga keyingi savol chiqadi; xato qilgan shu savolda qulflanadi. Teng ochkoda tezroq yutadi. Hammasi serverda (`liga_live_*`). Havola bot orqali (`?start=d_L…`).
+- **Jamoa natijalari** — faqat admin PIN bilan kirgan odamning Asosiy ekranida: har a'zoning bugungi bosqichi (to'g'ri/jami, ball) va haftalik bosqich bali. Kunlik mashq va blits kirmaydi. Oddiy ishtirokchilarga ko'rinmaydi.
+- Baza: `db/2026-10-05_jonli_duel.sql`. Testlar: 115 ta.
 
 ## 2026-10-03c: xatodan o'rganish, g'oliblar, sinov davri
 - **Javob effekti:** to'g'ri javobda ekran chetlaridan yashil sharlar va yashil belgilar ko'tariladi; xatoda katta qizil X, qizil chet, karta silkinadi va telefon tebranadi (Telegram, brauzer, Android ilova — `@capacitor/haptics`).
