@@ -823,4 +823,9 @@ export const RU: Record<string, string> = {
   "o'ynamoqda": "играют",
   "soat {s}": "в {s}",
   "yakunlandi": "завершена",
+  "Bugun sizga juft chiqmadi (ishtirokchilar soni toq).": "Сегодня вам не досталось пары (нечётное число участников).",
+  "Bugungi duellar jadvali": "Расписание дуэлей на сегодня",
+  "Juftlar bugun soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.": "Пары составляются случайно сегодня в 09:00. Бот пришлёт вам соперника и время.",
+  "Juftlar dushanba soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.": "Пары составляются случайно в понедельник в 09:00. Бот пришлёт вам соперника и время.",
+  "Juftlar har ish kuni soat 09:00 da tasodifiy tuziladi. Keyingisi — ertaga 09:00 da.": "Пары составляются случайно каждый рабочий день в 09:00. Следующие — завтра в 09:00.",
 };

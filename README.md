@@ -34,7 +34,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (121 ta)
+python3 tests/app.test.py        # 2.0 testlari (123 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -42,6 +42,12 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
+## 2026-10-06b: juftlar to'liq tasodifiy, jadval hammaga, 5 daqiqa oldin eslatma
+- Juftlar endi to'liq tasodifiy (`liga_day_pair2_sys`). 09:00 da bot har kimga va jamoa guruhiga butun kunlik jadvalni yuboradi (kim kim bilan, soat nechada) va shaxsan o'z duelini.
+- Duelga 5 daqiqa qolganda «⏳ Duelga 5 daqiqa qoldi!», soati kelganda «🔔 Duel boshlandi!» (`liga_day_duel_due2_sys`).
+- Asosiy ekrandagi «Bugungi duel» kartasi doim ko'rinadi: juft bo'lmasa — qachon tuzilishi; ostida jamoaning bugungi duellar jadvali (`liga_day_duels_list`).
+- Baza: `db/2026-10-06b_juftlik_tasodifiy.sql`. Bot: v16.
 
 ## 2026-10-06: kunlik juftlik dueli
 - Har ish kuni 09:00 da jamoa a'zolari kechagi bosqich bali bo'yicha saralanadi (teng bo'lsa — tasodifiy), yonma-yon turganlar juftlanadi (1–2, 3–4 …). Har juftga tasodifiy soat (du–pa 10:00–16:00, juma 09:30–11:00), duel 1 soat ochiq, kuniga 1 marta.

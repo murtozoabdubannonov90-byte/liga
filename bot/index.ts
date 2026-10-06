@@ -83,6 +83,9 @@ const RU: Record<string, string> = {
   "Kartochkangiz tayyor — endi uni istalgan chatga yuborishingiz mumkin.": "Карточка готова — теперь её можно отправить в любой чат.",
   "Ligaga qo'shilish": "Присоединиться",
   "⚔️ <b>Bugungi duelingiz</b>\nRaqib: <b>{o}</b>\n⏰ Soat <b>{s}</b> da boshlanadi (1 soat ochiq).\n📒 Faqat provodka, 10 savol. Kim birinchi to'g'ri topsa — ochko o'shaniki.\nKechagi bosqich: siz — {m}, raqib — {r} ball.": "⚔️ <b>Ваша дуэль сегодня</b>\nСоперник: <b>{o}</b>\n⏰ Начало в <b>{s}</b> (открыта 1 час).\n📒 Только проводки, 10 вопросов. Кто первым ответит верно — получает очко.\nВчерашний этап: вы — {m}, соперник — {r} баллов.",
+  "⚔️ <b>Bugungi duellar jadvali</b>": "⚔️ <b>Расписание дуэлей на сегодня</b>",
+  "👉 Sizning duelingiz: soat <b>{s}</b>, raqib — <b>{o}</b>.\n📒 Faqat provodka, 10 savol, har biriga 1 daqiqa. Kim birinchi to'g'ri topsa — ochko o'shaniki. Duel 1 soat ochiq.": "👉 Ваша дуэль: в <b>{s}</b>, соперник — <b>{o}</b>.\n📒 Только проводки, 10 вопросов, по 1 минуте. Кто первым ответит верно — получает очко. Дуэль открыта 1 час.",
+  "⏳ <b>Duelga 5 daqiqa qoldi!</b>\nSoat {s} da raqibingiz <b>{o}</b> bilan bellashasiz. Ilovani oching.": "⏳ <b>До дуэли 5 минут!</b>\nВ {s} вы соревнуетесь с <b>{o}</b>. Откройте приложение.",
   "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.": "🔔 <b>Дуэль началась!</b>\nВаш соперник — <b>{o}</b>. Зайдите до {e} — иначе победа достанется сопернику.",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
@@ -549,13 +552,20 @@ async function onCron(action: string) {
       news = await toChats(() => `⚖️ <b>Qonun yangiligi</b>\n<b>${esc(x.title_uz)}</b>\n\n${esc(body)}${x.url ? `\n\n🔗 Manba: ${esc(x.url)}` : ""}\n\nIlovada shu yangilik bo'yicha qisqa test bor 👇`);
       await db.from("liga_news").update({ posted_at: new Date().toISOString() }).eq("id", x.id);
     }
-    // kunlik juftlik dueli: har kimga raqibi va soati (shaxsan)
+    // kunlik juftlik dueli (tasodifiy juftlar): jadval — guruhga va har kimga shaxsan, o'z dueli bilan
     let duels = 0;
-    const { data: dp } = await db.rpc("liga_day_pair_sys");
-    for (const x of (dp ?? []) as any[]) {
+    const { data: dp } = await db.rpc("liga_day_pair2_sys");
+    const rows = (dp ?? []) as any[], byG: Record<string, string[]> = {}, seen = new Set<string>();
+    for (const x of rows) if (!seen.has(x.code)) { seen.add(x.code); (byG[x.group_code] ??= []).push(`${String(x.slot).slice(0, 5)} — ${esc(x.my_name ?? "")} ⚔️ ${esc(x.opp_name ?? "")}`); }
+    if (rows.some((x) => x.fresh)) {
+      for (const code of Object.keys(byG)) for (const c of await chatsOf(code))
+        await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: "⚔️ <b>Bugungi duellar jadvali</b>\n" + byG[code].join("\n") });
+    }
+    for (const x of rows) {
       if (!x.fresh || !x.tg) continue;
-      if (await dm(x.tg, tr(x.lang, "⚔️ <b>Bugungi duelingiz</b>\nRaqib: <b>{o}</b>\n⏰ Soat <b>{s}</b> da boshlanadi (1 soat ochiq).\n📒 Faqat provodka, 10 savol. Kim birinchi to'g'ri topsa — ochko o'shaniki.\nKechagi bosqich: siz — {m}, raqib — {r} ball.",
-        { o: esc(x.opp_name ?? ""), s: String(x.slot).slice(0, 5), m: x.my_score ?? 0, r: x.opp_score ?? 0 }), appBtn(tr(x.lang, "Duelni ochish"), "?d=" + x.code))) duels++;
+      const txt = tr(x.lang, "⚔️ <b>Bugungi duellar jadvali</b>") + "\n" + byG[x.group_code].join("\n") + "\n\n" +
+        tr(x.lang, "👉 Sizning duelingiz: soat <b>{s}</b>, raqib — <b>{o}</b>.\n📒 Faqat provodka, 10 savol, har biriga 1 daqiqa. Kim birinchi to'g'ri topsa — ochko o'shaniki. Duel 1 soat ochiq.", { s: String(x.slot).slice(0, 5), o: esc(x.opp_name ?? "") });
+      if (await dm(x.tg, txt, appBtn(tr(x.lang, "Duelni ochish"), "?d=" + x.code))) duels++;
     }
     // dushanba — jamoalar bellashuvi juftlari
     let pairs = 0;
@@ -574,11 +584,13 @@ async function onCron(action: string) {
   }
   if (action === "duel_due") {
     // juftlik duelining soati keldi — ikkala o'yinchiga
-    const { data } = await db.rpc("liga_day_duel_due_sys"); let sent = 0;
+    const { data } = await db.rpc("liga_day_duel_due2_sys"); let sent = 0;
     for (const x of (data ?? []) as any[]) {
-      const [h, mi] = String(x.slot).split(":").map(Number), e = `${String(h + 1).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
-      if (await dm(x.tg, tr(x.lang, "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.", { o: esc(x.opp_name ?? ""), e }),
-        appBtn(tr(x.lang, "Duelga kirish"), "?d=" + x.code))) sent++;
+      const [h, mi] = String(x.slot).split(":").map(Number), s5 = String(x.slot).slice(0, 5), e = `${String(h + 1).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+      const text = x.kind === "five"
+        ? tr(x.lang, "⏳ <b>Duelga 5 daqiqa qoldi!</b>\nSoat {s} da raqibingiz <b>{o}</b> bilan bellashasiz. Ilovani oching.", { s: s5, o: esc(x.opp_name ?? "") })
+        : tr(x.lang, "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.", { o: esc(x.opp_name ?? ""), e });
+      if (await dm(x.tg, text, appBtn(tr(x.lang, "Duelga kirish"), "?d=" + x.code))) sent++;
     }
     return { ok: true, sent };
   }

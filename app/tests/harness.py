@@ -128,6 +128,8 @@ def body_for(fn, args):
                         "extra_today": 7, "today_closed": False, "today_top": []},
       "liga_trial": False, "liga_live_list": [],
       "liga_day_duel_me": {"code": "LDAY123", "slot": "11:30", "opp": "Aziz R.", "status": "wait", "opens_in": 3600000, "open": False, "closed": False, "my_pts": 0, "opp_pts": 0},
+      "liga_day_duels_list": [{"slot": "10:30", "a_name": "Aziz R.", "b_name": "Malika S.", "a_pts": 6, "b_pts": 4, "status": "done", "note": None, "mine": False},
+                              {"slot": "11:30", "a_name": "Dilnoza K.", "b_name": "Aziz R.", "a_pts": 0, "b_pts": 0, "status": "wait", "note": None, "mine": True}],
       "liga_day_duels_admin": [{"slot": "10:00", "a_name": "Aziz Rahimov", "b_name": "Malika Sobirova", "a_pts": 6, "b_pts": 4, "status": "done", "note": None},
                                {"slot": "11:30", "a_name": "Dilnoza Karimova", "b_name": "Bekzod T", "a_pts": 0, "b_pts": 0, "status": "wait", "note": None}],
       "liga_admin_live": [{"name": "Aziz Rahimov", "today_si": 5, "today_pts": 240, "today_right": 15, "today_done": 20, "today_n": 20, "today_finished": True, "week_pts": 480, "week_stages": 2, "last_at": None},

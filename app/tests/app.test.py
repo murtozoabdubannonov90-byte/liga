@@ -371,6 +371,7 @@ with sync_playwright() as p:
     pg, e = page(b, seed={**SEED, "adminPin": "14"}); ALLERR += e
     dd = pg.inner_text("#day-duel") if pg.locator("#day-duel").count() else ""
     check("asosiy ekranda bugungi duel: raqib va soat", "Aziz R." in dd and "11:30" in dd and "provodka" in dd, dd[:200])
+    check("hamma uchun bugungi duellar jadvali (kim, kim bilan, soat)", pg.locator("#dd-list .r").count() == 2 and "10:30" in dd and "6:4" in dd and pg.locator("#dd-list .r.me").count() == 1)
     check("admin: bugungi juftliklar ro'yxati", pg.locator("#pairs .r").count() == 2 and "6:4" in pg.inner_text("#pairs"))
     live_reset(kind="day", b_name="Aziz R.", opens_in=3600000, win_from="2026-10-01T06:30:00Z", win_to="2026-10-01T07:30:00Z")
     pg.click("#dd-go"); pg.wait_for_timeout(1500)
@@ -380,6 +381,11 @@ with sync_playwright() as p:
     LIVE.update({"opens_in": 0, "status": "done", "note": "forfeit", "winner": "a", "a_pts": 1, "b_pts": 0}); pg.wait_for_timeout(1500)
     check("raqib kelmasa — g'alaba sizga", "g'alaba sizga" in (pg.inner_text("#live-note") if pg.locator("#live-note").count() else ""))
     LIVE.pop("kind", None)
+
+    EXTRA["liga_day_duel_me"] = None; EXTRA["liga_day_duels_list"] = []
+    pg, e = page(b, when="2026-10-01T03:00:00Z"); ALLERR += e
+    check("juft hali tuzilmagan: karta 09:00 da tuzilishini aytadi", pg.locator("#dd-wait").count() == 1 and "09:00" in pg.inner_text("#dd-wait"))
+    EXTRA.pop("liga_day_duel_me", None); EXTRA.pop("liga_day_duels_list", None)
 
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e
