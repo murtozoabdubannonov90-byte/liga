@@ -367,6 +367,20 @@ with sync_playwright() as p:
     LIVE.update({"status": "done", "winner": "a", "a_pts": 6, "b_pts": 4}); pg.wait_for_timeout(1500)
     check("jonli duel yakuni: g'olib", pg.locator("#live-done").count() == 1 and "Siz yutdingiz" in txt(pg))
 
+    print("10f. Kunlik juftlik dueli")
+    pg, e = page(b, seed={**SEED, "adminPin": "14"}); ALLERR += e
+    dd = pg.inner_text("#day-duel") if pg.locator("#day-duel").count() else ""
+    check("asosiy ekranda bugungi duel: raqib va soat", "Aziz R." in dd and "11:30" in dd and "provodka" in dd, dd[:200])
+    check("admin: bugungi juftliklar ro'yxati", pg.locator("#pairs .r").count() == 2 and "6:4" in pg.inner_text("#pairs"))
+    live_reset(kind="day", b_name="Aziz R.", opens_in=3600000, win_from="2026-10-01T06:30:00Z", win_to="2026-10-01T07:30:00Z")
+    pg.click("#dd-go"); pg.wait_for_timeout(1500)
+    lob = pg.inner_text("#day-lobby") if pg.locator("#day-lobby").count() else ""
+    check("juftlik dueli: soatni kutish (11:30, 12:30 gacha)", "11:30 da ochiladi" in lob and "12:30" in lob and "Aziz R." in lob, lob[:300])
+    check("juftlik duelida havola/ulashish yo'q", pg.locator("#live-share").count() == 0)
+    LIVE.update({"opens_in": 0, "status": "done", "note": "forfeit", "winner": "a", "a_pts": 1, "b_pts": 0}); pg.wait_for_timeout(1500)
+    check("raqib kelmasa — g'alaba sizga", "g'alaba sizga" in (pg.inner_text("#live-note") if pg.locator("#live-note").count() else ""))
+    LIVE.pop("kind", None)
+
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e
     check("tungi mavzu", pg.evaluate("()=>document.documentElement.dataset.theme") == "dark")

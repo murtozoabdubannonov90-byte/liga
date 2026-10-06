@@ -34,7 +34,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (116 ta)
+python3 tests/app.test.py        # 2.0 testlari (121 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -42,6 +42,12 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
+## 2026-10-06: kunlik juftlik dueli
+- Har ish kuni 09:00 da jamoa a'zolari kechagi bosqich bali bo'yicha saralanadi (teng bo'lsa — tasodifiy), yonma-yon turganlar juftlanadi (1–2, 3–4 …). Har juftga tasodifiy soat (du–pa 10:00–16:00, juma 09:30–11:00), duel 1 soat ochiq, kuniga 1 marta.
+- Faqat provodka (10 savol), jonli duel qoidasi. Belgilangan vaqtda kirmagan yutqazadi; ikkalasi kirmasa — o'ynalmadi.
+- Bot: ertalab har kimga raqibi va soati, vaqt kelganda «Duel boshlandi» (cron `liga-juft-duel`, har 5 daqiqa). Asosiy ekranda «Bugungi duel» kartasi; adminga — bugungi juftliklar.
+- Baza: `db/2026-10-06_kunlik_juftlik.sql`. Bot: v15. Testlar: 121 ta.
 
 ## 2026-10-05: jonli duel, admin uchun jamoa natijalari
 - **Jonli duel** (Asosiy → «Duel» → «Jonli duel yaratish»): ikkalasi bir vaqtda o'ynaydi, 10 savol, har biriga 1 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalasiga keyingi savol chiqadi; xato qilgan shu savolda qulflanadi. Teng ochkoda tezroq yutadi. Hammasi serverda (`liga_live_*`). Havola bot orqali (`?start=d_L…`).

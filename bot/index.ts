@@ -74,6 +74,7 @@ const RU: Record<string, string> = {
   "Duelni ochish": "Открыть дуэль",
   "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i.": "⚔️ <b>Вас вызвали на дуэль!</b>\n10 вопросов: побеждает тот, кто ответит правильно на большее число, при равенстве — кто быстрее.",
   "Duelga kirish": "Принять дуэль",
+  "⚡ <b>Sizni jonli duelga chaqirishdi!</b>\n10 ta savol, ikkalangiz bir vaqtda o'ynaysiz: kim birinchi to'g'ri topsa — ochko o'shaniki.": "⚡ <b>Вас вызвали на живую дуэль!</b>\n10 вопросов, вы играете одновременно: очко получает тот, кто первым ответит верно.",
   "👋 <b>Hisobchi Liga</b>ga xush kelibsiz!\nDo'stingiz sizni taklif qildi. Ro'yxatdan o'ting — haftalik ligada bellashamiz.": "👋 Добро пожаловать в <b>Hisobchi Liga</b>!\nВас пригласил друг. Зарегистрируйтесь — и соревнуйтесь в еженедельной лиге.",
   "Ro'yxatdan o'tish": "Зарегистрироваться",
   "🏅 <b>Tabriklaymiz! Siz {t} ligaga ko'tarildingiz.</b>": "🏅 <b>Поздравляем! Вы поднялись в лигу «{t}».</b>",
@@ -81,6 +82,8 @@ const RU: Record<string, string> = {
   "Mening natijam — Hisobchi Liga 🏆\nSiz ham qo'shiling:": "Мой результат — Hisobchi Liga 🏆\nПрисоединяйтесь:",
   "Kartochkangiz tayyor — endi uni istalgan chatga yuborishingiz mumkin.": "Карточка готова — теперь её можно отправить в любой чат.",
   "Ligaga qo'shilish": "Присоединиться",
+  "⚔️ <b>Bugungi duelingiz</b>\nRaqib: <b>{o}</b>\n⏰ Soat <b>{s}</b> da boshlanadi (1 soat ochiq).\n📒 Faqat provodka, 10 savol. Kim birinchi to'g'ri topsa — ochko o'shaniki.\nKechagi bosqich: siz — {m}, raqib — {r} ball.": "⚔️ <b>Ваша дуэль сегодня</b>\nСоперник: <b>{o}</b>\n⏰ Начало в <b>{s}</b> (открыта 1 час).\n📒 Только проводки, 10 вопросов. Кто первым ответит верно — получает очко.\nВчерашний этап: вы — {m}, соперник — {r} баллов.",
+  "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.": "🔔 <b>Дуэль началась!</b>\nВаш соперник — <b>{o}</b>. Зайдите до {e} — иначе победа достанется сопернику.",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
 function tr(lang: string | null | undefined, uz: string, v: Record<string, string | number> = {}) {
@@ -413,7 +416,8 @@ async function onUpdate(u: any) {
   }
   if (priv && cmd === "/start" && /^d_[A-Za-z0-9]+$/i.test(arg)) {
     const lang = m.from?.language_code === "ru" ? "ru" : "uz";
-    return reply(tr(lang, "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i."), appBtn(tr(lang, "Duelga kirish"), "?d=" + arg.slice(2).toUpperCase()));
+    const live = /^L[A-Z0-9]{6}$/i.test(arg.slice(2));
+    return reply(tr(lang, live ? "⚡ <b>Sizni jonli duelga chaqirishdi!</b>\n10 ta savol, ikkalangiz bir vaqtda o'ynaysiz: kim birinchi to'g'ri topsa — ochko o'shaniki." : "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i."), appBtn(tr(lang, "Duelga kirish"), "?d=" + arg.slice(2).toUpperCase()));
   }
   if (cmd === "/start" || cmd === "/liga") {
     const code = priv && /^g_/i.test(arg) ? arg.slice(2).toUpperCase().replace(/[^A-Z0-9]/g, "") : (priv ? "" : await chatGroup(m.chat.id));
@@ -545,6 +549,14 @@ async function onCron(action: string) {
       news = await toChats(() => `⚖️ <b>Qonun yangiligi</b>\n<b>${esc(x.title_uz)}</b>\n\n${esc(body)}${x.url ? `\n\n🔗 Manba: ${esc(x.url)}` : ""}\n\nIlovada shu yangilik bo'yicha qisqa test bor 👇`);
       await db.from("liga_news").update({ posted_at: new Date().toISOString() }).eq("id", x.id);
     }
+    // kunlik juftlik dueli: har kimga raqibi va soati (shaxsan)
+    let duels = 0;
+    const { data: dp } = await db.rpc("liga_day_pair_sys");
+    for (const x of (dp ?? []) as any[]) {
+      if (!x.fresh || !x.tg) continue;
+      if (await dm(x.tg, tr(x.lang, "⚔️ <b>Bugungi duelingiz</b>\nRaqib: <b>{o}</b>\n⏰ Soat <b>{s}</b> da boshlanadi (1 soat ochiq).\n📒 Faqat provodka, 10 savol. Kim birinchi to'g'ri topsa — ochko o'shaniki.\nKechagi bosqich: siz — {m}, raqib — {r} ball.",
+        { o: esc(x.opp_name ?? ""), s: String(x.slot).slice(0, 5), m: x.my_score ?? 0, r: x.opp_score ?? 0 }), appBtn(tr(x.lang, "Duelni ochish"), "?d=" + x.code))) duels++;
+    }
     // dushanba — jamoalar bellashuvi juftlari
     let pairs = 0;
     if (w === 1) {
@@ -558,7 +570,17 @@ async function onCron(action: string) {
         }
       }
     }
-    return { ok: true, sent: n, polls, personal, tax, news, pairs };
+    return { ok: true, sent: n, polls, personal, tax, news, pairs, duels };
+  }
+  if (action === "duel_due") {
+    // juftlik duelining soati keldi — ikkala o'yinchiga
+    const { data } = await db.rpc("liga_day_duel_due_sys"); let sent = 0;
+    for (const x of (data ?? []) as any[]) {
+      const [h, mi] = String(x.slot).split(":").map(Number), e = `${String(h + 1).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+      if (await dm(x.tg, tr(x.lang, "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.", { o: esc(x.opp_name ?? ""), e }),
+        appBtn(tr(x.lang, "Duelga kirish"), "?d=" + x.code))) sent++;
+    }
+    return { ok: true, sent };
   }
   if (action === "remind") {
     // juma kuni bosqich 12:00 da yopiladi — eslatma friday_warn (11:00) da ketadi

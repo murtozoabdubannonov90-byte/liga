@@ -14,6 +14,10 @@ import { sfx, burst, cheer } from "../lib/fx";
 import { Ring, copyText } from "../components/ui";
 import { BOT_LINK, openTg } from "../lib/tg";
 
+/* Toshkent vaqti HH:MM */
+export const hhmm = (iso?: string) => (iso ? new Date(new Date(iso).getTime() + 5 * 3600e3).toISOString().slice(11, 16) : "");
+const cd = (ms: number) => { const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+  return (h ? h + ":" + String(m).padStart(2, "0") : String(m)) + ":" + String(x).padStart(2, "0"); };
 export const isLive = (code?: string) => !!code && code.length === 7 && code[0] === "L";
 const link = (code: string) => BOT_LINK + "?start=d_" + code;
 export function shareLive(code: string) {
@@ -31,7 +35,7 @@ export default function LiveDuel({ code }: { code: string }) {
   const [now, setNow] = useState(Date.now());
   const showAt = useRef(0), endAt = useRef(0), lastCur = useRef(-1), busy = useRef(false), done = useRef(false);
   /* javoblar tartibsiz kelishi mumkin (sekin internet): eski javob yangisini bosib qo'ymasin — aks holda ekran «o'chib-yonadi» */
-  const seq = useRef(0), applied = useRef(0), inflight = useRef(false), rank = useRef(-1);
+  const openAt = useRef(0), seq = useRef(0), applied = useRef(0), inflight = useRef(false), rank = useRef(-1);
   const rankOf = (x: V) => (x.status === "done" ? 2e6 : x.status === "play" ? 1e6 : 0) + (x.cur || 0) * 10 + (x.locked ? 1 : 0);
   const [ans, setAns] = useState<{ dt: string | null; kt: string | null; pick: number | null; val: string }>({ dt: null, kt: null, pick: null, val: "" });
   const [flash, setFlash] = useState<null | "ok" | "bad">(null);
@@ -56,6 +60,7 @@ export default function LiveDuel({ code }: { code: string }) {
       done.current = true;
       if (x.winner === x.me) { burst(true); sfx("win"); if (!(S.duelsWon || {})[code]) { S.duelsWon = { ...(S.duelsWon || {}), [code]: 1 }; persist(); award("duel"); } }
     }
+    openAt.current = x.opens_in ? Date.now() + x.opens_in : 0;
     setV(x);
   };
   useEffect(() => {
@@ -100,6 +105,25 @@ export default function LiveDuel({ code }: { code: string }) {
       <div className={"ls op" + (v.winner === op ? " win" : "")}><b className="num">{me ? v[op + "_pts"] : v.b_pts}</b><span>{opName || t("Raqib")}</span></div>
     </div>);
 
+  /* kunlik juftlik dueli: belgilangan soatni kutish */
+  if (v.status === "wait" && v.kind === "day") {
+    const until = openAt.current - now;
+    return (
+      <div className="stack" id="day-lobby">
+        <section className="card live-lobby">
+          <Hourglass size={34} color="var(--stamp)" />
+          <p className="small muted" style={{ fontWeight: 700 }}>{t("Bugungi juftlik dueli")}</p>
+          <p style={{ fontWeight: 800, fontSize: 18 }}>{myName} ⚡ {opName}</p>
+          {until > 0 ? <>
+            <h3>{t("Duel soat {s} da ochiladi", { s: hhmm(v.win_from) })}</h3>
+            <div className="disp live-count num" style={{ fontSize: 44 }}>{cd(until)}</div></>
+            : <><h3>{t("Raqib ilovani ochishini kutyapmiz")}</h3>
+              <p className="small muted">{t("Ikkalangiz ham shu ekranda bo'lsangiz, o'yin 3 soniyada boshlanadi.")}</p></>}
+          <p className="small muted">{t("Soat {e} gacha kirmagan o'yinchi yutqazadi. Bot vaqt kelganda xabar beradi.", { e: hhmm(v.win_to) })}</p>
+        </section>
+        <div className="note"><Zap size={18} /><span>{t("Faqat provodka, 10 ta savol, har biriga 1 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalangizga keyingi savol chiqadi.")}</span></div>
+      </div>);
+  }
   /* kutish zali */
   if (v.status === "wait") return (
     <div className="stack">
@@ -117,14 +141,16 @@ export default function LiveDuel({ code }: { code: string }) {
 
   /* yakun */
   if (v.status === "done") {
-    const win = v.winner, title = win === "tie" ? t("Durang!") : win === me ? t("Siz yutdingiz! 🎉") : me ? t("Bu safar raqib kuchliroq") : t("Duel yakunlangan");
+    const win = v.winner, title = v.note === "cancel" ? t("Duel o'ynalmadi") : win === "tie" ? t("Durang!") : win === me ? t("Siz yutdingiz! 🎉") : me ? t("Bu safar raqib kuchliroq") : t("Duel yakunlangan");
     return (
       <div className="stack" id="live-done">
         <section className="card" style={{ textAlign: "center", display: "grid", gap: 12 }}>
           {win === me && <Crown size={44} color="var(--gold)" style={{ margin: "0 auto" }} />}
           <h2 className="disp" style={{ fontSize: 24 }}>{title}</h2>
           <Score />
-          <p className="small muted">{t("Teng ochkoda to'g'ri javoblarga kam vaqt sarflagan yutadi.")}</p>
+          <p className="small muted" id="live-note">{v.note === "cancel" ? t("Ikkalangiz bir vaqtda kirmadingiz — duel hisoblanmadi.")
+            : v.note === "forfeit" ? (win === me ? t("Raqib belgilangan vaqtda kirmadi — g'alaba sizga berildi.") : t("Siz belgilangan vaqtda kirmadingiz — g'alaba raqibga berildi."))
+            : t("Teng ochkoda to'g'ri javoblarga kam vaqt sarflagan yutadi.")}</p>
         </section>
         <div className="btn-row">
           <button className="btn ghost" onClick={async () => { const c = await createLive(); if (c) { replace("duel", { code: c }); shareLive(c); } }}><Zap size={18} />{t("Yana jonli duel")}</button>

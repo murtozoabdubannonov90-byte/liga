@@ -1,6 +1,7 @@
 /* G'oliblar: kunlik kuchli uchlik mukofoti (bosqich boshida va oxirida), bosh sahifadagi «Imtiyozlaringiz», reytingdagi kunlik uchlik */
 import { useEffect, useState } from "react";
-import { Timer, Award, Trophy, HelpCircle, ChevronRight, Medal, Eye } from "lucide-react";
+import { Timer, Award, Trophy, HelpCircle, ChevronRight, Medal, Eye, Swords, Crown } from "lucide-react";
+import { useNow } from "../components/ui";
 import { rpc } from "../engine/server";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
@@ -80,9 +81,11 @@ export function DayTopCard() {
 export function TeamLiveCard() {
   const pin = S.adminPin || S.superPin;
   const [rows, setRows] = useState<any[] | null>(null);
+  const [pairs, setPairs] = useState<any[] | null>(null);
   useEffect(() => {
     if (!pin) return; let on = true;
-    const load = () => rpc<any[]>("liga_admin_live", { p_pin: pin }).then((r) => on && setRows(r || [])).catch(() => on && setRows([]));
+    const load = () => { rpc<any[]>("liga_admin_live", { p_pin: pin }).then((r) => on && setRows(r || [])).catch(() => on && setRows([]));
+      rpc<any[]>("liga_day_duels_admin", { p_pin: pin }).then((r) => on && setPairs(r || [])).catch(() => {}); };
     load(); const iv = setInterval(load, 60000); return () => { on = false; clearInterval(iv); };
   }, [pin]);
   if (!pin || !rows || !rows.length) return null;
@@ -102,5 +105,27 @@ export function TeamLiveCard() {
           </div>))}
       </div>
       <p className="tiny muted" style={{ marginTop: 6, textAlign: "right" }}>{t("o'ng tomonda — haftalik bosqich bali")}</p>
+      {pairs && pairs.length > 0 && <>
+        <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{t("Bugungi juftliklar")}</p>
+        <div className="board" id="pairs">{pairs.map((p, k) => (
+          <div key={k} className="r"><span className="p" style={{ fontSize: 12 }}>{p.slot}</span>
+            <span className="n">{p.a_name} — {p.b_name}<small>{p.status === "done" ? (p.note === "cancel" ? t("o'ynalmadi") : p.note === "forfeit" ? t("kelmagan yutqazdi") : t("yakunlandi")) : p.status === "play" ? t("o'ynamoqda") : t("kutilmoqda")}</small></span>
+            <span className="x">{p.status === "wait" ? "–" : `${p.a_pts}:${p.b_pts}`}</span></div>))}</div></>}
+    </section>);
+}
+
+/* bosh sahifa: bugungi juftlik dueli (raqib, soat, natija) */
+export function DayDuelCard() {
+  useNow(20000);
+  const d = S.dd; if (!d) return null;
+  const done = d.status === "done", open = !!d.open && !done;
+  const res = done ? (d.note === "cancel" ? t("O'ynalmadi") : d.tie ? t("Durang") : d.won ? t("Siz yutdingiz!") : t("Raqib yutdi")) : "";
+  return (
+    <section className={"card dayduel" + (open ? " live" : "")} id="day-duel">
+      <div className="card-h"><Swords size={20} color="var(--red)" /><h3>{t("Bugungi duel")}</h3><span className="chip">{t("soat {s}", { s: d.slot })}</span></div>
+      <div className="dd-vs"><b>{t("Siz")}</b><span className="num">{done ? `${d.my_pts}:${d.opp_pts}` : "⚡"}</span><b>{d.opp}</b></div>
+      <p className="small muted" style={{ fontWeight: 600 }}>{done ? <>{d.won && <Crown size={14} color="var(--gold)" style={{ verticalAlign: -2 }} />} {res}</>
+        : open ? t("Duel ochiq — raqibingiz bilan bir vaqtda kiring.") : d.closed ? t("Vaqt tugadi") : t("Faqat provodka · 10 savol · soat {s} da ochiladi, 1 soat davom etadi", { s: d.slot })}</p>
+      {!done && <button className={"btn " + (open ? "" : "ghost")} style={{ marginTop: 10 }} id="dd-go" onClick={() => go("duel", { code: d.code })}>{open ? t("Duelga kirish") : t("Duelni ochish")}</button>}
     </section>);
 }
