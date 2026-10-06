@@ -70,7 +70,13 @@ def live_answer(a):
 def body_for(fn, args):
     if fn in EXTRA: return EXTRA[fn]
     if fn == "liga_live_create": live_reset(); return "LQWERTY"
-    if fn == "liga_live_state": return live_view()
+    if fn == "liga_live_state":
+        if LIVE.get("_stale"):
+            LIVE["_n"] = LIVE.get("_n", 0) + 1
+            if LIVE["_n"] % 2 == 0:   # sekin internet: eski (oldingi savol) holati kech keldi
+                old = dict(LIVE); old["cur"] = LIVE["cur"] - 1; old["q_in"] = 0
+                v = {k: x for k, x in old.items() if k not in ("items", "ans", "_stale", "_n") and x is not None}; v["item"] = LIVE["items"][old["cur"]]; return v
+        return {k: x for k, x in live_view().items() if k not in ("_stale", "_n")}
     if fn == "liga_live_answer": return live_answer(args)
     if fn == "liga_stage_start": return run_view(new_run("stage", 20, EXTRA.get("_prefill", 0)))
     if fn == "liga_duel_start": return run_view(new_run("duel", 10))

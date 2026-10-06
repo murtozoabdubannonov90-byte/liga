@@ -358,6 +358,12 @@ with sync_playwright() as p:
     check("xato javob: qulflanadi, raqibni kutadi", pg.locator("#live-locked").count() == 1)
     LIVE.update({"cur": 2, "b_pts": 1, "locked": False, "q_in": 2500, "last": {"k": 1, "w": "b", "q": "Savol №2", "t": "mc", "o": ["Alfa", "Beta", "Gamma", "Delta"], "a": 1}}); pg.wait_for_timeout(1500)
     check("raqib birinchi topdi — hamma keyingi savolga", "Aziz R. birinchi topdi" in txt(pg))
+    LIVE.update({"cur": 4, "q_in": 0, "last": None, "_stale": True}); pg.wait_for_timeout(3000)
+    seen = set()
+    for _ in range(10):
+        pg.wait_for_timeout(400); seen.add(pg.inner_text(".qtext") if pg.locator(".qtext").count() else "-")
+    check("sekin internetda ekran o'chib-yonmaydi (eski javob e'tiborsiz)", len(seen) == 1 and "Savol №5" in list(seen)[0], seen)
+    LIVE.pop("_stale", None)
     LIVE.update({"status": "done", "winner": "a", "a_pts": 6, "b_pts": 4}); pg.wait_for_timeout(1500)
     check("jonli duel yakuni: g'olib", pg.locator("#live-done").count() == 1 and "Siz yutdingiz" in txt(pg))
 

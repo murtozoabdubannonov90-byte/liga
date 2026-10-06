@@ -57,8 +57,8 @@ function DuelView({ code }: { code: string }) {
   );
 }
 export default function Duel({ code }: { code?: string }) {
-  const c = code || entry.d;
-  if (entry.d && !code) entry.d = undefined;
+  /* havoladan kelgan kod bir marta olinadi va saqlanadi — qayta chizilganda ro'yxatga sakrab ketmasin */
+  const [c] = useState(() => { const x = code || entry.d; if (entry.d && !code) entry.d = undefined; return x; });
   const [list, setList] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
   const [live, setLive] = useState<any[]>([]);

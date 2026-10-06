@@ -30,13 +30,22 @@ export default function LiveDuel({ code }: { code: string }) {
   const [v, setV] = useState<V>(null), [err, setErr] = useState("");
   const [now, setNow] = useState(Date.now());
   const showAt = useRef(0), endAt = useRef(0), lastCur = useRef(-1), busy = useRef(false), done = useRef(false);
+  /* javoblar tartibsiz kelishi mumkin (sekin internet): eski javob yangisini bosib qo'ymasin — aks holda ekran «o'chib-yonadi» */
+  const seq = useRef(0), applied = useRef(0), inflight = useRef(false), rank = useRef(-1);
+  const rankOf = (x: V) => (x.status === "done" ? 2e6 : x.status === "play" ? 1e6 : 0) + (x.cur || 0) * 10 + (x.locked ? 1 : 0);
   const [ans, setAns] = useState<{ dt: string | null; kt: string | null; pick: number | null; val: string }>({ dt: null, kt: null, pick: null, val: "" });
   const [flash, setFlash] = useState<null | "ok" | "bad">(null);
 
-  const apply = (x: V) => {
-    if (!x) return;
-    showAt.current = Date.now() + (x.q_in || 0); endAt.current = x.left != null ? Date.now() + x.left : 0;
-    if (x.cur !== lastCur.current) {
+  const apply = (x: V, id: number) => {
+    if (!x || id < applied.current) return;
+    const rk = rankOf(x); if (rk < rank.current) return;
+    applied.current = id; rank.current = rk;
+    /* vaqtlar faqat haqiqatan o'zgarganda yangilanadi: aks holda har so'rovda savol bir lahzaga yo'qolib qaytardi */
+    const tnow = Date.now(), qi = x.q_in || 0, newQ = x.cur !== lastCur.current;
+    if (newQ || qi > 0 || x.status !== "play") showAt.current = tnow + qi;
+    const e = x.left != null ? tnow + x.left : 0;
+    if (newQ || !e || Math.abs(e - endAt.current) > 1500) endAt.current = e;
+    if (newQ) {
       /* yangi savol: oldingisini kim topdi */
       if (lastCur.current >= 0 && x.last && x.last.k === lastCur.current) {
         const w = x.last.w; if (w && w !== x.me) sfx("bad");
@@ -52,9 +61,11 @@ export default function LiveDuel({ code }: { code: string }) {
   useEffect(() => {
     let on = true;
     const poll = async () => {
-      if (!on || done.current) return;
-      try { const x = await rpc<V>("liga_live_state", { p_id: S.pid, p_token: S.token, p_code: code }); if (on && !busy.current) apply(x); setErr(""); }
+      if (!on || done.current || inflight.current || busy.current) return;
+      inflight.current = true; const id = ++seq.current;
+      try { const x = await rpc<V>("liga_live_state", { p_id: S.pid, p_token: S.token, p_code: code }); if (on && !busy.current) apply(x, id); setErr(""); }
       catch (e) { if (on) setErr(errMsg(e)); }
+      finally { inflight.current = false; }
     };
     poll(); const iv = setInterval(poll, 1000); const tk = setInterval(() => setNow(Date.now()), 250);
     return () => { on = false; clearInterval(iv); clearInterval(tk); };
@@ -67,15 +78,14 @@ export default function LiveDuel({ code }: { code: string }) {
 
   async function send() {
     if (!canSend || busy.current) return;
-    busy.current = true;
+    busy.current = true; const id = ++seq.current;
     const payload = item.t === "pv" ? { dt: ans.dt, kt: ans.kt } : item.t === "mc" ? { pick: (opts[ans.pick!] as any).i } : { val: ans.val.replace(/\D/g, "") };
     try {
       const x = await rpc<V>("liga_live_answer", { p_id: S.pid, p_token: S.token, p_code: code, p_k: v.cur, p_ans: payload });
       if (x.ok) { sfx("ok"); cheer(true); setFlash("ok"); }
       else if (x.why === "wrong") { sfx("bad"); cheer(false); setFlash("bad"); }
       else if (x.why === "late") toast(t("Kechikdingiz — raqib birinchi topdi"));
-      busy.current = false; apply(x);
-      if (x.ok) setFlash("ok");
+      busy.current = false; apply(x, id);
     } catch (e) { busy.current = false; toast(errMsg(e)); }
   }
 
@@ -124,7 +134,7 @@ export default function LiveDuel({ code }: { code: string }) {
   }
 
   /* o'yin: tanaffus (oldingi savol javobi) yoki savol */
-  const inPause = now < showAt.current || !item;
+  const inPause = Date.now() < showAt.current || !item;
   const left = Math.max(0, Math.ceil((endAt.current - now) / 1000)), qsec = v.qsec || 60;
   const L = v.last;
   return (
