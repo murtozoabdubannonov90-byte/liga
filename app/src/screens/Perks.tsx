@@ -114,29 +114,39 @@ export function TeamLiveCard() {
     </section>);
 }
 
-/* bosh sahifa: bugungi juftlik dueli — mening duelim va jamoaning to'liq jadvali (09:00 da tasodifiy tuziladi) */
+/* bosh sahifa: kunlik duel kubogi — mening duelim, bosqichlar jadvali (chorak final → yarim final → final) */
+const STAGE: Record<string, string> = { quarter: "Chorak final", semi: "Yarim final", final: "Final" };
+export const stageName = (st?: string) => (st ? (STAGE[st] ? t(STAGE[st]) : t("{n}-bosqich", { n: st.slice(1) })) : "");
 export function DayDuelCard() {
   useNow(20000);
   if (!S.pid) return null;
   const d = S.dd, list: any[] = S.dl || [], n = tzNow(), wk = n.wd === 0 || n.wd === 6;
   const done = d?.status === "done", open = !!d?.open && !done;
-  const res = done ? (d.note === "cancel" ? t("O'ynalmadi") : d.tie ? t("Durang") : d.won ? t("Siz yutdingiz!") : t("Raqib yutdi")) : "";
-  const st = (p: any) => p.status === "done" ? (p.note === "cancel" ? t("o'ynalmadi") : `${p.a_pts}:${p.b_pts}`) : p.status === "play" ? t("o'ynamoqda") : "";
+  const champ = list.find((x) => x.champion)?.champion;
+  const res = done ? (d.won ? (d.stage === "final" ? t("Siz kubok g'olibisiz! 🏆") : t("Siz keyingi bosqichga chiqdingiz!")) : t("Bu safar raqib kuchliroq — ertaga yana kubok")) : "";
+  const rounds = [...new Set(list.map((x) => x.round))].sort((a, b) => a - b);
+  const lastN = rounds.length ? list.filter((x) => x.round === rounds[rounds.length - 1]).length : 0;
+  const st = (p: any) => p.status === "done" ? `${p.a_pts}:${p.b_pts}` : p.status === "play" ? t("o'ynamoqda") : "";
   return (
     <section className={"card dayduel" + (open ? " live" : "")} id="day-duel">
-      <div className="card-h"><Swords size={20} color="var(--red)" /><h3>{t("Bugungi duel")}</h3>{d && <span className="chip">{t("soat {s}", { s: d.slot })}</span>}</div>
+      <div className="card-h"><Swords size={20} color="var(--red)" /><h3>{t("Kunlik duel kubogi")}</h3>{d && <span className="chip">{stageName(d.stage)} · {d.slot}</span>}</div>
+      {champ && <p className="dd-champ" id="dd-champ"><Crown size={18} color="var(--gold)" />{t("Kubok g'olibi: {n}", { n: champ })}</p>}
       {d ? <>
         <div className="dd-vs"><b>{t("Siz")}</b><span className="num">{done ? `${d.my_pts}:${d.opp_pts}` : "⚡"}</span><b>{d.opp}</b></div>
-        <p className="small muted" style={{ fontWeight: 600 }}>{done ? <>{d.won && <Crown size={14} color="var(--gold)" style={{ verticalAlign: -2 }} />} {res}</>
+        <p className="small muted" style={{ fontWeight: 600 }}>{done ? res
           : open ? t("Duel ochiq — raqibingiz bilan bir vaqtda kiring.") : d.closed ? t("Vaqt tugadi") : t("Faqat provodka · 10 savol · soat {s} da ochiladi, 1 soat davom etadi", { s: d.slot })}</p>
         {!done && <button className={"btn " + (open ? "" : "ghost")} style={{ marginTop: 10 }} id="dd-go" onClick={() => go("duel", { code: d.code })}>{open ? t("Duelga kirish") : t("Duelni ochish")}</button>}
-      </> : <p className="small muted" style={{ fontWeight: 600 }} id="dd-wait">{wk || (n.wd === 5 && n.h >= 9 && !list.length) ? t("Juftlar dushanba soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
-          : n.h < 9 ? t("Juftlar bugun soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
-          : list.length ? t("Bugun sizga juft chiqmadi (ishtirokchilar soni toq).") : t("Juftlar har ish kuni soat 09:00 da tasodifiy tuziladi. Keyingisi — ertaga 09:00 da.")}</p>}
-      {list.length > 0 && <>
-        <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{t("Bugungi duellar jadvali")}</p>
-        <div className="board" id="dd-list">{list.map((p, k) => (
-          <div key={k} className={"r" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>{p.slot}</span>
-            <span className="n">{p.a_name} — {p.b_name}</span><span className="x" style={{ fontSize: 13 }}>{st(p)}</span></div>))}</div></>}
+      </> : <p className="small muted" style={{ fontWeight: 600 }} id="dd-wait">{wk || (n.wd === 5 && n.h >= 9 && !list.length) ? t("Kubok juftlari dushanba soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
+          : n.h < 9 ? t("Kubok juftlari bugun soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
+          : list.length ? t("Bugun sizga juft chiqmadi (ishtirokchilar soni toq).") : t("Kubok har ish kuni soat 09:00 da tasodifiy tuziladi. Keyingisi — ertaga 09:00 da.")}</p>}
+      {rounds.map((r) => { const rr = list.filter((x) => x.round === r); return (
+        <div key={r}>
+          <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{stageName(rr[0].stage)}</p>
+          <div className="board dd-list">{rr.map((p, k) => (
+            <div key={k} className={"r" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>{p.slot}</span>
+              <span className="n">{p.a_name} — {p.b_name}{p.winner_name && <small>✅ {p.winner_name}</small>}</span><span className="x" style={{ fontSize: 13 }}>{st(p)}</span></div>))}</div>
+        </div>); })}
+      {lastN >= 4 && <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Yarim final — 14:00 dan, final — 16:00 (g'oliblar o'ynaydi)")}</p>}
+      {lastN === 2 && <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Final — 16:00 (yarim final g'oliblari)")}</p>}
     </section>);
 }

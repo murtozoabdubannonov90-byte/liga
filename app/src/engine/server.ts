@@ -95,7 +95,7 @@ export async function pull(force = false) {
       if (mi) S.match = mi; if (nw) S.news = nw; if (tc) S.taxCal = tc;
       const [di, dd] = await Promise.all([rpc<any>("liga_day_info", { p_id: S.pid }).catch(() => null), rpc<any>("liga_day_duel_me", { p_id: S.pid }).catch(() => undefined)]);
       if (di) S.day = di; if (dd !== undefined) S.dd = dd;
-      const dl = await rpc<any[]>("liga_day_duels_list", { p_id: S.pid }).catch(() => null); if (dl) S.dl = dl;
+      const dl = await rpc<any[]>("liga_cup_list", { p_id: S.pid }).catch(() => null); if (dl) S.dl = dl;
     }
     rpc<boolean>("liga_trial").then((v) => { S.trial = !!v; persist(); }).catch(() => {});
     rpc<any[]>("liga_pay_config2").then((c) => { if (c && c[0]) { S.payCfg = c[0]; persist(); } }).catch(() => {});

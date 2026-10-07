@@ -34,7 +34,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (123 ta)
+python3 tests/app.test.py        # 2.0 testlari (124 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -42,6 +42,13 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
+## 2026-10-07: kunlik duel kubogi (olimpiya tizimi)
+- Har ish kuni 09:00 da tasodifiy juftlar: chorak final 10:30, 11:00, 11:30, 12:00; g'oliblar — yarim final 14:00 va 14:30; final 16:00. Faqat provodka, 10 savol, har duel 1 soat ochiq.
+- Durang yoki ikkalasi kelmasa — qur'a. Bot: ertalab jadval hammaga va guruhga, keyingi bosqichga chiqqanlarga «Siz yarim finalga chiqdingiz», 5 daqiqa oldin, boshlanganda va kubok g'olibi — hammaga.
+- Asosiy ekranda «Kunlik duel kubogi»: bosqichlar bo'yicha jadval, g'oliblar, kubok g'olibi.
+- Bugungi (07.10) juftlar yangi tizimga almashtirildi va jadval darhol hammaga yuborildi.
+- Baza: `db/2026-10-07_duel_kubogi.sql`. Bot: v17. Testlar: 124 ta.
 
 ## 2026-10-06b: juftlar to'liq tasodifiy, jadval hammaga, 5 daqiqa oldin eslatma
 - Juftlar endi to'liq tasodifiy (`liga_day_pair2_sys`). 09:00 da bot har kimga va jamoa guruhiga butun kunlik jadvalni yuboradi (kim kim bilan, soat nechada) va shaxsan o'z duelini.

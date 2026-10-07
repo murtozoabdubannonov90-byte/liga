@@ -371,7 +371,7 @@ with sync_playwright() as p:
     pg, e = page(b, seed={**SEED, "adminPin": "14"}); ALLERR += e
     dd = pg.inner_text("#day-duel") if pg.locator("#day-duel").count() else ""
     check("asosiy ekranda bugungi duel: raqib va soat", "Aziz R." in dd and "11:30" in dd and "provodka" in dd, dd[:200])
-    check("hamma uchun bugungi duellar jadvali (kim, kim bilan, soat)", pg.locator("#dd-list .r").count() == 2 and "10:30" in dd and "6:4" in dd and pg.locator("#dd-list .r.me").count() == 1)
+    check("kubok jadvali: chorak final, g'olib, keyingi bosqich soatlari", pg.locator(".dd-list .r").count() == 4 and "Chorak final" in dd and "10:30" in dd and "6:4" in dd and "✅ Aziz R." in dd and "14:00" in dd and "16:00" in dd and pg.locator(".dd-list .r.me").count() == 1, dd[:300])
     check("admin: bugungi juftliklar ro'yxati", pg.locator("#pairs .r").count() == 2 and "6:4" in pg.inner_text("#pairs"))
     live_reset(kind="day", b_name="Aziz R.", opens_in=3600000, win_from="2026-10-01T06:30:00Z", win_to="2026-10-01T07:30:00Z")
     pg.click("#dd-go"); pg.wait_for_timeout(1500)
@@ -382,10 +382,13 @@ with sync_playwright() as p:
     check("raqib kelmasa — g'alaba sizga", "g'alaba sizga" in (pg.inner_text("#live-note") if pg.locator("#live-note").count() else ""))
     LIVE.pop("kind", None)
 
-    EXTRA["liga_day_duel_me"] = None; EXTRA["liga_day_duels_list"] = []
+    EXTRA["liga_day_duel_me"] = None; EXTRA["liga_cup_list"] = []
     pg, e = page(b, when="2026-10-01T03:00:00Z"); ALLERR += e
     check("juft hali tuzilmagan: karta 09:00 da tuzilishini aytadi", pg.locator("#dd-wait").count() == 1 and "09:00" in pg.inner_text("#dd-wait"))
-    EXTRA.pop("liga_day_duel_me", None); EXTRA.pop("liga_day_duels_list", None)
+    EXTRA["liga_cup_list"] = [{"round": 3, "stage": "final", "slot": "16:00", "a_name": "Aziz R.", "b_name": "Sardor M.", "a_pts": 6, "b_pts": 2, "status": "done", "note": None, "mine": False, "winner_name": "Aziz R.", "champion": "Aziz Rahimov"}]
+    pg, e = page(b); ALLERR += e
+    check("kubok g'olibi asosiy ekranda", pg.locator("#dd-champ").count() == 1 and "Aziz Rahimov" in pg.inner_text("#dd-champ"))
+    EXTRA.pop("liga_day_duel_me", None); EXTRA.pop("liga_cup_list", None)
 
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e

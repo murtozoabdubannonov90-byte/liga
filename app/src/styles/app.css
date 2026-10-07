@@ -447,3 +447,4 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .dd-vs b{font-weight:800;font-size:16px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dd-vs b:last-child{text-align:right}
 .dd-vs span{font-family:var(--display);font-weight:700;font-size:22px;color:var(--red)}
+.dd-champ{display:flex;align-items:center;gap:8px;font-weight:800;background:var(--gold-soft);border-radius:var(--r-s);padding:8px 10px;margin-bottom:10px}

@@ -86,6 +86,11 @@ const RU: Record<string, string> = {
   "⚔️ <b>Bugungi duellar jadvali</b>": "⚔️ <b>Расписание дуэлей на сегодня</b>",
   "👉 Sizning duelingiz: soat <b>{s}</b>, raqib — <b>{o}</b>.\n📒 Faqat provodka, 10 savol, har biriga 1 daqiqa. Kim birinchi to'g'ri topsa — ochko o'shaniki. Duel 1 soat ochiq.": "👉 Ваша дуэль: в <b>{s}</b>, соперник — <b>{o}</b>.\n📒 Только проводки, 10 вопросов, по 1 минуте. Кто первым ответит верно — получает очко. Дуэль открыта 1 час.",
   "⏳ <b>Duelga 5 daqiqa qoldi!</b>\nSoat {s} da raqibingiz <b>{o}</b> bilan bellashasiz. Ilovani oching.": "⏳ <b>До дуэли 5 минут!</b>\nВ {s} вы соревнуетесь с <b>{o}</b>. Откройте приложение.",
+  "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 10 savol · har biriga 1 daqiqa · har duel 1 soat ochiq. G'olib keyingi bosqichga o'tadi.": "🏆 <b>Кубок дуэлей дня</b>\nТолько проводки · 10 вопросов · по 1 минуте · каждая дуэль открыта 1 час. Победитель проходит дальше.",
+  "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.": "👉 Ваша дуэль ({st}): в <b>{s}</b>, соперник — <b>{o}</b>.",
+  "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 10 savol. Duel 1 soat ochiq.": "🎉 <b>Вы вышли в {st}!</b>\nСоперник: <b>{o}</b>, в <b>{s}</b>. Только проводки, 10 вопросов. Дуэль открыта 1 час.",
+  "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.": "🏆 <b>Победитель кубка дуэлей дня — {n}!</b>\nПоздравляем! Следующий кубок — в следующий рабочий день в 09:00.",
+  "{st} — {s} dan (g'oliblar)": "{st} — с {s} (победители)",
   "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.": "🔔 <b>Дуэль началась!</b>\nВаш соперник — <b>{o}</b>. Зайдите до {e} — иначе победа достанется сопернику.",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
@@ -174,6 +179,43 @@ async function dayTopDm(top: any[], w: number) {
     const when = tr(x.lang, w === 5 ? "dushanba kuni" : "ertaga");
     if (await dm(x.tg, tr(x.lang, "{m} <b>Tabriklaymiz! Siz bugungi bosqichda {p}-o'rin oldingiz.</b>\nMukofot: {d} bosqichda har savolga <b>+{s} soniya</b> ({t} soniya).",
       { m: MEDAL[x.pos - 1], p: x.pos, d: when, s: EXTRA[x.pos - 1], t: 60 + EXTRA[x.pos - 1] }), appBtn(tr(x.lang, "Ligani ochish")))) n++;
+  }
+  return n;
+}
+// duel kubogi: bosqich nomlari va jadval matni
+const STAGE_UZ: Record<string, string> = { quarter: "Chorak final", semi: "Yarim final", final: "Final" };
+const STAGE_RU: Record<string, string> = { quarter: "Четвертьфинал", semi: "Полуфинал", final: "Финал" };
+const STAGE_RU_ACC: Record<string, string> = { quarter: "четвертьфинал", semi: "полуфинал", final: "финал" };
+const stageName = (st: string, lang?: string | null) => { const ru = lang === "ru"; const m = (ru ? STAGE_RU : STAGE_UZ)[st]; return m ?? (ru ? `Раунд ${st.slice(1)}` : `${st.slice(1)}-bosqich`); };
+const stageTo = (st: string, lang?: string | null) => (lang === "ru" ? STAGE_RU_ACC[st] ?? stageName(st, lang) : stageName(st, lang).toLowerCase());
+async function cupBoard() {
+  const { data } = await db.rpc("liga_cup_board_sys"); const by: Record<string, any[]> = {};
+  for (const x of (data ?? []) as any[]) (by[x.group_code] ??= []).push(x);
+  return by;
+}
+function cupText(rows: any[], lang?: string | null) {
+  const out: string[] = [tr(lang, "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 10 savol · har biriga 1 daqiqa · har duel 1 soat ochiq. G'olib keyingi bosqichga o'tadi.")];
+  const rounds = [...new Set(rows.map((r) => r.round))].sort((a, b) => a - b);
+  for (const r of rounds) {
+    const rr = rows.filter((x) => x.round === r);
+    out.push("\n<b>" + tr(lang, stageName(rr[0].stage, lang)) + "</b>");
+    for (const x of rr) out.push(`${String(x.slot).slice(0, 5)} — ${esc(x.a_name ?? "")} ⚔️ ${esc(x.b_name ?? "")}${x.winner_name ? " · ✅ " + esc(x.winner_name) : ""}`);
+  }
+  const last = rows.filter((x) => x.round === rounds[rounds.length - 1]).length;
+  const next: [string, string][] = last >= 4 ? [["semi", "14:00"], ["final", "16:00"]] : last === 2 ? [["final", "16:00"]] : [];
+  for (const [st, h] of next) out.push("\n" + tr(lang, "{st} — {s} dan (g'oliblar)", { st: "<b>" + stageName(st, lang) + "</b>", s: h }));
+  return out.join("\n");
+}
+// jadvalni hammaga (shaxsan, o'z dueli bilan) va jamoa guruhlariga yuborish
+async function cupBroadcast(rows: any[]) {
+  const by = await cupBoard(); let n = 0;
+  for (const code of Object.keys(by)) for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: cupText(by[code]) });
+  const mine: Record<string, any> = {}; for (const x of rows) mine[x.player] = x;
+  const { data: ppl } = await db.rpc("liga_cup_people_sys");
+  for (const p of (ppl ?? []) as any[]) {
+    const m = mine[p.player], board = by[p.group_code]; if (!board) continue;
+    const txt = cupText(board, p.lang) + (m ? "\n\n" + tr(p.lang, "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.", { st: stageName(m.stage, p.lang), s: String(m.slot).slice(0, 5), o: esc(m.opp_name ?? "") }) : "");
+    if (await dm(p.tg, txt, m ? appBtn(tr(p.lang, "Duelni ochish"), "?d=" + m.code) : appBtn(tr(p.lang, "Ligani ochish")))) n++;
   }
   return n;
 }
@@ -552,21 +594,10 @@ async function onCron(action: string) {
       news = await toChats(() => `⚖️ <b>Qonun yangiligi</b>\n<b>${esc(x.title_uz)}</b>\n\n${esc(body)}${x.url ? `\n\n🔗 Manba: ${esc(x.url)}` : ""}\n\nIlovada shu yangilik bo'yicha qisqa test bor 👇`);
       await db.from("liga_news").update({ posted_at: new Date().toISOString() }).eq("id", x.id);
     }
-    // kunlik juftlik dueli (tasodifiy juftlar): jadval — guruhga va har kimga shaxsan, o'z dueli bilan
+    // kunlik duel kubogi: tasodifiy juftlar (10:30 dan), jadval — hammaga va guruhga
     let duels = 0;
-    const { data: dp } = await db.rpc("liga_day_pair2_sys");
-    const rows = (dp ?? []) as any[], byG: Record<string, string[]> = {}, seen = new Set<string>();
-    for (const x of rows) if (!seen.has(x.code)) { seen.add(x.code); (byG[x.group_code] ??= []).push(`${String(x.slot).slice(0, 5)} — ${esc(x.my_name ?? "")} ⚔️ ${esc(x.opp_name ?? "")}`); }
-    if (rows.some((x) => x.fresh)) {
-      for (const code of Object.keys(byG)) for (const c of await chatsOf(code))
-        await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: "⚔️ <b>Bugungi duellar jadvali</b>\n" + byG[code].join("\n") });
-    }
-    for (const x of rows) {
-      if (!x.fresh || !x.tg) continue;
-      const txt = tr(x.lang, "⚔️ <b>Bugungi duellar jadvali</b>") + "\n" + byG[x.group_code].join("\n") + "\n\n" +
-        tr(x.lang, "👉 Sizning duelingiz: soat <b>{s}</b>, raqib — <b>{o}</b>.\n📒 Faqat provodka, 10 savol, har biriga 1 daqiqa. Kim birinchi to'g'ri topsa — ochko o'shaniki. Duel 1 soat ochiq.", { s: String(x.slot).slice(0, 5), o: esc(x.opp_name ?? "") });
-      if (await dm(x.tg, txt, appBtn(tr(x.lang, "Duelni ochish"), "?d=" + x.code))) duels++;
-    }
+    const { data: dp } = await db.rpc("liga_cup_start_sys");
+    if (((dp ?? []) as any[]).some((x) => x.fresh)) duels = await cupBroadcast((dp ?? []) as any[]);
     // dushanba — jamoalar bellashuvi juftlari
     let pairs = 0;
     if (w === 1) {
@@ -583,16 +614,26 @@ async function onCron(action: string) {
     return { ok: true, sent: n, polls, personal, tax, news, pairs, duels };
   }
   if (action === "duel_due") {
-    // juftlik duelining soati keldi — ikkala o'yinchiga
-    const { data } = await db.rpc("liga_day_duel_due2_sys"); let sent = 0;
+    // kubok: yangi bosqich jufti, 5 daqiqa qoldi, boshlandi, g'olib
+    const { data } = await db.rpc("liga_cup_due_sys"); let sent = 0; const champG = new Set<string>();
     for (const x of (data ?? []) as any[]) {
-      const [h, mi] = String(x.slot).split(":").map(Number), s5 = String(x.slot).slice(0, 5), e = `${String(h + 1).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
-      const text = x.kind === "five"
-        ? tr(x.lang, "⏳ <b>Duelga 5 daqiqa qoldi!</b>\nSoat {s} da raqibingiz <b>{o}</b> bilan bellashasiz. Ilovani oching.", { s: s5, o: esc(x.opp_name ?? "") })
-        : tr(x.lang, "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.", { o: esc(x.opp_name ?? ""), e });
-      if (await dm(x.tg, text, appBtn(tr(x.lang, "Duelga kirish"), "?d=" + x.code))) sent++;
+      const st = x.stage ?? "", s5 = x.slot ? String(x.slot).slice(0, 5) : "";
+      let text = "", btn: unknown = x.code ? appBtn(tr(x.lang, "Duelga kirish"), "?d=" + x.code) : appBtn(tr(x.lang, "Ligani ochish"));
+      if (x.kind === "pair") text = tr(x.lang, "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 10 savol. Duel 1 soat ochiq.", { st: stageTo(st, x.lang), o: esc(x.opp_name ?? ""), s: s5 });
+      else if (x.kind === "five") text = "<b>" + stageName(st, x.lang) + "</b>\n" + tr(x.lang, "⏳ <b>Duelga 5 daqiqa qoldi!</b>\nSoat {s} da raqibingiz <b>{o}</b> bilan bellashasiz. Ilovani oching.", { s: s5, o: esc(x.opp_name ?? "") });
+      else if (x.kind === "start") {
+        const [h, mi] = s5.split(":").map(Number), e = `${String(h + 1).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+        text = "<b>" + stageName(st, x.lang) + "</b>\n" + tr(x.lang, "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.", { o: esc(x.opp_name ?? ""), e });
+      } else if (x.kind === "champ") { text = tr(x.lang, "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.", { n: esc(x.extra ?? "") }); champG.add(x.group_code + "|" + (x.extra ?? "")); }
+      if (text && await dm(x.tg, text, btn)) sent++;
     }
+    for (const k of champG) { const [code, nm] = k.split("|"); for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: tr("uz", "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.", { n: esc(nm) }) }); }
     return { ok: true, sent };
+  }
+  if (action === "cup_schedule") {
+    // kubok jadvalini hozir hammaga yuborish (o'zgartirishdan keyin)
+    const { data: dp } = await db.rpc("liga_cup_start_sys");
+    return { ok: true, sent: await cupBroadcast((dp ?? []) as any[]) };
   }
   if (action === "remind") {
     // juma kuni bosqich 12:00 da yopiladi — eslatma friday_warn (11:00) da ketadi
