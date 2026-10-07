@@ -269,3 +269,7 @@ revoke all on function public.liga_cup_new_duel(date, text, int, int, uuid, uuid
   public.liga_cup_board_sys(), public.liga_cup_people_sys(), public.liga_cup_reset_today_sys(), public.liga_day_duel_tick(), public.liga_cup_advance(text) from public, anon, authenticated;
 grant execute on function public.liga_cup_start_sys(), public.liga_cup_due_sys(), public.liga_cup_board_sys(), public.liga_cup_people_sys() to service_role;
 grant execute on function public.liga_cup_list(uuid), public.liga_day_duel_me(uuid) to anon, authenticated;
+
+-- 10:15 o'zgarish (migratsiya liga_kubok_15_90_30): 15 ta provodka, har savolga 90 soniya, duel 30 daqiqa ochiq.
+-- liga_live_qsec() = 90; liga_cup_new_duel: liga_draw(..., 15, 0, 0, 0), win_to = slot + 30 daqiqa;
+-- liga_cup_due_sys / liga_day_duel_tick: oyna 30 daqiqa; liga_cup_upgrade_today_sys(): bugungi kutilayotgan duellarni 15 savol/30 daqiqaga o'tkazdi.

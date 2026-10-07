@@ -134,7 +134,7 @@ export function DayDuelCard() {
       {d ? <>
         <div className="dd-vs"><b>{t("Siz")}</b><span className="num">{done ? `${d.my_pts}:${d.opp_pts}` : "⚡"}</span><b>{d.opp}</b></div>
         <p className="small muted" style={{ fontWeight: 600 }}>{done ? res
-          : open ? t("Duel ochiq — raqibingiz bilan bir vaqtda kiring.") : d.closed ? t("Vaqt tugadi") : t("Faqat provodka · 10 savol · soat {s} da ochiladi, 1 soat davom etadi", { s: d.slot })}</p>
+          : open ? t("Duel ochiq — raqibingiz bilan bir vaqtda kiring.") : d.closed ? t("Vaqt tugadi") : t("Faqat provodka · 15 savol · har biriga 1,5 daqiqa · soat {s} da ochiladi, 30 daqiqa ochiq", { s: d.slot })}</p>
         {!done && <button className={"btn " + (open ? "" : "ghost")} style={{ marginTop: 10 }} id="dd-go" onClick={() => go("duel", { code: d.code })}>{open ? t("Duelga kirish") : t("Duelni ochish")}</button>}
       </> : <p className="small muted" style={{ fontWeight: 600 }} id="dd-wait">{wk || (n.wd === 5 && n.h >= 9 && !list.length) ? t("Kubok juftlari dushanba soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
           : n.h < 9 ? t("Kubok juftlari bugun soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")

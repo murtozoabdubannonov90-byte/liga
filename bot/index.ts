@@ -86,9 +86,9 @@ const RU: Record<string, string> = {
   "⚔️ <b>Bugungi duellar jadvali</b>": "⚔️ <b>Расписание дуэлей на сегодня</b>",
   "👉 Sizning duelingiz: soat <b>{s}</b>, raqib — <b>{o}</b>.\n📒 Faqat provodka, 10 savol, har biriga 1 daqiqa. Kim birinchi to'g'ri topsa — ochko o'shaniki. Duel 1 soat ochiq.": "👉 Ваша дуэль: в <b>{s}</b>, соперник — <b>{o}</b>.\n📒 Только проводки, 10 вопросов, по 1 минуте. Кто первым ответит верно — получает очко. Дуэль открыта 1 час.",
   "⏳ <b>Duelga 5 daqiqa qoldi!</b>\nSoat {s} da raqibingiz <b>{o}</b> bilan bellashasiz. Ilovani oching.": "⏳ <b>До дуэли 5 минут!</b>\nВ {s} вы соревнуетесь с <b>{o}</b>. Откройте приложение.",
-  "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 10 savol · har biriga 1 daqiqa · har duel 1 soat ochiq. G'olib keyingi bosqichga o'tadi.": "🏆 <b>Кубок дуэлей дня</b>\nТолько проводки · 10 вопросов · по 1 минуте · каждая дуэль открыта 1 час. Победитель проходит дальше.",
+  "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 15 savol · har biriga 1,5 daqiqa · har duel 30 daqiqa ochiq. G'olib keyingi bosqichga o'tadi.": "🏆 <b>Кубок дуэлей дня</b>\nТолько проводки · 15 вопросов · по 1,5 минуты · каждая дуэль открыта 30 минут. Победитель проходит дальше.",
   "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.": "👉 Ваша дуэль ({st}): в <b>{s}</b>, соперник — <b>{o}</b>.",
-  "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 10 savol. Duel 1 soat ochiq.": "🎉 <b>Вы вышли в {st}!</b>\nСоперник: <b>{o}</b>, в <b>{s}</b>. Только проводки, 10 вопросов. Дуэль открыта 1 час.",
+  "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 15 savol, har biriga 1,5 daqiqa. Duel 30 daqiqa ochiq.": "🎉 <b>Вы вышли в {st}!</b>\nСоперник: <b>{o}</b>, в <b>{s}</b>. Только проводки, 15 вопросов, по 1,5 минуты. Дуэль открыта 30 минут.",
   "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.": "🏆 <b>Победитель кубка дуэлей дня — {n}!</b>\nПоздравляем! Следующий кубок — в следующий рабочий день в 09:00.",
   "{st} — {s} dan (g'oliblar)": "{st} — с {s} (победители)",
   "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.": "🔔 <b>Дуэль началась!</b>\nВаш соперник — <b>{o}</b>. Зайдите до {e} — иначе победа достанется сопернику.",
@@ -194,7 +194,7 @@ async function cupBoard() {
   return by;
 }
 function cupText(rows: any[], lang?: string | null) {
-  const out: string[] = [tr(lang, "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 10 savol · har biriga 1 daqiqa · har duel 1 soat ochiq. G'olib keyingi bosqichga o'tadi.")];
+  const out: string[] = [tr(lang, "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 15 savol · har biriga 1,5 daqiqa · har duel 30 daqiqa ochiq. G'olib keyingi bosqichga o'tadi.")];
   const rounds = [...new Set(rows.map((r) => r.round))].sort((a, b) => a - b);
   for (const r of rounds) {
     const rr = rows.filter((x) => x.round === r);
@@ -619,10 +619,10 @@ async function onCron(action: string) {
     for (const x of (data ?? []) as any[]) {
       const st = x.stage ?? "", s5 = x.slot ? String(x.slot).slice(0, 5) : "";
       let text = "", btn: unknown = x.code ? appBtn(tr(x.lang, "Duelga kirish"), "?d=" + x.code) : appBtn(tr(x.lang, "Ligani ochish"));
-      if (x.kind === "pair") text = tr(x.lang, "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 10 savol. Duel 1 soat ochiq.", { st: stageTo(st, x.lang), o: esc(x.opp_name ?? ""), s: s5 });
+      if (x.kind === "pair") text = tr(x.lang, "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 15 savol, har biriga 1,5 daqiqa. Duel 30 daqiqa ochiq.", { st: stageTo(st, x.lang), o: esc(x.opp_name ?? ""), s: s5 });
       else if (x.kind === "five") text = "<b>" + stageName(st, x.lang) + "</b>\n" + tr(x.lang, "⏳ <b>Duelga 5 daqiqa qoldi!</b>\nSoat {s} da raqibingiz <b>{o}</b> bilan bellashasiz. Ilovani oching.", { s: s5, o: esc(x.opp_name ?? "") });
       else if (x.kind === "start") {
-        const [h, mi] = s5.split(":").map(Number), e = `${String(h + 1).padStart(2, "0")}:${String(mi).padStart(2, "0")}`;
+        const [h, mi] = s5.split(":").map(Number), em = h * 60 + mi + 30, e = `${String(Math.floor(em / 60)).padStart(2, "0")}:${String(em % 60).padStart(2, "0")}`;
         text = "<b>" + stageName(st, x.lang) + "</b>\n" + tr(x.lang, "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.", { o: esc(x.opp_name ?? ""), e });
       } else if (x.kind === "champ") { text = tr(x.lang, "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.", { n: esc(x.extra ?? "") }); champG.add(x.group_code + "|" + (x.extra ?? "")); }
       if (text && await dm(x.tg, text, btn)) sent++;

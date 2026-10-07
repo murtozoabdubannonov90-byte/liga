@@ -43,6 +43,10 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-07b: kubok — 15 savol, 90 soniya, 30 daqiqa
+- Kubok duellari: 15 ta provodka, har savolga 90 soniya (jonli duel ham 90 soniya), har duel 30 daqiqa ochiq. Bugungi juftlar ham yangilandi va jadval hammaga qayta yuborildi.
+- Baza: `liga_kubok_15_90_30` (db/2026-10-07_duel_kubogi.sql oxirida). Bot: v18.
+
 ## 2026-10-07: kunlik duel kubogi (olimpiya tizimi)
 - Har ish kuni 09:00 da tasodifiy juftlar: chorak final 10:30, 11:00, 11:30, 12:00; g'oliblar — yarim final 14:00 va 14:30; final 16:00. Faqat provodka, 10 savol, har duel 1 soat ochiq.
 - Durang yoki ikkalasi kelmasa — qur'a. Bot: ertalab jadval hammaga va guruhga, keyingi bosqichga chiqqanlarga «Siz yarim finalga chiqdingiz», 5 daqiqa oldin, boshlanganda va kubok g'olibi — hammaga.

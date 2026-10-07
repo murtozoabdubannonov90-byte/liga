@@ -840,4 +840,7 @@ export const RU: Record<string, string> = {
   "Siz keyingi bosqichga chiqdingiz!": "Вы прошли в следующий раунд!",
   "Siz kubok g'olibisiz! 🏆": "Вы победитель кубка! 🏆",
   "Yarim final — 14:00 dan, final — 16:00 (g'oliblar o'ynaydi)": "Полуфинал — с 14:00, финал — в 16:00 (играют победители)",
+  "Faqat provodka, 15 ta savol, har biriga 1,5 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalangizga keyingi savol chiqadi.": "Только проводки, 15 вопросов, по 1,5 минуты. Кто первым ответит верно — получает очко, и обоим показывается следующий вопрос.",
+  "Qoida: 10 ta savol, har biriga 1,5 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalangizga keyingi savol chiqadi. Xato javob bergan shu savolda qulflanadi.": "Правила: 10 вопросов, по 1,5 минуты. Кто первым ответит верно — получает очко, и обоим показывается следующий вопрос. Ответивший неверно блокируется на этом вопросе.",
+  "Faqat provodka · 15 savol · har biriga 1,5 daqiqa · soat {s} da ochiladi, 30 daqiqa ochiq": "Только проводки · 15 вопросов · по 1,5 минуты · открывается в {s}, открыта 30 минут",
 };
