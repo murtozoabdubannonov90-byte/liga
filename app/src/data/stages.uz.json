@@ -1810,7 +1810,7 @@
   "title": "Hisobotlar taqvimi",
   "icon": "📅",
   "story": "Oyning 14-sanasi. Direktor: «Bugun nima topshiramiz, ertaga nima?» Taqvimni yod bilgan buxgalter jarima to'lamaydi.",
-  "theory": "<p>Asosiy muddatlar (keyingi oyning):</p>\n <ul><li><b>15-sanasi</b> — JShDS va ijtimoiy soliq hisoboti va to'lovi</li>\n <li><b>20-sanasi</b> — QQS, aylanmadan olinadigan soliq hisoboti va to'lovi; chorak yakunida foyda solig'i hisob-kitobi</li></ul>\n <p>Moliyaviy hisobot: <b>1-shakl</b> — buxgalteriya balansi, <b>2-shakl</b> — moliyaviy natijalar to'g'risida hisobot.</p>\n <p>Soliq hisobotini shakllantirish — SK <b>81-modda</b>. Idorada hisobotlar asosida tekshirish — <b>kameral</b> tekshiruv (138-modda).</p>",
+  "theory": "<p>Asosiy muddatlar (keyingi oyning):</p>\n <ul><li><b>15-sanasi</b> — JShDS, ijtimoiy soliq va aylanmadan olinadigan soliq hisoboti va to'lovi</li>\n <li><b>20-sanasi</b> — QQS hisoboti va to'lovi; chorak yakunida foyda solig'i hisob-kitobi</li></ul>\n <p>Muddat dam olish kuniga to'g'ri kelsa, keyingi ish kuniga suriladi.</p>\n <p>Moliyaviy hisobot: <b>1-shakl</b> — buxgalteriya balansi, <b>2-shakl</b> — moliyaviy natijalar to'g'risida hisobot.</p>\n <p>Soliq hisobotini shakllantirish — SK <b>81-modda</b>. Idorada hisobotlar asosida tekshirish — <b>kameral</b> tekshiruv (138-modda).</p>",
   "example": null,
   "tasks": [
    {
