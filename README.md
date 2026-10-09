@@ -172,6 +172,10 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
 09:00 — bosqich ochildi · 16:00 — 1 soat qoldi · 17:00 — o'yin tugadi · juma 11:00 — liga tugashiga 1 soat · juma 12:01 — natijalar (har jamoaga o'zinikini).
 
+**Har kuni 20:00 (shanba–yakshanba ham)** — jamoa adminiga kunlik hisobot (`daily_report`): yangi a'zolar, bugun kirganlar, bosqich natijalari va o'ynamaganlar, duel kubogi chempioni, hafta reytingi top-3, to'lovlar (tasdiq kutayotgan cheklar, tugayotgan obunalar), tizim holati (avtomatik ishlar va bot so'rovlaridagi xatolar). Ma'lumot `liga_daily_report_sys(p_code)` dan, qabul qiluvchilar — `liga_admin_chats`. Cron: `liga-kunlik-hisobot` `0 15 * * *` (UTC). Sinov uchun qayta yuborish: `select liga_bot_call('daily_report_now')`.
+
+Bot deploy: Supabase'dagi `liga-bot/index.ts` — faqat shu repodagi `bot/index.ts` ni aniq commit bo'yicha import qiladigan qisqa fayl. Bot o'zgarsa: commit + push, keyin shim'dagi commit SHA ni yangilab qayta deploy qiling.
+
 ## Fayllar
 - `index.html` — butun ilova (savollar `STAGES` ichida)
 - `bot/index.ts` — Telegram bot

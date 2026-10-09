@@ -512,6 +512,62 @@ async function lessonOfDay() {
   const d = Math.round((tzDate().getTime() - Date.UTC(2026, 9, 1)) / 864e5);
   return LESSONS[((d % LESSONS.length) + LESSONS.length) % LESSONS.length];
 }
+// ---------------- kunlik hisobot (adminlarga, 20:00) ----------------
+const WD = ["", "Dushanba", "Seshanba", "Chorshanba", "Payshanba", "Juma", "Shanba", "Yakshanba"];
+const nmList = (a: string[]) => a.map((x) => esc(x)).join(", ");
+function reportText(r: any, g: Group) {
+  const L: string[] = [];
+  const st = todayStage(g.start_date);
+  L.push(`📊 <b>Kunlik hisobot</b> · ${fmtD(r.day)}, ${WD[r.wd] ?? ""}`);
+  if (g.code !== "ASOSIY") L.push(`Jamoa: «${esc(g.name ?? g.code)}»`);
+  L.push("", "👥 <b>A'zolar</b>",
+    `Jami: <b>${r.total}</b> kishi · Telegramga ulangan: ${r.tg}`,
+    r.new.length ? `🆕 Bugun qo'shildi (${r.new.length}): <b>${nmList(r.new)}</b>` : "🆕 Bugun yangi a'zo yo'q",
+    `Bugun ilovaga kirgan: <b>${r.active}</b> / ${r.total}`);
+  L.push("", st !== null ? `🎯 <b>Bosqich: ${st + 1}. ${esc(TITLES[st] ?? "")}</b>` : "🎯 <b>Bosqich</b>");
+  if (r.wd > 5) L.push("Dam olish kuni — bosqich yo'q.");
+  else if (!r.stage.length) L.push("Bugun hech kim bosqichni o'ynamadi.");
+  else {
+    L.push(`O'ynadi: <b>${r.stage.length}</b> / ${r.total}`);
+    r.stage.forEach((s: any, i: number) => L.push(`${["🥇", "🥈", "🥉"][i] ?? `${i + 1}.`} ${esc(s.n)} — <b>${s.p ?? 0}</b> ball (${s.r ?? 0}/${s.d ?? 0} to'g'ri)${s.f ? "" : " · tugatmadi"}`));
+  }
+  if (r.idle.length) L.push(`😴 O'ynamadi: ${nmList(r.idle)}`);
+  if (r.cup_n > 0 || r.duels > 0) {
+    L.push("", "⚔️ <b>Duellar</b>");
+    if (r.cup_n > 0) {
+      L.push(`Kubok: ${r.cup_n} ta duel · o'ynaldi ${r.cup_played}` + (r.cup_forfeit ? ` · kelmaganlik ${r.cup_forfeit}` : "") + (r.cup_cancel ? ` · ikkalasi kelmadi ${r.cup_cancel}` : ""));
+      L.push(r.champ ? `🏆 Kun chempioni: <b>${esc(r.champ)}</b>` : "🏆 Chempion hali aniqlanmadi");
+    }
+    if (r.duels > 0) L.push(`Erkin duellar: ${r.duels} ta`);
+  }
+  if (r.top.length) {
+    L.push("", "📈 <b>Hafta reytingi</b>");
+    r.top.forEach((t: any, i: number) => L.push(`${["🥇", "🥈", "🥉"][i]} ${esc(t.n)} — ${fmt(t.x)} XP`));
+  }
+  L.push("", "💳 <b>To'lovlar</b>");
+  if (r.trial) L.push("Sinov rejimi yoqilgan — sotuv to'xtatilgan.");
+  L.push(r.pay_n ? `Bugun chek: ${r.pay_n} ta · ${fmt(Number(r.pay_sum))} so'm` : "Bugun yangi chek yo'q");
+  if (r.pay_wait) L.push(`⚠️ Tasdiq kutayotgan chek: <b>${r.pay_wait}</b> ta`);
+  if (r.expiring.length) L.push(`⏳ Obunasi 3 kunda tugaydi: ${nmList(r.expiring)}`);
+  L.push("", r.cron_bad || r.http_bad
+    ? `🛠 <b>Tizim:</b> ⚠️ avtomatik ishlarda xato ${r.cron_bad} ta, bot so'rovlarida xato ${r.http_bad} ta`
+    : `🛠 <b>Tizim:</b> ✅ hammasi joyida (${r.cron_ok} ta avtomatik ish xatosiz)`);
+  return L.join("\n");
+}
+async function dailyReport() {
+  const gm = await groupMap();
+  const { data: adm } = await db.from("liga_admin_chats").select("chat_id,group_code");
+  let sent = 0; const out: Record<string, unknown> = {};
+  for (const code of [...new Set(((adm ?? []) as Chat[]).map((a) => a.group_code))]) {
+    const g = gm[code]; if (!g || !g.active) continue;
+    const { data: r, error } = await db.rpc("liga_daily_report_sys", { p_code: code });
+    if (error || !r) { out[code] = error?.message ?? "no data"; continue; }
+    const text = reportText(r, g);
+    for (const a of (adm as Chat[]).filter((x) => x.group_code === code)) if (await dm(a.chat_id, text, appBtn("🏆 Ligani ochish", g.code !== "ASOSIY" ? `?g=${encodeURIComponent(g.code)}` : ""))) sent++;
+    out[code] = "ok";
+  }
+  return { ok: true, sent, groups: out };
+}
 // bir kunda bir xil xabar ikki marta ketmasin
 async function once(tag: string) {
   const key = `sent_${tag}_${tzDate().toISOString().slice(0, 10)}`;
@@ -708,6 +764,11 @@ async function onCron(action: string) {
       for (const code of [x.a_code, x.b_code]) for (const c of await chatsOf(code)) { await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: openBot(code) }); matches++; }
     }
     return { ok: true, sent, personal, matches, winners };
+  }
+  if (action === "daily_report" || action === "daily_report_now") {
+    // har kuni 20:00 (Toshkent) — jamoa adminlariga kunlik hisobot; "_now" — sinov uchun takror yuborish
+    if (action === "daily_report" && !(await once("daily_report"))) return { skip: "already" };
+    return await dailyReport();
   }
   if (action.startsWith("receipt:")) return await notifyAdmins(Number(action.slice(8)));
   if (action === "status") {
