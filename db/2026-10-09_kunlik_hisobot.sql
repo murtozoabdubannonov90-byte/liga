@@ -54,3 +54,8 @@ begin
   ) into r;
   return r;
 end $$;
+
+revoke all on function public.liga_daily_report_sys(text) from public, anon, authenticated;
+
+-- har kuni 20:00 Toshkent (15:00 UTC), dam olish kunlari ham
+select cron.schedule('liga-kunlik-hisobot', '0 15 * * *', $$select public.liga_bot_call('daily_report')$$);
