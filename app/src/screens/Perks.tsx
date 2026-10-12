@@ -18,24 +18,18 @@ function TopList({ rows, id }: { rows: { pos: number; name: string; me: boolean 
   return (
     <ol className="daytop" id={id}>
       {rows.map((x) => (
-        <li key={x.pos} className={x.me ? "me" : ""}><span className="md">{MEDAL[x.pos - 1]}</span><b className="grow">{x.name}{x.me ? " · " + t("siz") : ""}</b><span className="num">+{EXTRA[x.pos - 1]} {t("s")}</span></li>
+        <li key={x.pos} className={x.me ? "me" : ""}><span className="md">{MEDAL[x.pos - 1]}</span><b className="grow">{x.name}{x.me ? " · " + t("siz") : ""}</b></li>
       ))}
     </ol>);
 }
 
 /* bosqich boshida (when="start") va yakunida (when="end"): kuchli uchlikka nima beriladi */
 export function DayRewards({ when }: { when: "start" | "end" }) {
-  const d = S.day, mine = d?.extra_today || 0, top = (d?.today_closed && d?.today_top) || [];
+  const d = S.day, top = (d?.today_closed && d?.today_top) || [];
   return (
     <section className="rewards" id={"rw-" + when}>
-      <div className="rw-h"><Trophy size={20} /><h3>{t("Kunlik kuchli uchlik mukofoti")}</h3></div>
-      <div className="rw-podium">
-        {EXTRA.map((s, k) => (
-          <div key={k} className={"p" + (k + 1)}><span className="md">{MEDAL[k]}</span><b className="num">+{s}</b><i>{t("soniya har savolga")}</i></div>
-        ))}
-      </div>
-      <p className="rw-note">{t("O'rin bugungi bosqich bali bo'yicha (teng bo'lsa — tezroq tugatgan). Mukofot {d} bosqichda: har savolga {q} soniya o'rniga ko'proq vaqt.", { d: nextWord(), q: QSEC })}</p>
-      {when === "start" && mine > 0 && <p className="rw-mine"><Timer size={16} />{t("Sizda bugun har savolga +{n} soniya bor — kechagi g'alaba uchun.", { n: mine })}</p>}
+      <div className="rw-h"><Trophy size={20} /><h3>{t("Kunlik kuchli uchlik")}</h3></div>
+      <p className="rw-note">{t("Har savolga hamma uchun teng — 2 daqiqa. O'rin bugungi bosqich bali bo'yicha (teng bo'lsa — tezroq tugatgan).")}</p>
       {when === "end" && (top.length
         ? <><p className="rw-sub">{t("Bugungi kuchli uchlik")}</p><TopList rows={top} id="today-top" /></>
         : <p className="rw-sub">{t("Natija soat {c} da e'lon qilinadi — bot g'oliblarga shaxsan xabar yuboradi.", { c: closeStr() })}</p>)}
@@ -45,15 +39,12 @@ export function DayRewards({ when }: { when: "start" | "end" }) {
 
 /* bosh sahifa: g'olibning imtiyozlari */
 export function PerksCard() {
-  const d = S.day, extra = d?.extra_today || 0, prevMe = (d?.prev_top || []).find((x: any) => x.me);
   const medal = (S.members || []).find((m) => m.me)?.m || 0, wqCan = !!S.wq?.can_submit, fin = !!S.fin?.qualified && !S.fin?.ended;
-  if (!extra && !medal && !wqCan && !fin) return null;
+  if (!medal && !wqCan && !fin) return null;
   return (
     <section className="card perks" id="perks">
       <div className="card-h"><Award size={20} color="var(--gold)" /><h3>{t("Imtiyozlaringiz")}</h3></div>
       <ul className="perk-list">
-        {extra > 0 && <li><span className="pi gold"><Timer size={18} /></span><span className="grow"><b>{t("Bugun har savolga +{n} soniya", { n: extra })}</b>
-          <i>{t("{p}-o'rin ({d}) uchun · savolga {s} soniya", { p: prevMe?.pos || EXTRA.indexOf(extra) + 1, d: fmtDay(d?.prev_day), s: QSEC + extra })}</i></span></li>}
         {medal > 0 && <li><span className="pi"><span style={{ fontSize: 18 }}>{MEDAL[medal - 1]}</span></span><span className="grow"><b>{t("O'tgan hafta {p}-o'rin", { p: medal })}</b>
           <i>{t("Medal nishoni ismingiz yonida; sertifikat — Profil → Sertifikatlar")}</i></span>
           <button className="chip blue" onClick={() => go("cert")}>{t("Ochish")}<ChevronRight size={13} /></button></li>}
@@ -72,8 +63,8 @@ export function DayTopCard() {
   return (
     <section className="card" id="daytop-card">
       <div className="card-h"><Trophy size={20} color="var(--gold)" /><h3>{t("Kunlik kuchli uchlik")}</h3></div>
-      {today.length > 0 && <><p className="small muted" style={{ fontWeight: 700 }}>{t("Bugun")} · {t("mukofot {d}", { d: nextWord() })}</p><TopList rows={today} /></>}
-      {prev.length > 0 && <><p className="small muted" style={{ fontWeight: 700, marginTop: today.length ? 10 : 0 }}>{fmtDay(d.prev_day)} · {t("mukofot bugun")}</p><TopList rows={prev} /></>}
+      {today.length > 0 && <><p className="small muted" style={{ fontWeight: 700 }}>{t("Bugun")}</p><TopList rows={today} /></>}
+      {prev.length > 0 && <><p className="small muted" style={{ fontWeight: 700, marginTop: today.length ? 10 : 0 }}>{fmtDay(d.prev_day)}</p><TopList rows={prev} /></>}
     </section>);
 }
 

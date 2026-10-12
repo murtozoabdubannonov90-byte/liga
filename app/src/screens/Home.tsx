@@ -56,9 +56,12 @@ function Ticket() {
   const si = todayStage(), wk = isWeekend(), c = C();
   if (playerBlocked()) return (
     <div className="ticket"><span className="hole l" /><span className="hole r" />
-      <div className="t-top"><CreditCard size={40} /><div className="grow"><div className="t-title">{t("Ligaga qo'shilish uchun obuna kerak")}</div>
-        <div className="t-meta">{t("Oyiga {p} so'm · to'lab, chekni yuboring", { p: (S.me?.price || 30000).toLocaleString("ru-RU").replace(/ /g, " ") })}</div></div></div>
-      <div className="t-bottom"><button className="btn gold" onClick={() => go("pay")}>{t("To'lov qilish")}</button></div>
+      {S.me?.pending
+        ? <div className="t-top" id="pay-wait"><CreditCard size={40} /><div className="grow"><div className="t-title">{t("Chekingiz tekshirilmoqda")}</div>
+            <div className="t-meta">{t("Administrator pul kartaga tushganini tasdiqlagach bosqichlar ochiladi")}</div></div></div>
+        : <><div className="t-top"><CreditCard size={40} /><div className="grow"><div className="t-title">{t("Ligaga qo'shilish uchun obuna kerak")}</div>
+          <div className="t-meta">{t("Oyiga {p} so'm · to'lab, chekni yuboring", { p: (S.me?.price || 30000).toLocaleString("ru-RU").replace(/ /g, " ") })}</div></div></div>
+          <div className="t-bottom"><button className="btn gold" onClick={() => go("pay")}>{t("To'lov qilish")}</button></div></>}
     </div>);
   if (wk || si == null) {
     const nx = Array.from({ length: 12 }, (_, i) => i).find((i) => stageState(i) === "future");

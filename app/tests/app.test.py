@@ -202,6 +202,28 @@ with sync_playwright() as p:
     check("karta raqami va narx", "5614 6810 1287 6904" in txt(pg) and "30 000" in txt(pg))
     CALLS.clear(); pg.click("text=3 oy"); pg.wait_for_timeout(200)
     check("3 oy = 90 000 so'm", "90 000" in txt(pg))
+    check("to'lov: bosqich faqat tasdiqdan keyin ochilishi yozilgan", "tasdiqlagandan keyin ochiladi" in txt(pg))
+    PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    import base64 as _b64
+    pg.set_input_files("#rf", files=[{"name": "chek.png", "mimeType": "image/png", "buffer": _b64.b64decode(PNG)}]); pg.wait_for_timeout(500)
+    pg.evaluate("()=>{__liga.st.S.me={...(__liga.st.S.me||{}), ok:false, personal:true, pending:false}; __liga.st.persist()}")
+    CALLS.clear(); pg.click("#go"); pg.wait_for_timeout(700)
+    check("chek serverga yuborildi", len(calls("liga_receipt_submit")) == 1, CALLS)
+    check("chekdan keyin: «tekshiruvga yuborildi», bosqich ochilmadi", pg.locator("#pay-sent").count() == 1 and S(pg, "S.me.ok") is False and S(pg, "S.me.pending") is True, txt(pg)[:200])
+    EXTRA["liga_player_status2"] = [{"paid_until": "2026-10-04", "ok": False, "personal": True, "price": 30000, "pending": True, "tier": 1, "ref_code": "S5HMGC", "refs": 2, "tg_linked": True, "lang": "uz"}]
+    pg.evaluate("()=>__liga.nav.tab('home')"); pg.wait_for_timeout(500)
+    check("bosh sahifa: «Chekingiz tekshirilmoqda» (to'lov tugmasi yo'q)", pg.locator("#pay-wait").count() == 1 and "To'lov qilish" not in pg.inner_text(".ticket"), txt(pg)[:200])
+    go(pg, "pay"); pg.wait_for_timeout(300)
+    check("to'lov sahifasi: tekshiruvdagi chek — yangisini yuborish shart emas", pg.locator("#pay-pending").count() == 1)
+    EXTRA["liga_player_status2"] = [{"paid_until": "2026-10-04", "ok": False, "personal": True, "price": 30000, "pending": False, "tier": 1, "ref_code": "S5HMGC", "refs": 2, "tg_linked": True, "lang": "uz"}]
+    pg.evaluate("()=>{__liga.st.S.me={...__liga.st.S.me, pending:false}; __liga.st.persist()}"); go(pg, "pay"); pg.wait_for_timeout(300)
+    for key, word in [("receipt_dup", "avval yuborilgan"), ("receipt_blocked", "to'xtatildi")]:
+        EXTRA["liga_receipt_submit"] = {"__error": key}
+        pg.set_input_files("#rf", files=[{"name": "chek.png", "mimeType": "image/png", "buffer": _b64.b64decode(PNG)}]); pg.wait_for_timeout(400)
+        pg.click("#go"); pg.wait_for_timeout(500)
+        check(f"soxta/takror chek rad: {key}", word in pg.inner_text(".err") and pg.locator("#pay-sent").count() == 0, pg.inner_text(".err"))
+    EXTRA.pop("liga_receipt_submit", None); EXTRA.pop("liga_player_status2", None)
+    pg.evaluate("()=>{__liga.st.S.me={...__liga.st.S.me, ok:true, pending:false, paid_until:'2026-10-30'}; __liga.st.persist()}")
 
     print("9. Admin")
     pg.evaluate("()=>{__liga.st.S.adminPin='14'; __liga.st.persist()}"); go(pg, "admin"); pg.wait_for_timeout(600)
@@ -275,11 +297,11 @@ with sync_playwright() as p:
     print("10d. G'olib vaqti, javob effekti, xatolar ustida ishlash, imtiyozlar, sinov rejimi")
     EXTRA["_extra"] = 7
     pg, e = page(b); ALLERR += e
-    check("bosh sahifa: «Imtiyozlaringiz» kartasi", pg.locator("#perks").count() == 1 and "+7 soniya" in pg.inner_text("#perks") and "1-o'rin" in pg.inner_text("#perks"), pg.inner_text("body")[:300])
+    check("bosh sahifa: bonus soniya ko'rsatilmaydi (hamma uchun teng)", "+7 soniya" not in pg.inner_text("body"), pg.inner_text("body")[:300])
     go(pg, "intro", {"si": 3}); pg.wait_for_timeout(300)
     rw = pg.inner_text("#rw-start") if pg.locator("#rw-start").count() else ""
-    check("bosqich boshida: kuchli uchlik mukofoti +10/+7/+4", all(x in rw for x in ["+10", "+7", "+4"]), rw[:200])
-    check("bosqich boshida: mening bonusim va 67 soniya", "+7 soniya bor" in rw and "67 soniya" in txt(pg))
+    check("bosqich boshida: kuchli uchlik — hamma uchun teng 2 daqiqa", "2 daqiqa" in rw and "+10" not in rw, rw[:200])
+    check("bosqich boshida: vaqt plitkasi «2 daqiqa · hamma uchun teng»", "hamma uchun teng" in txt(pg) and "67 soniya" not in txt(pg))
     pg.click("#go"); pg.wait_for_timeout(700)
     check("savolda g'olib bonusi belgisi (+7 s)", pg.locator("#xsec").count() == 1 and "+7" in pg.inner_text("#xsec"))
     lft = int(pg.inner_text(".timer b"))
@@ -316,7 +338,7 @@ with sync_playwright() as p:
     go(pg, "intro", {"si": 3}); pg.click("#go"); pg.wait_for_timeout(700)
     answer(pg, right=False); pg.click("#nx"); pg.wait_for_timeout(300); answer(pg, right=True); pg.click("#nx"); pg.wait_for_timeout(1200)
     EXTRA.pop("_prefill", None)
-    check("bosqich yakunida: kuchli uchlik mukofoti", pg.locator("#rw-end").count() == 1 and "+10" in pg.inner_text("#rw-end"))
+    check("bosqich yakunida: kuchli uchlik (bonus soniyasiz)", pg.locator("#rw-end").count() == 1 and "+10" not in pg.inner_text("#rw-end") and "2 daqiqa" in pg.inner_text("#rw-end"))
     check("yakunda: «Xatolarni tahlil qilish» tugmasi", pg.locator("#toreview").count() == 1)
     pg.evaluate("()=>__liga.nav.tab('rate')"); pg.wait_for_timeout(400)
     check("reyting: kunlik kuchli uchlik", pg.locator("#daytop-card").count() == 1 and "Aziz R." in pg.inner_text("#daytop-card"))

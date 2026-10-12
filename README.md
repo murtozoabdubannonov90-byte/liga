@@ -169,6 +169,13 @@ Obuna tugasa, bosqichlar yopiladi va ilovada ogohlantirish chiqadi.
 4. SQL: `update liga_bot_config set value='MERCHANT_ID' where key='payme_merchant_id';` (Click uchun `click_service_id`, `click_merchant_id`).
 Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 
+## To'lov cheki — soxtadan himoya (2026-10-12)
+- Chek (ilova yoki bot orqali) faqat **tekshiruvga** tushadi (`status = 'check'`), bosqichlar **yopiq** qoladi.
+- Adminga bot chek rasmini yuboradi: summa, kartangizning oxirgi 4 raqami, o'yinchining avval rad etilgan cheklari soni. Bank ilovasida pul tushganini ko'rib «✅ Pul tushdi — ochish» bosiladi — obuna to'lov kunidan 30 kun ochiladi; «❌ Soxta» — rad. O'yinchiga ikkala holatda ham botdan xabar boradi (ilovadagi admin panel orqali qaror qilinsa ham).
+- Bir xil chek rasmi ikkinchi marta qabul qilinmaydi (rasm hash / Telegram `file_unique_id`); bitta o'yinchida bir vaqtda bitta tekshiruvdagi chek; 14 kunda 2 marta rad etilsa — 7 kun chek qabul qilinmaydi.
+- Funksiyalar: `liga_receipt_guard`, `liga_receipt_apply`, `liga_receipt2_sys`, `liga_receipt_decide2_sys`, `liga_receipt_info_sys` (faqat server), `db/2026-10-12_chek_tasdiq.sql`.
+- Bank hisobini avtomatik ko'rish imkoni yo'q (bank API ulanmagan), shuning uchun yakuniy tasdiq — admin.
+
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
 09:00 — bosqich ochildi · 16:00 — 1 soat qoldi · 17:00 — o'yin tugadi · juma 11:00 — liga tugashiga 1 soat · juma 12:01 — natijalar (har jamoaga o'zinikini).
 

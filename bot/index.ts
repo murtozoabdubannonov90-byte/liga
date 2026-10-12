@@ -64,7 +64,7 @@ const RU: Record<string, string> = {
   "{d} (ertaga)": "{d} (завтра)",
   "Muddatni o'tkazib yubormang — jarima bo'lmasin!": "Не пропустите срок — без штрафов!",
   "Mashq qilish": "Потренироваться",
-  "{m} <b>Tabriklaymiz! Siz bugungi bosqichda {p}-o'rin oldingiz.</b>\nMukofot: {d} bosqichda har savolga <b>+{s} soniya</b> ({t} soniya).": "{m} <b>Поздравляем! Сегодня вы заняли {p}-е место в этапе.</b>\nНаграда: {d} на каждый вопрос этапа <b>+{s} сек.</b> ({t} сек.).",
+  "{m} <b>Tabriklaymiz! Siz bugungi bosqichda {p}-o'rin oldingiz.</b>\nShu ruhda davom eting — haftalik kuchli uchlik medal va sertifikat oladi.": "{m} <b>Поздравляем! Сегодня вы заняли {p}-е место в этапе.</b>\nТак держать — тройка недели получает медаль и сертификат.",
   "ertaga": "завтра", "dushanba kuni": "в понедельник",
   "✅ <b>Kirish tasdiqlandi!</b>\nIlovaga qayting — avtomatik kirasiz.": "✅ <b>Вход подтверждён!</b>\nВернитесь в приложение — вход выполнится автоматически.",
   "Bosqichni ochish": "Открыть этап",
@@ -91,6 +91,8 @@ const RU: Record<string, string> = {
   "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 15 savol, har biriga 1,5 daqiqa. Duel 30 daqiqa ochiq.": "🎉 <b>Вы вышли в {st}!</b>\nСоперник: <b>{o}</b>, в <b>{s}</b>. Только проводки, 15 вопросов, по 1,5 минуты. Дуэль открыта 30 минут.",
   "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.": "🏆 <b>Победитель кубка дуэлей дня — {n}!</b>\nПоздравляем! Следующий кубок — в следующий рабочий день в 09:00.",
   "{st} — {s} dan (g'oliblar)": "{st} — с {s} (победители)",
+  "✅ <b>To'lovingiz tasdiqlandi!</b>\nBosqichlar ochildi. Obuna: <b>{d}</b> gacha. Omad! 💪": "✅ <b>Оплата подтверждена!</b>\nЭтапы открыты. Подписка до <b>{d}</b>. Удачи! 💪",
+  "❌ <b>To'lov chekingiz tasdiqlanmadi</b> — pul kartaga tushmagan.\nBosqichlar yopiq. Haqiqatan to'lagan bo'lsangiz, administratorga yozing: @murtozo_44": "❌ <b>Чек не подтверждён</b> — деньги на карту не поступили.\nЭтапы закрыты. Если вы действительно оплатили, напишите администратору: @murtozo_44",
   "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.": "🔔 <b>Дуэль началась!</b>\nВаш соперник — <b>{o}</b>. Зайдите до {e} — иначе победа достанется сопернику.",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
@@ -170,15 +172,17 @@ async function dayTop(code: string) {
 }
 function dayTopText(top: any[], w: number) {
   const when = w === 5 ? "dushanba kuni" : "ertaga";
-  return `🏅 <b>Bugungi kuchli uchlik</b>\n${top.map((x) => `${MEDAL[x.pos - 1]} ${esc(x.name)} — <b>+${EXTRA[x.pos - 1]} soniya</b>`).join("\n")}\n\nMukofot: ${when} bosqichda har savolga qo'shimcha vaqt.`;
+  void when;
+  return `🏅 <b>Bugungi kuchli uchlik</b>\n${top.map((x) => `${MEDAL[x.pos - 1]} ${esc(x.name)}`).join("\n")}\n\nTabriklaymiz! Haftalik kuchli uchlik medal nishoni va sertifikat oladi.`;
 }
 async function dayTopDm(top: any[], w: number) {
   let n = 0;
   for (const x of top) {
     if (!x.tg) continue;
     const when = tr(x.lang, w === 5 ? "dushanba kuni" : "ertaga");
-    if (await dm(x.tg, tr(x.lang, "{m} <b>Tabriklaymiz! Siz bugungi bosqichda {p}-o'rin oldingiz.</b>\nMukofot: {d} bosqichda har savolga <b>+{s} soniya</b> ({t} soniya).",
-      { m: MEDAL[x.pos - 1], p: x.pos, d: when, s: EXTRA[x.pos - 1], t: 60 + EXTRA[x.pos - 1] }), appBtn(tr(x.lang, "Ligani ochish")))) n++;
+    void when;
+    if (await dm(x.tg, tr(x.lang, "{m} <b>Tabriklaymiz! Siz bugungi bosqichda {p}-o'rin oldingiz.</b>\nShu ruhda davom eting — haftalik kuchli uchlik medal va sertifikat oladi.",
+      { m: MEDAL[x.pos - 1], p: x.pos }), appBtn(tr(x.lang, "Ligani ochish")))) n++;
   }
   return n;
 }
@@ -275,7 +279,7 @@ async function cardMessage(chatId: number, months: number, name?: string, edit?:
   const text = `💳 <b>Ligaga qo'shilish</b>${name ? ` — ${esc(name)}` : ""}\n\n` +
     `1️⃣ Kartaga <b>${fmt(price * months)} so'm</b> o'tkazing (${months} oy):\n<code>${esc(c.card || "—")}</code>\n${esc(c.card_name || "")}\n\n` +
     `2️⃣ To'lov chekining rasmini (skrinshot) <b>shu yerga yuboring</b>.\n\n` +
-    `Bot chekni tekshiradi va sizni darhol ligaga qo'shadi. Muddatni o'zgartirish uchun tugmani bosing:`;
+    `Administrator pul kartaga tushganini tekshiradi — tasdiqlangach bosqichlar ochiladi va shu yerga xabar keladi. Muddatni o'zgartirish uchun tugmani bosing:`;
   const kb = { inline_keyboard: [[1, 3, 6].map((m) => ({ text: (m === months ? "✅ " : "") + `${m} oy · ${fmt(price * m)}`, callback_data: `m:${m}` }))] };
   return edit ? tg("editMessageText", { chat_id: chatId, message_id: edit, text, parse_mode: "HTML", reply_markup: kb })
               : tg("sendMessage", { chat_id: chatId, text, parse_mode: "HTML", reply_markup: kb });
@@ -315,14 +319,17 @@ async function onReceipt(m: any) {
   const d = await fileDataUri(f.file_id);
   if (!d) return tg("sendMessage", { chat_id: chatId, text: "❗ Rasmni ochib bo'lmadi. Qayta yuboring." });
   if ((d as any).big) return tg("sendMessage", { chat_id: chatId, text: "❗ Rasm juda katta. Skrinshotni oddiy rasm qilib yuboring." });
-  const { data, error } = await db.rpc("liga_receipt_sys", { p_player: ses.player_id, p_months: ses.months, p_image: d.uri,
+  const { data, error } = await db.rpc("liga_receipt2_sys", { p_player: ses.player_id, p_months: ses.months, p_image: d.uri,
     p_uid: f.file_unique_id, p_file_id: photo ? f.file_id : null, p_chat: chatId });
   if (error) { console.error(error); return tg("sendMessage", { chat_id: chatId, text: "❗ Xatolik. Birozdan keyin qayta yuboring." }); }
   const r = data?.[0];
-  if (r?.dup) return tg("sendMessage", { chat_id: chatId, text: "⚠️ Bu chek avval yuborilgan. Yangi to'lov chekini yuboring." });
+  if (r?.reason === "dup") return tg("sendMessage", { chat_id: chatId, text: "⚠️ Bu chek avval yuborilgan. Bitta chek faqat bir marta qabul qilinadi." });
+  if (r?.reason === "pending") return tg("sendMessage", { chat_id: chatId, text: "⏳ Oldingi chekingiz hali tekshirilmoqda. Administrator javobini kuting — natija shu yerga keladi." });
+  if (r?.reason === "blocked") return tg("sendMessage", { chat_id: chatId, text: "⛔ Oxirgi cheklaringiz tasdiqlanmagani uchun chek qabul qilish vaqtincha to'xtatildi. Administrator bilan bog'laning: @murtozo_44" });
+  if (!r?.id) return tg("sendMessage", { chat_id: chatId, text: "❗ Xatolik. Birozdan keyin qayta yuboring." });
   const p = await playerName(ses.player_id);
-  await tg("sendMessage", { chat_id: chatId, parse_mode: "HTML", reply_markup: openApp(p?.group_code),
-    text: `✅ <b>Chek qabul qilindi!</b>\n\nSiz ligaga qo'shildingiz${p?.first_name ? `, ${esc(p.first_name)}` : ""}.\n💳 Obuna: <b>${fmtD(r.paid_until)}</b> gacha.\n\nBosqichlar har ish kuni 09:00–17:00, juma 09:00–12:00. Omad! 💪` });
+  await tg("sendMessage", { chat_id: chatId, parse_mode: "HTML",
+    text: `🧾 <b>Chek qabul qilindi${p?.first_name ? `, ${esc(p.first_name)}` : ""}!</b>\n\nAdministrator pul kartaga tushganini tekshiradi. Tasdiqlangach bosqichlar ochiladi va shu yerga xabar keladi.\n\n⚠️ Soxta chek yuborilsa, chek qabul qilish to'xtatiladi.` });
   await notifyAdmins(Number(r.id));
 }
 
@@ -333,11 +340,14 @@ async function notifyAdmins(invId: number) {
   const { data: chatsA } = await db.from("liga_admin_chats").select("chat_id").eq("group_code", inv.group_code);
   if (!chatsA?.length) return { sent: 0 };
   const p = await playerName(inv.player_id) ?? {};
-  const { data: pl } = await db.from("safari_players").select("paid_until").eq("id", inv.player_id).maybeSingle();
+  const c0 = await payCfg(), last4 = String(c0.card ?? "").replace(/\D/g, "").slice(-4);
+  const { data: info } = await db.rpc("liga_receipt_info_sys", { p_id: inv.id }); const hi = (info ?? [])[0] ?? {};
   const caption = `🧾 <b>Yangi to'lov cheki</b> №${inv.id}\n👤 ${esc(((p.first_name ?? "") + " " + (p.last_name ?? "")).trim())}\n📞 ${esc(p.phone ?? "")}` +
-    `${p.region ? `\n📍 ${esc(p.region)}` : ""}\n💳 ${fmt(Number(inv.amount))} so'm · ${inv.months} oy · ${esc(inv.provider ?? "")}\n\n` +
-    `✅ Ligaga qo'shildi (obuna ${fmtD(pl?.paid_until ?? "")} gacha).\nPul tushganini tekshiring. Chek soxta bo'lsa — «Rad etish».`;
-  const kb = { inline_keyboard: [[{ text: "✅ Tasdiqlash", callback_data: `rc:1:${inv.id}` }, { text: "❌ Rad etish", callback_data: `rc:0:${inv.id}` }]] };
+    `${p.region ? `\n📍 ${esc(p.region)}` : ""}\n💳 <b>${fmt(Number(inv.amount))} so'm</b> · ${inv.months} oy\n` +
+    (hi.rejected ? `⚠️ Avval rad etilgan cheklari: <b>${hi.rejected}</b>\n` : "") +
+    `\n🔒 Bosqichlar hali <b>yopiq</b>.\nBank ilovangizda (yoki SMS'da) ${last4 ? `kartangizga (…${last4}) ` : ""}<b>${fmt(Number(inv.amount))} so'm</b> tushganini tekshiring.` +
+    `${last4 ? `\nChekda ham qabul qiluvchi karta …${last4} bo'lishi kerak.` : ""}\n\nPul tushgan bo'lsa — «✅ Pul tushdi», tushmagan bo'lsa — «❌ Soxta».`;
+  const kb = { inline_keyboard: [[{ text: "✅ Pul tushdi — ochish", callback_data: `rc:1:${inv.id}` }, { text: "❌ Soxta", callback_data: `rc:0:${inv.id}` }]] };
   let n = 0;
   for (const c of chatsA) {
     if (inv.tg_file_id) {
@@ -356,6 +366,13 @@ async function notifyAdmins(invId: number) {
   return { sent: n };
 }
 
+// chek qarori — o'yinchiga xabar
+async function receiptNotify(x: { status?: string; player_chat?: number | null; paid_until?: string | null; lang?: string | null }) {
+  if (!x?.player_chat) return false;
+  if (x.status === "paid") return dm(x.player_chat, tr(x.lang, "✅ <b>To'lovingiz tasdiqlandi!</b>\nBosqichlar ochildi. Obuna: <b>{d}</b> gacha. Omad! 💪", { d: fmtD(x.paid_until ?? "") }), appBtn(tr(x.lang, "Ligani ochish")));
+  if (x.status === "cancelled") return dm(x.player_chat, tr(x.lang, "❌ <b>To'lov chekingiz tasdiqlanmadi</b> — pul kartaga tushmagan.\nBosqichlar yopiq. Haqiqatan to'lagan bo'lsangiz, administratorga yozing: @murtozo_44"));
+  return false;
+}
 async function onCallback(q: any) {
   const data = String(q.data ?? ""), chatId = q.message?.chat?.id;
   const ack = (text?: string) => tg("answerCallbackQuery", { callback_query_id: q.id, text });
@@ -369,16 +386,13 @@ async function onCallback(q: any) {
   }
   if (data.startsWith("rc:")) {
     const [, ok, id] = data.split(":");
-    const { data: r } = await db.rpc("liga_receipt_decide_sys", { p_id: Number(id), p_ok: ok === "1", p_admin_chat: chatId });
+    const { data: r } = await db.rpc("liga_receipt_decide2_sys", { p_id: Number(id), p_ok: ok === "1", p_admin_chat: chatId });
     const x = r?.[0];
     if (!x?.done) return ack("Ruxsat yo'q");
-    const mark = x.status === "paid" ? "\n\n✅ <b>Tasdiqlandi</b>" : x.status === "cancelled" ? "\n\n❌ <b>Rad etildi — obuna bekor qilindi</b>" : "";
+    const mark = x.status === "paid" ? `\n\n✅ <b>Pul tushdi — tasdiqlandi.</b> Obuna ${fmtD(x.paid_until ?? "")} gacha ochildi.` : x.status === "cancelled" ? "\n\n❌ <b>Soxta — rad etildi.</b> Bosqichlar yopiq." : "";
     await tg("editMessageCaption", { chat_id: chatId, message_id: q.message.message_id, parse_mode: "HTML",
       caption: esc(q.message.caption ?? "") + mark });
-    if (x.status === "cancelled" && x.player_chat) {
-      await tg("sendMessage", { chat_id: x.player_chat, parse_mode: "HTML",
-        text: "❌ <b>To'lov chekingiz tasdiqlanmadi.</b>\nObuna bekor qilindi. Savol bo'lsa: @murtozo_44" });
-    }
+    await receiptNotify(x);
     return ack(x.status === "paid" ? "Tasdiqlandi" : "Rad etildi");
   }
   return ack();
@@ -486,7 +500,7 @@ async function onUpdate(u: any) {
     const code = priv ? "ASOSIY" : await chatGroup(m.chat.id);
     await reply(await resultsText(code), priv ? openApp(code) : openBot(code));
   } else if (cmd === "/qoida") {
-    await reply("📋 <b>Qoidalar</b>\n• Har ish kuni 09:00–17:00 da (juma — 12:00 gacha) yangi bosqich: 12 ta provodka + 8 ta qonun, kodeks va hisob savoli.\n• Har savolga 1 daqiqa, har savolga faqat bir marta javob. Xatoning sababi darhol ko'rsatiladi.\n• Kunlik kuchli uchlik keyingi ish kuni har savolga qo'shimcha vaqt oladi: 🥇 +10, 🥈 +7, 🥉 +4 soniya.\n• Liga bali faqat bosqichlardan; kunlik mashq va blits — alohida.\n• Liga — dushanbadan juma 12:00 gacha. Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Juma 12:00 da jadval e'lon qilinadi; kuchli uchlik nishon va sertifikat oladi.");
+    await reply("📋 <b>Qoidalar</b>\n• Har ish kuni 09:00–17:00 da (juma — 12:00 gacha) yangi bosqich: 12 ta provodka + 8 ta qonun, kodeks va hisob savoli.\n• Har savolga 2 daqiqa — hamma uchun teng; har savolga faqat bir marta javob. Xatoning sababi darhol ko'rsatiladi.\n• Ligaga to'lov: kartaga o'tkazib, chekni yuborasiz; administrator pul tushganini tasdiqlagach bosqichlar ochiladi.\n• Liga bali faqat bosqichlardan; kunlik mashq va blits — alohida.\n• Liga — dushanbadan juma 12:00 gacha. Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Juma 12:00 da jadval e'lon qilinadi; kuchli uchlik nishon va sertifikat oladi.");
   }
 }
 
@@ -771,6 +785,12 @@ async function onCron(action: string) {
     return await dailyReport();
   }
   if (action.startsWith("receipt:")) return await notifyAdmins(Number(action.slice(8)));
+  if (action.startsWith("receipt_done:")) {
+    const { data: i } = await db.from("liga_invoices").select("status,tg_chat_id,player_id").eq("id", Number(action.slice(13))).maybeSingle();
+    if (!i) return { error: "no invoice" };
+    const { data: pl } = await db.from("safari_players").select("tg_user_id,paid_until,lang").eq("id", i.player_id).maybeSingle();
+    return { sent: await receiptNotify({ status: i.status, player_chat: i.tg_chat_id ?? pl?.tg_user_id, paid_until: pl?.paid_until, lang: pl?.lang }) };
+  }
   if (action === "status") {
     const gm = await groupMap();
     return { webhook: await tg("getWebhookInfo", {}), chats: await chats(),

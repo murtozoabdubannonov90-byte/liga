@@ -44,7 +44,7 @@ export default function Intro({ si }: { si: number }) {
         </section>
         <div className="tiles">
           <div className="tile"><span className="ic"><ListChecks size={20} /></span><b>{t("{n} ta savol", { n: left })}</b><i>{left < total ? t("davom etasiz") : t("12 provodka + 8 savol")}</i></div>
-          <div className="tile"><span className="ic"><Timer size={20} /></span><b>{S.day?.extra_today ? t("{n} soniya", { n: 60 + S.day.extra_today }) : t("1 daqiqa")}</b><i>{S.day?.extra_today ? t("har savolga · g'olib bonusi") : t("har savolga")}</i></div>
+          <div className="tile"><span className="ic"><Timer size={20} /></span><b>{t("2 daqiqa")}</b><i>{t("har savolga · hamma uchun teng")}</i></div>
           <div className="tile"><span className="ic"><Heart size={20} /></span><b>{t("5 ta jon")}</b><i>{t("xatoda kamayadi")}</i></div>
           <div className="tile"><span className="ic"><ShieldAlert size={20} /></span><b>{t("Bir marta")}</b><i>{t("har savolga")}</i></div>
         </div>

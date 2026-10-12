@@ -20,6 +20,9 @@ export const ERR: Record<string, string> = {
   bad_token: "Hisobingiz bu telefonga ulanmagan — «Qayta ulanish» tugmasini bosing", duel_taken: "Bu duelni boshqa odam qabul qilgan",
   already_done: "Siz buni allaqachon bajargansiz", duel_expired: "Duel muddati tugagan", not_found: "Topilmadi",
   test_closed: "Test yopilgan", not_eligible: "Sertifikat uchun shart bajarilmagan", not_admin: "PIN noto'g'ri", unpaid: "Ligaga qo'shilish uchun obuna kerak", stage_closed: "Bosqich hozir yopiq",
+  receipt_dup: "Bu chek avval yuborilgan. Bitta chek faqat bir marta qabul qilinadi",
+  receipt_pending: "Oldingi chekingiz hali tekshirilmoqda — administrator javobini kuting",
+  receipt_blocked: "Oxirgi cheklaringiz tasdiqlanmagani uchun chek qabul qilish vaqtincha to'xtatildi. Administrator: @murtozo_44",
 };
 export function errKey(e: unknown): string { const m = String((e as any)?.message || e); return Object.keys(ERR).find((k) => m.includes(k)) || "net"; }
 export function errMsg(e: unknown): string { const k = errKey(e); return t(k === "net" ? "Serverga ulanib bo'lmadi — internetni tekshiring" : ERR[k]); }

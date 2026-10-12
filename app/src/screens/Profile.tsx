@@ -43,7 +43,7 @@ export default function Profile() {
         {me.personal && S.trial && <Card title={t("Obuna")} right={<CreditCard size={20} />}>
           <p className="small" id="trial-note" style={{ fontWeight: 700 }}>{t("🧪 Sinov davri — bepul. Hamma bosqichlar ochiq, to'lov hozircha olinmaydi.")}</p></Card>}
         {me.personal && !S.trial && <Card title={t("Obuna")} right={<CreditCard size={20} />}>
-          <p className="small" style={{ fontWeight: 700 }}>{me.ok ? t("✅ {d} gacha faol", { d: fmtD(me.paid_until) }) + (me.pending ? " · " + t("chek tekshirilmoqda") : "") : t("⛔ To'lanmagan — bosqichlar yopiq")}</p>
+          <p className="small" style={{ fontWeight: 700 }}>{me.ok ? t("✅ {d} gacha faol", { d: fmtD(me.paid_until) }) + (me.pending ? " · " + t("chek tekshirilmoqda") : "") : (me.pending ? t("⏳ Chek tekshirilmoqda — tasdiqlangach bosqichlar ochiladi") : t("⛔ To'lanmagan — bosqichlar yopiq"))}</p>
           <button className={"btn sm " + (me.ok ? "ghost" : "")} style={{ marginTop: 10 }} onClick={() => go("pay")}>{me.ok ? t("Uzaytirish") : t("To'lov qilish")}</button></Card>}
         <section className="card" style={{ padding: "4px 16px" }}>
           {needTgLink() && <Row icon={BellRing} title={t("Telegram'ni ulash")} sub={t("Natijalar va eslatmalar shaxsan sizga")} onClick={connectTelegram} />}

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Bot, Upload, ShieldCheck, Check } from "lucide-react";
+import { Copy, Bot, Upload, ShieldCheck, Check, Hourglass } from "lucide-react";
 import { S, persist } from "../engine/state";
 import { t } from "../lib/i18n";
 import { tab, toast } from "../lib/nav";
@@ -33,16 +33,21 @@ export default function Pay() {
   const viaBot = async () => { setErr(""); if (!(await need())) return; try { const code = await rpc<string>("liga_tg_pay_link", { p_id: S.pid, p_token: S.token }); openTg(BOT_LINK + "?start=" + code); } catch (e) { setErr(errMsg(e)); } };
   const send = async () => {
     if (!img) return; setBusy(true); setErr(""); if (!(await need())) { setBusy(false); return; }
-    try { const r = (await rpc<any[]>("liga_receipt_submit", { p_id: S.pid, p_token: S.token, p_months: +m, p_image: img }))[0];
-      S.me = { ...(S.me || {}), ok: true, personal: true, paid_until: r?.paid_until, pending: true }; persist(); syncSoon(); setDone(r?.paid_until); sfx("win"); burst(true);
+    try { await rpc<any[]>("liga_receipt_submit", { p_id: S.pid, p_token: S.token, p_months: +m, p_image: img });
+      // chek faqat tekshiruvga ketadi — bosqichlar administrator pul tushganini tasdiqlagandan keyin ochiladi
+      S.me = { ...(S.me || {}), personal: true, pending: true }; persist(); syncSoon(); setDone("sent"); sfx("ok");
     } catch (e) { setErr(errMsg(e)); } finally { setBusy(false); }
   };
   const online = async () => { try { const v = (await rpc<any[]>("liga_my_invoice", { p_id: S.pid, p_token: S.token, p_months: +m }))[0]; const L = payLinks(c, v); if (L[0]) openUrl(L[0][1]); } catch (e) { setErr(errMsg(e)); } };
   if (done !== null) return (
-    <div className="shell bare"><div className="result"><Check size={72} color="var(--green)" style={{ margin: "0 auto" }} /><h2>{t("Ligaga qo'shildingiz!")}</h2>
-      <span className="chip ok" style={{ justifySelf: "center" }}>{t("Obuna {d} gacha", { d: fmtD(done) })}</span>
-      <p className="small muted">{t("Chekingiz administratorga yuborildi. Bosqichlar ochildi — har ish kuni 09:00–17:00, juma 09:00–12:00.")}</p></div>
-      <div className="dock"><button className="btn" onClick={() => tab("home")}>{t("Boshlash")}</button></div></div>);
+    <div className="shell bare"><div className="result" id="pay-sent"><Hourglass size={72} color="var(--gold)" style={{ margin: "0 auto" }} /><h2>{t("Chek tekshiruvga yuborildi")}</h2>
+      <span className="chip gold" style={{ justifySelf: "center" }}>{t("Tekshirilmoqda")}</span>
+      <p className="small muted">{t("Administrator pul kartaga tushganini tekshiradi. Tasdiqlangach bosqichlar ochiladi va Telegram'ga xabar keladi.")}</p></div>
+      <div className="dock"><button className="btn" onClick={() => tab("home")}>{t("Bosh sahifaga")}</button></div></div>);
+  if (me.pending && !me.ok) return (
+    <div className="shell bare"><PageTitle title={t("Ligaga qo'shilish")} />
+      <div className="stack"><div className="note" id="pay-pending" style={{ background: "var(--gold-soft, #fff4d6)" }}><Hourglass size={18} />
+        <span>{t("Chekingiz tekshirilmoqda. Administrator pul kartaga tushganini tasdiqlagach bosqichlar ochiladi. Yangi chek yuborish shart emas.")}</span></div></div></div>);
   return (
     <div className="shell bare">
       <PageTitle title={t("Ligaga qo'shilish")} />
@@ -62,7 +67,7 @@ export default function Pay() {
         <input id="rf" type="file" accept="image/*" hidden onChange={async (e) => { const f = e.target.files?.[0]; if (!f) return; try { setImg(await shrink(f)); } catch { setErr(t("Chek rasmini qayta tanlang (JPG yoki PNG)")); } }} />
         {img && <img id="rprev" src={img} alt={t("Chek")} style={{ maxHeight: 260, borderRadius: 14, justifySelf: "center" }} />}
         {(c.payme_merchant_id || (c.click_service_id && c.click_merchant_id)) && <button className="btn ghost" onClick={online}>{t("Payme / Click orqali to'lash")}</button>}
-        <div className="note"><ShieldCheck size={18} /><span>{t("Chekni administrator tekshiradi. Chek soxta yoki summa kam bo'lsa, obuna bekor qilinadi.")}</span></div>
+        <div className="note"><ShieldCheck size={18} /><span>{t("Bosqichlar administrator pul kartaga tushganini tasdiqlagandan keyin ochiladi. Bitta chek faqat bir marta qabul qilinadi; soxta chek yuborilsa, chek qabul qilish to'xtatiladi.")}</span></div>
         <p className="err">{err}</p>
       </div>
       {img && <div className="dock"><button className="btn ok" id="go" disabled={busy} onClick={send}>{busy ? t("Yuborilmoqda...") : t("Chekni yuborish")}</button></div>}
