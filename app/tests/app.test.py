@@ -424,23 +424,23 @@ with sync_playwright() as p:
     check("kubok: kun jadvali (raundlar, vaqt, final 17:00), joriy raund belgilangan", pg.locator("#dd-plan li").count() == 3 and "Yarim final" in pg.inner_text("#dd-plan") and "17:00" in pg.inner_text("#dd-plan") and pg.locator("#dd-plan li.now").count() == 1)
 
     # 60 kishi: saralash raundi (28 duel bir vaqtda) — ro'yxat yig'iladi, faqat o'z dueli ko'rinadi
-    big = [{"round": 1, "stage": "qual", "slot": "09:00", "a_name": f"O'yinchi {2*i+1}", "b_name": f"O'yinchi {2*i+2}", "a_pts": 0, "b_pts": 0, "status": "play", "note": None,
+    big = [{"round": 1, "stage": "qual", "slot": "10:00", "a_name": f"O'yinchi {2*i+1}", "b_name": f"O'yinchi {2*i+2}", "a_pts": 0, "b_pts": 0, "status": "play", "note": None,
             "mine": i == 17, "winner_name": None, "champion": None} for i in range(28)]
-    tbl = [{"round": 1, "stage": "qual", "duels": 28, "at": "09:00"}, {"round": 2, "stage": "r32", "duels": 16, "at": "09:40"}, {"round": 3, "stage": "r16", "duels": 8, "at": "10:20"},
-           {"round": 4, "stage": "quarter", "duels": 4, "at": "11:00"}, {"round": 5, "stage": "semi", "duels": 2, "at": "11:40"}, {"round": 6, "stage": "final", "duels": 1, "at": "17:00"}]
+    tbl = [{"round": 1, "stage": "qual", "duels": 28, "at": "10:00"}, {"round": 2, "stage": "r32", "duels": 16, "at": "10:40"}, {"round": 3, "stage": "r16", "duels": 8, "at": "11:20"},
+           {"round": 4, "stage": "quarter", "duels": 4, "at": "14:00"}, {"round": 5, "stage": "semi", "duels": 2, "at": "14:40"}, {"round": 6, "stage": "final", "duels": 1, "at": "17:00"}]
     EXTRA["liga_cup_list"] = big; EXTRA["liga_cup_me2"] = {"players": 60, "bye": False, "table": tbl}
-    EXTRA["liga_day_duel_me"] = {"code": "LDAY123", "slot": "09:00", "stage": "qual", "opp": "O'yinchi 36", "status": "play", "open": True, "closed": False, "my_pts": 0, "opp_pts": 0}
+    EXTRA["liga_day_duel_me"] = {"code": "LDAY123", "slot": "10:00", "stage": "qual", "opp": "O'yinchi 36", "status": "play", "open": True, "closed": False, "my_pts": 0, "opp_pts": 0}
     pg, e = page(b); ALLERR += e
     dd = pg.inner_text("#day-duel")
     check("60 kishi: saralash raundi — faqat o'z duelim ko'rinadi (28 tadan)", pg.locator(".dd-list .r").count() == 1 and pg.locator(".dd-list .r.me").count() == 1 and "Saralash raundi" in dd and "28 duel" in dd, dd[:300])
-    check("60 kishi: jadval saralash 09:00 → 1/16 09:40 → 1/8 10:20 → chorak 11:00 → yarim 11:40 → final 17:00",
-          pg.locator("#dd-plan li").count() == 6 and all(x in pg.inner_text("#dd-plan") for x in ["60 ishtirokchi", "1/16 final", "1/8 final", "09:40", "10:20", "11:00", "11:40", "17:00"]))
+    check("60 kishi: jadval saralash 10:00 → 1/16 10:40 → 1/8 11:20 → (12–14 tanaffus) chorak 14:00 → yarim 14:40 → final 17:00",
+          pg.locator("#dd-plan li").count() == 6 and all(x in pg.inner_text("#dd-plan") for x in ["60 ishtirokchi", "1/16 final", "1/8 final", "10:00", "10:40", "11:20", "14:00", "14:40", "17:00", "12:00–14:00"]))
     pg.click(".dd-more"); pg.wait_for_timeout(300)
     check("«Barcha 28 duelni ko'rish» — hammasi ochiladi", pg.locator(".dd-list .r").count() == 28)
     EXTRA["liga_day_duel_me"] = None; EXTRA["liga_cup_me2"] = {"players": 60, "bye": True, "table": tbl}
     pg, e = page(b); ALLERR += e
     by = pg.inner_text("#dd-bye") if pg.locator("#dd-bye").count() else ""
-    check("1-raunddan avtomatik o'tgan: keyingi duel 09:40 (1/16 final)", "avtomatik" in by and "09:40" in by and "1/16 final" in by, by)
+    check("1-raunddan avtomatik o'tgan: keyingi duel 10:40 (1/16 final)", "avtomatik" in by and "10:40" in by and "1/16 final" in by, by)
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
     by = pg.inner_text("#dd-bye") if pg.locator("#dd-bye").count() else ""
     check("RU: avtomatik o'tish va jadval ruscha", "автоматически" in by and "1/16 финала" in by and "Отборочный раунд" in pg.inner_text("#dd-plan"), by)
@@ -451,7 +451,7 @@ with sync_playwright() as p:
 
     EXTRA["liga_day_duel_me"] = None; EXTRA["liga_cup_list"] = []
     pg, e = page(b, when="2026-10-01T03:00:00Z"); ALLERR += e
-    check("juft hali tuzilmagan: karta 09:00 da tuzilishini aytadi", pg.locator("#dd-wait").count() == 1 and "09:00" in pg.inner_text("#dd-wait"))
+    check("juft hali tuzilmagan: juftlar 09:00 da, duellar 10:00 dan", pg.locator("#dd-wait").count() == 1 and "09:00" in pg.inner_text("#dd-wait") and "10:00" in pg.inner_text("#dd-wait"))
     EXTRA["liga_cup_list"] = [{"round": 3, "stage": "final", "slot": "16:00", "a_name": "Aziz R.", "b_name": "Sardor M.", "a_pts": 6, "b_pts": 2, "status": "done", "note": None, "mine": False, "winner_name": "Aziz R.", "champion": "Aziz Rahimov"}]
     pg, e = page(b); ALLERR += e
     check("kubok g'olibi asosiy ekranda", pg.locator("#dd-champ").count() == 1 and "Aziz Rahimov" in pg.inner_text("#dd-champ"))

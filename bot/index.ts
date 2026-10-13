@@ -93,13 +93,13 @@ const RU: Record<string, string> = {
   "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 15 savol · har biriga 1,5 daqiqa · har duel 30 daqiqa ochiq. G'olib keyingi bosqichga o'tadi.": "🏆 <b>Кубок дуэлей дня</b>\nТолько проводки · 15 вопросов · по 1,5 минуты · каждая дуэль открыта 30 минут. Победитель проходит дальше.",
   "🗓 <b>Kun jadvali</b>": "🗓 <b>Расписание дня</b>",
   "{at} — {st} ({d} duel)": "{at} — {st} ({d} дуэл.)",
-  "Raundning barcha duellari bir vaqtda o'ynaladi. 13:00–14:00 — tanaffus. Raund erta tugasa ham, keyingisi jadvaldagi vaqtda boshlanadi.": "Все дуэли раунда играются одновременно. 13:00–14:00 — перерыв. Даже если раунд закончится раньше, следующий начнётся по расписанию.",
+  "Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Raund erta tugasa ham, keyingisi jadvaldagi vaqtda boshlanadi.": "Все дуэли раунда играются одновременно. 12:00–14:00 — перерыв. Даже если раунд закончится раньше, следующий начнётся по расписанию.",
   "➡️ Keyingi raundga avtomatik o'tdi: {n}": "➡️ Автоматически прошли в следующий раунд: {n}",
   "Bugun <b>{n}</b> kishi qatnashadi: 1-raundda {d} ta duel bir vaqtda o'ynaladi.": "Сегодня участвуют <b>{n}</b> человек: в 1-м раунде одновременно играются {d} дуэлей.",
   "✅ <b>Siz 1-raunddan avtomatik o'tdingiz!</b>\nKeyingi duelingiz — soat <b>{s}</b> ({st}). Raqib 1-raund tugagach ma'lum bo'ladi, bot xabar beradi.": "✅ <b>Вы автоматически прошли 1-й раунд!</b>\nВаша следующая дуэль — в <b>{s}</b> ({st}). Соперник станет известен после 1-го раунда, бот сообщит.",
   "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.": "👉 Ваша дуэль ({st}): в <b>{s}</b>, соперник — <b>{o}</b>.",
   "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 15 savol, har biriga 1,5 daqiqa. Duel 30 daqiqa ochiq.": "🎉 <b>Вы вышли в {st}!</b>\nСоперник: <b>{o}</b>, в <b>{s}</b>. Только проводки, 15 вопросов, по 1,5 минуты. Дуэль открыта 30 минут.",
-  "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.": "🏆 <b>Победитель кубка дуэлей дня — {n}!</b>\nПоздравляем! Следующий кубок — в следующий рабочий день в 09:00.",
+  "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.": "🏆 <b>Победитель кубка дуэлей дня — {n}!</b>\nПоздравляем! Следующий кубок — в следующий рабочий день: пары в 09:00, дуэли с 10:00.",
   "{st} — {s} dan (g'oliblar)": "{st} — с {s} (победители)",
   "✅ <b>To'lovingiz tasdiqlandi!</b>\nBosqichlar ochildi. Obuna: <b>{d}</b> gacha. Omad! 💪": "✅ <b>Оплата подтверждена!</b>\nЭтапы открыты. Подписка до <b>{d}</b>. Удачи! 💪",
   "❌ <b>To'lov chekingiz tasdiqlanmadi</b> — pul kartaga tushmagan.\nBosqichlar yopiq. Haqiqatan to'lagan bo'lsangiz, administratorga yozing: @murtozo_44": "❌ <b>Чек не подтверждён</b> — деньги на карту не поступили.\nЭтапы закрыты. Если вы действительно оплатили, напишите администратору: @murtozo_44",
@@ -227,7 +227,7 @@ function planText(plan: any[], lang?: string | null) {
   if (!plan.length) return "";
   const L = ["\n" + tr(lang, "🗓 <b>Kun jadvali</b>")];
   for (const t of plan) L.push(tr(lang, "{at} — {st} ({d} duel)", { at: String(t.at).slice(0, 5), st: stageName(t.stage, lang), d: t.duels }));
-  L.push(tr(lang, "Raundning barcha duellari bir vaqtda o'ynaladi. 13:00–14:00 — tanaffus. Raund erta tugasa ham, keyingisi jadvaldagi vaqtda boshlanadi."));
+  L.push(tr(lang, "Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Raund erta tugasa ham, keyingisi jadvaldagi vaqtda boshlanadi."));
   return L.join("\n");
 }
 const HEAD = "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 15 savol · har biriga 1,5 daqiqa · har duel 30 daqiqa ochiq. G'olib keyingi bosqichga o'tadi.";
@@ -728,7 +728,7 @@ async function onCron(action: string) {
       news = await toChats(() => `⚖️ <b>Qonun yangiligi</b>\n<b>${esc(x.title_uz)}</b>\n\n${esc(body)}${x.url ? `\n\n🔗 Manba: ${esc(x.url)}` : ""}\n\nIlovada shu yangilik bo'yicha qisqa test bor 👇`);
       await db.from("liga_news").update({ posted_at: new Date().toISOString() }).eq("id", x.id);
     }
-    // kunlik duel kubogi: tasodifiy juftlar (09:00 dan, final 17:00), jadval — hammaga va guruhga
+    // kunlik duel kubogi: tasodifiy juftlar 09:00 da (duellar 10:00 dan, 12:00–14:00 tanaffus, final 17:00), jadval — hammaga va guruhga
     let duels = 0;
     const { data: dp } = await db.rpc("liga_cup_start_sys");
     if (((dp ?? []) as any[]).some((x) => x.fresh)) duels = await cupBroadcast((dp ?? []) as any[]);
@@ -758,10 +758,10 @@ async function onCron(action: string) {
       else if (x.kind === "start") {
         const [h, mi] = s5.split(":").map(Number), em = h * 60 + mi + 30, e = `${String(Math.floor(em / 60)).padStart(2, "0")}:${String(em % 60).padStart(2, "0")}`;
         text = "<b>" + stageName(st, x.lang) + "</b>\n" + tr(x.lang, "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.", { o: esc(x.opp_name ?? ""), e });
-      } else if (x.kind === "champ") { text = tr(x.lang, "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.", { n: esc(x.extra ?? "") }); champG.add(x.group_code + "|" + (x.extra ?? "")); }
+      } else if (x.kind === "champ") { text = tr(x.lang, "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.", { n: esc(x.extra ?? "") }); champG.add(x.group_code + "|" + (x.extra ?? "")); }
       if (text && await dm(x.tg, text, btn)) sent++;
     }
-    for (const k of champG) { const [code, nm] = k.split("|"); for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: tr("uz", "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.", { n: esc(nm) }) }); }
+    for (const k of champG) { const [code, nm] = k.split("|"); for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: tr("uz", "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.", { n: esc(nm) }) }); }
     return { ok: true, sent };
   }
   if (action === "cup_schedule") {

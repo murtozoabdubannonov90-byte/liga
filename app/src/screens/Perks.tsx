@@ -139,14 +139,14 @@ export function DayDuelCard() {
           : open ? t("Duel ochiq — raqibingiz bilan bir vaqtda kiring.") : d.closed ? t("Vaqt tugadi") : t("Faqat provodka · 15 savol · har biriga 1,5 daqiqa · soat {s} da ochiladi, 30 daqiqa ochiq", { s: d.slot })}</p>
         {!done && <button className={"btn " + (open ? "" : "ghost")} style={{ marginTop: 10 }} id="dd-go" onClick={() => go("duel", { code: d.code })}>{open ? t("Duelga kirish") : t("Duelni ochish")}</button>}
       </> : me2?.bye && next ? <p className="dd-bye" id="dd-bye">{t("Siz 1-raunddan avtomatik o'tdingiz. Keyingi duelingiz — soat {s} ({st}). Raqib 1-raund tugagach chiqadi.", { s: next.at, st: stageName(next.stage) })}</p>
-        : <p className="small muted" style={{ fontWeight: 600 }} id="dd-wait">{wk || (n.wd === 5 && n.h >= 9 && !list.length) ? t("Kubok juftlari dushanba soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
-          : n.h < 9 ? t("Kubok juftlari bugun soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
-          : list.length ? t("Bugungi kubok 09:00 da tuzilgan — siz ro'yxatga kirmadingiz. Keyingi kubok — {w} soat 09:00 da.", { w: nextWord() }) : t("Kubok har ish kuni soat 09:00 da tasodifiy tuziladi. Keyingisi — ertaga 09:00 da.")}</p>}
+        : <p className="small muted" style={{ fontWeight: 600 }} id="dd-wait">{wk || (n.wd === 5 && n.h >= 9 && !list.length) ? t("Kubok juftlari dushanba soat 09:00 da tasodifiy tuziladi, duellar 10:00 dan. Bot sizga raqibingiz va soatni yuboradi.")
+          : n.h < 9 ? t("Kubok juftlari bugun soat 09:00 da tasodifiy tuziladi, duellar 10:00 dan. Bot sizga raqibingiz va soatni yuboradi.")
+          : list.length ? t("Bugungi kubok 09:00 da tuzilgan — siz ro'yxatga kirmadingiz. Keyingi kubok — {w}: juftlar 09:00 da, duellar 10:00 dan.", { w: nextWord() }) : t("Kubok har ish kuni: juftlar 09:00 da, duellar 10:00 dan. Keyingisi — ertaga.")}</p>}
       {plan.length > 1 && <div className="dd-plan" id="dd-plan">
         <p className="small" style={{ fontWeight: 800 }}>{t("Kun jadvali · {n} ishtirokchi", { n: me2.players })}</p>
         <ol>{plan.map((x) => <li key={x.round} className={x.round === cur ? "now" : x.round < cur ? "past" : ""}>
           <span className="num">{x.at}</span><b>{stageName(x.stage)}</b><small>{t("{d} duel", { d: x.duels })}</small></li>)}</ol>
-        <p className="tiny muted">{t("Raundning barcha duellari bir vaqtda o'ynaladi. 13:00–14:00 — tanaffus. Final — 17:00.")}</p>
+        <p className="tiny muted">{t("Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Final — 17:00.")}</p>
       </div>}
       {rounds.map((r) => { const rr = list.filter((x) => x.round === r), big = rr.length > BIG && !all[r], mine = rr.filter((x) => x.mine); return (
         <div key={r}>
