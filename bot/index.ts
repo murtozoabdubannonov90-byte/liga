@@ -482,8 +482,10 @@ async function onUpdate(u: any) {
     const code = priv && /^g_/i.test(arg) ? arg.slice(2).toUpperCase().replace(/[^A-Z0-9]/g, "") : (priv ? "" : await chatGroup(m.chat.id));
     let gname = "";
     if (code) { const { data } = await db.from("liga_groups").select("name").eq("code", code).maybeSingle(); gname = data?.name ?? ""; }
+    const { data: freeN } = priv && (!code || code === "ASOSIY") ? await db.rpc("liga_free_days") : { data: 0 };
+    const freeLine = Number(freeN) > 0 ? `🎁 <b>Yangi a'zolarga birinchi ${Number(freeN)} kun bepul!</b> Ro'yxatdan o'ting va darhol o'ynang.\n\n` : "";
     await reply(priv
-      ? `🏆 <b>Hisobchi Liga</b>${gname ? ` — «${esc(gname)}»` : ""}\n\nProvodka, QQS, ish haqi, soliq va hisobotlar bo'yicha har kuni yangi bosqich. Har ish kuni 09:00–17:00, juma 09:00–12:00.\n\n${code ? `Jamoa kodi: <b>${esc(code)}</b> — ro'yxatdan o'tishda avtomatik qo'yiladi.\n\n` : ""}Ilovani ochish uchun tugmani bosing:`
+      ? `🏆 <b>Hisobchi Liga</b>${gname ? ` — «${esc(gname)}»` : ""}\n\nProvodka, QQS, ish haqi, soliq va hisobotlar bo'yicha har kuni yangi bosqich. Har ish kuni 09:00–17:00, juma 09:00–12:00.\n\n${freeLine}${code ? `Jamoa kodi: <b>${esc(code)}</b> — ro'yxatdan o'tishda avtomatik qo'yiladi.\n\n` : ""}Ilovani ochish uchun tugmani bosing:`
       : "🏆 Ligani ochish uchun tugmani bosing:", priv ? openApp(code) : openBot(code));
   } else if (cmd === "/ulash") {
     if (priv) return reply("Bu buyruq Telegram guruhda ishlaydi: botni guruhga qo'shing va guruhda <b>/ulash KOD</b> deb yozing.");

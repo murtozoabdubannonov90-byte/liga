@@ -169,6 +169,11 @@ Obuna tugasa, bosqichlar yopiladi va ilovada ogohlantirish chiqadi.
 4. SQL: `update liga_bot_config set value='MERCHANT_ID' where key='payme_merchant_id';` (Click uchun `click_service_id`, `click_merchant_id`).
 Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 
+## Yangi a'zolarga bepul davr (2026-10-13)
+- 10.10.2026 dan keyin ro'yxatdan o'tgan har bir o'yinchi ro'yxatdan o'tgan kunidan **30 kun bepul** o'ynaydi (`liga_bot_config`: `free_days` = 30, `free_from` = 2026-10-10). Ro'yxatdan o'tishda to'lov sahifasi ochilmaydi, ilova va bot «birinchi 30 kun bepul» deb yozadi.
+- Muddat `liga_eff_until` ichida hisoblanadi; bepul davrda to'lasa obuna bepul davr tugagan kundan uzayadi.
+- Kunlar sonini o'zgartirish: `update liga_bot_config set value = '14' where key = 'free_days';` · o'chirish: `value = '0'`.
+
 ## To'lov cheki — soxtadan himoya (2026-10-12)
 - Chek (ilova yoki bot orqali) faqat **tekshiruvga** tushadi (`status = 'check'`), bosqichlar **yopiq** qoladi.
 - Adminga bot chek rasmini yuboradi: summa, kartangizning oxirgi 4 raqami, o'yinchining avval rad etilgan cheklari soni. Bank ilovasida pul tushganini ko'rib «✅ Pul tushdi — ochish» bosiladi — obuna to'lov kunidan 30 kun ochiladi; «❌ Soxta» — rad. O'yinchiga ikkala holatda ham botdan xabar boradi (ilovadagi admin panel orqali qaror qilinsa ham).

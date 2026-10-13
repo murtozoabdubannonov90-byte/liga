@@ -858,4 +858,7 @@ export const RU: Record<string, string> = {
   "Tekshirilmoqda": "Проверяется",
   "har savolga · hamma uchun teng": "на вопрос · для всех одинаково",
   "⏳ Chek tekshirilmoqda — tasdiqlangach bosqichlar ochiladi": "⏳ Чек проверяется — после подтверждения этапы откроются",
+  "Yangi a'zolarga birinchi {n} kun bepul!": "Новым участникам первые {n} дней бесплатно!",
+  "Ro'yxatdan o'ting va darhol o'ynang — to'lov kerak emas.": "Регистрируйтесь и играйте сразу — оплата не нужна.",
+  "Ligada qatnashish: oyiga {p} so'm. Ro'yxatdan o'tgach kartaga to'lab, chekni yuborasiz — administrator tasdiqlagach ligaga qo'shilasiz.": "Участие в лиге: {p} сум в месяц. После регистрации переведите деньги на карту и отправьте чек — после подтверждения администратором вы в лиге.",
 };

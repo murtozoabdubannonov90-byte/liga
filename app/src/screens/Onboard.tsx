@@ -1,7 +1,7 @@
 import { tgUser, inTelegram, openTg, BOT_LINK } from "../lib/tg";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ShieldCheck, CreditCard, Check, Send } from "lucide-react";
+import { ShieldCheck, CreditCard, Check, Send, Gift } from "lucide-react";
 import { S, persist } from "../engine/state";
 import { LANGS, setLang, t, type Lang } from "../lib/i18n";
 import { rpc, joinServer, pull, setLangServer, loginViaBot } from "../engine/server";
@@ -55,6 +55,8 @@ export function Register() {
   const tu = tgUser(); const [f, setF] = useState(S.user.first || tu?.first_name || ""), [l, setL] = useState(S.user.last || tu?.last_name || ""), [p, setP] = useState(""), [rg, setRg] = useState(S.user.region || "");
   const [g, setG] = useState(entry.g || ""), [gname, setGname] = useState(""), [err, setErr] = useState(""), [busy, setBusy] = useState(false);
   const personal = !g || g === "ASOSIY";
+  const [free, setFree] = useState<number>(S.freeDays || 0);
+  useEffect(() => { rpc<number>("liga_free_days").then((v) => { S.freeDays = Number(v) || 0; persist(); setFree(S.freeDays); }).catch(() => {}); }, []);
   useEffect(() => {
     const c = g.trim().toUpperCase(); if (!c) { setGname(""); return; }
     const tm = setTimeout(async () => {
@@ -78,12 +80,13 @@ export function Register() {
     if (code) { try { const r = await rpc<any[]>("liga_group_public", { p_code: code }); if (r && r[0]) { S.group = { code: r[0].code, name: r[0].name, start: r[0].start_date, ok: r[0].ok }; setLigaStart(r[0].start_date); } } catch { S.group = { code }; } }
     else S.group = { code: "ASOSIY" };
     S.user = { first: f.trim(), last: l.trim(), phone: ph, region: rg }; S.name = f.trim();
-    if (S.group?.code === "ASOSIY") S.me = { personal: true, ok: false, price: 30000 };
+    if (S.group?.code === "ASOSIY") S.me = { personal: true, ok: !!S.freeDays, price: 30000 };
     persist();
     const r = await joinServer(); setBusy(false);
     if (!r.ok) { setErr(r.msg); if (S.joinErr) return; toast(r.msg); } else { sfx("win"); burst(); }
     pull(true);
-    if (S.group?.code === "ASOSIY" && !S.trial) { tab("home"); go("pay", { first: true }); } else tab("home");
+    // yangi a'zolarga boshida bepul davr — to'lov sahifasi ochilmaydi
+    if (S.group?.code === "ASOSIY" && !S.trial && !S.freeDays) { tab("home"); go("pay", { first: true }); } else tab("home");
   };
   return (
     <div className="shell bare">
@@ -100,7 +103,9 @@ export function Register() {
         <div className="field"><label htmlFor="g">{t("Jamoa kodi")} <span className="muted small">({t("bo'lmasa bo'sh qoldiring")})</span></label>
           <input id="g" className="inp mono" value={g} onChange={(e) => setG(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))} placeholder="BX12AB" autoCapitalize="characters" />
           {gname && <span className="small" style={{ fontWeight: 700 }}>{gname}</span>}</div>
-        {personal && !S.trial && <div className="note"><CreditCard size={18} /><span>{t("Ligada qatnashish: oyiga {p} so'm. Ro'yxatdan o'tgach kartaga to'lab, chekni yuborasiz — shu zahoti ligaga qo'shilasiz.", { p: fmt(S.payCfg?.price || 30000) })}</span></div>}
+        {personal && !S.trial && (free > 0
+          ? <div className="note" id="free-note" style={{ background: "var(--green-soft)" }}><Gift size={18} color="var(--green)" /><span><b>{t("Yangi a'zolarga birinchi {n} kun bepul!", { n: free })}</b> {t("Ro'yxatdan o'ting va darhol o'ynang — to'lov kerak emas.")}</span></div>
+          : <div className="note"><CreditCard size={18} /><span>{t("Ligada qatnashish: oyiga {p} so'm. Ro'yxatdan o'tgach kartaga to'lab, chekni yuborasiz — administrator tasdiqlagach ligaga qo'shilasiz.", { p: fmt(S.payCfg?.price || 30000) })}</span></div>)}
         <div className="note"><ShieldCheck size={18} /><span>{t("Telefon raqamingizni faqat jamoa administratori ko'radi.")}</span></div>
         <p className="err" role="alert">{err}</p>
       </div>

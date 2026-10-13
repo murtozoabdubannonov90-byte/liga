@@ -101,6 +101,7 @@ export async function pull(force = false) {
       const dl = await rpc<any[]>("liga_cup_list", { p_id: S.pid }).catch(() => null); if (dl) S.dl = dl;
     }
     rpc<boolean>("liga_trial").then((v) => { S.trial = !!v; persist(); }).catch(() => {});
+    rpc<number>("liga_free_days").then((v) => { S.freeDays = Number(v) || 0; persist(); }).catch(() => {});
     rpc<any[]>("liga_pay_config2").then((c) => { if (c && c[0]) { S.payCfg = c[0]; persist(); } }).catch(() => {});
     if (S.adminPin) rpc<any[]>("liga_admin_list2", { p_pin: S.adminPin }).then((x) => { S.adminRows = x; persist(); }).catch(() => {});
     persist();

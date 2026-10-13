@@ -153,6 +153,14 @@ with sync_playwright() as p:
     pg.click("#go"); pg.wait_for_timeout(900)
     check("raqam band bo'lsa to'lovga o'tmaydi, Telegram orqali kirish taklif qilinadi", "5614" not in txt(pg) and "Telegram bilan kiring" in txt(pg), txt(pg)[-300:])
     del EXTRA["liga_join3"]
+    EXTRA["liga_free_days"] = 30
+    pg, e = page(b, seed={}); ALLERR += e
+    pg.click("text=O'zbekcha"); pg.wait_for_timeout(500)
+    check("yangi a'zo: «birinchi 30 kun bepul» yozuvi", pg.locator("#free-note").count() == 1 and "30 kun bepul" in pg.inner_text("#free-note"), txt(pg)[-300:])
+    pg.fill("#f", "Yangi"); pg.fill("#l", "Odam"); pg.fill("#p", "+998901119988"); pg.select_option("#rg", "Toshkent shahri")
+    pg.click("#go"); pg.wait_for_timeout(900)
+    check("bepul davr: ro'yxatdan keyin to'lov sahifasi ochilmaydi", "5614" not in txt(pg) and pg.locator("#pay-sent, #pay-pending").count() == 0 and S(pg, "S.me.ok") is True, txt(pg)[:200])
+    del EXTRA["liga_free_days"]
 
     print("5. Mashq rejimlari")
     pg, e = page(b); ALLERR += e
