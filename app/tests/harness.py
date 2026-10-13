@@ -142,6 +142,7 @@ def body_for(fn, args):
                         {"round": 1, "stage": "quarter", "slot": "11:00", "a_name": "Bekzod T.", "b_name": "Sardor M.", "a_pts": 3, "b_pts": 5, "status": "done", "note": None, "mine": False, "winner_name": "Sardor M.", "champion": None},
                         {"round": 1, "stage": "quarter", "slot": "11:30", "a_name": "Dilnoza K.", "b_name": "Nodira A.", "a_pts": 0, "b_pts": 0, "status": "wait", "note": None, "mine": True, "winner_name": None, "champion": None},
                         {"round": 1, "stage": "quarter", "slot": "12:00", "a_name": "Olim B.", "b_name": "Kamola D.", "a_pts": 0, "b_pts": 0, "status": "wait", "note": None, "mine": False, "winner_name": None, "champion": None}],
+      "liga_cup_me2": {"players": 8, "bye": False, "table": [{"round": 1, "stage": "quarter", "duels": 4, "at": "09:00"}, {"round": 2, "stage": "semi", "duels": 2, "at": "09:40"}, {"round": 3, "stage": "final", "duels": 1, "at": "17:00"}]},
       "liga_day_duels_admin": [{"slot": "10:00", "a_name": "Aziz Rahimov", "b_name": "Malika Sobirova", "a_pts": 6, "b_pts": 4, "status": "done", "note": None},
                                {"slot": "11:30", "a_name": "Dilnoza Karimova", "b_name": "Bekzod T", "a_pts": 0, "b_pts": 0, "status": "wait", "note": None}],
       "liga_admin_live": [{"name": "Aziz Rahimov", "today_si": 5, "today_pts": 240, "today_right": 15, "today_done": 20, "today_n": 20, "today_finished": True, "week_pts": 480, "week_stages": 2, "last_at": None},

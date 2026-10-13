@@ -55,8 +55,6 @@ const RU: Record<string, string> = {
   "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.": "☀️ <b>Доброе утро, {n}!</b>\nСегодня открыт <b>этап {s}</b> — 20 вопросов.\n⏰ Открыт до {c}.",
   "Bosqichni boshlash": "Начать этап",
   "📢 <b>Hisobchi Liga — muhim yangiliklar!</b>\n\n1️⃣ <b>Ertadan (14-oktabr) yangi kunlik reja:</b> har kuni o'z mavzusi — 15 provodka + 5 qonun savoli (Soliq kodeksi, Prezident farmon va qarorlari). Oy oxirigacha osondan qiyinga.\n\n2️⃣ <b>Oktabr reytingi 12-oktabr (dushanba)dan hisoblanmoqda</b> — undan oldingi ballar kirmaydi. Har bir bosqich bali muhim!\n\n3️⃣ 🏆 <b>Katta final — 28-dekabr:</b> oktabr va noyabrning kuchli uchligi (6 kishi) bellashadi.\n\n4️⃣ ⚔️ <b>Kunlik duel kubogi</b> 09:00 dan boshlanadi, final — 17:00 da (13:00–14:00 — tanaffus).\n\n5️⃣ 🥇🥈🥉 Haftalik kuchli uchlikka o'ringa qarab <b>medal va QR kodli sertifikat</b> — juma kuni avtomatik beriladi.\n\n6️⃣ Endi «XP» o'rniga <b>ball</b> deymiz — har bir to'g'ri javob uchun beriladigan ochko. Reyting shu ball bo'yicha.\n\nErtaga soat 09:00 da — 1-kun: «Kassa va bank». Omad! 💪": "📢 <b>Hisobchi Liga — важные новости!</b>\n\n1️⃣ <b>С завтрашнего дня (14 октября) — новый план:</b> у каждого дня своя тема — 15 проводок + 5 вопросов по законодательству (Налоговый кодекс, указы и постановления Президента). До конца месяца — от простого к сложному.\n\n2️⃣ <b>Рейтинг октября считается с 12 октября (понедельник)</b> — более ранние баллы не учитываются. Важен балл каждого этапа!\n\n3️⃣ 🏆 <b>Большой финал — 28 декабря:</b> сразятся тройки октября и ноября (6 человек).\n\n4️⃣ ⚔️ <b>Кубок дуэлей дня</b> начинается в 09:00, финал — в 17:00 (13:00–14:00 — перерыв).\n\n5️⃣ 🥇🥈🥉 Тройке недели — <b>медаль по месту и сертификат с QR-кодом</b>, выдаются автоматически в пятницу.\n\n6️⃣ Вместо «XP» теперь говорим <b>баллы</b> — очки за каждый верный ответ. Рейтинг считается по баллам.\n\nЗавтра в 09:00 — день 1: «Касса и банк». Удачи! 💪",
-  "Keyingi raund — oldingisi tugagach ~10 daqiqada. <b>Final — 17:00</b>. 13:00–14:00 — tanaffus.": "Следующий раунд — примерно через 10 минут после окончания предыдущего. <b>Финал — в 17:00</b>. 13:00–14:00 — перерыв.",
-  "<b>Final — 17:00</b> (g'oliblar o'ynaydi).": "<b>Финал — в 17:00</b> (играют победители).",
   "{m} <b>Tabriklaymiz, {n}! Siz haftalik ligada {p}-o'rinni egalladingiz.</b>\nMedalingiz va QR kodli sertifikatingiz tayyor — uni ish beruvchingizga ham ko'rsatishingiz mumkin.": "{m} <b>Поздравляем, {n}! Вы заняли {p}-е место в недельной лиге.</b>\nВаша медаль и сертификат с QR-кодом готовы — его можно показать и работодателю.",
   "Sertifikatni ochish": "Открыть сертификат",
   "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich: «{t}»</b> ochildi — 15 provodka + 5 qonun savoli.\n⏰ Soat {c} gacha ochiq.": "☀️ <b>Доброе утро, {n}!</b>\nСегодня открыт <b>этап {s}: «{t}»</b> — 15 проводок + 5 вопросов по законодательству.\n⏰ Открыт до {c}.",
@@ -93,6 +91,12 @@ const RU: Record<string, string> = {
   "👉 Sizning duelingiz: soat <b>{s}</b>, raqib — <b>{o}</b>.\n📒 Faqat provodka, 10 savol, har biriga 1 daqiqa. Kim birinchi to'g'ri topsa — ochko o'shaniki. Duel 1 soat ochiq.": "👉 Ваша дуэль: в <b>{s}</b>, соперник — <b>{o}</b>.\n📒 Только проводки, 10 вопросов, по 1 минуте. Кто первым ответит верно — получает очко. Дуэль открыта 1 час.",
   "⏳ <b>Duelga 5 daqiqa qoldi!</b>\nSoat {s} da raqibingiz <b>{o}</b> bilan bellashasiz. Ilovani oching.": "⏳ <b>До дуэли 5 минут!</b>\nВ {s} вы соревнуетесь с <b>{o}</b>. Откройте приложение.",
   "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 15 savol · har biriga 1,5 daqiqa · har duel 30 daqiqa ochiq. G'olib keyingi bosqichga o'tadi.": "🏆 <b>Кубок дуэлей дня</b>\nТолько проводки · 15 вопросов · по 1,5 минуты · каждая дуэль открыта 30 минут. Победитель проходит дальше.",
+  "🗓 <b>Kun jadvali</b>": "🗓 <b>Расписание дня</b>",
+  "{at} — {st} ({d} duel)": "{at} — {st} ({d} дуэл.)",
+  "Raundning barcha duellari bir vaqtda o'ynaladi. 13:00–14:00 — tanaffus. Raund erta tugasa ham, keyingisi jadvaldagi vaqtda boshlanadi.": "Все дуэли раунда играются одновременно. 13:00–14:00 — перерыв. Даже если раунд закончится раньше, следующий начнётся по расписанию.",
+  "➡️ Keyingi raundga avtomatik o'tdi: {n}": "➡️ Автоматически прошли в следующий раунд: {n}",
+  "Bugun <b>{n}</b> kishi qatnashadi: 1-raundda {d} ta duel bir vaqtda o'ynaladi.": "Сегодня участвуют <b>{n}</b> человек: в 1-м раунде одновременно играются {d} дуэлей.",
+  "✅ <b>Siz 1-raunddan avtomatik o'tdingiz!</b>\nKeyingi duelingiz — soat <b>{s}</b> ({st}). Raqib 1-raund tugagach ma'lum bo'ladi, bot xabar beradi.": "✅ <b>Вы автоматически прошли 1-й раунд!</b>\nВаша следующая дуэль — в <b>{s}</b> ({st}). Соперник станет известен после 1-го раунда, бот сообщит.",
   "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.": "👉 Ваша дуэль ({st}): в <b>{s}</b>, соперник — <b>{o}</b>.",
   "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 15 savol, har biriga 1,5 daqiqa. Duel 30 daqiqa ochiq.": "🎉 <b>Вы вышли в {st}!</b>\nСоперник: <b>{o}</b>, в <b>{s}</b>. Только проводки, 15 вопросов, по 1,5 минуты. Дуэль открыта 30 минут.",
   "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni 09:00 da.": "🏆 <b>Победитель кубка дуэлей дня — {n}!</b>\nПоздравляем! Следующий кубок — в следующий рабочий день в 09:00.",
@@ -193,39 +197,82 @@ async function dayTopDm(top: any[], w: number) {
   return n;
 }
 // duel kubogi: bosqich nomlari va jadval matni
-const STAGE_UZ: Record<string, string> = { quarter: "Chorak final", semi: "Yarim final", final: "Final" };
-const STAGE_RU: Record<string, string> = { quarter: "Четвертьфинал", semi: "Полуфинал", final: "Финал" };
-const STAGE_RU_ACC: Record<string, string> = { quarter: "четвертьфинал", semi: "полуфинал", final: "финал" };
-const stageName = (st: string, lang?: string | null) => { const ru = lang === "ru"; const m = (ru ? STAGE_RU : STAGE_UZ)[st]; return m ?? (ru ? `Раунд ${st.slice(1)}` : `${st.slice(1)}-bosqich`); };
+const STAGE_UZ: Record<string, string> = { qual: "Saralash raundi", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
+const STAGE_RU: Record<string, string> = { qual: "Отборочный раунд", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "Четвертьфинал", semi: "Полуфинал", final: "Финал" };
+const STAGE_RU_ACC: Record<string, string> = { qual: "отборочный раунд", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "четвертьфинал", semi: "полуфинал", final: "финал" };
+const stageName = (st: string, lang?: string | null) => {
+  const ru = lang === "ru", m = (ru ? STAGE_RU : STAGE_UZ)[st]; if (m) return m;
+  const k = /^r(\d+)$/.exec(st); const n = k ? Number(k[1]) : 0;
+  return n >= 4 ? (ru ? `1/${n / 2} финала` : `1/${n / 2} final`) : (ru ? "Раунд" : "Raund");
+};
 const stageTo = (st: string, lang?: string | null) => (lang === "ru" ? STAGE_RU_ACC[st] ?? stageName(st, lang) : stageName(st, lang).toLowerCase());
 async function cupBoard() {
   const { data } = await db.rpc("liga_cup_board_sys"); const by: Record<string, any[]> = {};
   for (const x of (data ?? []) as any[]) (by[x.group_code] ??= []).push(x);
   return by;
 }
-function cupText(rows: any[], lang?: string | null) {
-  const out: string[] = [tr(lang, "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 15 savol · har biriga 1,5 daqiqa · har duel 30 daqiqa ochiq. G'olib keyingi bosqichga o'tadi.")];
+// bugun 1-raunddan avtomatik o'tganlar (guruh bo'yicha)
+async function cupByes() {
+  const { data } = await db.rpc("liga_cup_byes_sys"); const by: Record<string, any[]> = {};
+  for (const x of (data ?? []) as any[]) (by[x.group_code] ??= []).push(x);
+  return by;
+}
+// kun jadvali: ishtirokchilar soniga qarab raundlar va vaqtlari
+async function cupPlan(n: number) {
+  if (n < 2) return [] as any[];
+  const { data } = await db.rpc("liga_cup_timetable", { p_n: n });
+  return (data ?? []) as any[];
+}
+function planText(plan: any[], lang?: string | null) {
+  if (!plan.length) return "";
+  const L = ["\n" + tr(lang, "🗓 <b>Kun jadvali</b>")];
+  for (const t of plan) L.push(tr(lang, "{at} — {st} ({d} duel)", { at: String(t.at).slice(0, 5), st: stageName(t.stage, lang), d: t.duels }));
+  L.push(tr(lang, "Raundning barcha duellari bir vaqtda o'ynaladi. 13:00–14:00 — tanaffus. Raund erta tugasa ham, keyingisi jadvaldagi vaqtda boshlanadi."));
+  return L.join("\n");
+}
+const HEAD = "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 15 savol · har biriga 1,5 daqiqa · har duel 30 daqiqa ochiq. G'olib keyingi bosqichga o'tadi.";
+// to'liq jadval (guruh uchun) — Telegram 4096 belgi chegarasini hisobga olib bo'laklarga ajratiladi
+function cupText(rows: any[], lang?: string | null, byes: any[] = [], plan: any[] = []) {
+  const out: string[] = [tr(lang, HEAD)];
   const rounds = [...new Set(rows.map((r) => r.round))].sort((a, b) => a - b);
   for (const r of rounds) {
     const rr = rows.filter((x) => x.round === r);
-    out.push("\n<b>" + tr(lang, stageName(rr[0].stage, lang)) + "</b>");
-    for (const x of rr) out.push(`${String(x.slot).slice(0, 5)} — ${esc(x.a_name ?? "")} ⚔️ ${esc(x.b_name ?? "")}${x.winner_name ? " · ✅ " + esc(x.winner_name) : ""}`);
+    out.push("\n<b>" + stageName(rr[0].stage, lang) + "</b> · " + String(rr[0].slot).slice(0, 5));
+    rr.forEach((x, i) => out.push(`${i + 1}. ${esc(x.a_name ?? "")} ⚔️ ${esc(x.b_name ?? "")}${x.winner_name ? " · ✅ " + esc(x.winner_name) : ""}`));
+    if (r === 1 && byes.length) out.push(tr(lang, "➡️ Keyingi raundga avtomatik o'tdi: {n}", { n: byes.map((b) => esc(b.name ?? "")).join(", ") }));
   }
-  const last = rows.filter((x) => x.round === rounds[rounds.length - 1]).length;
-  if (last >= 4) out.push("\n" + tr(lang, "Keyingi raund — oldingisi tugagach ~10 daqiqada. <b>Final — 17:00</b>. 13:00–14:00 — tanaffus."));
-  else if (last === 2) out.push("\n" + tr(lang, "<b>Final — 17:00</b> (g'oliblar o'ynaydi)."));
-  return out.join("\n");
+  out.push(planText(plan, lang));
+  return out.filter(Boolean).join("\n");
+}
+// shaxsiy xabar uchun qisqa jadval: umumiy son, kun jadvali va o'z dueli
+function cupShort(rows: any[], lang: string | null | undefined, byes: any[], plan: any[]) {
+  const r1 = rows.filter((x) => x.round === 1).length, n = r1 * 2 + byes.length;
+  return tr(lang, HEAD) + "\n\n" + tr(lang, "Bugun <b>{n}</b> kishi qatnashadi: 1-raundda {d} ta duel bir vaqtda o'ynaladi.", { n, d: r1 }) + planText(plan, lang);
+}
+function chunks(text: string, max = 3900) {
+  const out: string[] = []; let cur = "";
+  for (const line of text.split("\n")) { if ((cur + "\n" + line).length > max && cur) { out.push(cur); cur = line; } else cur = cur ? cur + "\n" + line : line; }
+  if (cur) out.push(cur);
+  return out;
 }
 // jadvalni hammaga (shaxsan, o'z dueli bilan) va jamoa guruhlariga yuborish
 async function cupBroadcast(rows: any[]) {
-  const by = await cupBoard(); let n = 0;
-  for (const code of Object.keys(by)) for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: cupText(by[code]) });
+  const by = await cupBoard(), bys = await cupByes(); let n = 0;
+  const plans: Record<string, any[]> = {};
+  for (const code of Object.keys(by)) plans[code] = await cupPlan(by[code].filter((x) => x.round === 1).length * 2 + (bys[code] ?? []).length);
+  for (const code of Object.keys(by)) for (const c of await chatsOf(code))
+    for (const part of chunks(cupText(by[code], "uz", bys[code] ?? [], plans[code]))) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: part });
   const mine: Record<string, any> = {}; for (const x of rows) mine[x.player] = x;
+  const bye: Record<string, any> = {}; for (const code of Object.keys(bys)) for (const b of bys[code]) bye[b.player] = b;
   const { data: ppl } = await db.rpc("liga_cup_people_sys");
   for (const p of (ppl ?? []) as any[]) {
     const m = mine[p.player], board = by[p.group_code]; if (!board) continue;
-    const txt = cupText(board, p.lang) + (m ? "\n\n" + tr(p.lang, "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.", { st: stageName(m.stage, p.lang), s: String(m.slot).slice(0, 5), o: esc(m.opp_name ?? "") }) : "");
-    if (await dm(p.tg, txt, m ? appBtn(tr(p.lang, "Duelni ochish"), "?d=" + m.code) : appBtn(tr(p.lang, "Ligani ochish")))) n++;
+    const bb = bys[p.group_code] ?? [], plan = plans[p.group_code] ?? [];
+    let txt = board.length > 8 ? cupShort(board, p.lang, bb, plan) : cupText(board, p.lang, bb, plan);
+    if (m) txt += "\n\n" + tr(p.lang, "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.", { st: stageName(m.stage, p.lang), s: String(m.slot).slice(0, 5), o: esc(m.opp_name ?? "") });
+    else if (bye[p.player]) txt += "\n\n" + tr(p.lang, "✅ <b>Siz 1-raunddan avtomatik o'tdingiz!</b>\nKeyingi duelingiz — soat <b>{s}</b> ({st}). Raqib 1-raund tugagach ma'lum bo'ladi, bot xabar beradi.",
+      { s: String(plan[1]?.at ?? "").slice(0, 5), st: stageName(plan[1]?.stage ?? "", p.lang) });
+    if (await dm(p.tg, txt.length > 4000 ? cupShort(board, p.lang, bb, plan) : txt, m ? appBtn(tr(p.lang, "Duelni ochish"), "?d=" + m.code) : appBtn(tr(p.lang, "Ligani ochish")))) n++;
   }
   return n;
 }

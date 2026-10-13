@@ -105,19 +105,30 @@ export function TeamLiveCard() {
     </section>);
 }
 
-/* bosh sahifa: kunlik duel kubogi — mening duelim, bosqichlar jadvali (chorak final → yarim final → final) */
-const STAGE: Record<string, string> = { quarter: "Chorak final", semi: "Yarim final", final: "Final" };
-export const stageName = (st?: string) => (st ? (STAGE[st] ? t(STAGE[st]) : t("{n}-bosqich", { n: st.slice(1) })) : "");
+/* bosh sahifa: kunlik duel kubogi — mening duelim, kun jadvali (saralash → 1/16 → 1/8 → chorak → yarim → final 17:00) */
+const STAGE: Record<string, string> = { qual: "Saralash raundi", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
+export const stageName = (st?: string) => {
+  if (!st) return "";
+  if (STAGE[st]) return t(STAGE[st]);
+  const m = /^r(\d+)$/.exec(st); return m && Number(m[1]) >= 4 ? t("1/{n} final", { n: Number(m[1]) / 2 }) : t("Raund");
+};
+const BIG = 8;          // bundan ko'p duelli raund yig'ib ko'rsatiladi (faqat o'z dueli + «hammasini ko'rish»)
 export function DayDuelCard() {
   useNow(20000);
+  const [all, setAll] = useState<Record<number, boolean>>({});
   if (!S.pid) return null;
-  const d = S.dd, list: any[] = S.dl || [], n = tzNow(), wk = n.wd === 0 || n.wd === 6;
+  const d = S.dd, list: any[] = S.dl || [], me2 = S.dm, n = tzNow(), wk = n.wd === 0 || n.wd === 6;
+  const plan: { round: number; stage: string; duels: number; at: string }[] = me2?.table || [];
   const done = d?.status === "done", open = !!d?.open && !done;
   const champ = list.find((x) => x.champion)?.champion;
   const res = done ? (d.won ? (d.stage === "final" ? t("Siz kubok g'olibisiz! 🏆") : t("Siz keyingi bosqichga chiqdingiz!")) : t("Bu safar raqib kuchliroq — ertaga yana kubok")) : "";
   const rounds = [...new Set(list.map((x) => x.round))].sort((a, b) => a - b);
-  const lastN = rounds.length ? list.filter((x) => x.round === rounds[rounds.length - 1]).length : 0;
+  const cur = rounds.length ? rounds[rounds.length - 1] : 0;
   const st = (p: any) => p.status === "done" ? `${p.a_pts}:${p.b_pts}` : p.status === "play" ? t("o'ynamoqda") : "";
+  const next = plan.find((x) => x.round === 2);
+  const row = (p: any, k: number) => (
+    <div key={k} className={"r" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>{k}</span>
+      <span className="n">{p.a_name} — {p.b_name}{p.winner_name && <small>✅ {p.winner_name}</small>}</span><span className="x" style={{ fontSize: 13 }}>{st(p)}</span></div>);
   return (
     <section className={"card dayduel" + (open ? " live" : "")} id="day-duel">
       <div className="card-h"><Swords size={20} color="var(--red)" /><h3>{t("Kunlik duel kubogi")}</h3>{d && <span className="chip">{stageName(d.stage)} · {d.slot}</span>}</div>
@@ -127,17 +138,22 @@ export function DayDuelCard() {
         <p className="small muted" style={{ fontWeight: 600 }}>{done ? res
           : open ? t("Duel ochiq — raqibingiz bilan bir vaqtda kiring.") : d.closed ? t("Vaqt tugadi") : t("Faqat provodka · 15 savol · har biriga 1,5 daqiqa · soat {s} da ochiladi, 30 daqiqa ochiq", { s: d.slot })}</p>
         {!done && <button className={"btn " + (open ? "" : "ghost")} style={{ marginTop: 10 }} id="dd-go" onClick={() => go("duel", { code: d.code })}>{open ? t("Duelga kirish") : t("Duelni ochish")}</button>}
-      </> : <p className="small muted" style={{ fontWeight: 600 }} id="dd-wait">{wk || (n.wd === 5 && n.h >= 9 && !list.length) ? t("Kubok juftlari dushanba soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
+      </> : me2?.bye && next ? <p className="dd-bye" id="dd-bye">{t("Siz 1-raunddan avtomatik o'tdingiz. Keyingi duelingiz — soat {s} ({st}). Raqib 1-raund tugagach chiqadi.", { s: next.at, st: stageName(next.stage) })}</p>
+        : <p className="small muted" style={{ fontWeight: 600 }} id="dd-wait">{wk || (n.wd === 5 && n.h >= 9 && !list.length) ? t("Kubok juftlari dushanba soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
           : n.h < 9 ? t("Kubok juftlari bugun soat 09:00 da tasodifiy tuziladi. Bot sizga raqibingiz va soatni yuboradi.")
-          : list.length ? t("Bugun sizga juft chiqmadi (ishtirokchilar soni toq).") : t("Kubok har ish kuni soat 09:00 da tasodifiy tuziladi. Keyingisi — ertaga 09:00 da.")}</p>}
-      {rounds.map((r) => { const rr = list.filter((x) => x.round === r); return (
+          : list.length ? t("Bugungi kubok 09:00 da tuzilgan — siz ro'yxatga kirmadingiz. Keyingi kubok — {w} soat 09:00 da.", { w: nextWord() }) : t("Kubok har ish kuni soat 09:00 da tasodifiy tuziladi. Keyingisi — ertaga 09:00 da.")}</p>}
+      {plan.length > 1 && <div className="dd-plan" id="dd-plan">
+        <p className="small" style={{ fontWeight: 800 }}>{t("Kun jadvali · {n} ishtirokchi", { n: me2.players })}</p>
+        <ol>{plan.map((x) => <li key={x.round} className={x.round === cur ? "now" : x.round < cur ? "past" : ""}>
+          <span className="num">{x.at}</span><b>{stageName(x.stage)}</b><small>{t("{d} duel", { d: x.duels })}</small></li>)}</ol>
+        <p className="tiny muted">{t("Raundning barcha duellari bir vaqtda o'ynaladi. 13:00–14:00 — tanaffus. Final — 17:00.")}</p>
+      </div>}
+      {rounds.map((r) => { const rr = list.filter((x) => x.round === r), big = rr.length > BIG && !all[r], mine = rr.filter((x) => x.mine); return (
         <div key={r}>
-          <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{stageName(rr[0].stage)}</p>
-          <div className="board dd-list">{rr.map((p, k) => (
-            <div key={k} className={"r" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>{p.slot}</span>
-              <span className="n">{p.a_name} — {p.b_name}{p.winner_name && <small>✅ {p.winner_name}</small>}</span><span className="x" style={{ fontSize: 13 }}>{st(p)}</span></div>))}</div>
+          <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{stageName(rr[0].stage)} · {rr[0].slot}<span className="muted" style={{ fontWeight: 600 }}> · {t("{d} duel", { d: rr.length })}</span></p>
+          <div className="board dd-list">{(big ? mine : rr).map((p) => row(p, rr.indexOf(p) + 1))}</div>
+          {rr.length > BIG && <button className="dd-more" onClick={() => setAll({ ...all, [r]: !all[r] })}>
+            {all[r] ? t("Yig'ish") : t("Barcha {d} duelni ko'rish", { d: rr.length })}</button>}
         </div>); })}
-      {lastN >= 4 && <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Keyingi raund oldingisi tugagach ~10 daqiqada boshlanadi. Final — 17:00. 13:00–14:00 — tanaffus.")}</p>}
-      {lastN === 2 && <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Final — 17:00 (yarim final g'oliblari)")}</p>}
     </section>);
 }

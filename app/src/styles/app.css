@@ -442,6 +442,16 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .dd-vs b{font-weight:800;font-size:16px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dd-vs b:last-child{text-align:right}
 .dd-vs span{font-family:var(--display);font-weight:700;font-size:22px;color:var(--red)}
+.dd-bye{font-weight:700;background:var(--green-soft);border-radius:var(--r-s);padding:10px 12px;line-height:1.45}
+.dd-plan{margin-top:12px;padding-top:10px;border-top:1px solid var(--rule)}
+.dd-plan ol{list-style:none;margin:6px 0 6px;padding:0;display:grid;gap:2px}
+.dd-plan li{display:grid;grid-template-columns:46px 1fr auto;gap:8px;align-items:baseline;padding:5px 8px;border-radius:8px;font-size:14px}
+.dd-plan li .num{font-family:var(--display);font-weight:700;font-variant-numeric:tabular-nums;color:var(--muted)}
+.dd-plan li small{color:var(--muted);font-weight:600;font-size:12px}
+.dd-plan li.now{background:var(--red-soft)} .dd-plan li.now .num{color:var(--red)}
+.dd-plan li.past{opacity:.5}
+.dd-plan li:last-child b{color:var(--goldt)}
+.dd-more{display:block;margin:6px auto 0;background:none;border:0;color:var(--stamp);font-weight:700;font-size:13px;padding:8px 10px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .dd-champ{display:flex;align-items:center;gap:8px;font-weight:800;background:var(--gold-soft);border-radius:var(--r-s);padding:8px 10px;margin-bottom:10px}
 
 /* ---------- Katta final (dekabr) ---------- */
