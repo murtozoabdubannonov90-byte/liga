@@ -54,6 +54,7 @@ const RU: Record<string, string> = {
   "Natijalar juma 12:00 da shu yerga keladi.": "Результаты придут сюда в пятницу в 12:00.",
   "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.": "☀️ <b>Доброе утро, {n}!</b>\nСегодня открыт <b>этап {s}</b> — 20 вопросов.\n⏰ Открыт до {c}.",
   "Bosqichni boshlash": "Начать этап",
+  "📢 <b>Hisobchi Liga — muhim yangiliklar!</b>\n\n1️⃣ <b>Ertadan (14-oktabr) yangi kunlik reja:</b> har kuni o'z mavzusi — 15 provodka + 5 qonun savoli (Soliq kodeksi, Prezident farmon va qarorlari). Oy oxirigacha osondan qiyinga.\n\n2️⃣ <b>Oktabr reytingi 12-oktabr (dushanba)dan hisoblanmoqda</b> — undan oldingi ballar kirmaydi. Har bir bosqich bali muhim!\n\n3️⃣ 🏆 <b>Katta final — 28-dekabr:</b> oktabr va noyabrning kuchli uchligi (6 kishi) bellashadi.\n\n4️⃣ ⚔️ <b>Kunlik duel kubogi</b> 09:00 dan boshlanadi, final — 17:00 da (13:00–14:00 — tanaffus).\n\n5️⃣ 🥇🥈🥉 Haftalik kuchli uchlikka o'ringa qarab <b>medal va QR kodli sertifikat</b> — juma kuni avtomatik beriladi.\n\n6️⃣ Endi «XP» o'rniga <b>ball</b> deymiz — har bir to'g'ri javob uchun beriladigan ochko. Reyting shu ball bo'yicha.\n\nErtaga soat 09:00 da — 1-kun: «Kassa va bank». Omad! 💪": "📢 <b>Hisobchi Liga — важные новости!</b>\n\n1️⃣ <b>С завтрашнего дня (14 октября) — новый план:</b> у каждого дня своя тема — 15 проводок + 5 вопросов по законодательству (Налоговый кодекс, указы и постановления Президента). До конца месяца — от простого к сложному.\n\n2️⃣ <b>Рейтинг октября считается с 12 октября (понедельник)</b> — более ранние баллы не учитываются. Важен балл каждого этапа!\n\n3️⃣ 🏆 <b>Большой финал — 28 декабря:</b> сразятся тройки октября и ноября (6 человек).\n\n4️⃣ ⚔️ <b>Кубок дуэлей дня</b> начинается в 09:00, финал — в 17:00 (13:00–14:00 — перерыв).\n\n5️⃣ 🥇🥈🥉 Тройке недели — <b>медаль по месту и сертификат с QR-кодом</b>, выдаются автоматически в пятницу.\n\n6️⃣ Вместо «XP» теперь говорим <b>баллы</b> — очки за каждый верный ответ. Рейтинг считается по баллам.\n\nЗавтра в 09:00 — день 1: «Касса и банк». Удачи! 💪",
   "Keyingi raund — oldingisi tugagach ~10 daqiqada. <b>Final — 17:00</b>. 13:00–14:00 — tanaffus.": "Следующий раунд — примерно через 10 минут после окончания предыдущего. <b>Финал — в 17:00</b>. 13:00–14:00 — перерыв.",
   "<b>Final — 17:00</b> (g'oliblar o'ynaydi).": "<b>Финал — в 17:00</b> (играют победители).",
   "{m} <b>Tabriklaymiz, {n}! Siz haftalik ligada {p}-o'rinni egalladingiz.</b>\nMedalingiz va QR kodli sertifikatingiz tayyor — uni ish beruvchingizga ham ko'rsatishingiz mumkin.": "{m} <b>Поздравляем, {n}! Вы заняли {p}-е место в недельной лиге.</b>\nВаша медаль и сертификат с QR-кодом готовы — его можно показать и работодателю.",
@@ -533,6 +534,7 @@ async function lessonOfDay() {
   const d = Math.round((tzDate().getTime() - Date.UTC(2026, 9, 1)) / 864e5);
   return LESSONS[((d % LESSONS.length) + LESSONS.length) % LESSONS.length];
 }
+const ANNOUNCE_OCT = "📢 <b>Hisobchi Liga — muhim yangiliklar!</b>\n\n1️⃣ <b>Ertadan (14-oktabr) yangi kunlik reja:</b> har kuni o'z mavzusi — 15 provodka + 5 qonun savoli (Soliq kodeksi, Prezident farmon va qarorlari). Oy oxirigacha osondan qiyinga.\n\n2️⃣ <b>Oktabr reytingi 12-oktabr (dushanba)dan hisoblanmoqda</b> — undan oldingi ballar kirmaydi. Har bir bosqich bali muhim!\n\n3️⃣ 🏆 <b>Katta final — 28-dekabr:</b> oktabr va noyabrning kuchli uchligi (6 kishi) bellashadi.\n\n4️⃣ ⚔️ <b>Kunlik duel kubogi</b> 09:00 dan boshlanadi, final — 17:00 da (13:00–14:00 — tanaffus).\n\n5️⃣ 🥇🥈🥉 Haftalik kuchli uchlikka o'ringa qarab <b>medal va QR kodli sertifikat</b> — juma kuni avtomatik beriladi.\n\n6️⃣ Endi «XP» o'rniga <b>ball</b> deymiz — har bir to'g'ri javob uchun beriladigan ochko. Reyting shu ball bo'yicha.\n\nErtaga soat 09:00 da — 1-kun: «Kassa va bank». Omad! 💪";
 // ---------------- kunlik hisobot (adminlarga, 20:00) ----------------
 const WD = ["", "Dushanba", "Seshanba", "Chorshanba", "Payshanba", "Juma", "Shanba", "Yakshanba"];
 const nmList = (a: string[]) => a.map((x) => esc(x)).join(", ");
@@ -806,6 +808,15 @@ async function onCron(action: string) {
     // har kuni 20:00 (Toshkent) — jamoa adminlariga kunlik hisobot; "_now" — sinov uchun takror yuborish
     if (action === "daily_report" && !(await once("daily_report"))) return { skip: "already" };
     return await dailyReport();
+  }
+  if (action === "announce_oct") {
+    // 13.10.2026: oktyabr yangiliklari — hammaga bir marta (guruhlar + har o'yinchiga shaxsan)
+    if (!(await once("announce_oct"))) return { skip: "already" };
+    const sent = await toChats(() => tr("uz", ANNOUNCE_OCT));
+    const { data: ppl } = await db.from("safari_players").select("tg_user_id,lang").not("tg_user_id", "is", null);
+    let personal = 0;
+    for (const p of (ppl ?? []) as any[]) if (await dm(p.tg_user_id, tr(p.lang, ANNOUNCE_OCT), appBtn(tr(p.lang, "Ligani ochish")))) personal++;
+    return { ok: true, groups: sent, personal };
   }
   if (action.startsWith("receipt:")) return await notifyAdmins(Number(action.slice(8)));
   if (action.startsWith("receipt_done:")) {
