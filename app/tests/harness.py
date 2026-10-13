@@ -67,6 +67,15 @@ def live_answer(a):
         LIVE["a_pts"] += 1; LIVE["last"] = dict(k=k, w="a", q=LIVE["items"][k]["q"], t=t, **{kk: vv for kk, vv in x.items()}); LIVE["cur"] += 1; LIVE["q_in"] = 2500; LIVE["locked"] = False
     else: LIVE["locked"] = True
     return dict(live_view(), ok=ok, why="" if ok else "wrong")
+_PEERS = [{"pos": 1, "n": "Dilnoza K.", "me": True, "cert": "ABCD2345"}, {"pos": 2, "n": "Aziz R.", "me": False, "cert": "EFGH6789"}, {"pos": 3, "n": "Malika S.", "me": False, "cert": None}]
+CERTS = {
+  "ABCD2345": {"ok": True, "id": "ABCD2345", "kind": "week", "name": "Dilnoza Karimova", "team": "Buxgalterlar ligasi", "place": 1, "xp": 1310, "participants": 24,
+               "week": {"id": "2026-09-25T07:00", "no": 39, "from": "2026-09-21", "to": "2026-09-25"}, "issued_at": "2026-10-01T10:00:00Z", "checked_at": "2026-10-01T05:00:00Z",
+               "sig": "10D1-F75C-DF20-30A3", "signer": "M. Abdubannonov", "serial": "HL-2026-39-1-ABCD2345", "peers": _PEERS},
+  "EFGH6789": {"ok": True, "id": "EFGH6789", "kind": "week", "name": "Aziz Rahimov", "team": "Buxgalterlar ligasi", "place": 2, "xp": 1250, "participants": 24,
+               "week": {"id": "2026-09-25T07:00", "no": 39, "from": "2026-09-21", "to": "2026-09-25"}, "issued_at": "2026-10-01T10:00:00Z", "checked_at": "2026-10-01T05:00:00Z",
+               "sig": "BE84-983E-0F75-FF79", "signer": "M. Abdubannonov", "serial": "HL-2026-39-2-EFGH6789", "peers": [dict(p, me=p["pos"] == 2) for p in _PEERS]},
+}
 def body_for(fn, args):
     if fn in EXTRA: return EXTRA[fn]
     if fn == "liga_live_create": live_reset(); return "LQWERTY"
@@ -82,6 +91,7 @@ def body_for(fn, args):
     if fn == "liga_duel_start": return run_view(new_run("duel", 10))
     if fn == "liga_final_start": return run_view(new_run("final", 20))
     if fn == "liga_test_begin": return dict(run_view(new_run("test", 10)), secret="sek", minutes=20, test_started="2026-10-01T05:00:00Z", title="Bosh buxgalter")
+    if fn == "liga_cert_verify2": return CERTS.get(str(args.get("p_id", "")).upper(), {"ok": False, "checked_at": "2026-10-01T05:00:00Z"})
     if fn == "liga_run_show": return 60 + RUNS.get(args.get("p_run"), {}).get("extra", 0)
     if fn == "liga_run_answer": return run_answer(args)
     if fn == "liga_run_finish":

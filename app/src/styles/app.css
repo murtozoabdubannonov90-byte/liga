@@ -245,11 +245,6 @@ textarea.inp{min-height:90px;resize:vertical;font-size:15px}
 .tierchip{display:inline-flex;align-items:center;gap:6px;font-weight:800;font-size:12.5px;border-radius:999px;padding:4px 10px 4px 5px;background:var(--paper-2);white-space:nowrap}
 
 /* sertifikat */
-.certbox{background:var(--card);border:2px solid var(--ink);border-radius:18px;padding:22px 18px;text-align:center;position:relative}
-.certbox::before{content:"";position:absolute;inset:6px;border:1px solid var(--rule);border-radius:13px;pointer-events:none}
-.certbox h2{font-family:var(--display);font-size:22px}
-.certbox .nm{font-family:var(--display);font-size:26px;font-weight:700;margin:12px 0;border-bottom:2px solid var(--ink);display:inline-block;padding:0 8px 4px}
-.certbox img.qr{width:120px;height:120px;margin:10px auto 0;display:block;image-rendering:pixelated}
 
 /* balans o'yini */
 .bal-cols{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -448,3 +443,85 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .dd-vs b:last-child{text-align:right}
 .dd-vs span{font-family:var(--display);font-weight:700;font-size:22px;color:var(--red)}
 .dd-champ{display:flex;align-items:center;gap:8px;font-weight:800;background:var(--gold-soft);border-radius:var(--r-s);padding:8px 10px;margin-bottom:10px}
+
+/* ---------- Katta final (dekabr) ---------- */
+.gf{border:1.5px solid color-mix(in srgb,var(--goldt) 55%,var(--rule));background:linear-gradient(180deg,var(--gold-soft),var(--card) 46%)}
+.gf-head{display:flex;gap:12px;align-items:flex-start;color:#8A5A00} :root[data-theme="dark"] .gf-head{color:var(--gold)}
+.gf-head h3{color:var(--ink)} .gf-head p{color:var(--ink-2);font-size:13.5px;font-weight:600;margin-top:2px}
+.gf-q{margin-top:10px;font-weight:800;color:var(--green)}
+.gf-months{display:grid;gap:10px;margin:12px 0 8px}
+@media (min-width:520px){.gf-months{grid-template-columns:1fr 1fr}}
+.gf-month{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-m);padding:12px}
+.gf-mh{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.gf-mh b{font-family:var(--display);font-weight:600;font-size:15px}
+.gf-top{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.gf-top li{display:flex;align-items:center;gap:8px;font-weight:700;font-size:14px;padding:3px 4px;border-radius:8px}
+.gf-top li.me{background:var(--stamp-soft);color:var(--stamp)}
+.gf-top li svg{flex:none;height:28px;width:auto}
+.gf-me{margin-top:8px;font-size:13px;font-weight:700;color:var(--ink-2)} .gf-me.ok{color:var(--green)}
+.gf-pop{position:fixed;inset:0;z-index:60;background:rgba(8,20,16,.55);display:grid;align-items:end;justify-items:center;padding:16px;padding-bottom:calc(16px + var(--safe-b,0px))}
+.gf-sheet{position:relative;width:100%;max-width:440px;background:var(--card);border-radius:24px;padding:22px 18px 18px;display:grid;gap:12px;text-align:center;box-shadow:0 20px 50px -20px rgba(0,0,0,.6)}
+.gf-sheet h2{font-family:var(--display);font-size:22px;letter-spacing:-.01em}
+.gf-sheet .gf-month{text-align:left}
+.gf-lead{color:var(--ink-2);font-weight:600;font-size:14.5px}
+.gf-medals{display:flex;justify-content:center;align-items:flex-end;gap:6px;margin-top:-4px}
+.gf-x{position:absolute;right:10px;top:10px;width:36px;height:36px;border-radius:12px;display:grid;place-items:center;background:var(--paper-2);color:var(--ink-2)}
+@media (prefers-reduced-motion:reduce){.gf-sheet{transition:none}}
+
+/* ---------- Sertifikat (rasmiy hujjat; o'ringa qarab rang) ---------- */
+.cert{--c-ink:#0F2A24;--c-tint:#16382F;--serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  position:relative;container-type:inline-size;width:100%;max-width:560px;margin:0 auto;aspect-ratio:1/1.414;background:#FBFCF8;color:#14211D;
+  border-radius:6px;overflow:hidden;box-shadow:0 1px 0 rgba(0,0,0,.05),0 18px 40px -22px rgba(15,42,36,.55);font-variant-numeric:lining-nums tabular-nums}
+.cert-gl{position:absolute;inset:0;width:100%;height:100%}
+.cert-frame{position:absolute;inset:3.2cqw;border:1.2cqw double var(--c-tint);display:flex;flex-direction:column;align-items:center;text-align:center;padding:4cqw 5cqw 2.6cqw;
+  background:radial-gradient(ellipse at 50% 40%,rgba(251,252,248,.94) 55%,rgba(251,252,248,.75))}
+.cert-frame::before{content:"";position:absolute;inset:1.4cqw;border:.25cqw solid var(--c-tint);opacity:.55;pointer-events:none}
+.cert-top{display:flex;align-items:center;gap:2cqw;text-align:left}
+.cert-top svg{width:7cqw;height:7cqw}
+.cert-top b{display:block;font-family:var(--display);font-size:3.4cqw;font-weight:700;color:#0F2A24;line-height:1.1}
+.cert-top span{display:block;font-size:2.3cqw;font-weight:700;color:#5D7069}
+.cert-title{font-family:var(--serif);font-weight:700;font-size:10.5cqw;letter-spacing:.9cqw;text-transform:uppercase;color:var(--c-ink);margin-top:3.6cqw;line-height:1}
+.cert-deg{font-family:var(--serif);font-style:italic;font-weight:600;font-size:4cqw;color:var(--c-tint);margin-top:.6cqw}
+.cert-small{font-size:2.6cqw;font-weight:700;color:#5D7069;margin-top:3cqw}
+.cert-name{font-family:var(--serif);font-style:italic;font-weight:700;font-size:8.2cqw;line-height:1.05;color:#0F2A24;margin-top:1cqw;padding:0 3cqw .8cqw;border-bottom:.35cqw solid var(--c-tint);max-width:100%;overflow-wrap:anywhere}
+.cert-body{font-family:var(--serif);font-weight:600;font-size:3.5cqw;line-height:1.3;color:#24352F;margin-top:2.4cqw;max-width:84cqw}
+.cert-place{display:flex;align-items:center;justify-content:center;gap:2cqw;margin-top:1.6cqw}
+.cert-place svg{width:13.5cqw;height:auto}
+.cert-place b{font-family:var(--serif);font-weight:700;font-size:9cqw;color:var(--c-ink);line-height:1}
+.cert-foot{margin-top:auto;width:100%;display:flex;justify-content:space-between;align-items:flex-end;gap:3cqw}
+.cert-sign{display:flex;align-items:center;gap:2cqw;text-align:left}
+.cert-seal{width:17cqw;height:17cqw;color:#2446D8;opacity:.82;transform:rotate(-12deg);flex:none}
+.cert-sign i{display:block;font-family:var(--serif);font-weight:700;font-size:3.6cqw;color:#0F2A24;border-bottom:.25cqw solid #9FB1AA;padding-bottom:.3cqw}
+.cert-sign span{display:block;font-size:2.1cqw;font-weight:700;color:#5D7069;margin-top:.5cqw}
+.cert-qr{display:grid;justify-items:center;gap:.6cqw;max-width:24cqw}
+.cert-qr img{width:20cqw;height:20cqw;background:#fff;padding:.8cqw;border:.25cqw solid var(--c-tint);image-rendering:pixelated}
+.cert-qr span{font-size:1.9cqw;font-weight:700;color:#5D7069;line-height:1.2}
+.cert-micro{margin-top:1.8cqw;font-family:var(--mono);font-size:1.75cqw;letter-spacing:.05cqw;color:var(--c-tint);opacity:.9;overflow-wrap:anywhere}
+.cert-gold{--c-ink:#7A5410;--c-tint:#B9861A} .cert-silver{--c-ink:#4A5462;--c-tint:#7F8A99} .cert-bronze{--c-ink:#5F3415;--c-tint:#9C5A2B}
+.cert-list{display:grid;gap:8px}
+.cert-row{display:flex;align-items:center;gap:12px;text-align:left;padding:10px;border-radius:14px;background:var(--paper-2)}
+.cert-row b{display:block;font-weight:800} .cert-row small{display:block;color:var(--muted);font-weight:700;font-size:12.5px}
+.cert-row svg.medal{height:40px;width:auto;flex:none}
+/* tekshiruv sahifasi */
+.verify .v-head{display:flex;gap:12px;align-items:center;padding:18px 0 12px} .verify .v-head h1{font-size:21px}
+.v-ok{position:relative;overflow:hidden;background:var(--green);color:#fff;border-radius:var(--r-l);padding:16px}
+.v-ok b{display:block;font-family:var(--display);font-size:18px} .v-ok span{display:block;font-size:13px;font-weight:700;opacity:.92}
+.v-band{position:absolute;inset:0;background:repeating-linear-gradient(115deg,transparent 0 22px,rgba(255,255,255,.09) 22px 34px);background-size:200% 100%;animation:vband 6s linear infinite;pointer-events:none}
+@keyframes vband{to{background-position:-200% 0}}
+.v-live{position:relative;margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12.5px;font-weight:700;background:rgba(0,0,0,.18);border-radius:999px;padding:4px 10px}
+.v-bad{display:flex;gap:12px;background:var(--red-soft);color:var(--red);border-radius:var(--r-l);padding:16px} .v-bad b{display:block;font-family:var(--display)} .v-bad span{display:block;color:var(--ink-2);font-weight:600;font-size:13.5px}
+.v-facts dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:0;font-size:14px}
+.v-facts dt{color:var(--muted);font-weight:700} .v-facts dd{margin:0;font-weight:800;overflow-wrap:anywhere}
+.v-peers{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:6px}
+.v-peers li{display:flex;align-items:center;gap:10px;font-weight:800;padding:4px 6px;border-radius:10px} .v-peers li.me{background:var(--stamp-soft)}
+.v-peers li svg.medal{height:32px;width:auto}
+@media (prefers-reduced-motion:reduce){.v-band{animation:none}}
+@media print{
+  @page{size:A4 portrait;margin:0}
+  body:has(.cert) *{visibility:hidden} body:has(.cert) .cert,body:has(.cert) .cert *{visibility:visible}
+  body:has(.cert) .cert{position:fixed;left:0;top:0;width:210mm;max-width:none;height:297mm;aspect-ratio:auto;box-shadow:none;border-radius:0}
+}
+
+.shelf{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 2px;scrollbar-width:none}
+.shelf-i{display:grid;justify-items:center;gap:2px;flex:none;font-size:11.5px;font-weight:800;color:var(--muted)}
+.shelf-i svg{height:58px;width:auto}

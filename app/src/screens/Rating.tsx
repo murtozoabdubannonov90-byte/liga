@@ -7,6 +7,8 @@ import { Card, Seg, TierBadge, TierChip, Empty } from "../components/ui";
 import { TIERS } from "../engine/score";
 import { fmtD } from "../engine/time";
 import { TopBar } from "./Home";
+import { GrandCard, grandOn } from "./Grand";
+import { Medal } from "../components/Medal";
 import { FinalCard } from "./FinalLive";
 import { MatchCard } from "./Tools";
 import { DayTopCard } from "./Perks";
@@ -83,7 +85,7 @@ function ChampsTab() {
       {weeks.length ? <div className="stack" style={{ gap: 10 }}>{weeks.map((w) => (
         <div key={w} className="flat"><div className="small muted" style={{ fontWeight: 800 }}>{fmtD(w.slice(0, 10))}</div>
           {C.filter((x: any) => x.week_id === w).map((x: any) => (
-            <div key={x.pos} className="row" style={{ marginTop: 4, fontWeight: 800 }}><span className="disp" style={{ width: 18, color: ["", "var(--goldt)", "var(--silver)", "var(--bronze)"][x.pos] }}>{x.pos}</span>
+            <div key={x.pos} className="row" style={{ marginTop: 4, fontWeight: 800 }}><Medal place={x.pos} size={18} label={t("{n}-o'rin", { n: x.pos })} />
               <span className="grow" style={{ color: x.is_me ? "var(--stamp)" : undefined }}>{x.name}</span><span className="num">{x.week_xp}</span></div>))}
         </div>))}</div> : <Empty>{t("Birinchi chempion juma soat 12:00 da aniqlanadi.")}</Empty>}
     </Card>
@@ -98,7 +100,7 @@ export default function Rating() {
         <div className="row" style={{ justifyContent: "space-between" }}><TierChip tier={S.tier || 0} />
           <button className="chip blue" onClick={() => go("share", { kind: "week" })}><Trophy size={13} />{t("Natijani ulashish")}<ChevronRight size={13} /></button></div>
         <Seg id="rate" value={tb} onChange={setTb} items={[["week", t("Hafta")], ["final", t("Final")], ["region", t("Viloyat")], ["tiers", t("Daraja")], ["champ", t("Zal")]]} />
-        {tb === "week" && <WeekTab />}{tb === "final" && <FinalCard />}{tb === "region" && <RegionTab />}{tb === "tiers" && <TiersTab />}{tb === "champ" && <ChampsTab />}
+        {tb === "week" && <WeekTab />}{tb === "final" && (grandOn() && S.fin?.month !== S.grand?.month ? <GrandCard /> : <FinalCard />)}{tb === "region" && <RegionTab />}{tb === "tiers" && <TiersTab />}{tb === "champ" && <ChampsTab />}
       </div>
     </div>
   );

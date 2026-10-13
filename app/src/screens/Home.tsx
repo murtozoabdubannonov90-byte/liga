@@ -18,6 +18,7 @@ import { finalCanPlay } from "./FinalLive";
 import { sfx } from "../lib/fx";
 import { DeadlineCard, NewsCard } from "./Tools";
 import { PerksCard, TeamLiveCard, DayDuelCard } from "./Perks";
+import { GrandCard } from "./Grand";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -144,9 +145,10 @@ export default function Home() {
           </div>)}
         {groupBlocked() && <div className="note" style={{ background: "var(--red-soft)" }}><CreditCard size={18} /><span>{t("«{n}» obunasi tugagan. Bosqichlar yopiq — administratorga murojaat qiling.", { n: S.group?.name || "" })}</span></div>}
         {fin && finalCanPlay() && <button className="ticket" style={{ textAlign: "left" }} onClick={() => go("finalLive")}>
-          <div className="t-top"><Trophy size={40} color="var(--gold)" /><div className="grow"><div className="t-title">{t("Oylik final boshlandi!")}</div><div className="t-meta">{t("Siz saralangansiz · 13:00 gacha")}</div></div><ChevronRight /></div></button>}
+          <div className="t-top"><Trophy size={40} color="var(--gold)" /><div className="grow"><div className="t-title">{S.fin?.month === S.grand?.month ? t("Katta final boshlandi!") : t("Oylik final boshlandi!")}</div><div className="t-meta">{t("Siz saralangansiz · 13:00 gacha")}</div></div><ChevronRight /></div></button>}
         <Ticket />
         <DayDuelCard />
+        <GrandCard />
         <PerksCard />
         <TeamLiveCard />
         <TgLinkCard />

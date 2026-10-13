@@ -33,7 +33,7 @@ export function DayRewards({ when }: { when: "start" | "end" }) {
       {when === "end" && (top.length
         ? <><p className="rw-sub">{t("Bugungi kuchli uchlik")}</p><TopList rows={top} id="today-top" /></>
         : <p className="rw-sub">{t("Natija soat {c} da e'lon qilinadi — bot g'oliblarga shaxsan xabar yuboradi.", { c: closeStr() })}</p>)}
-      <p className="rw-week"><Medal size={15} />{t("Haftalik kuchli uchlik: medal nishoni va sertifikat; oyda 2 marta kirsangiz — oylik finalga yo'llanma; 1-o'rin «Haftaning savoli»ni tuzadi.")}</p>
+      <p className="rw-week"><Medal size={15} />{t("Haftalik kuchli uchlik: o'ringa qarab medal va QR kodli sertifikat; 1-o'rin «Haftaning savoli»ni tuzadi. Oktyabr va noyabrning kuchli uchligi — dekabrdagi Katta finalga.")}</p>
     </section>);
 }
 

@@ -27,6 +27,7 @@ import WeekEnd from "./screens/WeekEnd";
 import Topics from "./screens/Topics";
 import { TaxCalendar, News, NewsView, Calcs, TestReport } from "./screens/Tools";
 import Review from "./screens/Review";
+import { GrandPop } from "./screens/Grand";
 
 const SCREENS: Record<string, (p: any) => JSX.Element | null> = {
   home: Home, rate: Rating, learn: Learn, profile: Profile, settings: Settings, ach: Achievements, quiz: Quiz, intro: Intro, pay: Pay,
@@ -73,6 +74,7 @@ export default function App() {
           </div>
         </nav>
       )}
+      {showNav && <GrandPop />}
       <Toast toast={toast} />
     </>
   );

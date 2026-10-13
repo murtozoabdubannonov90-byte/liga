@@ -70,7 +70,7 @@ export async function startFinalR(month: string): Promise<Run | string> {
     return fromView("final", v, { lives: 99, maxLives: 0, month, title: "Oylik final" });
   } catch (e) {
     const m = errOf(e);
-    return /final_closed/.test(m) ? "Final yopiq — faqat oyning oxirgi shanbasi 10:00–13:00" : /not_qualified/.test(m) ? "Siz bu oy finalga saralanmagansiz"
+    return /final_closed/.test(m) ? "Final yopiq — faqat final kuni soat 10:00–13:00" : /not_qualified/.test(m) ? "Siz bu oy finalga saralanmagansiz"
       : /already_done/.test(m) ? "Siz buni allaqachon bajargansiz" : "Serverga ulanib bo'lmadi — internetni tekshiring";
   }
 }

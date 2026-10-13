@@ -26,7 +26,7 @@ export function FinalCard() {
           <div className="t-meta">{t("Final: {d}, shanba 10:00–13:00 · 20 savol · teng ballda tezroq ishlagan yutadi", { d: fmtD(f.final_date) })}</div></div></div>
         <div className="t-bottom">
           {finalCanPlay() ? <button className="btn gold" onClick={() => go("finalLive")}>{t("Finalga kirish")}</button>
-            : <span className="small" style={{ color: "var(--on-board-2)", fontWeight: 700 }}>{f.my_score != null ? t("Siz finalni ishladingiz: {s} ball", { s: f.my_score }) : f.qualified ? t("Siz saralandingiz!") : t("2 marta kuchli uchlikka kiring — finalga yo'llanma olasiz")}</span>}
+            : <span className="small" style={{ color: "var(--on-board-2)", fontWeight: 700 }}>{f.my_score != null ? t("Siz finalni ishladingiz: {s} ball", { s: f.my_score }) : f.qualified ? t("Siz saralandingiz!") : (f.month === S.grand?.month ? t("Oktyabr yoki noyabrda kuchli uchlikka kirganlar o'ynaydi") : t("2 marta kuchli uchlikka kiring — finalga yo'llanma olasiz"))}</span>}
         </div>
       </section>
       <Card title={f.ended ? t("Final natijalari") : t("Finalchilar")}>
@@ -35,7 +35,7 @@ export function FinalCard() {
             <span className="n">{x.n}<small>{Math.round(x.s / 20)}/20 · {mmss(x.ms)}</small></span><span className="x">{x.s}</span></div>))}</div>
           : Q.length ? <div className="board">{Q.map((x: any, k: number) => (
             <div key={k} className={"r" + (x.me ? " me" : "")}><span className="p"><Trophy size={16} /></span>
-              <span className="n">{x.n}<small>{t("kuchli uchlikda: {n} marta", { n: x.tops })}</small></span><span className="x">{x.xp}</span></div>))}</div>
+              <span className="n">{x.n}<small>{f.month === S.grand?.month ? t("oy kuchli uchligi: {n}-o'rin", { n: x.tops }) : t("kuchli uchlikda: {n} marta", { n: x.tops })}</small></span><span className="x">{x.xp}</span></div>))}</div>
           : <Empty>{t("Hali saralanganlar yo'q. Oy davomida 2 marta kuchli uchlikka kiring.")}</Empty>}
       </Card>
       <div className="note" style={{ background: "var(--gold-soft)" }}><Gift size={18} color="#9A6500" /><span>{t("Oy chempioniga maxsus sovg'a tayyorlangan — final kuni ochiladi.")}</span></div>
@@ -54,7 +54,7 @@ export default function FinalLive() {
   const can = finalCanPlay();
   return (
     <div className="shell bare">
-      <PageTitle title={t("Oylik final")} right={<span className="chip bad"><Radio size={13} />{t("jonli")}</span>} />
+      <PageTitle title={S.fin?.month === S.grand?.month ? t("Katta final") : t("Oylik final")} right={<span className="chip bad"><Radio size={13} />{t("jonli")}</span>} />
       <div className="stack">
         <Card title={t("Jonli jadval")}>
           {rows.length ? <div className="board">{rows.map((x, k) => (

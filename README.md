@@ -169,6 +169,27 @@ Obuna tugasa, bosqichlar yopiladi va ilovada ogohlantirish chiqadi.
 4. SQL: `update liga_bot_config set value='MERCHANT_ID' where key='payme_merchant_id';` (Click uchun `click_service_id`, `click_merchant_id`).
 Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 
+## Oktyabr kunlik rejasi (14–30.10.2026)
+- Har ish kuni o'z mavzusi: **15 provodka + 5 qonun savoli** (Soliq kodeksi moddalari, Prezident farmon/qarorlari, VM qarorlari, BHMS, qonunlar). Qiyinlik oy bo'yi o'sadi (1 → 13-daraja) va kun ichida ham osondan qiyinga (avval provodkalar, keyin qonun savollari).
+- Mavzular: 14 Kassa va bank · 15 Xaridorlar va yetkazib beruvchilar · 16 TMZ · 19 Ish haqi · 20 QQS · 21 AV kirimi · 22 Amortizatsiya va AV chiqimi · 23 Ishlab chiqarish va tannarx · 26 Sotish va davr xarajatlari · 27 Valyuta · 28 Ustav kapitali va dividendlar · 29 Kreditlar, foizlar, penyalar · 30 Oy yakuni.
+- Qonun faktlari manbalar bilan tekshirilgan (lex.uz, soliq.uz, buxgalter.uz; 2026 tahrirlari: BHMS 21 №3593, BHMS 5 №3546, BHMS 2 №3542, MChJ to'g'risidagi O'RQ-1137, PF-100, PF-115).
+- Server: `liga_day_plan` (sana → pool, mavzu, nazariya), `liga_plan_draw`, `liga_stage_start` reja bo'lsa shu kunning 20 savolini beradi; ilova mavzu/nazariyani `liga_day_plans` dan oladi; bot ertalab mavzuni aytadi.
+- Manba: `content/oct.asc` (shifrlangan). Yuklash: `select net.http_get('<raw url>/content/oct.asc')`, so'ng `select liga_plan_load_sys(<javob>)` — kalit serverda.
+- 5 ta yangi schyot qo'shildi: 2510, 4230, 4860, 8530, 9040.
+
+## Dekabr Katta finali
+- Oktyabr kuchli uchligi + noyabr kuchli uchligi (takrorlansa — noyabrning keyingisi) = 6 finalchi. **05.12.2026, shanba 10:00–13:00**, 12 provodka + 8 qonun savoli oyning eng qiyin kunlaridan (8-daraja va yuqori).
+- Oy reytingi — shu oyda yakunlangan liga haftalari ballari yig'indisi (joriy hafta qo'shilmaydi — hafta sirligi buzilmaydi), har juma 12:00 da yangilanadi.
+- Oktyabr va noyabrdagi oddiy oylik finallar shu final bilan almashtirildi. Sozlama: `liga_bot_config` → `gf_months`, `gf_month`, `gf_date`.
+- Ilova: bosh sahifada «Katta final» kartasi, har kuni birinchi kirishda eslatma oynasi (o'rningiz va kuchli uchlikka qancha XP yetmayotgani), Reyting → Final.
+
+## Medallar va sertifikatlar (v2)
+- Haftalik kuchli uchlikka juma 12:01 da avtomatik: o'ringa qarab **oltin / kumush / bronza** medal (lenta, rang, bezak va hafta raqami har xil) va sertifikat. Bot g'olibga sertifikat havolasini yuboradi.
+- Sertifikat — rasmiy hujjat ko'rinishi (A4, chop etish/PDF), seriya `HL-YYYY-WW-O'RIN-ID`, liga muhri, QR kod, **raqamli imzo** (HMAC-SHA256, kalit faqat serverda).
+- QR → `?v=ID` ochiq tekshiruv sahifasi: ma'lumot to'g'ridan-to'g'ri serverdan (`liga_cert_verify2`), imzo mosligi, jonli soat (skrinshot bilan soxtalashtirib bo'lmaydi), shu haftaning butun kuchli uchligi va ularning sertifikatlari.
+- Profil → «Medallarim» javoni; Reyting → Zal — medallar.
+- Tuzatildi: 2.10 haftasida Anvar E. sertifikatida 3-o'rin (aslida 2-o'rin) va Хаджаев У. natijasining alohida "hafta" bo'lib qolgani.
+
 ## Yangi a'zolarga bepul davr (2026-10-13)
 - 10.10.2026 dan keyin ro'yxatdan o'tgan har bir o'yinchi ro'yxatdan o'tgan kunidan **30 kun bepul** o'ynaydi (`liga_bot_config`: `free_days` = 30, `free_from` = 2026-10-10). Ro'yxatdan o'tishda to'lov sahifasi ochilmaydi, ilova va bot «birinchi 30 kun bepul» deb yozadi.
 - Muddat `liga_eff_until` ichida hisoblanadi; bepul davrda to'lasa obuna bepul davr tugagan kundan uzayadi.

@@ -8,6 +8,8 @@ import amaliyotRaw from "../data/amaliyot.json";
 import { buildTopics as topicsUz } from "../data/topics.uz";
 import { buildTopics as topicsRu } from "../data/topics.ru";
 import { cyr, type Lang } from "../lib/i18n";
+import { S } from "./state";
+import { stageDate, dkey, STAGE_N, tzNow } from "./time";
 
 export type TaskType = "pv" | "mc" | "calc";
 export interface Task { t: TaskType; q: string; o?: string[]; a?: number; dt?: string; kt?: string; e: string; unit?: string; id: string; tp?: string; k?: number; author?: string; rv?: { of: string; kind: "orig" | "dist" | "rev" } }
@@ -22,7 +24,24 @@ function cyrTask(t: Task): Task {
   return { ...t, q: cyr(t.q), e: cyr(t.e), unit: t.unit ? cyr(t.unit) : t.unit, o: t.t === "mc" && t.o ? t.o.map((x) => (isCode(x) ? x : cyr(x))) : t.o };
 }
 const cache: Partial<Record<Lang, Content>> = {};
+/* sanaga bog'langan kunlik reja (server: liga_day_plans) — o'sha kunning bosqichi mavzusi, hikoyasi va nazariyasi */
+export interface DayPlan { day: string; level: number; icon?: string; title: Record<string, string>; story?: Record<string, string>; theory?: Record<string, string>; n_pv?: number; n_other?: number }
+export function planOf(i: number): DayPlan | null { const k = dkey(stageDate(i)); return ((S as any).plans || []).find((p: DayPlan) => p.day === k) || null; }
+const planned: Record<string, Content> = {};
 export function content(lang: Lang): Content {
+  const base = baseContent(lang), plans: DayPlan[] = (S as any).plans || [];
+  if (!plans.length) return base;
+  const key = lang + "|" + tzNow().day + "|" + plans.map((p) => p.day + p.level).join(",");
+  if (planned[key]) return planned[key];
+  const L = lang === "ru" ? "ru" : "uz", f = (s?: string) => (lang === "uzc" && s ? cyr(s) : s || "");
+  const STAGES = base.STAGES.map((st, i) => {
+    if (i >= STAGE_N) return st; const p = planOf(i); if (!p) return st;
+    return { ...st, icon: p.icon || st.icon, title: f(p.title?.[L]) || st.title, story: f(p.story?.[L]) || st.story, theory: f(p.theory?.[L]) || st.theory, example: null };
+  });
+  for (const k of Object.keys(planned)) if (k.startsWith(lang + "|")) delete planned[k];
+  return (planned[key] = { ...base, STAGES });
+}
+function baseContent(lang: Lang): Content {
   if (cache[lang]) return cache[lang]!;
   const base = lang === "ru" ? "ru" : "uz";
   const raw: Stage[] = JSON.parse(JSON.stringify(base === "ru" ? stagesRu : stagesUz));

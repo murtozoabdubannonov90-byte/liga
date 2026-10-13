@@ -8,6 +8,7 @@ import { go, replace, toast } from "../lib/nav";
 import { stageState, stageDay } from "../engine/time";
 import { playerBlocked, groupBlocked } from "./Home";
 import { sfx } from "../lib/fx";
+import { planOf } from "../engine/data";
 import { S } from "../engine/state";
 import { DayRewards } from "./Perks";
 
@@ -31,6 +32,8 @@ export default function Intro({ si }: { si: number }) {
       <PageTitle title={t("{n}-bosqich", { n: si + 1 })} />
       <div className="stack">
         <section className="card">
+          {planOf(si) && <div className="row" style={{ gap: 6, marginBottom: 8 }} id="plan-chip"><span className="chip blue">{s.icon} {t("Kun rejasi")}</span>
+            <span className="chip">{t("Qiyinlik darajasi: {l}", { l: planOf(si)!.level })}</span></div>}
           <h3 style={{ fontSize: 22, marginBottom: 8 }}>{s.title}</h3>
           <p className="muted" style={{ fontWeight: 600 }}>{s.story}</p>
         </section>
@@ -43,7 +46,7 @@ export default function Intro({ si }: { si: number }) {
             </div></div>}
         </section>
         <div className="tiles">
-          <div className="tile"><span className="ic"><ListChecks size={20} /></span><b>{t("{n} ta savol", { n: left })}</b><i>{left < total ? t("davom etasiz") : t("12 provodka + 8 savol")}</i></div>
+          <div className="tile"><span className="ic"><ListChecks size={20} /></span><b>{t("{n} ta savol", { n: left })}</b><i>{left < total ? t("davom etasiz") : planOf(si) ? t("{p} provodka + {o} qonun savoli", { p: planOf(si)!.n_pv || 15, o: planOf(si)!.n_other || 5 }) : t("12 provodka + 8 savol")}</i></div>
           <div className="tile"><span className="ic"><Timer size={20} /></span><b>{t("2 daqiqa")}</b><i>{t("har savolga · hamma uchun teng")}</i></div>
           <div className="tile"><span className="ic"><Heart size={20} /></span><b>{t("5 ta jon")}</b><i>{t("xatoda kamayadi")}</i></div>
           <div className="tile"><span className="ic"><ShieldAlert size={20} /></span><b>{t("Bir marta")}</b><i>{t("har savolga")}</i></div>

@@ -247,6 +247,13 @@ with sync_playwright() as p:
     print("10. Sertifikat va xodim testi (ro'yxatsiz)")
     pg, e = page(b, seed=None, query="?v=ABCD2345"); pg.wait_for_timeout(500); ALLERR += e
     check("sertifikat tekshiruvi", "Dilnoza Karimova" in txt(pg) and "haqiqiy" in txt(pg).lower())
+    check("tekshiruv: seriya, raqamli imzo va jonli soat", "HL-2026-39-1-ABCD2345" in txt(pg) and "10D1-F75C-DF20-30A3" in txt(pg) and pg.locator(".v-live").count() == 1)
+    check("tekshiruv: shu haftaning kuchli uchligi (3 medal)", pg.locator(".v-peers li").count() == 3 and pg.locator(".v-peers svg.medal").count() == 3)
+    check("1-o'rin sertifikati — oltin dizayn", pg.locator(".cert.cert-gold").count() == 1 and "Oltin daraja" in pg.inner_text(".cert") and pg.locator(".cert-qr img").count() == 1)
+    pg, e = page(b, seed=None, query="?v=EFGH6789"); pg.wait_for_timeout(500); ALLERR += e
+    check("2-o'rin sertifikati — kumush, boshqa dizayn", pg.locator(".cert.cert-silver").count() == 1 and "Kumush daraja" in pg.inner_text(".cert") and "2-o'rin" in pg.inner_text(".cert"))
+    pg, e = page(b, seed=None, query="?v=ZZZZ0000"); pg.wait_for_timeout(500); ALLERR += e
+    check("soxta raqam — «topilmadi»", pg.locator("#v-bad").count() == 1 and pg.locator(".cert").count() == 0)
     pg, e = page(b, seed=None, query="?t=TST7ABC"); ALLERR += e
     check("xodim testi sahifasi", "Bosh buxgalter lavozimiga test" in txt(pg))
     pg.click("#go"); pg.wait_for_timeout(300)
@@ -419,6 +426,34 @@ with sync_playwright() as p:
     pg, e = page(b); ALLERR += e
     check("kubok g'olibi asosiy ekranda", pg.locator("#dd-champ").count() == 1 and "Aziz Rahimov" in pg.inner_text("#dd-champ"))
     EXTRA.pop("liga_day_duel_me", None); EXTRA.pop("liga_cup_list", None)
+
+    print("10g. Oktyabr kunlik rejasi, Katta final, medallar")
+    EXTRA["liga_day_plans"] = [{"day": "2026-10-01", "level": 5, "icon": "🧾", "title": {"uz": "Kassa va bank", "ru": "Касса и банк"},
+        "story": {"uz": "Kassir pul olib keldi.", "ru": "Кассир принёс деньги."}, "theory": {"uz": "<p>Kassa — <b>5010</b></p>", "ru": "<p>Касса — <b>5010</b></p>"}, "n_pv": 15, "n_other": 5}]
+    pg, e = page(b); ALLERR += e
+    go(pg, "intro", {"si": 3}); pg.wait_for_timeout(400)
+    check("kun rejasi: mavzu, nazariya va qiyinlik darajasi", "Kassa va bank" in txt(pg) and "5010" in txt(pg) and pg.locator("#plan-chip").count() == 1 and "Qiyinlik darajasi: 5" in txt(pg), txt(pg)[:300])
+    check("kun rejasi: «15 provodka + 5 qonun savoli»", "15 provodka + 5 qonun savoli" in txt(pg))
+    pg.evaluate("()=>__liga.nav.tab('home')"); pg.wait_for_timeout(400)
+    check("bosh sahifa: bugungi bosqich nomi rejadan", "Kassa va bank" in txt(pg))
+    EXTRA.pop("liga_day_plans", None)
+    EXTRA["liga_grand_info"] = {"month": "2026-12", "date": "2026-12-05", "active": True, "qualified": False, "qualifiers": [],
+        "months": [{"m": "2026-10", "closed": False, "live": True, "top": [{"pos": 1, "n": "Aziz R.", "xp": 2500, "me": False}, {"pos": 2, "n": "Malika S.", "xp": 2300, "me": False}, {"pos": 3, "n": "Bekzod T.", "xp": 2100, "me": False}], "my_pos": 5, "my_xp": 1900, "third_xp": 2100},
+                   {"m": "2026-11", "closed": False, "live": False, "top": [], "my_pos": None, "my_xp": 0, "third_xp": 0}]}
+    pg, e = page(b); ALLERR += e; pg.wait_for_timeout(600)
+    check("kirishda Katta final eslatmasi chiqadi", pg.locator("#grand-pop").count() == 1 and "Katta final" in pg.inner_text("#grand-pop") and "5-o'rindasiz" in pg.inner_text("#grand-pop") and "201 XP" in pg.inner_text("#grand-pop"), pg.inner_text("body")[:300])
+    pg.click("#grand-ok"); pg.wait_for_timeout(300)
+    check("eslatma yopiladi", pg.locator("#grand-pop").count() == 0)
+    pg.evaluate("()=>__liga.nav.tab('learn')"); pg.wait_for_timeout(200); pg.evaluate("()=>__liga.nav.tab('home')"); pg.wait_for_timeout(400)
+    check("eslatma kuniga bir marta (qayta ochilganda chiqmaydi)", pg.locator("#grand-pop").count() == 0 and S(pg, "S.grandSeen") == "2026-10-01")
+    check("bosh sahifa: Katta final kartasi (oktyabr top-3)", pg.locator("#grand").count() == 1 and "Aziz R." in pg.inner_text("#grand") and pg.locator("#grand svg.medal").count() >= 3)
+    pg.evaluate("()=>__liga.nav.tab('rate')"); pg.wait_for_timeout(300); pg.click("text=Final"); pg.wait_for_timeout(300)
+    check("reyting → Final: Katta final poygasi", pg.locator("#grand").count() == 1)
+    pg.click("text=Zal"); pg.wait_for_timeout(300)
+    check("chempionlar zali: o'rin medallari", pg.locator(".flat svg.medal").count() >= 2)
+    pg.evaluate("()=>__liga.nav.tab('profile')"); pg.wait_for_timeout(400)
+    check("profil: «Medallarim» javoni", pg.locator("#medal-shelf svg.medal-gold").count() == 1, txt(pg)[:300])
+    EXTRA.pop("liga_grand_info", None)
 
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e

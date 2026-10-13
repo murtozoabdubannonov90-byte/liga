@@ -12,6 +12,8 @@ import { setSound, sfx } from "../lib/fx";
 import { canFullscreen, toggleFullscreen, canHomeScreen, addToHomeScreen } from "../lib/tg";
 import { TopBar, needTgLink, connectTelegram } from "./Home";
 import { useState } from "react";
+import { Medal as MedalBadge } from "../components/Medal";
+import { weekNo } from "./Cert";
 
 function Row({ icon: Ic, title, sub, onClick }: { icon: any; title: string; sub?: string; onClick: () => void }) {
   return <button className="row" style={{ width: "100%", textAlign: "left", padding: "12px 2px", borderBottom: "1px solid var(--rule)" }} onClick={onClick}>
@@ -45,6 +47,11 @@ export default function Profile() {
         {me.personal && !S.trial && <Card title={t("Obuna")} right={<CreditCard size={20} />}>
           <p className="small" style={{ fontWeight: 700 }}>{me.ok ? t("✅ {d} gacha faol", { d: fmtD(me.paid_until) }) + (me.pending ? " · " + t("chek tekshirilmoqda") : "") : (me.pending ? t("⏳ Chek tekshirilmoqda — tasdiqlangach bosqichlar ochiladi") : t("⛔ To'lanmagan — bosqichlar yopiq"))}</p>
           <button className={"btn sm " + (me.ok ? "ghost" : "")} style={{ marginTop: 10 }} onClick={() => go("pay")}>{me.ok ? t("Uzaytirish") : t("To'lov qilish")}</button></Card>}
+        {myMedals().length > 0 && <Card title={t("Medallarim")}>
+          <div className="shelf" id="medal-shelf">{myMedals().map((x: any) => (
+            <button key={x.week_id} className="shelf-i" onClick={() => go("cert")} aria-label={t("{n}-o'rin · {d}-hafta", { n: x.pos, d: weekNo(x.week_id) })}>
+              <MedalBadge place={x.pos} size={44} week={weekNo(x.week_id) + "-H"} /><span>{t("{d}-hafta", { d: weekNo(x.week_id) })}</span></button>))}</div>
+          <p className="tiny muted" style={{ marginTop: 6 }}>{t("Medal ustiga bosing — QR kodli sertifikat ochiladi.")}</p></Card>}
         <section className="card" style={{ padding: "4px 16px" }}>
           {needTgLink() && <Row icon={BellRing} title={t("Telegram'ni ulash")} sub={t("Natijalar va eslatmalar shaxsan sizga")} onClick={connectTelegram} />}
           <Row icon={Award} title={t("Sertifikatlar")} sub={t("QR kod bilan tekshiriladi")} onClick={() => go("cert")} />
@@ -89,3 +96,5 @@ export function Settings() {
       </div>
     </div>);
 }
+/* mening haftalik o'rinlarim (chempionlar zalidan) */
+const myMedals = () => (S.champs || []).filter((x: any) => x.is_me && x.pos >= 1 && x.pos <= 3).sort((a: any, b: any) => (a.week_id < b.week_id ? 1 : -1));

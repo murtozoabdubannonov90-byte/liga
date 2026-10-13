@@ -15,7 +15,7 @@ export const ERR: Record<string, string> = {
   group_not_found: "Bunday jamoa kodi topilmadi yoki to'xtatilgan",
   phone_taken: "Bu raqam avval ro'yxatdan o'tgan. Yuqoridagi «Kirish» tugmasi orqali Telegram bilan kiring yoki administratorga murojaat qiling",
   bad_input: "Ma'lumotlarni tekshiring", too_many: "Juda ko'p urinish — birozdan keyin qayta urinib ko'ring",
-  final_closed: "Final yopiq — faqat oyning oxirgi shanbasi 10:00–13:00", not_qualified: "Siz bu oy finalga saralanmagansiz",
+  final_closed: "Final yopiq — faqat final kuni soat 10:00–13:00", not_qualified: "Siz bu oy finalga saralanmagansiz",
   not_winner: "Taklif faqat o'tgan hafta g'olibi uchun", bad_image: "Chek rasmini qayta tanlang (JPG yoki PNG)",
   bad_token: "Hisobingiz bu telefonga ulanmagan — «Qayta ulanish» tugmasini bosing", duel_taken: "Bu duelni boshqa odam qabul qilgan",
   already_done: "Siz buni allaqachon bajargansiz", duel_expired: "Duel muddati tugagan", not_found: "Topilmadi",
@@ -102,6 +102,8 @@ export async function pull(force = false) {
     }
     rpc<boolean>("liga_trial").then((v) => { S.trial = !!v; persist(); }).catch(() => {});
     rpc<number>("liga_free_days").then((v) => { S.freeDays = Number(v) || 0; persist(); }).catch(() => {});
+    if (S.pid) rpc<any>("liga_grand_info", { p_id: S.pid }).then((v) => { if (v) { S.grand = v; persist(); } }).catch(() => {});
+    rpc<any[]>("liga_day_plans").then((v) => { if (Array.isArray(v)) { (S as any).plans = v; persist(); } }).catch(() => {});
     rpc<any[]>("liga_pay_config2").then((c) => { if (c && c[0]) { S.payCfg = c[0]; persist(); } }).catch(() => {});
     if (S.adminPin) rpc<any[]>("liga_admin_list2", { p_pin: S.adminPin }).then((x) => { S.adminRows = x; persist(); }).catch(() => {});
     persist();
