@@ -249,6 +249,7 @@ with sync_playwright() as p:
     check("sertifikat tekshiruvi", "Dilnoza Karimova" in txt(pg) and "haqiqiy" in txt(pg).lower())
     check("tekshiruv: seriya, raqamli imzo va jonli soat", "HL-2026-39-1-ABCD2345" in txt(pg) and "10D1-F75C-DF20-30A3" in txt(pg) and pg.locator(".v-live").count() == 1)
     check("tekshiruv: shu haftaning kuchli uchligi (3 medal)", pg.locator(".v-peers li").count() == 3 and pg.locator(".v-peers svg.medal").count() == 3)
+    check("sertifikatda «ball» (XP yo'q) va kengash imzosi", "1 310 ball" in pg.inner_text(".cert") and "XP" not in pg.inner_text(".cert") and "Hakamlar hay'ati" in pg.inner_text(".cert"))
     check("1-o'rin sertifikati — oltin dizayn", pg.locator(".cert.cert-gold").count() == 1 and "Oltin daraja" in pg.inner_text(".cert") and pg.locator(".cert-qr img").count() == 1)
     pg, e = page(b, seed=None, query="?v=EFGH6789"); pg.wait_for_timeout(500); ALLERR += e
     check("2-o'rin sertifikati — kumush, boshqa dizayn", pg.locator(".cert.cert-silver").count() == 1 and "Kumush daraja" in pg.inner_text(".cert") and "2-o'rin" in pg.inner_text(".cert"))
@@ -408,7 +409,7 @@ with sync_playwright() as p:
     pg, e = page(b, seed={**SEED, "adminPin": "14"}); ALLERR += e
     dd = pg.inner_text("#day-duel") if pg.locator("#day-duel").count() else ""
     check("asosiy ekranda bugungi duel: raqib va soat", "Aziz R." in dd and "11:30" in dd and "provodka" in dd, dd[:200])
-    check("kubok jadvali: chorak final, g'olib, keyingi bosqich soatlari", pg.locator(".dd-list .r").count() == 4 and "Chorak final" in dd and "10:30" in dd and "6:4" in dd and "✅ Aziz R." in dd and "14:00" in dd and "16:00" in dd and pg.locator(".dd-list .r.me").count() == 1, dd[:300])
+    check("kubok jadvali: chorak final, g'olib, keyingi bosqich soatlari", pg.locator(".dd-list .r").count() == 4 and "Chorak final" in dd and "10:30" in dd and "6:4" in dd and "✅ Aziz R." in dd and "17:00" in dd and pg.locator(".dd-list .r.me").count() == 1, dd[:300])
     check("admin: bugungi juftliklar ro'yxati", pg.locator("#pairs .r").count() == 2 and "6:4" in pg.inner_text("#pairs"))
     live_reset(kind="day", b_name="Aziz R.", opens_in=3600000, win_from="2026-10-01T06:30:00Z", win_to="2026-10-01T07:30:00Z")
     pg.click("#dd-go"); pg.wait_for_timeout(1500)
@@ -441,7 +442,7 @@ with sync_playwright() as p:
         "months": [{"m": "2026-10", "closed": False, "live": True, "top": [{"pos": 1, "n": "Aziz R.", "xp": 2500, "me": False}, {"pos": 2, "n": "Malika S.", "xp": 2300, "me": False}, {"pos": 3, "n": "Bekzod T.", "xp": 2100, "me": False}], "my_pos": 5, "my_xp": 1900, "third_xp": 2100},
                    {"m": "2026-11", "closed": False, "live": False, "top": [], "my_pos": None, "my_xp": 0, "third_xp": 0}]}
     pg, e = page(b); ALLERR += e; pg.wait_for_timeout(600)
-    check("kirishda Katta final eslatmasi chiqadi", pg.locator("#grand-pop").count() == 1 and "Katta final" in pg.inner_text("#grand-pop") and "5-o'rindasiz" in pg.inner_text("#grand-pop") and "201 XP" in pg.inner_text("#grand-pop"), pg.inner_text("body")[:300])
+    check("kirishda Katta final eslatmasi chiqadi", pg.locator("#grand-pop").count() == 1 and "Katta final" in pg.inner_text("#grand-pop") and "5-o'rindasiz" in pg.inner_text("#grand-pop") and "201 ball" in pg.inner_text("#grand-pop"), pg.inner_text("body")[:300])
     pg.click("#grand-ok"); pg.wait_for_timeout(300)
     check("eslatma yopiladi", pg.locator("#grand-pop").count() == 0)
     pg.evaluate("()=>__liga.nav.tab('learn')"); pg.wait_for_timeout(200); pg.evaluate("()=>__liga.nav.tab('home')"); pg.wait_for_timeout(400)

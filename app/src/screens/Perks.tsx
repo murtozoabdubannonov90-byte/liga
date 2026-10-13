@@ -137,7 +137,7 @@ export function DayDuelCard() {
             <div key={k} className={"r" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>{p.slot}</span>
               <span className="n">{p.a_name} — {p.b_name}{p.winner_name && <small>✅ {p.winner_name}</small>}</span><span className="x" style={{ fontSize: 13 }}>{st(p)}</span></div>))}</div>
         </div>); })}
-      {lastN >= 4 && <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Yarim final — 14:00 dan, final — 16:00 (g'oliblar o'ynaydi)")}</p>}
-      {lastN === 2 && <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Final — 16:00 (yarim final g'oliblari)")}</p>}
+      {lastN >= 4 && <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Keyingi raund oldingisi tugagach ~10 daqiqada boshlanadi. Final — 17:00. 13:00–14:00 — tanaffus.")}</p>}
+      {lastN === 2 && <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Final — 17:00 (yarim final g'oliblari)")}</p>}
     </section>);
 }

@@ -13,7 +13,7 @@ export default function Topics() {
   return (
     <div className="shell bare">
       <PageTitle title={t("Yo'nalishlar")} />
-      <p className="small muted" style={{ fontWeight: 600, marginBottom: 12 }}>{t("Mavzu bo'yicha 10 ta savol. Ball kunlik mashq hisobiga yoziladi — liga jamiga qo'shilmaydi.")}{isWeekend() ? " " + t("Dam olish kuni — XP berilmaydi.") : ""}</p>
+      <p className="small muted" style={{ fontWeight: 600, marginBottom: 12 }}>{t("Mavzu bo'yicha 10 ta savol. Ball kunlik mashq hisobiga yoziladi — liga jamiga qo'shilmaydi.")}{isWeekend() ? " " + t("Dam olish kuni — ball berilmaydi.") : ""}</p>
       <div className="tiles">
         {list.map((x) => { const Ic = IC[x.id] || BookOpen, a = S.tacc[x.id], pc = a && a.n ? Math.round((a.ok / a.n) * 100) : null;
           return (

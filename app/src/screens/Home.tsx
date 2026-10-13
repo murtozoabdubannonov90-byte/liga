@@ -87,8 +87,8 @@ function Ticket() {
           <div className="t-meta">
             {ss === "future" && (until.h > 0 ? t("Bugun 09:00 da ochiladi · {h} soat {m} daqiqa qoldi", { h: until.h, m: until.m }) : t("Bugun 09:00 da ochiladi · {m} daqiqa qoldi", { m: until.m }))}
             {ss === "open" && !finished && <>{t("{d}/{n} savol", { d: done, n: total })} · <Clock3 size={13} style={{ verticalAlign: -2 }} /> {until.h > 0 ? t("{c} gacha {h} soat {m} daqiqa", { c: closeStr(), h: until.h, m: until.m }) : t("{c} gacha {m} daqiqa", { c: closeStr(), m: until.m })}</>}
-            {ss === "open" && finished && t("✅ {ok} to'g'ri · ❌ {bad} xato · {xp} XP", { ok: sv?.right_n || 0, bad: (sv?.done_n || 0) - (sv?.right_n || 0), xp: S.week.stages[si] || 0 })}
-            {ss === "closed" && (finished ? t("✅ Bajarilgan · {xp} XP", { xp: S.week.stages[si] || 0 }) : t("{c} da yopildi", { c: closeStr() }))}
+            {ss === "open" && finished && t("✅ {ok} to'g'ri · ❌ {bad} xato · {xp} ball", { ok: sv?.right_n || 0, bad: (sv?.done_n || 0) - (sv?.right_n || 0), xp: S.week.stages[si] || 0 })}
+            {ss === "closed" && (finished ? t("✅ Bajarilgan · {xp} ball", { xp: S.week.stages[si] || 0 }) : t("{c} da yopildi", { c: closeStr() }))}
           </div>
         </div>
       </div>
@@ -114,7 +114,7 @@ function WeekLedger() {
             <i>{t(WD[i])}</i><b className="num">{xp ? xp : past && si != null ? "—" : "·"}</b></div>);
         })}
       </div>
-      <div className="total-line"><span className="big num"><CountUp to={my} id="week" /></span><span className="muted" style={{ fontWeight: 700 }}>XP {t("bu hafta")}</span>
+      <div className="total-line"><span className="big num"><CountUp to={my} id="week" /></span><span className="muted" style={{ fontWeight: 700 }}>{t("ball bu hafta")}</span>
         <span className="grow" /><span className="chip gold"><Trophy size={13} />{t("maqsad")} {WEEK_GOAL}</span></div>
       <div className="meter" style={{ marginTop: 10 }}><motion.i initial={{ width: 0 }} animate={{ width: Math.min(100, (my / WEEK_GOAL) * 100) + "%" }} transition={{ duration: 0.9, ease: "easeOut" }} /></div>
       <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Hafta davomida natijangizni faqat siz ko'rasiz. Jadval juma 12:00 da ochiladi.")}</p>
@@ -126,7 +126,7 @@ export default function Home() {
   useEffect(() => { if (entry.d) { const code = entry.d; entry.d = undefined; go("duel", { code }); } }, []);
   const L = lessonOfDay(), errs = Object.keys(S.errs).length;
   const tiles: [any, string, string, () => void, boolean?][] = [
-    [Target, "Kunlik mashq", isWeekend() ? t("10 savol · XP siz") : t("10 savol · +8 XP"), () => runOrToast(isWeekend() ? startPractice() : startDaily())],
+    [Target, "Kunlik mashq", isWeekend() ? t("10 savol · ballsiz") : t("10 savol · +8 ball"), () => runOrToast(isWeekend() ? startPractice() : startDaily())],
     [Zap, "Blits", t("20 provodka · rekord {n}", { n: S.blitz || 0 }), () => runOrToast(startBlitz())],
     [Swords, "Duel", t("Hamkasbingizni chaqiring"), () => go("duel"), true],
     [Scale, "Balans o'yini", t("Aktiv va passivni joylang"), () => go("balance")],
@@ -157,7 +157,7 @@ export default function Home() {
         {S.streak > 1 && <div className="row small" style={{ fontWeight: 800, color: "var(--ink-2)" }}><Flame size={18} color="#E8590C" fill="#FFB020" />{t("{n} kunlik seriya — davom eting!", { n: S.streak })}</div>}
         {wq && wq.q_id && !(S.wqDone || {})[wq.q_id] && (
           <button className="card" style={{ textAlign: "left", borderColor: "var(--stamp)" }} onClick={() => go("wqAnswer")}>
-            <div className="card-h"><HelpCircle size={20} color="var(--stamp)" /><h3>{t("Haftaning savoli")}</h3><span className="chip blue">+50 XP</span></div>
+            <div className="card-h"><HelpCircle size={20} color="var(--stamp)" /><h3>{t("Haftaning savoli")}</h3><span className="chip blue">+50 {t("ball")}</span></div>
             <p style={{ fontWeight: 700 }}>{wq.q}</p><p className="small muted" style={{ marginTop: 6 }}>{t("Muallif: {n} — o'tgan hafta g'olibi", { n: wq.author })}</p>
           </button>)}
         {wq && wq.can_submit && <button className="card" style={{ textAlign: "left" }} onClick={() => go("wqSubmit")}>

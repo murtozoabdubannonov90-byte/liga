@@ -47,17 +47,19 @@ const cyr = (t: string) => t.replace(/(<[^>]*>|@[A-Za-z0-9_]+|https?:\/\/\S+|XP|
 const RU: Record<string, string> = {
   "⏰ <b>{n}, bugungi bosqich hali bajarilmagan!</b>\n{s}-bosqich soat {c} da yopiladi — 1 soat qoldi.": "⏰ <b>{n}, сегодняшний этап ещё не пройден!</b>\nЭтап {s} закроется в {c} — остался 1 час.",
   "Jamoangizdan {p} kishi bugungi bosqichni bajarib bo'ldi.": "Из вашей команды сегодняшний этап уже прошли: {p}.",
-  "✅ <b>{s}-bosqich yakunlandi!</b>\n🎯 {r}/{t} to'g'ri {st}\n💰 Bosqich bali: <b>{x} XP</b>\n📊 Shu hafta jami: <b>{w} XP</b>\n\n{next}": "✅ <b>Этап {s} пройден!</b>\n🎯 Верно: {r}/{t} {st}\n💰 Баллы за этап: <b>{x} XP</b>\n📊 Всего за неделю: <b>{w} XP</b>\n\n{next}",
+  "✅ <b>{s}-bosqich yakunlandi!</b>\n🎯 {r}/{t} to'g'ri {st}\n💰 Bosqich bali: <b>{x}</b>\n📊 Shu hafta jami: <b>{w} ball</b>\n\n{next}": "✅ <b>Этап {s} пройден!</b>\n🎯 Верно: {r}/{t} {st}\n💰 Баллы за этап: <b>{x}</b>\n📊 Всего за неделю: <b>{w} баллов</b>\n\n{next}",
   "Ertaga 09:00 da yangi bosqich ochiladi.": "Завтра в 09:00 откроется новый этап.",
   "Dushanba 09:00 da yangi bosqich ochiladi.": "В понедельник в 09:00 откроется новый этап.",
   "Liga bugun 12:00 da yakunlanadi — natijalar shu yerga keladi.": "Лига завершится сегодня в 12:00 — результаты придут сюда.",
   "Natijalar juma 12:00 da shu yerga keladi.": "Результаты придут сюда в пятницу в 12:00.",
   "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.": "☀️ <b>Доброе утро, {n}!</b>\nСегодня открыт <b>этап {s}</b> — 20 вопросов.\n⏰ Открыт до {c}.",
   "Bosqichni boshlash": "Начать этап",
+  "Keyingi raund — oldingisi tugagach ~10 daqiqada. <b>Final — 17:00</b>. 13:00–14:00 — tanaffus.": "Следующий раунд — примерно через 10 минут после окончания предыдущего. <b>Финал — в 17:00</b>. 13:00–14:00 — перерыв.",
+  "<b>Final — 17:00</b> (g'oliblar o'ynaydi).": "<b>Финал — в 17:00</b> (играют победители).",
   "{m} <b>Tabriklaymiz, {n}! Siz haftalik ligada {p}-o'rinni egalladingiz.</b>\nMedalingiz va QR kodli sertifikatingiz tayyor — uni ish beruvchingizga ham ko'rsatishingiz mumkin.": "{m} <b>Поздравляем, {n}! Вы заняли {p}-е место в недельной лиге.</b>\nВаша медаль и сертификат с QR-кодом готовы — его можно показать и работодателю.",
   "Sertifikatni ochish": "Открыть сертификат",
   "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich: «{t}»</b> ochildi — 15 provodka + 5 qonun savoli.\n⏰ Soat {c} gacha ochiq.": "☀️ <b>Доброе утро, {n}!</b>\nСегодня открыт <b>этап {s}: «{t}»</b> — 15 проводок + 5 вопросов по законодательству.\n⏰ Открыт до {c}.",
-  "🏁 <b>Hafta yakunlandi!</b>\n{m} Siz jamoada <b>{p}-o'rin</b>ni egalladingiz ({n} kishidan).\n💰 Haftalik bal: <b>{x} XP</b>\n\nDarajangiz 12:10 da yangilanadi. Yangi hafta dushanba 09:00 da.": "🏁 <b>Неделя завершена!</b>\n{m} Ваше место в команде: <b>{p}</b> (из {n}).\n💰 Баллы за неделю: <b>{x} XP</b>\n\nУровень обновится в 12:10. Новая неделя — в понедельник в 09:00.",
+  "🏁 <b>Hafta yakunlandi!</b>\n{m} Siz jamoada <b>{p}-o'rin</b>ni egalladingiz ({n} kishidan).\n💰 Haftalik ball: <b>{x}</b>\n\nDarajangiz 12:10 da yangilanadi. Yangi hafta dushanba 09:00 da.": "🏁 <b>Неделя завершена!</b>\n{m} Ваше место в команде: <b>{p}</b> (из {n}).\n💰 Баллы за неделю: <b>{x}</b>\n\nУровень обновится в 12:10. Новая неделя — в понедельник в 09:00.",
   "🏁 <b>Hafta yakunlandi.</b>\nBu hafta bosqich o'ynamadingiz. Dushanba 09:00 da yangi hafta — qaytib keling! 💪": "🏁 <b>Неделя завершена.</b>\nНа этой неделе вы не проходили этапы. Новая неделя — в понедельник в 09:00, возвращайтесь! 💪",
   "Natijalarni ko'rish": "Посмотреть результаты",
   "✅ <b>Ulandi!</b>\nEndi har bosqichdan keyin natijangiz, ertalab bosqich eslatmasi va juma kuni o'rningiz shu yerga keladi.": "✅ <b>Подключено!</b>\nТеперь после каждого этапа сюда придёт ваш результат, утром — напоминание об этапе, а в пятницу — ваше место.",
@@ -209,8 +211,8 @@ function cupText(rows: any[], lang?: string | null) {
     for (const x of rr) out.push(`${String(x.slot).slice(0, 5)} — ${esc(x.a_name ?? "")} ⚔️ ${esc(x.b_name ?? "")}${x.winner_name ? " · ✅ " + esc(x.winner_name) : ""}`);
   }
   const last = rows.filter((x) => x.round === rounds[rounds.length - 1]).length;
-  const next: [string, string][] = last >= 4 ? [["semi", "14:00"], ["final", "16:00"]] : last === 2 ? [["final", "16:00"]] : [];
-  for (const [st, h] of next) out.push("\n" + tr(lang, "{st} — {s} dan (g'oliblar)", { st: "<b>" + stageName(st, lang) + "</b>", s: h }));
+  if (last >= 4) out.push("\n" + tr(lang, "Keyingi raund — oldingisi tugagach ~10 daqiqada. <b>Final — 17:00</b>. 13:00–14:00 — tanaffus."));
+  else if (last === 2) out.push("\n" + tr(lang, "<b>Final — 17:00</b> (g'oliblar o'ynaydi)."));
   return out.join("\n");
 }
 // jadvalni hammaga (shaxsan, o'z dueli bilan) va jamoa guruhlariga yuborish
@@ -260,7 +262,7 @@ async function resultsText(code: string) {
   const { data } = await db.rpc("liga_results_group", { p_code: code, p_id: null });
   if (!data?.length) return "🏁 <b>Hafta yakunlandi</b>\n\nBu hafta hech kim ball to'plamadi. Yangi haftada kuchliroq boshlaymiz!";
   const medal = ["👑", "🥈", "🥉"];
-  const rows = data.map((p: any, i: number) => `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} XP</b>`);
+  const rows = data.map((p: any, i: number) => `${medal[i] ?? `${i + 1}.`} ${esc(p.name ?? "")} — <b>${p.week_xp} ball</b>`);
   const win = data[0];
   return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\n🏆 G'olib: <b>${esc(win.name ?? "")}</b> — tabriklaymiz!\n👑🥈🥉 Kuchli uchlik ilovada nishon va sertifikat oladi.\nYangi hafta dushanba soat 09:00 da boshlanadi 👇`;
 }
@@ -561,7 +563,7 @@ function reportText(r: any, g: Group) {
   }
   if (r.top.length) {
     L.push("", "📈 <b>Hafta reytingi</b>");
-    r.top.forEach((t: any, i: number) => L.push(`${["🥇", "🥈", "🥉"][i]} ${esc(t.n)} — ${fmt(t.x)} XP`));
+    r.top.forEach((t: any, i: number) => L.push(`${["🥇", "🥈", "🥉"][i]} ${esc(t.n)} — ${fmt(t.x)} ball`));
   }
   L.push("", "💳 <b>To'lovlar</b>");
   if (r.trial) L.push("Sinov rejimi yoqilgan — sotuv to'xtatilgan.");
@@ -677,7 +679,7 @@ async function onCron(action: string) {
       news = await toChats(() => `⚖️ <b>Qonun yangiligi</b>\n<b>${esc(x.title_uz)}</b>\n\n${esc(body)}${x.url ? `\n\n🔗 Manba: ${esc(x.url)}` : ""}\n\nIlovada shu yangilik bo'yicha qisqa test bor 👇`);
       await db.from("liga_news").update({ posted_at: new Date().toISOString() }).eq("id", x.id);
     }
-    // kunlik duel kubogi: tasodifiy juftlar (10:30 dan), jadval — hammaga va guruhga
+    // kunlik duel kubogi: tasodifiy juftlar (09:00 dan, final 17:00), jadval — hammaga va guruhga
     let duels = 0;
     const { data: dp } = await db.rpc("liga_cup_start_sys");
     if (((dp ?? []) as any[]).some((x) => x.fresh)) duels = await cupBroadcast((dp ?? []) as any[]);
@@ -768,7 +770,7 @@ async function onCron(action: string) {
     const { data: list } = await db.rpc("liga_week_personal"); let personal = 0;
     for (const p of (list ?? []) as any[]) {
       const text = p.pos && p.week_xp > 0
-        ? tr(p.lang, "🏁 <b>Hafta yakunlandi!</b>\n{m} Siz jamoada <b>{p}-o'rin</b>ni egalladingiz ({n} kishidan).\n💰 Haftalik bal: <b>{x} XP</b>\n\nDarajangiz 12:10 da yangilanadi. Yangi hafta dushanba 09:00 da.",
+        ? tr(p.lang, "🏁 <b>Hafta yakunlandi!</b>\n{m} Siz jamoada <b>{p}-o'rin</b>ni egalladingiz ({n} kishidan).\n💰 Haftalik ball: <b>{x}</b>\n\nDarajangiz 12:10 da yangilanadi. Yangi hafta dushanba 09:00 da.",
             { m: ["👑", "🥈", "🥉"][p.pos - 1] ?? "🏅", p: p.pos, n: p.n, x: p.week_xp })
         : tr(p.lang, "🏁 <b>Hafta yakunlandi.</b>\nBu hafta bosqich o'ynamadingiz. Dushanba 09:00 da yangi hafta — qaytib keling! 💪");
       if (await dm(p.tg, text, appBtn(tr(p.lang, "Natijalarni ko'rish")))) personal++;
@@ -857,7 +859,7 @@ async function onApp(req: Request) {
     const next = w === 5 ? tr(p.lang, "Liga bugun 12:00 da yakunlanadi — natijalar shu yerga keladi.") : w === 4 ? tr(p.lang, "Ertaga 09:00 da yangi bosqich ochiladi.") + " " + tr(p.lang, "Natijalar juma 12:00 da shu yerga keladi.")
       : tr(p.lang, "Ertaga 09:00 da yangi bosqich ochiladi.");
     const total = Math.max(1, Math.min(20, Number(b.total) || 20)), right = Math.max(0, Math.min(total, Number(b.right) || 0));
-    const ok = await dm(p.tg_user_id, tr(p.lang, "✅ <b>{s}-bosqich yakunlandi!</b>\n🎯 {r}/{t} to'g'ri {st}\n💰 Bosqich bali: <b>{x} XP</b>\n📊 Shu hafta jami: <b>{w} XP</b>\n\n{next}",
+    const ok = await dm(p.tg_user_id, tr(p.lang, "✅ <b>{s}-bosqich yakunlandi!</b>\n🎯 {r}/{t} to'g'ri {st}\n💰 Bosqich bali: <b>{x}</b>\n📊 Shu hafta jami: <b>{w} ball</b>\n\n{next}",
       { s: si + 1, r: right, t: total, st: stars(Number(b.stars) || 0), x, w: week, next }), appBtn(tr(p.lang, "Ligani ochish")));
     return jres({ ok });
   }

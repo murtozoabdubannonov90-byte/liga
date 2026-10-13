@@ -51,8 +51,8 @@ function TiersTab() {
       </Card>
       <Card title={t("Qanday ko'tariladi")}>
         <ul className="small" style={{ margin: 0, paddingLeft: 18, display: "grid", gap: 6, fontWeight: 600 }}>
-          <li>{t("Haftada jamoangiz kuchli uchligiga kirsangiz yoki 1600 XP to'plasangiz — bir daraja yuqoriga.")}</li>
-          <li>{t("Haftada 400 XP dan kam to'plasangiz — bir daraja pastga.")}</li>
+          <li>{t("Haftada jamoangiz kuchli uchligiga kirsangiz yoki 1600 ball to'plasangiz — bir daraja yuqoriga.")}</li>
+          <li>{t("Haftada 400 ball dan kam to'plasangiz — bir daraja pastga.")}</li>
           <li>{t("Darajalar har juma 12:10 da yangilanadi.")}</li>
         </ul>
       </Card>

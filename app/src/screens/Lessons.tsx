@@ -48,7 +48,7 @@ export function LessonView({ id }: { id: string }) {
         </Card>
         <div className="note" style={{ background: "var(--gold-soft)" }}><Lightbulb size={18} color="#9A6500" /><span>{l.tip}</span></div>
       </div>
-      <div className="dock"><button className="btn ok" id="go" onClick={finish}><Check size={18} />{done ? t("O'qildi") : t("Tushundim · +15 XP")}</button></div>
+      <div className="dock"><button className="btn ok" id="go" onClick={finish}><Check size={18} />{done ? t("O'qildi") : t("Tushundim · +15 ball")}</button></div>
     </div>
   );
 }

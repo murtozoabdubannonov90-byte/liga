@@ -3,7 +3,7 @@
   "title": "Birinchi ish kuni",
   "icon": "☕",
   "story": "Siz «Omad Savdo» MCHJga buxgalter bo'lib keldingiz. Direktor stolga qalin papka qo'ydi: «Avval hisobvaraqlarni tanib ol».",
-  "theory": "<p>Har bir narsaning o'z <b>hisobvarag'i</b> (schyoti) bor — javonning raqamli tortmalari kabi.</p>\n <ul><li><b>Aktiv</b> — firmada bor narsa: pul, tovar, uskuna, sizga qarzdorlar.</li>\n <li><b>Passiv</b> — u qayerdan kelgani: ustav kapital va sizning qarzlaringiz.</li></ul>\n <p>Birinchi raqam guruhni bildiradi: <b>0</b> uzoq muddatli aktivlar, <b>1</b> materiallar, <b>2</b> tovar-zaxiralar, <b>4</b> debitorlar, <b>5</b> pul, <b>6</b> majburiyatlar, <b>8</b> kapital, <b>9</b> daromad va xarajat.</p>",
+  "theory": "<p>Har bir narsaning o'z <b>hisobvarag'i</b> (schyoti) bor — javonning raqamli tortmalari kabi.</p>\n <ul><li><b>Aktiv</b> — firmada bor narsa: pul, tovar, uskuna, sizga qarzdorlar.</li>\n <li><b>Passiv</b> — u qayerdan kelgani: ustav kapital va sizning qarzlaringiz.</li></ul>\n <p>Birinchi raqam guruhni bildiradi: <b>0</b> uzoq muddatli aktivlar, <b>1–2</b> zaxiralar va ishlab chiqarish xarajatlari (1010 materiallar, 2010 ishlab chiqarish, 2810 tayyor mahsulot, 2910 tovarlar), <b>4</b> debitorlar, <b>5</b> pul, <b>6</b> joriy majburiyatlar, <b>7</b> uzoq muddatli majburiyatlar, <b>8</b> kapital, <b>9</b> daromad va xarajat.</p>",
   "example": null,
   "tasks": [
    {
@@ -908,18 +908,18 @@
    },
    {
     "t": "pv",
-    "q": "Xaridor tovarni qaytardi — sotishdan daromad kamaytirildi (QQSsiz summa).",
-    "dt": "9020",
+    "q": "Xaridor tovarni qaytardi — sotilgan tovar qaytarilishi aks ettirildi (QQSsiz summa).",
+    "dt": "9040",
     "kt": "4010",
     "o": [
      "0820",
      "4010",
      "2910",
      "9390",
-     "9020",
+     "9040",
      "6010"
     ],
-    "e": "Daromad storno qilindi (Dt 9020), xaridor qarzi kamaydi (Kt 4010)."
+    "e": "Qaytarilgan tovar 9040 «Sotilgan tovarlarning qaytarilishi»ga (Dt 9040), xaridor qarzi kamaydi (Kt 4010). 9020 to'g'ridan-to'g'ri kamaytirilmaydi."
    },
    {
     "t": "pv",
@@ -1007,9 +1007,9 @@
    },
    {
     "t": "calc",
-    "q": "Sotuv 30 mln (QQSsiz), tannarx 21 mln, sotish xarajatlari 2,5 mln. Sotishdan foyda?",
+    "q": "Sotuv 30 mln (QQSsiz), tannarx 21 mln, sotish xarajatlari 2,5 mln. Yalpi foydadan sotish xarajatlari ayirilgandagi foyda?",
     "a": 6500000,
-    "e": "30 − 21 − 2,5 = 6 500 000 so'm."
+    "e": "Yalpi foyda 30 − 21 = 9 mln; sotish xarajatlari ayirilgach: 9 − 2,5 = 6 500 000 so'm."
    },
    {
     "t": "calc",
@@ -1509,15 +1509,15 @@
    },
    {
     "t": "mc",
-    "q": "Amortizatsiya odatda qachondan hisoblana boshlaydi?",
+    "q": "Yangi BHMS 5 ga ko'ra buxgalteriya hisobida amortizatsiya qachondan hisoblana boshlaydi?",
     "o": [
-     "Foydalanishga topshirilgan oydan keyingi oydan",
+     "Asosiy vosita sifatida qabul qilinib, foydalanishga topshirilgan sanadan",
      "Xarid qilingan kundan",
      "Yil boshidan",
      "Pul to'langan kundan"
     ],
     "a": 0,
-    "e": "Vosita foydalanishga topshirilgan oydan keyingi oyning 1-sanasidan amortizatsiya boshlanadi."
+    "e": "BHMS 5 (№3546), 33-band: amortizatsiya obyekt asosiy vositalar tarkibiga qabul qilingan va ishga tushirilgan sanadan boshlanadi. Soliq hisobidagi tartib alohida (SK 306-modda)."
    },
    {
     "t": "calc",
@@ -1674,7 +1674,7 @@
    },
    {
     "t": "pv",
-    "q": "Soliq hisobotini kechiktirgani uchun jarima hisoblandi.",
+    "q": "Soliq tekshiruvi natijasida firmaga soliqni kam ko'rsatgani uchun moliyaviy jarima qo'llanildi.",
     "dt": "9430",
     "kt": "6410",
     "o": [
@@ -1685,7 +1685,7 @@
      "6410",
      "9010"
     ],
-    "e": "Jarima — boshqa operatsion xarajat (Dt 9430), budjetga qarz (Kt 6410). Foyda solig'i bazasidan chegirilmaydi (SK 317-modda)."
+    "e": "Firmaga qo'llangan moliyaviy jarima — boshqa operatsion xarajat (Dt 9430), budjetga qarz (Kt 6410). Foyda solig'i bazasidan chegirilmaydi (SK 317-modda)."
    },
    {
     "t": "pv",
@@ -1754,7 +1754,7 @@
      "6%"
     ],
     "a": 0,
-    "e": "2026-yildan YaTT va o'zini o'zi band qilganlar uchun yagona 1% stavka."
+    "e": "2026-yildan (O'RQ-1108) yillik aylanmasi 1 mlrd so'mgacha bo'lgan YaTT uchun yagona 1% stavka (SK 467-modda); qat'iy belgilangan JShDS bekor qilindi."
    },
    {
     "t": "calc",
@@ -2083,7 +2083,7 @@
   "title": "Imtiyozlar",
   "icon": "🎁",
   "story": "Mijoz: «Bizga qanday imtiyoz bor?» To'g'ri imtiyoz — qonuniy tejash. Noto'g'ri qo'llangan imtiyoz — jarima.",
-  "theory": "<p><b>0% stavka</b> va <b>QQSdan ozod</b> — har xil narsa:</p>\n <ul><li><b>0%</b> (masalan, eksport) — chiqim QQS 0, lekin <b>kirim QQS hisobga olinadi</b> va qaytarilishi mumkin (SK 264, 274-moddalar).</li>\n <li><b>Ozod</b> (masalan, tibbiy, ta'lim xizmatlari) — QQS yo'q, <b>kirim QQS hisobga olinmaydi</b>.</li></ul>\n <p>2026-yil yangiliklari: soddalashtirilgandan umumiy tizimga birinchi marta o'tganlarga 1 yil foyda solig'idan ozodlik; kontent yaratuvchilar, issiqxonalar uchun ijtimoiy soliq 1%.</p>",
+  "theory": "<p><b>0% stavka</b> va <b>QQSdan ozod</b> — har xil narsa:</p>\n <ul><li><b>0%</b> (masalan, eksport) — chiqim QQS 0, lekin <b>kirim QQS hisobga olinadi</b> va qaytarilishi mumkin (SK 260, 274-moddalar). Qishloq xo'jaligi tovar ishlab chiqaruvchilari uchun (paxta va g'alladan tashqari) 2026-yildan ham 0% — SK 264-modda.</li>\n <li><b>Ozod</b> (masalan, tibbiy, ta'lim xizmatlari) — QQS yo'q, <b>kirim QQS hisobga olinmaydi</b>.</li></ul>\n <p>2026-yil yangiliklari: aylanma soliqdan QQS va foyda solig'iga birinchi marta o'tganlarga 1 yil foyda solig'idan ozodlik (dividend va foizlarga tatbiq etilmaydi); bolalar kontenti, milliy film va seriallar ishlab chiqaruvchilar hamda issiqxonalar uchun (shartlar bilan) ijtimoiy soliq 1%.</p>",
   "example": null,
   "tasks": [
    {
@@ -2268,15 +2268,15 @@
    },
    {
     "t": "mc",
-    "q": "QQS bo'yicha 0% stavka qo'llanadigan holatlar qaysi moddada?",
+    "q": "Soliq kodeksining qaysi moddasi «Eksport va unga tenglashtirilgan operatsiyalarga soliq solish» (QQS 0%) deb ataladi?",
     "o": [
-     "264-modda",
+     "260-modda",
      "258-modda",
      "266-modda",
      "274-modda"
     ],
     "a": 0,
-    "e": "264 — nol stavka; 258 — stavkalar; 266 — hisobga olish; 274 — qaytarish."
+    "e": "260 — eksport va unga tenglashtirilgan operatsiyalar (0%); 264 — ayrim hollarda nol stavka; 258 — stavkalar; 266 — to'langan QQSni hisobga olish; 274 — qaytarish."
    },
    {
     "t": "mc",
@@ -2292,15 +2292,15 @@
    },
    {
     "t": "mc",
-    "q": "Elektromobil quvvatlash stansiyasi uchun 2028-yilgacha mol-mulk solig'i stavkasi?",
+    "q": "SKga 2026-yilgi o'zgartishlarga ko'ra elektromobil quvvatlash stansiyasi uchun yuridik shaxs mol-mulk solig'i bo'yicha imtiyoz qanday?",
     "o": [
-     "1%",
-     "0%",
-     "1,5%",
-     "2%"
+     "Hisoblangan soliq summasining 1 foizi to'lanadi",
+     "Soliq stavkasi 1% etib belgilangan",
+     "Soliqdan to'liq ozod qilingan",
+     "Stavka 50% ga kamaytirilgan"
     ],
     "a": 0,
-    "e": "2028-yilgacha mol-mulk va yer solig'i 1%."
+    "e": "Mol-mulk va yer solig'i hisoblangan summaning faqat 1 foizi miqdorida to'lanadi. Bu 1% stavka emas — stavka 1,5% qoladi."
    },
    {
     "t": "calc",
@@ -2433,7 +2433,7 @@
    },
    {
     "t": "pv",
-    "q": "5 BHM miqdorida ma'muriy jarima hisoblandi.",
+    "q": "Firmaga 5 BHM miqdorida moliyaviy jarima (sanksiya) qo'llanildi.",
     "dt": "9430",
     "kt": "6410",
     "o": [
@@ -2444,7 +2444,7 @@
      "9310",
      "2910"
     ],
-    "e": "Jarima — boshqa operatsion xarajat (Dt 9430), budjetga qarz (Kt 6410)."
+    "e": "Firmaga qo'llangan jarima — boshqa operatsion xarajat (Dt 9430), budjetga qarz (Kt 6410)."
    },
    {
     "t": "pv",
@@ -3085,7 +3085,7 @@
    },
    {
     "t": "mc",
-    "q": "2026-yildan bir oyda 3 ta soliq hisoboti kechiktirilsa, nechta jarima qo'llanadi?",
+    "q": "2026-yildan bir kalendar oyda 3 xil soliq turi bo'yicha hisobot o'z vaqtida topshirilmasa, rahbarga nechta jarima qo'llanadi?",
     "o": [
      "1 ta",
      "3 ta",
@@ -3093,7 +3093,7 @@
      "Jarima yo'q"
     ],
     "a": 0,
-    "e": "2026-yil o'zgarishi: bir oy ichidagi bir nechta kechikish uchun bitta jarima."
+    "e": "MJtK 175-moddasi 8-qismi (2026): bir kalendar oyda bir nechta soliq turi bo'yicha hisobot kechiktirilsa, faqat bitta jarima qo'llanadi."
    }
   ]
  }

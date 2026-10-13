@@ -164,13 +164,13 @@
    "t": "mc",
    "q": "Shaxsiy hisob varag'ida bitta soliq bo'yicha ortiqcha to'lov bor. Undan qanday foydalanish mumkin?",
    "o": [
-    "Ariza bilan boshqa soliq qarziga hisoblash yoki qaytarib olish",
+    "Boshqa soliq qarziga yoki kelgusi to'lovlarga hisobga olinadi yoxud ariza bilan qaytariladi",
     "Faqat naqd pulda soliq inspeksiyasidan olinadi",
     "Avtomatik ravishda xodimlar oyligiga o'tkaziladi",
     "Undan hech qachon foydalanib bo'lmaydi"
    ],
    "a": 0,
-   "e": "Ortiqcha to'langan soliq ariza asosida boshqa soliqlar bo'yicha qarzga hisoblanadi yoki qaytariladi."
+   "e": "Qarz bo'lsa, soliq organi ortiqcha to'lovni uni uzishga o'zi hisobga oladi. Qarz bo'lmasa, u kelgusi to'lovlarga hisoblanadi yoki ariza (my.soliq.uz) bilan qaytariladi."
   },
   {
    "t": "mc",
@@ -616,13 +616,13 @@
    "t": "mc",
    "q": "В лицевом счёте есть переплата по одному налогу. Как её можно использовать?",
    "o": [
-    "По заявлению зачесть в счёт долга по другому налогу или вернуть",
+    "Засчитывается в счёт долга по другому налогу или будущих платежей либо возвращается по заявлению",
     "Получить только наличными в налоговой инспекции",
     "Она автоматически переводится на зарплату сотрудникам",
     "Использовать её никогда нельзя"
    ],
    "a": 0,
-   "e": "Переплата по заявлению засчитывается в счёт задолженности по другим налогам или возвращается."
+   "e": "При наличии недоимки налоговый орган сам засчитывает переплату в её погашение. Если долга нет, она засчитывается в счёт будущих платежей или возвращается по заявлению (my.soliq.uz)."
   },
   {
    "t": "mc",

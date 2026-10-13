@@ -29,15 +29,15 @@ async function draw(kind: "week" | "stage", si?: number, stars = 0): Promise<str
   g.fillText(name + (S.group?.name ? " · " + S.group.name : ""), 80, 300);
   g.fillStyle = "#EAF4EF"; g.font = "800 220px 'Unbounded Variable', sans-serif";
   let big = "", sub = "";
-  if (kind === "week") { big = fmt(S.week.my || S.lastWeekXp || 0); sub = t("XP bu hafta"); }
-  else { big = (si! + 1) + ""; sub = t("bosqich") + " · " + (S.week.stages[si!] || 0) + " XP"; }
+  if (kind === "week") { big = fmt(S.week.my || S.lastWeekXp || 0); sub = t("ball bu hafta"); }
+  else { big = (si! + 1) + ""; sub = t("bosqich") + " · " + (S.week.stages[si!] || 0) + " ball"; }
   g.fillText(big, 72, 560);
   g.fillStyle = "#F2B32A"; g.font = "700 52px 'Unbounded Variable', sans-serif"; g.fillText(sub, 80, 650);
   if (kind === "stage") { g.font = "120px sans-serif"; for (let k = 0; k < 3; k++) { g.fillStyle = k < stars ? "#F2B32A" : "rgba(234,244,239,.18)"; star(g, 140 + k * 150, 790, 60); } g.font = "600 40px 'Manrope Variable', sans-serif"; g.fillStyle = "#EAF4EF"; g.fillText(C().STAGES[si!].title, 80, 930); }
   else {
     const tier = S.tier || 0; g.fillStyle = TIER_HEX[tier]; shield(g, 80, 720, 120);
     g.fillStyle = "#EAF4EF"; g.font = "700 52px 'Unbounded Variable', sans-serif"; g.fillText(t("{t} liga", { t: t(TIERS[tier]) }), 230, 790);
-    g.fillStyle = "#A9C4BA"; g.font = "600 38px 'Manrope Variable', sans-serif"; g.fillText(t(rankOf(S.xp).cur[1]) + " · " + fmt(S.xp) + " XP", 230, 845);
+    g.fillStyle = "#A9C4BA"; g.font = "600 38px 'Manrope Variable', sans-serif"; g.fillText(t(rankOf(S.xp).cur[1]) + " · " + fmt(S.xp) + " ball", 230, 845);
   }
   g.strokeStyle = "rgba(234,244,239,.25)"; g.setLineDash([16, 14]); g.lineWidth = 3; g.beginPath(); g.moveTo(60, 1080); g.lineTo(W - 60, 1080); g.stroke(); g.setLineDash([]);
   g.fillStyle = "#EAF4EF"; g.font = "700 40px 'Manrope Variable', sans-serif"; g.fillText(t("Buxgalterlar uchun haftalik liga"), 80, 1160);
@@ -57,7 +57,7 @@ export default function Share({ kind = "week", si, stars = 0 }: { kind?: "week" 
       if (canShareMessage()) { const r = await botApp("card", { image: img, kind }); if (r.id) { const ok = await shareMessage(r.id); if (ok) { sfx("coin"); toast(t("Yuborildi")); } return; } }
       const blob = await (await fetch(img)).blob(), file = new File([blob], "hisobchi-liga.jpg", { type: "image/jpeg" });
       if ((navigator as any).canShare && (navigator as any).canShare({ files: [file] })) { await (navigator as any).share({ files: [file], text: t("Hisobchi Liga natijam") + " " + refLink() }); return; }
-      openTg("https://t.me/share/url?url=" + encodeURIComponent(refLink()) + "&text=" + encodeURIComponent(t("Hisobchi Liga natijam") + ": " + (kind === "week" ? S.week.my + " XP" : "")));
+      openTg("https://t.me/share/url?url=" + encodeURIComponent(refLink()) + "&text=" + encodeURIComponent(t("Hisobchi Liga natijam") + ": " + (kind === "week" ? S.week.my + " ball" : "")));
     } catch (e) { toast(errMsg(e)); } finally { setBusy(false); }
   };
   return (

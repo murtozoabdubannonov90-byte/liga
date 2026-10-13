@@ -35,7 +35,7 @@ export function boot() {
   applyTheme();
   setLigaStart(S.group?.start);
   recalcWeek(); sweepDays();
-  setAwardHandler((id) => { const a = ACH.find((x) => x.id === id); if (a) { toast("🏅 " + t("Yangi yutuq") + ": " + t(a.n) + " (+60 XP)"); sfx("coin"); } });
+  setAwardHandler((id) => { const a = ACH.find((x) => x.id === id); if (a) { toast("🏅 " + t("Yangi yutuq") + ": " + t(a.n) + t(" (+60 ball)")); sfx("coin"); } });
   if (checkWeek()) setTimeout(() => go("weekEnd"), 400);
   /* Telegram ichida: hisob Telegram ID orqali topiladi (yangi telefon/kompyuter — qayta ro'yxatsiz) */
   if (inTelegram && (!S.pid || !S.token)) {

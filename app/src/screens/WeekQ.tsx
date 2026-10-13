@@ -21,7 +21,7 @@ export function WqAnswer() {
       <article className="qcard"><div className="qkind">{t("Muallif: {n} — o'tgan hafta g'olibi", { n: w.author })}</div><p className="qtext">{w.q}</p>
         <div className="opts">{(w.o || []).map((x: string, k: number) => (
           <button key={k} disabled={!!res} className={"opt " + (res ? (k === res.a ? "right" : k === pick ? "wrong" : "") : k === pick ? "sel" : "")} onClick={() => setPick(k)}>{x}</button>))}</div></article>
-      {res && <div className={"sheet-fb " + (res.ok ? "ok" : "bad")}><div><h4>{res.ok ? t("To'g'ri! +50 XP") : t("Xato. Ishtirok uchun +10 XP")}</h4><p>{res.e}</p>
+      {res && <div className={"sheet-fb " + (res.ok ? "ok" : "bad")}><div><h4>{res.ok ? t("To'g'ri! +50 ball") : t("Xato. Ishtirok uchun +10 ball")}</h4><p>{res.e}</p>
         <button className={"btn " + (res.ok ? "ok" : "bad")} onClick={() => tab("home")}>{t("Asosiy")}</button></div></div>}
       {!res && <div className="dock"><button className="btn" disabled={pick == null || busy} onClick={send}>{t("Javob berish")}</button></div>}
     </div>);

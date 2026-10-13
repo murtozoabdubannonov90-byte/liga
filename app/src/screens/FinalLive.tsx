@@ -23,7 +23,7 @@ export function FinalCard() {
       <section className="ticket">
         <div className="t-top"><Trophy size={42} color="var(--gold)" /><div className="grow">
           <div className="t-title">{t("{m} chempionati", { m: monthName(f.month) })}</div>
-          <div className="t-meta">{t("Final: {d}, shanba 10:00–13:00 · 20 savol · teng ballda tezroq ishlagan yutadi", { d: fmtD(f.final_date) })}</div></div></div>
+          <div className="t-meta">{t("Final: {d}, 10:00–13:00 · 20 savol · teng ballda tezroq ishlagan yutadi", { d: fmtD(f.final_date) })}</div></div></div>
         <div className="t-bottom">
           {finalCanPlay() ? <button className="btn gold" onClick={() => go("finalLive")}>{t("Finalga kirish")}</button>
             : <span className="small" style={{ color: "var(--on-board-2)", fontWeight: 700 }}>{f.my_score != null ? t("Siz finalni ishladingiz: {s} ball", { s: f.my_score }) : f.qualified ? t("Siz saralandingiz!") : (f.month === S.grand?.month ? t("Oktyabr yoki noyabrda kuchli uchlikka kirganlar o'ynaydi") : t("2 marta kuchli uchlikka kiring — finalga yo'llanma olasiz"))}</span>}

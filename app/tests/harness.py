@@ -71,10 +71,10 @@ _PEERS = [{"pos": 1, "n": "Dilnoza K.", "me": True, "cert": "ABCD2345"}, {"pos":
 CERTS = {
   "ABCD2345": {"ok": True, "id": "ABCD2345", "kind": "week", "name": "Dilnoza Karimova", "team": "Buxgalterlar ligasi", "place": 1, "xp": 1310, "participants": 24,
                "week": {"id": "2026-09-25T07:00", "no": 39, "from": "2026-09-21", "to": "2026-09-25"}, "issued_at": "2026-10-01T10:00:00Z", "checked_at": "2026-10-01T05:00:00Z",
-               "sig": "10D1-F75C-DF20-30A3", "signer": "M. Abdubannonov", "serial": "HL-2026-39-1-ABCD2345", "peers": _PEERS},
+               "sig": "10D1-F75C-DF20-30A3", "signer": "Hisobchi Liga Kengashi", "serial": "HL-2026-39-1-ABCD2345", "peers": _PEERS},
   "EFGH6789": {"ok": True, "id": "EFGH6789", "kind": "week", "name": "Aziz Rahimov", "team": "Buxgalterlar ligasi", "place": 2, "xp": 1250, "participants": 24,
                "week": {"id": "2026-09-25T07:00", "no": 39, "from": "2026-09-21", "to": "2026-09-25"}, "issued_at": "2026-10-01T10:00:00Z", "checked_at": "2026-10-01T05:00:00Z",
-               "sig": "BE84-983E-0F75-FF79", "signer": "M. Abdubannonov", "serial": "HL-2026-39-2-EFGH6789", "peers": [dict(p, me=p["pos"] == 2) for p in _PEERS]},
+               "sig": "BE84-983E-0F75-FF79", "signer": "Hisobchi Liga Kengashi", "serial": "HL-2026-39-2-EFGH6789", "peers": [dict(p, me=p["pos"] == 2) for p in _PEERS]},
 }
 def body_for(fn, args):
     if fn in EXTRA: return EXTRA[fn]

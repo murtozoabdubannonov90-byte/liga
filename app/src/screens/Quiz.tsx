@@ -261,7 +261,7 @@ export default function Quiz({ run }: { run: Run }) {
       <AnimatePresence>{res && (
         <motion.div className={"sheet-fb " + (res.ok ? "ok" : "bad")} initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", stiffness: 420, damping: 38 }}>
           <div>
-            <h4>{res.ok ? t("To'g'ri!") + (res.gain ? " +" + res.gain + " XP" : "") : res.why === "left" ? t("Ilovadan chiqildi — savol xato hisoblandi") : res.why === "time" ? t("Vaqt tugadi") : t("Xato — sababini ko'ring")}</h4>
+            <h4>{res.ok ? t("To'g'ri!") + (res.gain ? " +" + res.gain + " ball" : "") : res.why === "left" ? t("Ilovadan chiqildi — savol xato hisoblandi") : res.why === "time" ? t("Vaqt tugadi") : t("Xato — sababini ko'ring")}</h4>
             {!res.ok && <p className="ans">{tq.t === "pv" ? `${t("To'g'ri provodka")}: Dt ${tq.dt} — Kt ${tq.kt}` : tq.t === "mc" ? `${t("To'g'ri javob")}: ${opts.find((o) => o.i === Number(tq.a))?.x}` : `${t("To'g'ri javob")}: ${fmt(Number(tq.a))} ${tq.unit || t("so'm")}`}</p>}
             {!res.ok && tq.t === "pv" && <p className="small">{tq.dt} — {c.A[tq.dt!]}<br />{tq.kt} — {c.A[tq.kt!]}</p>}
             {!exp && <p>{tq.e}</p>}
@@ -272,7 +272,7 @@ export default function Quiz({ run }: { run: Run }) {
             </button>
           </div>
         </motion.div>)}</AnimatePresence>
-      {ask && <Confirm text={r.mode === "stage" ? t("Chiqasizmi? Javobsiz savol XATO hisoblanadi va qaytib chiqmaydi. Topgan XP saqlanadi.") : ["final", "duel", "test"].includes(r.mode) ? t("Chiqsangiz, natijangiz shu holatda yuboriladi va qayta kirib bo'lmaydi.") : t("Chiqasizmi? Bu mashq natijasi saqlanmaydi.")}
+      {ask && <Confirm text={r.mode === "stage" ? t("Chiqasizmi? Javobsiz savol XATO hisoblanadi va qaytib chiqmaydi. Topgan ballaringiz saqlanadi.") : ["final", "duel", "test"].includes(r.mode) ? t("Chiqsangiz, natijangiz shu holatda yuboriladi va qayta kirib bo'lmaydi.") : t("Chiqasizmi? Bu mashq natijasi saqlanmaydi.")}
         yes={t("Chiqish")} no={t("Qolish")} onYes={quit} onNo={() => setAsk(false)} />}
     </div>
   );
@@ -284,14 +284,14 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
   const again = r.mode === "review" ? () => { replace("review"); return null; } : r.mode === "blitz" ? startBlitz : r.mode === "daily" ? startDaily : r.mode === "errs" ? startErrs : r.mode === "practice" ? startPractice : r.mode === "topic" && r.tp ? () => startTopic(r.tp!) : null;
   let title = t("Yakunlandi"), big: any = null;
   if (extra?.closed) title = t("Soat {c} — bosqich yopildi", { c: closeStr() });
-  else if (r.mode === "gift") { title = extra?.gift > 25 ? t("Sovg'a ochildi!") : t("Qutida kichik sovg'a"); big = <>+<CountUp to={extra?.gift || 0} /> XP</>; }
+  else if (r.mode === "gift") { title = extra?.gift > 25 ? t("Sovg'a ochildi!") : t("Qutida kichik sovg'a"); big = <>+<CountUp to={extra?.gift || 0} /> {t("ball")}</>; }
   else if (r.mode === "blitz") { title = f.newRecord ? t("Yangi rekord!") : t("Blits yakunlandi"); big = <><CountUp to={r.right} />/{r.queue.length}</>; }
   else if (r.mode === "final") { title = t("Final yakunlandi!"); big = <><CountUp to={okN * 20} /> {t("ball")}</>; }
   else if (r.mode === "duel") { title = t("Duel natijangiz"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
   else if (r.mode === "test") { title = t("Test yakunlandi"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
   else if (r.mode === "review") { title = t("Xatolar tahlili yakunlandi"); big = <><CountUp to={r.mastered || 0} /> {t("ta o'zlashtirildi")}</>; }
   else if (!f.passed) title = t("Jonlar tugadi");
-  else { title = r.mode === "stage" ? t("Bosqich yakunlandi!") : r.mode === "topic" ? t("Yo'nalish mashqi bajarildi!") : t("Mashq bajarildi!"); big = <>+<CountUp to={f.total} /> XP</>; }
+  else { title = r.mode === "stage" ? t("Bosqich yakunlandi!") : r.mode === "topic" ? t("Yo'nalish mashqi bajarildi!") : t("Mashq bajarildi!"); big = <>+<CountUp to={f.total} /> {t("ball")}</>; }
   const mmss = (ms: number) => Math.floor(ms / 60000) + ":" + String(Math.floor(ms / 1000) % 60).padStart(2, "0");
   return (
     <div className="shell bare" style={{ paddingBottom: "calc(250px + var(--safe-b))" }}>
@@ -302,14 +302,14 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
         {big && <div className="hero-n">{big}</div>}
         {!["gift"].includes(r.mode) && <div className="stat3">
           <div><b className="num">{okN}</b><i>{t("to'g'ri")}</i></div><div><b className="num">{badN}</b><i>{t("xato")}</i></div>
-          <div><b className="num">{r.mode === "stage" ? S.week.stages[r.si!] || 0 : extra?.ms ? mmss(extra.ms) : S.week.my}</b><i>{r.mode === "stage" ? t("bosqich XP") : extra?.ms ? t("vaqt") : t("hafta XP")}</i></div></div>}
-        {f.dayBonus > 0 && <p className="small muted">{t("Kunlik seriya bonusi: +{n} XP", { n: f.dayBonus })}</p>}
+          <div><b className="num">{r.mode === "stage" ? S.week.stages[r.si!] || 0 : extra?.ms ? mmss(extra.ms) : S.week.my}</b><i>{r.mode === "stage" ? t("bosqich bali") : extra?.ms ? t("vaqt") : t("hafta bali")}</i></div></div>}
+        {f.dayBonus > 0 && <p className="small muted">{t("Kunlik seriya bonusi: +{n} ball", { n: f.dayBonus })}</p>}
         {r.mode === "final" && <p className="small muted">{extra?.sent ? t("Natijangiz yuborildi. G'olib 13:00 da aniqlanadi.") : extra?.err || t("Yuborilmoqda...")}</p>}
         {r.mode === "duel" && <p className="small muted">{extra?.sent ? t("Natija yuborildi. Raqibingiz o'ynagach g'olib ko'rinadi.") : extra?.err || ""}</p>}
         {r.mode === "test" && <p className="small muted">{extra?.sent ? t("Natijangiz kompaniyaga yuborildi. Rahmat!") : extra?.err || ""}</p>}
         {r.mode === "blitz" && <p className="small muted">{t("Blits bali alohida — haftalik jamiga qo'shilmaydi.")}</p>}
         {r.mode === "review" && <p className="small muted">{(r.mastered || 0) > 0 ? t("Asl savolni ham, teskarisini ham to'g'ri topgan xatolar daftardan o'chirildi.") : t("Xato o'chishi uchun asl savolni ham, teskarisini ham to'g'ri toping.")} {t("Daftarda qoldi: {n} ta", { n: Object.keys(S.errs).length })}</p>}
-        {!f.passed && r.mode === "stage" && <p className="small muted">{t("Topgan XP saqlandi. Javob berilgan savollar qaytmaydi — «Davom etish» bilan qolganlarini ishlaysiz.")}</p>}
+        {!f.passed && r.mode === "stage" && <p className="small muted">{t("Topgan ballaringiz saqlandi. Javob berilgan savollar qaytmaydi — «Davom etish» bilan qolganlarini ishlaysiz.")}</p>}
       </div>
       {r.mode === "stage" && <div style={{ marginTop: 18 }}><DayRewards when="end" /></div>}
       <div className="dock"><div style={{ display: "grid", gap: 10 }}>

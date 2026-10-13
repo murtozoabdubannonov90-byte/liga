@@ -452,14 +452,14 @@
   "topic": "av",
   "uz": {
    "title": "Foydalanishga topshirish",
-   "body": "Uskuna o'rnatilib, ishlashga tayyor bo'lganda dalolatnoma tuziladi va 0820 dagi to'liq qiymat 0130 ga o'tkaziladi: Dt 0130 — Kt 0820. Shu paytdan boshlab amortizatsiya hisoblashga tayyorgarlik boshlanadi.",
+   "body": "Uskuna o'rnatilib, ishlashga tayyor bo'lganda dalolatnoma tuziladi va 0820 dagi to'liq qiymat 0130 ga o'tkaziladi: Dt 0130 — Kt 0820. Yangi BHMS 5 (33-band) bo'yicha amortizatsiya aynan shu sanadan — asosiy vosita sifatida qabul qilinib, ishga tushirilganidan boshlab hisoblanadi.",
    "tip": "Eslab qoling: dalolatnomasiz asosiy vosita 0820 da qoladi va amortizatsiya qilinmaydi.",
    "dt": "0130",
    "kt": "0820"
   },
   "ru": {
    "title": "Ввод в эксплуатацию",
-   "body": "Когда оборудование смонтировано и готово к работе, составляется акт, и вся сумма с 0820 переносится на 0130: Дт 0130 — Кт 0820. С этого момента объект готов к начислению амортизации.",
+   "body": "Когда оборудование смонтировано и готово к работе, составляется акт, и вся сумма с 0820 переносится на 0130: Дт 0130 — Кт 0820. По новому НСБУ 5 (п. 33) амортизация начисляется именно с этой даты — с принятия в состав ОС и ввода в эксплуатацию.",
    "tip": "Запомните: без акта ввода ОС остаётся на 0820 и не амортизируется."
   }
  },

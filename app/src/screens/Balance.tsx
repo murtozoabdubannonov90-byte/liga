@@ -36,7 +36,7 @@ export default function Balance() {
   const put = (s: Side) => { if (!sel || checked) return; sfx("tap"); setPlace({ ...place, [sel]: s }); setSel(null); };
   const check = () => {
     setChecked(true);
-    if (allRight) { sfx("win"); burst(); award("balance"); if (S.balDay !== today()) { S.balDay = today(); addXP(30); persist(); toast("+30 XP"); } }
+    if (allRight) { sfx("win"); burst(); award("balance"); if (S.balDay !== today()) { S.balDay = today(); addXP(30); persist(); toast("+30 ball"); } }
     else sfx("bad");
   };
   const reset = () => { setGame(makeGame()); setPlace({}); setSel(null); setChecked(false); };

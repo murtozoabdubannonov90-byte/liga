@@ -27,7 +27,7 @@ export default function Learn() {
               return (
                 <button key={i} className={"st" + (ss === "open" && !done ? " open" : done ? " done" : "")} disabled={ss !== "open"} onClick={() => go("intro", { si: i })}>
                   <span className="no">{done ? <Check size={24} /> : ss === "future" ? <Lock size={20} /> : i + 1}</span>
-                  <span><b>{c.STAGES[i].title}</b><i>{lbl}{S.week.stages[i] ? " · " + S.week.stages[i] + " XP" : ""}</i></span>
+                  <span><b>{c.STAGES[i].title}</b><i>{lbl}{S.week.stages[i] ? " · " + S.week.stages[i] + " ball" : ""}</i></span>
                   <span className="disp" style={{ color: "var(--gold)", fontSize: 14, letterSpacing: 2 }}>{"★".repeat(sc)}<span style={{ color: "var(--rule)" }}>{"★".repeat(3 - sc)}</span></span>
                 </button>);
             })}

@@ -34,7 +34,7 @@ export default function Profile() {
             <p className="small muted" style={{ fontWeight: 600 }}>{S.user.phone} · {t(S.user.region || "")} <button className="chip blue" style={{ marginLeft: 4 }} onClick={() => go("region")}>{t("o'zgartirish")}</button></p></div></div>
           <div className="row" style={{ marginTop: 12 }}><TierChip tier={S.tier || 0} /><span className="grow" /><b className="small">{t(rk.cur[1])}</b></div>
           <div className="meter" style={{ marginTop: 10 }}><i style={{ width: pct + "%", background: "var(--stamp)" }} /></div>
-          <p className="small muted" style={{ marginTop: 6, fontWeight: 600 }}>{rk.next ? t("«{r}» uchun yana {n} XP", { r: t(rk.next[1]), n: rk.next[0] - S.xp }) : t("Eng yuqori daraja!")}</p>
+          <p className="small muted" style={{ marginTop: 6, fontWeight: 600 }}>{rk.next ? t("«{r}» uchun yana {n} ball", { r: t(rk.next[1]), n: rk.next[0] - S.xp }) : t("Eng yuqori daraja!")}</p>
         </section>
         <div className="stat3">
           <div><b className="num">{ac.n ? Math.round((ac.ok / ac.n) * 100) + "%" : "—"}</b><i>{t("aniqlik")}</i></div>

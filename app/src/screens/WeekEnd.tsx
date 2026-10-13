@@ -17,9 +17,9 @@ export default function WeekEnd() {
       <div className="result">
         <Trophy size={70} color="var(--gold)" style={{ margin: "0 auto" }} />
         <h2>{t("Haftalik liga yakunlandi!")}</h2>
-        <div className="hero-n"><CountUp to={d.my || 0} /> XP</div>
+        <div className="hero-n"><CountUp to={d.my || 0} /> {t("ball")}</div>
         {pos > 0 && <p style={{ fontWeight: 800 }}>{t("Jamoada {n}-o'rin", { n: pos })}</p>}
-        {d.xp > 0 && <span className="chip gold" style={{ justifySelf: "center" }}>{t("Haftalik sovg'a: +{n} XP", { n: d.xp })}</span>}
+        {d.xp > 0 && <span className="chip gold" style={{ justifySelf: "center" }}>{t("Haftalik sovg'a: +{n} ball", { n: d.xp })}</span>}
         <p className="small muted">{t("Yangi liga boshlandi — hisob noldan. Darajalar 12:10 da yangilanadi.")}</p>
       </div>
       <div className="dock"><div className="btn-row">

@@ -84,15 +84,15 @@ export function CertPaper({ c }: { c: any }) {
         {c.kind === "week" ? <>
           <p className="cert-body">{t("{a}–{b} kunlari o'tkazilgan {n}-hafta ligasida «{team}» jamoasidagi {p} ishtirokchi orasida", { a: dd(w.from), b: dd(w.to), n: w.no, team: c.team || "Hisobchi Liga", p: c.participants || "—" })}</p>
           <div className="cert-place"><Medal place={place} size={46} week={w.no ? w.no + "-H" : undefined} /><b>{t("{n}-o'rin", { n: place })}</b></div>
-          <p className="cert-body">{t("egallagani va {x} XP to'plagani uchun beriladi.", { x: fmt(c.xp || 0) })}</p>
+          <p className="cert-body">{t("egallagani va {x} ball to'plagani uchun beriladi.", { x: fmt(c.xp || 0) })}</p>
         </> : <>
           <p className="cert-body">{t("Hisobchi Liga dasturining 12 bosqichini — provodka, QQS, ish haqi, asosiy vositalar, soliqlar, hisobotlar va qonunchilik — to'liq yakunlagani uchun beriladi.")}</p>
-          <p className="cert-body"><b>{fmt(c.xp || 0)} XP</b></p>
+          <p className="cert-body"><b>{fmt(c.xp || 0)} {t("ball")}</b></p>
         </>}
         <footer className="cert-foot">
           <div className="cert-sign">
             <Seal year={String(c.issued_at || "").slice(0, 4)} serial={c.id} />
-            <div><i>{c.signer}</i><span>{t("Liga tashkilotchisi")}</span><span>{t("Berilgan sana: {d}", { d: dd(c.issued_at) })}</span></div>
+            <div><i>{c.signer}</i><span>{t("Hakamlar hay'ati nomidan")}</span><span>{t("Berilgan sana: {d}", { d: dd(c.issued_at) })}</span></div>
           </div>
           <div className="cert-qr">{qr && <img src={qr} alt={t("Tekshirish QR kodi")} />}<span>{t("Skanerlang — haqiqiyligini tekshiring")}</span></div>
         </footer>
@@ -123,7 +123,7 @@ export function CertView() {
   };
   if (sel) return <CertOpen id={sel} onBack={() => setSel(null)} />;
   const head = (c: any) => { if (c.kind !== "week") return { place: 0, h: t("12 bosqich yakunlandi"), s: "" };
-    const [pos, xp, w] = String(c.detail || "").split("|"); return { place: +pos, h: t("{n}-o'rin · {d}-hafta", { n: pos, d: weekNo(w) }), s: t("{x} XP · {d}", { x: fmt(+xp), d: dd(w) }) }; };
+    const [pos, xp, w] = String(c.detail || "").split("|"); return { place: +pos, h: t("{n}-o'rin · {d}-hafta", { n: pos, d: weekNo(w) }), s: t("{x} ball · {d}", { x: fmt(+xp), d: dd(w) }) }; };
   return (
     <div className="shell bare">
       <PageTitle title={t("Sertifikatlar")} />
@@ -162,7 +162,7 @@ export function Verify({ id }: { id: string }) {
         <section className="card v-facts">
           <dl>
             <dt>{t("Egasi")}</dt><dd>{c.name}</dd>
-            {c.kind === "week" && <><dt>{t("Natija")}</dt><dd>{t("{n}-o'rin", { n: c.place })} · {fmt(c.xp)} XP · {t("{p} ishtirokchidan", { p: c.participants })}</dd>
+            {c.kind === "week" && <><dt>{t("Natija")}</dt><dd>{t("{n}-o'rin", { n: c.place })} · {fmt(c.xp)} {t("ball")} · {t("{p} ishtirokchidan", { p: c.participants })}</dd>
               <dt>{t("Hafta")}</dt><dd>{t("{n}-hafta", { n: c.week?.no })}: {dd(c.week?.from)} – {dd(c.week?.to)}</dd></>}
             {c.team && <><dt>{t("Jamoa")}</dt><dd>{c.team}</dd></>}
             <dt>{t("Berilgan")}</dt><dd>{dd(c.issued_at)}</dd>

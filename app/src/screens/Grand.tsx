@@ -24,7 +24,7 @@ function MonthBlock({ m }: { m: any }) {
         : <p className="small muted">{m.live ? t("Birinchi natijalar juma soat 12:00 da chiqadi.") : t("Oy boshlanganda reyting shu yerda chiqadi.")}</p>}
       {m.live && (m.my_pos && m.my_pos <= 3
         ? <p className="gf-me ok">{t("Siz hozir {p}-o'rindasiz — finalga yo'l ochiq!", { p: m.my_pos })}</p>
-        : <p className="gf-me">{m.my_pos ? t("Siz {p}-o'rindasiz ({x} XP). Kuchli uchlikka {n} XP yetmayapti.", { p: m.my_pos, x: fmt(m.my_xp), n: fmt(need) })
+        : <p className="gf-me">{m.my_pos ? t("Siz {p}-o'rindasiz ({x} ball). Kuchli uchlikka {n} ball yetmayapti.", { p: m.my_pos, x: fmt(m.my_xp), n: fmt(need) })
           : t("Bu oy hali ball yo'q — bugungi bosqichdan boshlang.")}</p>)}
     </div>);
 }
@@ -35,7 +35,7 @@ export function GrandCard() {
     <section className="gf card" id="grand">
       <div className="gf-head"><Crown size={26} /><div className="grow">
         <h3>{t("Katta final — {d}", { d: dayMonth(g.date) })}</h3>
-        <p>{t("Oktyabr va noyabrning kuchli uchligi — 6 finalchi. Shanba, 10:00–13:00, eng qiyin 20 savol.")}</p></div></div>
+        <p>{t("Oktyabr va noyabrning kuchli uchligi — 6 finalchi. {d}, soat 10:00–13:00, eng qiyin 20 savol.", { d: dayMonth(g.date) })}</p></div></div>
       {g.qualified && <p className="gf-q">🎟 {t("Siz Katta finalga yo'llanma oldingiz!")}</p>}
       <div className="gf-months">{(g.months || []).map((m: any) => <MonthBlock key={m.m} m={m} />)}</div>
       <p className="tiny muted">{t("Oy reytingi — shu oydagi haftalik ballar yig'indisi. Har juma soat 12:00 da yangilanadi.")}</p>

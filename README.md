@@ -178,8 +178,8 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - 5 ta yangi schyot qo'shildi: 2510, 4230, 4860, 8530, 9040.
 
 ## Dekabr Katta finali
-- Oktyabr kuchli uchligi + noyabr kuchli uchligi (takrorlansa — noyabrning keyingisi) = 6 finalchi. **05.12.2026, shanba 10:00–13:00**, 12 provodka + 8 qonun savoli oyning eng qiyin kunlaridan (8-daraja va yuqori).
-- Oy reytingi — shu oyda yakunlangan liga haftalari ballari yig'indisi (joriy hafta qo'shilmaydi — hafta sirligi buzilmaydi), har juma 12:00 da yangilanadi.
+- Oktyabr kuchli uchligi + noyabr kuchli uchligi (takrorlansa — noyabrning keyingisi) = 6 finalchi. **28.12.2026, dushanba 10:00–13:00**, 12 provodka + 8 qonun savoli oyning eng qiyin kunlaridan (8-daraja va yuqori).
+- Oy reytingi — shu oyda yakunlangan liga haftalari ballari yig'indisi (joriy hafta qo'shilmaydi — hafta sirligi buzilmaydi), har juma 12:00 da yangilanadi. Oktyabr **12.10.2026 (dushanba) dan** hisoblanadi (`gf_from`), undan oldingi haftalar kirmaydi.
 - Oktyabr va noyabrdagi oddiy oylik finallar shu final bilan almashtirildi. Sozlama: `liga_bot_config` → `gf_months`, `gf_month`, `gf_date`.
 - Ilova: bosh sahifada «Katta final» kartasi, har kuni birinchi kirishda eslatma oynasi (o'rningiz va kuchli uchlikka qancha XP yetmayotgani), Reyting → Final.
 
@@ -201,6 +201,13 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - Bir xil chek rasmi ikkinchi marta qabul qilinmaydi (rasm hash / Telegram `file_unique_id`); bitta o'yinchida bir vaqtda bitta tekshiruvdagi chek; 14 kunda 2 marta rad etilsa — 7 kun chek qabul qilinmaydi.
 - Funksiyalar: `liga_receipt_guard`, `liga_receipt_apply`, `liga_receipt2_sys`, `liga_receipt_decide2_sys`, `liga_receipt_info_sys` (faqat server), `db/2026-10-12_chek_tasdiq.sql`.
 - Bank hisobini avtomatik ko'rish imkoni yo'q (bank API ulanmagan), shuning uchun yakuniy tasdiq — admin.
+
+## 2026-10-13 kechki yangilanishlar
+- **Ball:** ilova, bot va sertifikatlarda «XP» o'rniga «ball» (RU — «баллов»).
+- **Sertifikat imzosi:** «Hisobchi Liga Kengashi · Hakamlar hay'ati nomidan» (`cert_signer`).
+- **Kunlik duel kubogi jadvali (14.10 dan):** 1-raund 09:00 dan, duellar har 30 daqiqada ketma-ket; keyingi raund oldingisi tugagach ~10 daqiqada; 13:00–14:00 — tanaffus (duel qo'yilmaydi); **final har doim 17:00**. Funksiyalar: `liga_cup_slot`, `liga_cup_advance`, `liga_cup_start_sys` (`db/2026-10-13d_kubok_jadvali.sql`).
+- **Takrorlanmaslik:** duel, jonli duel va kubok savollari o'yinchilar shu hafta (dushanbadan) ko'rgan savollarni chetlab tanlanadi (`liga_draw_fresh`, `liga_seen_week`); oddiy duelda ikkinchi o'yinchi birinchisi bilan aynan bir xil savollarni oladi.
+- **Savollar tekshiruvi:** serverdagi 740 savol, ilova mashq savollari (240), 60 dars va mavzu generatorlari 8 qismda manbalar bilan tekshirildi: 55 ta bank savoli tuzatildi, 1 tasi o'yindan olindi (s9-07 — O'RQ-1137 27-m. ga zid), 12 ta mashq/dars, 4 ta generator tuzatildi. Yangi schyotlar: 6950, 6960, 9050, 9330. Manba: `content/patch-2026-10-13.asc`.
 
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
 09:00 — bosqich ochildi · 16:00 — 1 soat qoldi · 17:00 — o'yin tugadi · juma 11:00 — liga tugashiga 1 soat · juma 12:01 — natijalar (har jamoaga o'zinikini).
