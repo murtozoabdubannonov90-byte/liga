@@ -104,6 +104,7 @@ const RU: Record<string, string> = {
   "✅ <b>To'lovingiz tasdiqlandi!</b>\nBosqichlar ochildi. Obuna: <b>{d}</b> gacha. Omad! 💪": "✅ <b>Оплата подтверждена!</b>\nЭтапы открыты. Подписка до <b>{d}</b>. Удачи! 💪",
   "❌ <b>To'lov chekingiz tasdiqlanmadi</b> — pul kartaga tushmagan.\nBosqichlar yopiq. Haqiqatan to'lagan bo'lsangiz, administratorga yozing: @murtozo_44": "❌ <b>Чек не подтверждён</b> — деньги на карту не поступили.\nЭтапы закрыты. Если вы действительно оплатили, напишите администратору: @murtozo_44",
   "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.": "🔔 <b>Дуэль началась!</b>\nВаш соперник — <b>{o}</b>. Зайдите до {e} — иначе победа достанется сопернику.",
+  "Raqib bilan bog'lanish:": "Связь с соперником:",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
 function tr(lang: string | null | undefined, uz: string, v: Record<string, string | number> = {}) {
@@ -272,7 +273,8 @@ async function cupBroadcast(rows: any[]) {
     if (m) txt += "\n\n" + tr(p.lang, "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.", { st: stageName(m.stage, p.lang), s: String(m.slot).slice(0, 5), o: esc(m.opp_name ?? "") });
     else if (bye[p.player]) txt += "\n\n" + tr(p.lang, "✅ <b>Siz 1-raunddan avtomatik o'tdingiz!</b>\nKeyingi duelingiz — soat <b>{s}</b> ({st}). Raqib 1-raund tugagach ma'lum bo'ladi, bot xabar beradi.",
       { s: String(plan[1]?.at ?? "").slice(0, 5), st: stageName(plan[1]?.stage ?? "", p.lang) });
-    if (await dm(p.tg, txt.length > 4000 ? cupShort(board, p.lang, bb, plan) : txt, m ? appBtn(tr(p.lang, "Duelni ochish"), "?d=" + m.code) : appBtn(tr(p.lang, "Ligani ochish")))) n++;
+    const opp = m ? await oppLine(m.code, p.tg, p.lang) : "";
+    if (await dm(p.tg, (txt.length > 4000 ? cupShort(board, p.lang, bb, plan) : txt) + opp, m ? appBtn(tr(p.lang, "Duelni ochish"), "?d=" + m.code) : appBtn(tr(p.lang, "Ligani ochish")))) n++;
   }
   return n;
 }
@@ -323,6 +325,15 @@ async function chatGroup(chatId: number): Promise<string> {
 // ---------------- obuna to'lovi: karta + chek ----------------
 const fmt = (n: number) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 const fmtD = (d: string) => d ? d.slice(8, 10) + "." + d.slice(5, 7) + "." + d.slice(0, 4) : "";
+// kubok: raqibning telefoni va Telegram niki — xabar oxiriga (a'zolar duelga kirmasa, bir-biriga qo'ng'iroq qilsin/yozsin)
+const fmtPhone = (p: string) => { const d = p.replace(/\D/g, ""); return d.length === 12 && d.startsWith("998") ? `+998 ${d.slice(3, 5)} ${d.slice(5, 8)} ${d.slice(8, 10)} ${d.slice(10)}` : p; };
+async function oppLine(code: string | null | undefined, myTg: number | null | undefined, lang: string | null | undefined) {
+  if (!code || !myTg) return "";
+  const { data } = await db.rpc("liga_duel_opp_contact_sys", { p_code: code, p_tg: myTg }); const c = ((data ?? []) as any[])[0];
+  if (!c || (!c.phone && !c.tg_username)) return "";
+  const parts = [c.phone ? "📞 " + esc(fmtPhone(c.phone)) : "", c.tg_username ? "✈️ @" + esc(c.tg_username) : ""].filter(Boolean);
+  return "\n" + tr(lang, "Raqib bilan bog'lanish:") + " " + parts.join(" · ");
+}
 async function payCfg() {
   const { data } = await db.rpc("liga_pay_config2");
   return (data?.[0] ?? {}) as { card?: string; card_name?: string; price?: number };
@@ -780,6 +791,7 @@ async function onCron(action: string) {
         const [h, mi] = s5.split(":").map(Number), em = h * 60 + mi + 30, e = `${String(Math.floor(em / 60)).padStart(2, "0")}:${String(em % 60).padStart(2, "0")}`;
         text = "<b>" + stageName(st, x.lang) + "</b>\n" + tr(x.lang, "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.", { o: esc(x.opp_name ?? ""), e });
       } else if (x.kind === "champ") { text = tr(x.lang, "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.", { n: esc(x.extra ?? "") }); champG.add(x.group_code + "|" + (x.extra ?? "")); }
+      if (text && ["pair", "five", "start"].includes(x.kind)) text += await oppLine(x.code, x.tg, x.lang);
       if (text && await dm(x.tg, text, btn)) sent++;
     }
     for (const k of champG) { const [code, nm] = k.split("|"); for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: tr("uz", "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.", { n: esc(nm) }) }); }

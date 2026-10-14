@@ -217,6 +217,7 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - Ma'lumot faqat o'sha kubok duelining ishtirokchisiga beriladi (`liga_duel_opp_contact`, token bilan tekshiriladi) — boshqa duellar yoki begonalar ko'ra olmaydi.
 - Telegram niki `safari_players.tg_username` ustunida: o'yinchi botga yozganda yoki ilovani Telegram ichida ochganda saqlanadi; eskilari bot `tg_names` amali bilan (va har kuni 09:00 dagi `day_start` da) `getChat` orqali to'ldiriladi. Niki yo'q bo'lsa — «Yozish» Telegram profilini ochadi.
 - Migratsiya: `db/2026-10-14b_raqib_aloqa.sql`.
+- Bot ham kubok xabarlarida (09:00 dagi juftlik e'loni, keyingi bosqichga chiqish, «5 daqiqa qoldi», «Duel boshlandi») oxiriga «Raqib bilan bog'lanish: 📞 telefon · ✈️ @nik» qatorini qo'shadi (`liga_duel_opp_contact_sys`, migratsiya `db/2026-10-14c_raqib_aloqa_bot.sql`).
 
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
 09:00 — bosqich ochildi · 16:00 — 1 soat qoldi · 17:00 — o'yin tugadi · juma 11:00 — liga tugashiga 1 soat · juma 12:01 — natijalar (har jamoaga o'zinikini).
