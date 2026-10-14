@@ -443,6 +443,7 @@ async function receiptNotify(x: { status?: string; player_chat?: number | null; 
 async function onCallback(q: any) {
   const data = String(q.data ?? ""), chatId = q.message?.chat?.id;
   const ack = (text?: string) => tg("answerCallbackQuery", { callback_query_id: q.id, text });
+  if (data.startsWith("dq:")) return groupDuelTake(q, data.slice(3));
   if (data.startsWith("m:")) {
     const months = Math.max(1, Math.min(12, Number(data.slice(2)) || 1));
     const { data: ses } = await db.from("liga_tg_sessions").select("player_id").eq("chat_id", chatId).maybeSingle();
@@ -544,6 +545,75 @@ async function moderate(m: any): Promise<boolean> {
   return true;
 }
 
+// ---------------- guruhda jonli duelga chaqiruv: birinchi «Qabul qilish»ni bosgan o'ynaydi ----------------
+const duelLink = (code: string) => `https://t.me/${BOT}?start=d_${code}`;
+const TAKE_ERR: Record<string, string> = {
+  self: "Bu o'zingizning chaqiruvingiz — raqib kutilmoqda.",
+  no_player: "Avval Hisobchi Ligada ro'yxatdan o'ting va Telegram'ni ulang (botga /start yozing).",
+  unpaid: "Obunangiz faol emas — duelga kira olmaysiz.",
+  expired: "Chaqiruv muddati o'tgan.",
+  not_found: "Duel topilmadi.",
+};
+async function groupDuelCmd(m: any) {
+  const cfg = await discussCfg();
+  const say = (t: string) => tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML", text: t, reply_to_message_id: m.message_id });
+  if (!cfg || m.chat.id !== cfg.chat) return say("⚔️ Duelga chaqiruv faqat liga muhokama guruhida ishlaydi.");
+  if (!m.from?.id || m.sender_chat) return;
+  const { data } = await db.rpc("liga_live_create_sys", { p_tg: m.from.id, p_lang: m.from.language_code === "ru" ? "ru" : "uz" });
+  const r = (data ?? {}) as any;
+  if (r.err === "no_player") return say("❗ Avval ligada ro'yxatdan o'ting va Telegram'ni ulang: botga shaxsan /start yozing.");
+  if (r.err === "unpaid") return say("❗ Obunangiz faol emas — duel ochib bo'lmaydi.");
+  if (r.err === "open_exists") return say("⏳ Sizda hali qabul qilinmagan chaqiruv bor — kuting yoki 30 daqiqadan keyin qayta urinib ko'ring.");
+  if (r.err === "too_many") return say("❗ Bugun juda ko'p duel ochdingiz — ertaga davom eting.");
+  if (!r.code) return say("❌ Duel ochib bo'lmadi, birozdan keyin qayta urinib ko'ring.");
+  const sent = await tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML",
+    text: `⚔️ <b>${esc(r.name ?? "")}</b> jonli duelga chaqiryapti!\n10 ta savol: kim birinchi to'g'ri topsa — ochko o'shaniki.\n👉 <b>Birinchi «Qabul qilish»ni bosgan</b> o'ynaydi, qolganlarniki qabul qilinmaydi.\n⏳ Chaqiruv 30 daqiqa ochiq.`,
+    reply_markup: { inline_keyboard: [[{ text: "⚔️ Qabul qilish", callback_data: "dq:" + r.code }]] } });
+  if (sent?.result?.message_id) await db.rpc("liga_group_post_add_sys", { p_code: r.code, p_chat: m.chat.id, p_msg: sent.result.message_id });
+}
+async function groupDuelTake(q: any, code: string) {
+  const ack = (text: string, alert = false) => tg("answerCallbackQuery", { callback_query_id: q.id, text, show_alert: alert });
+  const { data } = await db.rpc("liga_live_take_sys", { p_code: code, p_tg: q.from.id });
+  const r = (data ?? {}) as any;
+  if (r.r === "taken") return ack(`Kechikdingiz — ${r.b ?? "boshqa ishtirokchi"} qabul qilib bo'ldi.`, true);
+  if (r.r !== "ok") return ack(TAKE_ERR[r.r] ?? "Xatolik", true);
+  if (!r.again) {
+    await tg("editMessageText", { chat_id: q.message.chat.id, message_id: q.message.message_id, parse_mode: "HTML",
+      text: `⚔️ <b>${esc(r.a ?? "")}</b> ⚡ <b>${esc(r.b ?? "")}</b> — jonli duel!\nIkkalangiz ham «Duelga kirish» tugmasini bosing — o'yin ikkalangiz kirgach boshlanadi.\nNatija shu yerga yoziladi.`,
+      reply_markup: { inline_keyboard: [[{ text: "▶️ Duelga kirish", url: duelLink(code) }]] } });
+    if (r.a_tg) await dm(r.a_tg, `⚔️ <b>${esc(r.b ?? "")}</b> chaqiruvingizni qabul qildi! Duelga kiring:`, appBtn("Duelga kirish", "?d=" + code));
+  }
+  return tg("answerCallbackQuery", { callback_query_id: q.id, url: duelLink(code) });
+}
+// guruhga natijalar: chaqiruv duellari va kubok raundlari
+async function groupDue() {
+  let edited = 0, rounds = 0;
+  const { data: due } = await db.rpc("liga_group_due_sys");
+  for (const d of (due ?? []) as any[]) {
+    const text = d.kind === "expired"
+      ? `⌛ <b>${esc(d.a_name ?? "")}</b> chaqiruvini hech kim qabul qilmadi.`
+      : d.note === "cancel" ? `⚔️ ${esc(d.a_name ?? "")} ⚡ ${esc(d.b_name ?? "")} — duel o'ynalmadi (ikkalasi bir vaqtda kirmadi).`
+      : `🏁 <b>Duel yakunlandi</b>\n${d.winner === "a" ? "🏆 " : ""}<b>${esc(d.a_name ?? "")}</b>  ${d.a_pts}:${d.b_pts}  <b>${esc(d.b_name ?? "")}</b>${d.winner === "b" ? " 🏆" : ""}` +
+        (d.winner === "tie" ? "\n🤝 Durang!" : "") + (d.note === "idle" ? "\n⏱ Raqiblardan biri 7 daqiqa javob bermadi." : "");
+    const r = await tg("editMessageText", { chat_id: d.chat_id, message_id: d.msg_id, parse_mode: "HTML", text, reply_markup: { inline_keyboard: [] } });
+    if (!r?.ok) await tg("sendMessage", { chat_id: d.chat_id, parse_mode: "HTML", text });
+    edited++;
+  }
+  const cfg = await discussCfg();
+  const { data: rs } = await db.rpc("liga_cup_rounds_due_sys");
+  if (cfg) for (const x of (rs ?? []) as any[]) {
+    const lines = ((x.lines ?? []) as any[]).map((l, i) => {
+      const a = (l.w === "a" ? "✅ " : "") + esc(l.a ?? ""), b = esc(l.b ?? "") + (l.w === "b" ? " ✅" : "");
+      const n = l.note === "forfeit" ? " · kelmadi" : l.note === "idle" ? " · javob bermadi" : l.note === "idle2" ? " · o'ynalmadi" : l.note === "cancel" ? " · qur'a" : "";
+      return `${i + 1}. ${a} <b>${l.ap ?? 0}:${l.bp ?? 0}</b> ${b}${n}`;
+    });
+    const head = `🏆 <b>Kunlik duel kubogi — ${esc(stageName(x.stage ?? ""))}</b> natijalari:`;
+    for (const part of chunks(head + "\n" + lines.join("\n"))) await tg("sendMessage", { chat_id: cfg.chat, parse_mode: "HTML", text: part, disable_notification: true });
+    rounds++;
+  }
+  return { edited, rounds };
+}
+
 async function onUpdate(u: any) {
   try { return await onUpdate0(u); }
   finally { await seen(u.message?.from ?? u.callback_query?.from); }
@@ -570,6 +640,11 @@ async function onUpdate0(u: any) {
     const code = await chatGroup(m.chat.id);
     await db.from("liga_bot_chats").update({ active: false }).eq("chat_id", m.chat.id);
     await db.from("liga_bot_chats").upsert({ chat_id: m.migrate_to_chat_id, title: m.chat.title, active: true, group_code: code });
+    const cfg = await discussCfg();
+    if (cfg && cfg.chat === m.chat.id) {
+      const inv = await tg("createChatInviteLink", { chat_id: m.migrate_to_chat_id, name: "Hisobchi Liga" });
+      await db.rpc("liga_discuss_move_sys", { p_chat: m.migrate_to_chat_id, p_link: inv?.result?.invite_link ?? cfg.link });
+    }
     return;
   }
   const text = (m.text ?? "").trim();
@@ -650,6 +725,8 @@ async function onUpdate0(u: any) {
     if (!g) return reply("❌ Bunday jamoa kodi topilmadi.");
     await db.from("liga_bot_chats").upsert({ chat_id: m.chat.id, title: m.chat.title, active: true, group_code: g.code });
     await reply(`✅ Guruh «<b>${esc(g.name)}</b>» jamoasiga ulandi.\nBosqich xabarlari va juma kungi natijalar shu yerga chiqadi.`, openBot(g.code));
+  } else if (cmd === "/duel" && !priv) {
+    return groupDuelCmd(m);
   } else if (cmd === "/muhokama") {
     // faqat liga administratori (to'lov cheklari keladigan shaxsiy chat egasi)
     const { data: adm } = await db.from("liga_admin_chats").select("group_code").eq("chat_id", m.from?.id ?? 0).maybeSingle();
@@ -791,7 +868,8 @@ async function onCron(action: string) {
         { command: "tolov", description: "Obuna to'lovi (karta va chek)" },
         { command: "qoida", description: "Liga qoidalari" },
         { command: "ulash", description: "Guruhni jamoaga ulash (admin)" },
-        { command: "muhokama", description: "Muhokama guruhini belgilash (liga admini)" }] }),
+        { command: "muhokama", description: "Muhokama guruhini belgilash (liga admini)" },
+        { command: "duel", description: "Guruhda jonli duelga chaqirish" }] }),
       menu: await tg("setChatMenuButton", { menu_button: { type: "web_app", text: "Liga", web_app: { url: APP } } }),
       desc: await tg("setMyDescription", { description: "Hisobchi Liga — buxgalterlar uchun haftalik musobaqa: har kuni provodka, QQS, ish haqi, soliq va qonunchilik bo'yicha yangi bosqich." }),
       short: await tg("setMyShortDescription", { short_description: "Buxgalterlar uchun haftalik liga" }),
@@ -886,6 +964,7 @@ async function onCron(action: string) {
   }
   if (action === "tg_names") return await fillNames(500);
   if (action === "discuss_invite") return await inviteAll(1000);
+  if (action === "group_due") return await groupDue();
   // holatni tekshirish (hech narsa yubormaydi): kim guruhda, kimga yetgan, kimga yetmagan
   if (action === "discuss_check" || action === "discuss_resend") {
     const cfg = await discussCfg(); if (!cfg) return { skip: "no_group" };
