@@ -434,12 +434,12 @@ with sync_playwright() as p:
     check("juftlik dueli: soatni kutish (11:30, 12:30 gacha)", "11:30 da ochiladi" in lob and "12:30" in lob and "Aziz R." in lob, lob[:300])
     check("juftlik duelida havola/ulashish yo'q", pg.locator("#live-share").count() == 0)
     check("juftlik duel lobbisida ham raqib ismi bosiladi", pg.locator("#lobby-opp").count() == 1)
-    check("juftlik duel lobbisida faolsizlik qoidasi yozilgan", "3 daqiqa" in (pg.inner_text("#idle-rule") if pg.locator("#idle-rule").count() else ""))
+    check("juftlik duel lobbisida faolsizlik qoidasi yozilgan", "7 daqiqa" in (pg.inner_text("#idle-rule") if pg.locator("#idle-rule").count() else ""))
     LIVE.update({"opens_in": 0, "status": "done", "note": "forfeit", "winner": "a", "a_pts": 1, "b_pts": 0}); pg.wait_for_timeout(1500)
     check("raqib kelmasa — g'alaba sizga", "g'alaba sizga" in (pg.inner_text("#live-note") if pg.locator("#live-note").count() else ""))
     LIVE.update({"note": "idle", "winner": "a", "a_pts": 3, "b_pts": 2})
     pg.evaluate("()=>__liga.nav.tab('home')"); pg.wait_for_timeout(300); pg.click("#dd-go"); pg.wait_for_timeout(1500)
-    check("raqib 3 daqiqa javob bermasa — duel to'xtatildi, g'alaba sizga", "3 daqiqa javob bermadi" in (pg.inner_text("#live-note") if pg.locator("#live-note").count() else ""))
+    check("raqib 7 daqiqa javob bermasa — duel to'xtatildi, g'alaba sizga", "7 daqiqa javob bermadi" in (pg.inner_text("#live-note") if pg.locator("#live-note").count() else ""))
     LIVE.pop("kind", None)
 
     pg, e = page(b); ALLERR += e
