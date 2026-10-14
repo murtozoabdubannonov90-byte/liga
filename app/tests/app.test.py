@@ -112,7 +112,7 @@ with sync_playwright() as p:
     go(pg, "intro", {"si": 4}); pg.click("#go"); pg.wait_for_timeout(300)
     check("kelajak bosqich bosilganda xabar", "09:00" in txt(pg))
     pg, e = page(b, when="2026-10-03T06:00:00Z"); ALLERR += e
-    check("juma 12:00 dan keyin: hafta yakuni ekrani", "Haftalik liga yakunlandi" in txt(pg))
+    check("juma 17:00 dan keyin (shanba): hafta yakuni ekrani", "Haftalik liga yakunlandi" in txt(pg))
     pg.evaluate("()=>__liga.nav.tab('home')"); pg.wait_for_timeout(400)
     check("shanba: dam olish kuni", pg.evaluate("()=>__liga.time.isWeekend()") and "Dam olish" in txt(pg))
     pg, e = page(b, when="2026-10-01T12:30:00Z"); ALLERR += e
@@ -120,12 +120,14 @@ with sync_playwright() as p:
 
     pg, e = page(b, when="2026-10-02T06:30:00Z"); ALLERR += e
     check("juma 11:30 — bosqich ochiq", pg.evaluate("()=>__liga.time.stageOpen(__liga.time.todayStage())") is True)
-    check("juma: «12:00 gacha» yozuvi", "12:00 gacha" in txt(pg), txt(pg)[:300])
-    pg, e = page(b, when="2026-10-02T06:59:00Z", seed={**SEED, "week": {**SEED["week"], "id": "2026-10-02T07:00"}}); ALLERR += e
+    check("juma: «17:00 gacha» yozuvi (juma ham boshqa kunlar kabi)", "17:00 gacha" in txt(pg), txt(pg)[:300])
+    pg, e = page(b, when="2026-10-02T07:30:00Z", seed={**SEED, "week": {**SEED["week"], "id": "2026-10-02T07:00"}}); ALLERR += e
+    check("juma 12:30 — bosqich hali ochiq, hafta almashmagan", pg.evaluate("()=>__liga.time.stageOpen(__liga.time.todayStage())") is True and S(pg, "S.week.id") == "2026-10-02T07:00")
+    pg, e = page(b, when="2026-10-02T11:59:00Z", seed={**SEED, "week": {**SEED["week"], "id": "2026-10-02T07:00"}}); ALLERR += e
     pg.clock.fast_forward(120000); pg.wait_for_timeout(300)
     pg.evaluate("()=>document.dispatchEvent(new Event('visibilitychange'))"); pg.wait_for_timeout(500)
-    check("juma 12:00 — bosqich yopildi", pg.evaluate("()=>__liga.time.stageOpen(__liga.time.todayStage())") is False)
-    check("ilova ochiq turganda hafta yangilandi", S(pg, "S.week.id") == "2026-10-09T07:00" and S(pg, "S.week.my") == 0, S(pg, "S.week"))
+    check("juma 17:00 — bosqich yopildi", pg.evaluate("()=>__liga.time.stageOpen(__liga.time.todayStage())") is False)
+    check("ilova ochiq turganda hafta 17:00 da yangilandi (id yozuvi o'zgarmagan: T07:00)", S(pg, "S.week.id") == "2026-10-09T07:00" and S(pg, "S.week.my") == 0, S(pg, "S.week"))
 
     print("4b. Telegram va shaxsiy natija")
     pg, e = page(b); ALLERR += e

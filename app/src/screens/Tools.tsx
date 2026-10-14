@@ -232,7 +232,7 @@ export function MatchCard() {
       {m.cur ? <>
         <div className="vs"><div><b>{me}</b><i>{t("{n} kishi o'ynadi", { n: m.cur.my_played })}</i></div><span className="disp">VS</span>
           <div><b>{m.cur.opp_name}</b><i>{t("{n} kishi o'ynadi", { n: m.cur.opp_played })}</i></div></div>
-        <p className="small muted" style={{ fontWeight: 600, marginTop: 8 }}>{t("Jamoa bali — eng yaxshi 3 kishining haftalik bali. G'olib juma 12:00 da.")}</p>
+        <p className="small muted" style={{ fontWeight: 600, marginTop: 8 }}>{t("Jamoa bali — eng yaxshi 3 kishining haftalik bali. G'olib juma 17:00 da.")}</p>
       </> : <p className="small muted" style={{ fontWeight: 600 }}>{t("Bu hafta raqib yo'q — dushanba kuni yangi juftlar.")}</p>}
       {m.prev && <p className="small" style={{ fontWeight: 700, marginTop: 8 }}>{t("O'tgan hafta: {a} — {b} · «{o}»", { a: m.prev.my_xp ?? 0, b: m.prev.opp_xp ?? 0, o: m.prev.opp_name })} {(m.prev.my_xp ?? 0) > (m.prev.opp_xp ?? 0) ? "🏆" : (m.prev.my_xp ?? 0) < (m.prev.opp_xp ?? 0) ? "" : "🤝"}</p>}
     </Card>);

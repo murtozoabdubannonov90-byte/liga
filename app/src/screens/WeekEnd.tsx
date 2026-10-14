@@ -7,7 +7,7 @@ import { CountUp } from "../components/ui";
 import { burst, sfx } from "../lib/fx";
 import { pull } from "../engine/server";
 
-/* juma 12:00 dan keyin birinchi ochilganda — hafta yakuni */
+/* juma 17:00 dan keyin birinchi ochilganda — hafta yakuni */
 export default function WeekEnd() {
   const d = S.pending || { my: S.lastWeekXp, xp: 0 };
   useEffect(() => { pull(true); if (d.my > 0) { burst(true); sfx("win"); } S.pending = null; persist(); }, []);
@@ -20,7 +20,7 @@ export default function WeekEnd() {
         <div className="hero-n"><CountUp to={d.my || 0} /> {t("ball")}</div>
         {pos > 0 && <p style={{ fontWeight: 800 }}>{t("Jamoada {n}-o'rin", { n: pos })}</p>}
         {d.xp > 0 && <span className="chip gold" style={{ justifySelf: "center" }}>{t("Haftalik sovg'a: +{n} ball", { n: d.xp })}</span>}
-        <p className="small muted">{t("Yangi liga boshlandi — hisob noldan. Darajalar 12:10 da yangilanadi.")}</p>
+        <p className="small muted">{t("Yangi liga boshlandi — hisob noldan. Darajalar 17:10 da yangilanadi.")}</p>
       </div>
       <div className="dock"><div className="btn-row">
         <button className="btn ghost" onClick={() => replace("share", { kind: "week" })}><Share2 size={18} />{t("Ulashish")}</button>

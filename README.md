@@ -226,6 +226,10 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - Faollik: har javob urinishi (to'g'ri yoki xato) `liga_live.a_act / b_act` ga yoziladi. Do'stona duellarga ta'sir qilmaydi.
 - Migratsiya: `db/2026-10-14d_duel_faolsiz.sql`.
 
+## Juma ham 09:00–17:00 (2026-10-14)
+- Juma kuni bosqich boshqa kunlar kabi 17:00 gacha ochiq (`liga_close_hour` = 17). Haftalik liga **juma 17:00** da yakunlanadi: natijalar 17:01, darajalar 17:10, «1 soat qoldi» ogohlantirishi 16:00.
+- Hafta identifikatori yozuvi o'zgarmadi (`YYYY-MM-DDT07:00`, juma sanasi) — faqat almashish payti 12:00 → 17:00 (`liga_cur_week_id`, `liga_last_week_id`, ilovada `weekEnd`/`weekId`). Shuning uchun joriy hafta ballari saqlanib qoladi.
+
 ## Ishtirokchilar muhokama guruhi (2026-10-14)
 Telegram qoidasi bo'yicha bot guruh ocholmaydi va odamni guruhga o'zi qo'sha olmaydi, shuning uchun:
 1. Liga administratori Telegram'da yangi guruh ochadi va @Buxgalterlar_Ligasi_bot ni qo'shadi.
@@ -239,6 +243,7 @@ Telegram qoidasi bo'yicha bot guruh ocholmaydi va odamni guruhga o'zi qo'sha olm
 - Yetkazish holati `safari_players.discuss_status` da (`in` — guruhda, `sent` — yetdi, `fail` — yetmadi: botni ochmagan yoki bloklagan, `kicked`). Cron amallari: `discuss_check` — faqat tekshiradi, `discuss_resend` — guruhda yo'qlarga qayta yuboradi. Migratsiya: `db/2026-10-14h_muhokama_holat.sql`.
 - **Guruhda duelga chaqiruv:** guruhda `/duel` → bot «⚔️ Qabul qilish» tugmali chaqiruv chiqaradi. Tugmani **birinchi bosgan** raqib bo'ladi (`liga_live_take_sys`, qator qulf bilan — ikki kishi bir vaqtda bossa ham faqat bittasi o'tadi), qolganlarga «Kechikdingiz» chiqadi. 30 daqiqada qabul qilinmasa — bekor. Duel tugagach natija o'sha xabarga yoziladi.
 - **Natijalar guruhga:** kunlik kubokning har bir raundi tugagach natijalar ro'yxati, kubok g'olibi, bosqich ochilishi/yopilishi va kunlik kuchli uchlik (`day_end`) — shu guruhga. Cron `liga-guruh-natija` (har 2 daqiqa) → `liga_group_tick()` → bot `group_due`. Migratsiya: `db/2026-10-14i_guruh_duel_natijalar.sql`.
+- **Tomoshabinlar uchun jonli ko'rinish:** guruhdagi duel boshlangach chaqiruv xabari har savoldan keyin yangilanadi — o'yinchilar ismi, hisob, savol raqami, o'tgan savol matni, kim birinchi topgani va to'g'ri javob (joriy savol javobi ko'rsatilmaydi). `liga_live` dagi trigger (`liga_live_group_notify`) botni `group_live` amali bilan chaqiradi. Migratsiya: `db/2026-10-14j_juma17_tomosha.sql`.
 - Oddiy guruh superguruhga aylansa (masalan, «Chat history for new members → Visible» yoqilganda), bot yangi guruh id va havolani o'zi saqlaydi (`liga_discuss_move_sys`).
 - **Reklamaga qarshi** (`bot/reklama.ts`, sinovlar `bot/reklama_test.ts` — `deno test bot/reklama_test.ts`): hamma yoza oladi, lekin bot adminlardan boshqalarning quyidagi xabarlarini o'chiradi — begona saytlarga havola (lex.uz, soliq.uz, norma.uz, buxgalter.uz, gov.uz, didox.uz va boshqa rasmiy saytlar mumkin), kanal/guruhdan forward, kanal/guruh/bot @mentionlari, tugmali xabarlar, begona inline-botlar, kanal nomidan yozish. Tahrirlangan xabarlar ham tekshiriladi. Ogohlantirish 20 soniyada o'chadi; 7 kun ichida 3-marta takrorlagan odam 24 soat yozolmaydi (`liga_discuss_strikes`). Botga kerakli huquqlar: xabarlarni o'chirish, foydalanuvchilarni cheklash, havola orqali taklif. Migratsiya: `db/2026-10-14g_muhokama_reklama.sql`.
 

@@ -129,7 +129,7 @@ function WeekLedger() {
       <div className="total-line"><span className="big num"><CountUp to={my} id="week" /></span><span className="muted" style={{ fontWeight: 700 }}>{t("ball bu hafta")}</span>
         <span className="grow" /><span className="chip gold"><Trophy size={13} />{t("maqsad")} {WEEK_GOAL}</span></div>
       <div className="meter" style={{ marginTop: 10 }}><motion.i initial={{ width: 0 }} animate={{ width: Math.min(100, (my / WEEK_GOAL) * 100) + "%" }} transition={{ duration: 0.9, ease: "easeOut" }} /></div>
-      <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Hafta davomida natijangizni faqat siz ko'rasiz. Jadval juma 12:00 da ochiladi.")}</p>
+      <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Hafta davomida natijangizni faqat siz ko'rasiz. Jadval juma 17:00 da ochiladi.")}</p>
     </section>
   );
 }

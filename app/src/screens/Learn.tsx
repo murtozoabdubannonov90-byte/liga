@@ -32,7 +32,7 @@ export default function Learn() {
                 </button>);
             })}
           </div>
-          <p className="small muted" style={{ fontWeight: 600 }}>{t("Har ish kuni bittadan bosqich: faqat o'z kunida 09:00 dan 17:00 gacha ochiq, juma kuni 12:00 gacha.")}</p>
+          <p className="small muted" style={{ fontWeight: 600 }}>{t("Har ish kuni bittadan bosqich: faqat o'z kunida 09:00 dan 17:00 gacha ochiq (juma ham).")}</p>
         </>}
         {tb === "more" && <div className="stack">
           <button className="card row" style={{ textAlign: "left" }} onClick={() => go("topics")}>

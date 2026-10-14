@@ -49,7 +49,7 @@ export function boot() {
   if (entry.tp && S.user.first) setTimeout(() => { const r = startTopic(entry.tp!); entry.tp = undefined; if (typeof r !== "string") go("quiz", { run: r }); }, 600);
   linkTelegram();
   flushFinal();
-  /* ilova ochiq turganda juma 12:00 o'tsa — hafta yangilanadi (eski hafta bali yangi haftaga o'tib ketmaydi) */
+  /* ilova ochiq turganda juma 17:00 o'tsa — hafta yangilanadi (eski hafta bali yangi haftaga o'tib ketmaydi) */
   const tick = () => { if (checkWeek()) { go("weekEnd"); pull(true); } };
   setInterval(() => { if (document.visibilityState === "visible") { tick(); pull(); } }, 60000);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { tick(); pull(); } });
