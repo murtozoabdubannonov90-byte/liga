@@ -545,6 +545,13 @@ async function moderate(m: any): Promise<boolean> {
   return true;
 }
 
+// til: Telegram interfeysi tili emas, o'yinchining ilovadagi tili (ruscha Telegram — o'zbekcha o'yinchi bo'lishi mumkin)
+async function playerLang(tgId: number | null | undefined): Promise<string> {
+  if (!tgId) return "uz";
+  const { data } = await db.from("safari_players").select("lang").eq("tg_user_id", tgId).order("last_active", { ascending: false, nullsFirst: false }).limit(1).maybeSingle();
+  return (data as any)?.lang || "uz";
+}
+
 // ---------------- guruhda jonli duelga chaqiruv: birinchi «Qabul qilish»ni bosgan o'ynaydi ----------------
 const duelLink = (code: string) => `https://t.me/${BOT}?start=d_${code}`;
 const TAKE_ERR: Record<string, string> = {
@@ -559,7 +566,7 @@ async function groupDuelCmd(m: any) {
   const say = (t: string) => tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML", text: t, reply_to_message_id: m.message_id });
   if (!cfg || m.chat.id !== cfg.chat) return say("⚔️ Duelga chaqiruv faqat liga muhokama guruhida ishlaydi.");
   if (!m.from?.id || m.sender_chat) return;
-  const { data } = await db.rpc("liga_live_create_sys", { p_tg: m.from.id, p_lang: m.from.language_code === "ru" ? "ru" : "uz" });
+  const { data } = await db.rpc("liga_live_create_sys", { p_tg: m.from.id, p_lang: await playerLang(m.from.id) });
   const r = (data ?? {}) as any;
   if (r.err === "no_player") return say("❗ Avval ligada ro'yxatdan o'ting va Telegram'ni ulang: botga shaxsan /start yozing.");
   if (r.err === "unpaid") return say("❗ Obunangiz faol emas — duel ochib bo'lmaydi.");
@@ -697,11 +704,11 @@ async function onUpdate0(u: any) {
     return cardMessage(m.chat.id, ses.months);
   }
   if (priv && cmd === "/start" && /^r_[A-Za-z0-9]+$/i.test(arg)) {
-    const lang = m.from?.language_code === "ru" ? "ru" : "uz";
+    const lang = await playerLang(m.from?.id);
     return reply(tr(lang, "👋 <b>Hisobchi Liga</b>ga xush kelibsiz!\nDo'stingiz sizni taklif qildi. Ro'yxatdan o'ting — haftalik ligada bellashamiz."), appBtn(tr(lang, "Ro'yxatdan o'tish"), "?r=" + arg.slice(2).toUpperCase()));
   }
   if (priv && cmd === "/start" && /^d_[A-Za-z0-9]+$/i.test(arg)) {
-    const lang = m.from?.language_code === "ru" ? "ru" : "uz";
+    const lang = await playerLang(m.from?.id);
     const live = /^L[A-Z0-9]{6}$/i.test(arg.slice(2));
     return reply(tr(lang, live ? "⚡ <b>Sizni jonli duelga chaqirishdi!</b>\n10 ta savol, ikkalangiz bir vaqtda o'ynaysiz: kim birinchi to'g'ri topsa — ochko o'shaniki." : "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i."), appBtn(tr(lang, "Duelga kirish"), "?d=" + arg.slice(2).toUpperCase()));
   }
@@ -1148,7 +1155,7 @@ async function onApp(req: Request) {
   if (!b.p_id || !(await authOk(b.p_id, b.token))) return jres({ error: "bad_token" }, 403);
   if (action === "link") {
     const { data } = await db.rpc("liga_tg_link_sys", { p_id: b.p_id, p_token: b.token, p_tg: user.id });
-    if (data === true) { await seen(user); const cfg = await discussCfg(); if (cfg) await inviteOne(cfg, user.id, user.language_code === "ru" ? "ru" : "uz", user.first_name).catch(() => null); }
+    if (data === true) { await seen(user); const cfg = await discussCfg(); if (cfg) await inviteOne(cfg, user.id, await playerLang(user.id), user.first_name).catch(() => null); }
     return jres({ ok: data === true });
   }
   if (action === "card") {
