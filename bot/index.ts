@@ -706,6 +706,12 @@ async function onUpdate0(u: any) {
         text: "👋 Salom, buxgalterlar!\n\n<b>Hisobchi Liga</b> — haftalik musobaqa:\n• har ish kuni 09:00–17:00 da yangi bosqich (20 savol);\n• liga dushanbadan <b>juma 17:00</b> gacha;\n• hafta davomida natijangizni faqat o'zingiz ko'rasiz;\n• yakuniy jadval juma 17:00 da shu guruhga chiqadi.\n\n🔗 Jamoa administratori: guruhda <b>/ulash KOD</b> deb yozing (kod admin panelda).\nBoshlash uchun pastdagi tugmani bosing." });
     } else if (st === "left" || st === "kicked") {
       await db.from("liga_bot_chats").update({ active: false }).eq("chat_id", cm.chat.id);
+      // muhokama guruhidan bot chiqarilsa — havola ishlamay qoladi; adminni darhol ogohlantirish
+      const cfg = await discussCfg();
+      if (cfg && cfg.chat === cm.chat.id) {
+        const { data: adm } = await db.from("liga_admin_chats").select("chat_id");
+        for (const a of (adm ?? []) as any[]) await dm(a.chat_id, `⚠️ <b>Bot «${esc(cm.chat.title ?? "")}» guruhidan chiqarildi</b>${cm.from?.first_name ? " (" + esc(cm.from.first_name) + " tomonidan)" : ""}.\nGuruh havolasi endi ishlamaydi. Botni qayta qo'shib, administrator qiling va guruhda /muhokama yozing.`);
+      }
     }
     return;
   }
