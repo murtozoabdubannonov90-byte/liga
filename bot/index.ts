@@ -492,11 +492,11 @@ const inviteBtn = (lang: string | null | undefined, link: string) => ({ inline_k
 async function inviteOne(cfg: { chat: number; link: string }, tgId: number, lang: string | null | undefined, name?: string | null) {
   const mem = await tg("getChatMember", { chat_id: cfg.chat, user_id: tgId });
   const st = mem?.result?.status;
-  if (["member", "administrator", "creator", "restricted"].includes(st)) { await db.rpc("liga_discuss_mark_sys", { p_tg: tgId }); return "in"; }
-  if (st === "kicked") { await db.rpc("liga_discuss_mark_sys", { p_tg: tgId }); return "kicked"; }
+  if (["member", "administrator", "creator", "restricted"].includes(st)) { await db.rpc("liga_discuss_mark2_sys", { p_tg: tgId, p_status: "in" }); return "in"; }
+  if (st === "kicked") { await db.rpc("liga_discuss_mark2_sys", { p_tg: tgId, p_status: "kicked" }); return "kicked"; }
   const ok = await dm(tgId, tr(lang, "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:", { n: esc(name || "") }).replace("<b>, ", "<b>"),
     inviteBtn(lang, cfg.link));
-  await db.rpc("liga_discuss_mark_sys", { p_tg: tgId });
+  await db.rpc("liga_discuss_mark2_sys", { p_tg: tgId, p_status: ok ? "sent" : "fail" });
   return ok ? "sent" : "fail";
 }
 async function inviteAll(limit = 500) {
@@ -886,6 +886,20 @@ async function onCron(action: string) {
   }
   if (action === "tg_names") return await fillNames(500);
   if (action === "discuss_invite") return await inviteAll(1000);
+  // holatni tekshirish (hech narsa yubormaydi): kim guruhda, kimga yetgan, kimga yetmagan
+  if (action === "discuss_check" || action === "discuss_resend") {
+    const cfg = await discussCfg(); if (!cfg) return { skip: "no_group" };
+    const { data } = await db.rpc("liga_discuss_all_sys"); const out: Record<string, number> = {};
+    for (const p of (data ?? []) as any[]) {
+      const mem = await tg("getChatMember", { chat_id: cfg.chat, user_id: p.tg }); const st = mem?.result?.status;
+      let r: string;
+      if (["member", "administrator", "creator", "restricted"].includes(st)) { r = "in"; await db.rpc("liga_discuss_mark2_sys", { p_tg: p.tg, p_status: "in" }); }
+      else if (action === "discuss_resend" && st !== "kicked") r = await inviteOne(cfg, p.tg, p.lang, p.first_name);
+      else r = "not_in:" + (p.status ?? "unknown");
+      out[r] = (out[r] ?? 0) + 1; await pause(35);
+    }
+    return out;
+  }
   if (action === "cup_schedule") {
     // kubok jadvalini hozir hammaga yuborish (o'zgartirishdan keyin)
     const { data: dp } = await db.rpc("liga_cup_start_sys");

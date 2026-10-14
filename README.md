@@ -236,6 +236,7 @@ Telegram qoidasi bo'yicha bot guruh ocholmaydi va odamni guruhga o'zi qo'sha olm
 - Telegram'i ulanmaganlar havolani ilovaning bosh sahifasida («Ishtirokchilar guruhi» kartasi) ko'radi.
 - Guruh jamoaga (`ASOSIY`) ulanadi — bosqich e'lonlari va juma natijalari u yerga ham chiqadi.
 - Qo'lda qayta yuborish: cron amali `discuss_invite`. Migratsiya: `db/2026-10-14f_muhokama_guruhi.sql`.
+- Yetkazish holati `safari_players.discuss_status` da (`in` — guruhda, `sent` — yetdi, `fail` — yetmadi: botni ochmagan yoki bloklagan, `kicked`). Cron amallari: `discuss_check` — faqat tekshiradi, `discuss_resend` — guruhda yo'qlarga qayta yuboradi. Migratsiya: `db/2026-10-14h_muhokama_holat.sql`.
 - **Reklamaga qarshi** (`bot/reklama.ts`, sinovlar `bot/reklama_test.ts` — `deno test bot/reklama_test.ts`): hamma yoza oladi, lekin bot adminlardan boshqalarning quyidagi xabarlarini o'chiradi — begona saytlarga havola (lex.uz, soliq.uz, norma.uz, buxgalter.uz, gov.uz, didox.uz va boshqa rasmiy saytlar mumkin), kanal/guruhdan forward, kanal/guruh/bot @mentionlari, tugmali xabarlar, begona inline-botlar, kanal nomidan yozish. Tahrirlangan xabarlar ham tekshiriladi. Ogohlantirish 20 soniyada o'chadi; 7 kun ichida 3-marta takrorlagan odam 24 soat yozolmaydi (`liga_discuss_strikes`). Botga kerakli huquqlar: xabarlarni o'chirish, foydalanuvchilarni cheklash, havola orqali taklif. Migratsiya: `db/2026-10-14g_muhokama_reklama.sql`.
 
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
