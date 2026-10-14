@@ -212,6 +212,12 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - **Takrorlanmaslik:** duel, jonli duel va kubok savollari o'yinchilar shu hafta (dushanbadan) ko'rgan savollarni chetlab tanlanadi (`liga_draw_fresh`, `liga_seen_week`); oddiy duelda ikkinchi o'yinchi birinchisi bilan aynan bir xil savollarni oladi.
 - **Savollar tekshiruvi:** serverdagi 740 savol, ilova mashq savollari (240), 60 dars va mavzu generatorlari 8 qismda manbalar bilan tekshirildi: 55 ta bank savoli tuzatildi, 1 tasi o'yindan olindi (s9-07 — O'RQ-1137 27-m. ga zid), 12 ta mashq/dars, 4 ta generator tuzatildi. Yangi schyotlar: 6950, 6960, 9050, 9330. Manba: `content/patch-2026-10-13.asc`.
 
+## Raqib bilan bog'lanish (2026-10-14)
+- Kunlik duel kubogida raqib ismi bosiladigan bo'ldi (asosiy ekrandagi kubok kartasi va duel kutish zali): bosilganda **telefon raqami** va **Telegram niki** chiqadi, «Qo'ng'iroq» va «Yozish» tugmalari bilan.
+- Ma'lumot faqat o'sha kubok duelining ishtirokchisiga beriladi (`liga_duel_opp_contact`, token bilan tekshiriladi) — boshqa duellar yoki begonalar ko'ra olmaydi.
+- Telegram niki `safari_players.tg_username` ustunida: o'yinchi botga yozganda yoki ilovani Telegram ichida ochganda saqlanadi; eskilari bot `tg_names` amali bilan (va har kuni 09:00 dagi `day_start` da) `getChat` orqali to'ldiriladi. Niki yo'q bo'lsa — «Yozish» Telegram profilini ochadi.
+- Migratsiya: `db/2026-10-14b_raqib_aloqa.sql`.
+
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
 09:00 — bosqich ochildi · 16:00 — 1 soat qoldi · 17:00 — o'yin tugadi · juma 11:00 — liga tugashiga 1 soat · juma 12:01 — natijalar (har jamoaga o'zinikini).
 

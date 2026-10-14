@@ -451,7 +451,27 @@ async function onCallback(q: any) {
   return ack();
 }
 
+// Telegram niki — duel raqibiga ko'rsatish uchun (har yozganda yangilanadi)
+async function seen(from: any) {
+  if (!from?.id || from.is_bot) return;
+  try { await db.rpc("liga_tg_seen_sys", { p_tg: from.id, p_username: from.username ?? null }); } catch (_) { /* jim */ }
+}
+// eski o'yinchilar: niki noma'lum bo'lsa — getChat orqali bir martalik to'ldirish
+async function fillNames(limit = 200) {
+  const { data } = await db.rpc("liga_tg_unknown_sys", { p_limit: limit }); let n = 0, found = 0;
+  for (const r of (data ?? []) as any[]) {
+    const c = await tg("getChat", { chat_id: r.tg }); n++;
+    const u = c?.ok ? (c.result?.username ?? null) : null; if (u) found++;
+    await db.rpc("liga_tg_seen_sys", { p_tg: r.tg, p_username: u }); await pause(40);
+  }
+  return { checked: n, found };
+}
+
 async function onUpdate(u: any) {
+  try { return await onUpdate0(u); }
+  finally { await seen(u.message?.from ?? u.callback_query?.from); }
+}
+async function onUpdate0(u: any) {
   if (u.callback_query) return onCallback(u.callback_query);
   const cm = u.my_chat_member;
   if (cm && ["group", "supergroup"].includes(cm.chat.type)) {
@@ -745,7 +765,8 @@ async function onCron(action: string) {
         }
       }
     }
-    return { ok: true, sent: n, polls, personal, tax, news, pairs, duels };
+    const names = await fillNames(150).catch(() => null);
+    return { ok: true, sent: n, polls, personal, tax, news, pairs, duels, names };
   }
   if (action === "duel_due") {
     // kubok: yangi bosqich jufti, 5 daqiqa qoldi, boshlandi, g'olib
@@ -764,6 +785,7 @@ async function onCron(action: string) {
     for (const k of champG) { const [code, nm] = k.split("|"); for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: tr("uz", "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.", { n: esc(nm) }) }); }
     return { ok: true, sent };
   }
+  if (action === "tg_names") return await fillNames(500);
   if (action === "cup_schedule") {
     // kubok jadvalini hozir hammaga yuborish (o'zgartirishdan keyin)
     const { data: dp } = await db.rpc("liga_cup_start_sys");
@@ -924,6 +946,7 @@ async function onApp(req: Request) {
   // quyidagilar faqat Telegram ichidan (initData tekshiriladi)
   const user = await checkInit(String(b.initData || ""));
   if (!user) return jres({ error: "no_telegram" }, 403);
+  await seen(user);
   // Telegram hisobi orqali kirish (telefon, kompyuter — qaysi qurilma bo'lmasin)
   if (action === "tg_login") {
     const { data } = await db.rpc("liga_tg_login_sys", { p_tg: user.id });
@@ -932,6 +955,7 @@ async function onApp(req: Request) {
   if (!b.p_id || !(await authOk(b.p_id, b.token))) return jres({ error: "bad_token" }, 403);
   if (action === "link") {
     const { data } = await db.rpc("liga_tg_link_sys", { p_id: b.p_id, p_token: b.token, p_tg: user.id });
+    if (data === true) await seen(user);
     return jres({ ok: data === true });
   }
   if (action === "card") {

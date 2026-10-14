@@ -411,11 +411,29 @@ with sync_playwright() as p:
     check("asosiy ekranda bugungi duel: raqib va soat", "Aziz R." in dd and "11:30" in dd and "provodka" in dd, dd[:200])
     check("kubok jadvali: chorak final, g'olib, keyingi bosqich soatlari", pg.locator(".dd-list .r").count() == 4 and "Chorak final" in dd and "10:30" in dd and "6:4" in dd and "✅ Aziz R." in dd and "17:00" in dd and pg.locator(".dd-list .r.me").count() == 1, dd[:300])
     check("admin: bugungi juftliklar ro'yxati", pg.locator("#pairs .r").count() == 2 and "6:4" in pg.inner_text("#pairs"))
+    # raqib ustiga bosilsa — telefon va Telegram nik (faqat duel ishtirokchisiga, token bilan)
+    EXTRA["liga_duel_opp_contact"] = {"name": "Aziz Rahimov", "phone": "+998931112233", "tg": "aziz_buh", "tg_id": 555, "region": "Farg'ona viloyati"}
+    check("kubok: raqib ismi bosiladigan (telefon belgisi bilan)", pg.locator("#dd-opp").count() == 1 and "Raqib ismiga bosing" in dd)
+    pg.click("#dd-opp"); pg.wait_for_timeout(500)
+    sh = pg.inner_text("#opp-sheet") if pg.locator("#opp-sheet").count() else ""
+    ca = calls("liga_duel_opp_contact")
+    check("raqib oynasi: ism, telefon, Telegram nik", "Aziz Rahimov" in sh and "+998 93 111 22 33" in sh and "@aziz_buh" in sh, sh[:200])
+    check("raqib aloqasi token va duel kodi bilan so'raladi", bool(ca) and ca[-1].get("p_code") == "LDAY123" and ca[-1].get("p_token") == "tok1", ca[-1:] )
+    check("qo'ng'iroq havolasi tel: va yozish tugmasi", pg.get_attribute("#opp-call", "href") == "tel:+998931112233" and pg.locator("#opp-write").count() == 1)
+    pg.click(".opp-wrap", position={"x": 10, "y": 10}); pg.wait_for_timeout(300)
+    check("raqib oynasi tashqariga bosilsa yopiladi", pg.locator("#opp-sheet").count() == 0)
+    EXTRA["liga_duel_opp_contact"] = {"name": "Sardor M", "phone": "+998901110000", "tg_id": 777}
+    pg.click("#dd-opp"); pg.wait_for_timeout(500)
+    sh = pg.inner_text("#opp-sheet") if pg.locator("#opp-sheet").count() else ""
+    check("nik yo'q bo'lsa — «nik qo'yilmagan», baribir yozish mumkin", "nik qo'yilmagan" in sh and pg.locator("#opp-write").count() == 1, sh[:200])
+    pg.click(".opp-x"); pg.wait_for_timeout(200)
+    EXTRA.pop("liga_duel_opp_contact", None)
     live_reset(kind="day", b_name="Aziz R.", opens_in=3600000, win_from="2026-10-01T06:30:00Z", win_to="2026-10-01T07:30:00Z")
     pg.click("#dd-go"); pg.wait_for_timeout(1500)
     lob = pg.inner_text("#day-lobby") if pg.locator("#day-lobby").count() else ""
     check("juftlik dueli: soatni kutish (11:30, 12:30 gacha)", "11:30 da ochiladi" in lob and "12:30" in lob and "Aziz R." in lob, lob[:300])
     check("juftlik duelida havola/ulashish yo'q", pg.locator("#live-share").count() == 0)
+    check("juftlik duel lobbisida ham raqib ismi bosiladi", pg.locator("#lobby-opp").count() == 1)
     LIVE.update({"opens_in": 0, "status": "done", "note": "forfeit", "winner": "a", "a_pts": 1, "b_pts": 0}); pg.wait_for_timeout(1500)
     check("raqib kelmasa — g'alaba sizga", "g'alaba sizga" in (pg.inner_text("#live-note") if pg.locator("#live-note").count() else ""))
     LIVE.pop("kind", None)

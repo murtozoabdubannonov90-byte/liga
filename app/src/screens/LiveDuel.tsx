@@ -13,6 +13,7 @@ import { tab, replace, toast } from "../lib/nav";
 import { sfx, burst, cheer } from "../lib/fx";
 import { Ring, copyText } from "../components/ui";
 import { BOT_LINK, openTg } from "../lib/tg";
+import { OppName } from "../components/OppContact";
 
 /* Toshkent vaqti HH:MM */
 export const hhmm = (iso?: string) => (iso ? new Date(new Date(iso).getTime() + 5 * 3600e3).toISOString().slice(11, 16) : "");
@@ -113,7 +114,7 @@ export default function LiveDuel({ code }: { code: string }) {
         <section className="card live-lobby">
           <Hourglass size={34} color="var(--stamp)" />
           <p className="small muted" style={{ fontWeight: 700 }}>{t("Bugungi juftlik dueli")}</p>
-          <p style={{ fontWeight: 800, fontSize: 18 }}>{myName} ⚡ {opName}</p>
+          <p style={{ fontWeight: 800, fontSize: 18 }}>{myName} ⚡ <OppName code={code} name={opName} id="lobby-opp" /></p>
           {until > 0 ? <>
             <h3>{t("Duel soat {s} da ochiladi", { s: hhmm(v.win_from) })}</h3>
             <div className="disp live-count num" style={{ fontSize: 44 }}>{cd(until)}</div></>

@@ -8,6 +8,7 @@ import { t } from "../lib/i18n";
 import { go } from "../lib/nav";
 import { closeStr, tzNow } from "../engine/time";
 import { QSEC } from "../engine/run";
+import { OppName } from "../components/OppContact";
 
 export const EXTRA = [10, 7, 4];
 const MEDAL = ["🥇", "🥈", "🥉"];
@@ -134,7 +135,8 @@ export function DayDuelCard() {
       <div className="card-h"><Swords size={20} color="var(--red)" /><h3>{t("Kunlik duel kubogi")}</h3>{d && <span className="chip">{stageName(d.stage)} · {d.slot}</span>}</div>
       {champ && <p className="dd-champ" id="dd-champ"><Crown size={18} color="var(--gold)" />{t("Kubok g'olibi: {n}", { n: champ })}</p>}
       {d ? <>
-        <div className="dd-vs"><b>{t("Siz")}</b><span className="num">{done ? `${d.my_pts}:${d.opp_pts}` : "⚡"}</span><b>{d.opp}</b></div>
+        <div className="dd-vs"><b>{t("Siz")}</b><span className="num">{done ? `${d.my_pts}:${d.opp_pts}` : "⚡"}</span><OppName code={d.code} name={d.opp} id="dd-opp" /></div>
+        {!done && d.opp && <p className="tiny muted dd-tip">{t("Raqib ismiga bosing — telefoni va Telegrami chiqadi")}</p>}
         <p className="small muted" style={{ fontWeight: 600 }}>{done ? res
           : open ? t("Duel ochiq — raqibingiz bilan bir vaqtda kiring.") : d.closed ? t("Vaqt tugadi") : t("Faqat provodka · 15 savol · har biriga 1,5 daqiqa · soat {s} da ochiladi, 30 daqiqa ochiq", { s: d.slot })}</p>
         {!done && <button className={"btn " + (open ? "" : "ghost")} style={{ marginTop: 10 }} id="dd-go" onClick={() => go("duel", { code: d.code })}>{open ? t("Duelga kirish") : t("Duelni ochish")}</button>}
