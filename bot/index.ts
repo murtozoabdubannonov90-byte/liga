@@ -1043,6 +1043,20 @@ async function onCron(action: string, body: any = {}) {
   if (action === "tg_names") return await fillNames(500);
   if (action === "discuss_invite") return await inviteAll(1000);
   if (action === "group_due") return await groupDue();
+  // muhokama guruhi holati: guruh, botning huquqlari, havola; fix=true bo'lsa — yangi havola yaratib saqlaydi
+  if (action === "discuss_diag") {
+    const cfg = await discussCfg(); if (!cfg) return { skip: "no_group" };
+    const me = await tg("getMe", {}), chat = await tg("getChat", { chat_id: cfg.chat });
+    const bm = await tg("getChatMember", { chat_id: cfg.chat, user_id: me?.result?.id });
+    const out: any = { cfg, chat: { ok: chat?.ok, type: chat?.result?.type, title: chat?.result?.title, err: chat?.description, migrated_to: chat?.parameters?.migrate_to_chat_id },
+      bot: { status: bm?.result?.status, can_invite: bm?.result?.can_invite_users, can_delete: bm?.result?.can_delete_messages, can_restrict: bm?.result?.can_restrict_members, err: bm?.description } };
+    if (body.fix && chat?.ok) {
+      const inv = await tg("createChatInviteLink", { chat_id: cfg.chat, name: "Hisobchi Liga " + new Date().toISOString().slice(0, 16) });
+      out.new_link = inv?.result?.invite_link ?? null; out.link_err = inv?.description;
+      if (out.new_link) await db.rpc("liga_discuss_move_sys", { p_chat: cfg.chat, p_link: out.new_link });
+    }
+    return out;
+  }
   if (action === "group_live") return await groupLive(String(body.code ?? ""));
   // holatni tekshirish (hech narsa yubormaydi): kim guruhda, kimga yetgan, kimga yetmagan
   if (action === "discuss_check" || action === "discuss_resend") {
