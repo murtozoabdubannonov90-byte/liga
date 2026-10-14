@@ -479,6 +479,17 @@ with sync_playwright() as p:
     check("kubok g'olibi asosiy ekranda", pg.locator("#dd-champ").count() == 1 and "Aziz Rahimov" in pg.inner_text("#dd-champ"))
     EXTRA.pop("liga_day_duel_me", None); EXTRA.pop("liga_cup_list", None)
 
+    print("10h. Ishtirokchilar muhokama guruhi")
+    pg, e = page(b); ALLERR += e
+    check("guruh hali belgilanmagan — karta yo'q", pg.locator("#discuss").count() == 0)
+    EXTRA["liga_discuss_link"] = "https://t.me/+AbCdEf123"
+    pg, e = page(b); ALLERR += e
+    dc = pg.inner_text("#discuss") if pg.locator("#discuss").count() else ""
+    ca = calls("liga_discuss_link")
+    check("bosh sahifada «Ishtirokchilar guruhi» kartasi", "Ishtirokchilar guruhi" in dc and "Qo'shilish" in dc, dc)
+    check("guruh havolasi token bilan so'raladi", bool(ca) and ca[-1].get("p_token") == "tok1")
+    EXTRA.pop("liga_discuss_link", None)
+
     print("10g. Oktyabr kunlik rejasi, Katta final, medallar")
     EXTRA["liga_day_plans"] = [{"day": "2026-10-01", "level": 5, "icon": "🧾", "title": {"uz": "Kassa va bank", "ru": "Касса и банк"},
         "story": {"uz": "Kassir pul olib keldi.", "ru": "Кассир принёс деньги."}, "theory": {"uz": "<p>Kassa — <b>5010</b></p>", "ru": "<p>Касса — <b>5010</b></p>"}, "n_pv": 15, "n_other": 5}]

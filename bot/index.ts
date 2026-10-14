@@ -105,6 +105,8 @@ const RU: Record<string, string> = {
   "❌ <b>To'lov chekingiz tasdiqlanmadi</b> — pul kartaga tushmagan.\nBosqichlar yopiq. Haqiqatan to'lagan bo'lsangiz, administratorga yozing: @murtozo_44": "❌ <b>Чек не подтверждён</b> — деньги на карту не поступили.\nЭтапы закрыты. Если вы действительно оплатили, напишите администратору: @murtozo_44",
   "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.": "🔔 <b>Дуэль началась!</b>\nВаш соперник — <b>{o}</b>. Зайдите до {e} — иначе победа достанется сопернику.",
   "Raqib bilan bog'lanish:": "Связь с соперником:",
+  "💬 Guruhga qo'shilish": "💬 Вступить в группу",
+  "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:": "💬 <b>{n}, открылась группа участников Hisobchi Liga!</b>\nЗдесь обсуждаем вопросы, проводки и дуэли, договариваемся с соперником. Присоединяйтесь:",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
 function tr(lang: string | null | undefined, uz: string, v: Record<string, string | number> = {}) {
@@ -478,6 +480,32 @@ async function fillNames(limit = 200) {
   return { checked: n, found };
 }
 
+// ---------------- muhokama guruhi: bot guruh ochmaydi/odam qo'sha olmaydi — shaxsan taklif havolasi yuboradi ----------------
+async function discussCfg(): Promise<{ chat: number; link: string } | null> {
+  const { data } = await db.from("liga_bot_config").select("key,value").in("key", ["discuss_chat", "discuss_link"]);
+  const m: Record<string, string> = {}; for (const r of (data ?? []) as any[]) m[r.key] = r.value;
+  return m.discuss_chat && m.discuss_link ? { chat: Number(m.discuss_chat), link: m.discuss_link } : null;
+}
+const inviteBtn = (lang: string | null | undefined, link: string) => ({ inline_keyboard: [[{ text: tr(lang, "💬 Guruhga qo'shilish"), url: link }]] });
+// bitta odamga taklif (guruhda bo'lsa — yubormaydi)
+async function inviteOne(cfg: { chat: number; link: string }, tgId: number, lang: string | null | undefined, name?: string | null) {
+  const mem = await tg("getChatMember", { chat_id: cfg.chat, user_id: tgId });
+  const st = mem?.result?.status;
+  if (["member", "administrator", "creator", "restricted"].includes(st)) { await db.rpc("liga_discuss_mark_sys", { p_tg: tgId }); return "in"; }
+  if (st === "kicked") { await db.rpc("liga_discuss_mark_sys", { p_tg: tgId }); return "kicked"; }
+  const ok = await dm(tgId, tr(lang, "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:", { n: esc(name || "") }).replace("<b>, ", "<b>"),
+    inviteBtn(lang, cfg.link));
+  await db.rpc("liga_discuss_mark_sys", { p_tg: tgId });
+  return ok ? "sent" : "fail";
+}
+async function inviteAll(limit = 500) {
+  const cfg = await discussCfg(); if (!cfg) return { skip: "no_group" };
+  const { data } = await db.rpc("liga_discuss_targets_sys", { p_limit: limit });
+  const out: Record<string, number> = { sent: 0, in: 0, fail: 0, kicked: 0 };
+  for (const p of (data ?? []) as any[]) out[await inviteOne(cfg, p.tg, p.lang, p.first_name)]++;
+  return out;
+}
+
 async function onUpdate(u: any) {
   try { return await onUpdate0(u); }
   finally { await seen(u.message?.from ?? u.callback_query?.from); }
@@ -582,6 +610,23 @@ async function onUpdate0(u: any) {
     if (!g) return reply("❌ Bunday jamoa kodi topilmadi.");
     await db.from("liga_bot_chats").upsert({ chat_id: m.chat.id, title: m.chat.title, active: true, group_code: g.code });
     await reply(`✅ Guruh «<b>${esc(g.name)}</b>» jamoasiga ulandi.\nBosqich xabarlari va juma kungi natijalar shu yerga chiqadi.`, openBot(g.code));
+  } else if (cmd === "/muhokama") {
+    // faqat liga administratori (to'lov cheklari keladigan shaxsiy chat egasi)
+    const { data: adm } = await db.from("liga_admin_chats").select("group_code").eq("chat_id", m.from?.id ?? 0).maybeSingle();
+    if (!adm) return reply("⛔ Bu buyruq faqat liga administratori uchun.");
+    if (priv) return reply("Bu buyruqni muhokama guruhining o'zida yozing: guruh oching, botni administrator qiling (\"Foydalanuvchilarni taklif qilish\" huquqi bilan) va guruhda <b>/muhokama</b> deb yozing.");
+    const me = await tg("getMe", {}), bm = await tg("getChatMember", { chat_id: m.chat.id, user_id: me?.result?.id });
+    if (bm?.result?.status !== "administrator" || bm?.result?.can_invite_users === false)
+      return reply("❗ Avval botni shu guruhda <b>administrator</b> qiling va «Foydalanuvchilarni taklif qilish» (Invite users) huquqini yoqing, keyin /muhokama ni qayta yozing.");
+    const inv = await tg("createChatInviteLink", { chat_id: m.chat.id, name: "Hisobchi Liga" });
+    const link = inv?.result?.invite_link; if (!link) return reply("❌ Taklif havolasini yaratib bo'lmadi: " + esc(String(inv?.description ?? "")));
+    await db.rpc("liga_discuss_set_sys", { p_chat: m.chat.id, p_link: link });
+    await db.from("liga_bot_chats").upsert({ chat_id: m.chat.id, title: m.chat.title, active: true, group_code: adm.group_code });
+    await reply("✅ Bu guruh — <b>liga muhokama guruhi</b>.\nBarcha ishtirokchilarga shaxsan taklif yuborilmoqda...");
+    // ko'p odamga yuborish vaqt oladi — Telegram webhook'ini kutdirmaslik uchun fonda
+    const task = (async () => { const r: any = await inviteAll(1000); await reply(`📨 Taklif yuborildi: <b>${r.sent ?? 0}</b> kishiga\n✅ Guruhda allaqachon bor: ${r.in ?? 0}\n⚠️ Yetib bormadi (botni bloklagan): ${r.fail ?? 0}\n\nTelegram'i ulanmagan ishtirokchilar havolani ilovaning bosh sahifasida ko'radi. Yangi qo'shilganlarga bot har kuni ertalab yuboradi.\n\nHavola: ${link}`); })().catch((e) => console.error(e));
+    const ER = (globalThis as any).EdgeRuntime; if (ER?.waitUntil) ER.waitUntil(task); else await task;
+    return;
   } else if (cmd === "/natija") {
     const code = priv ? "ASOSIY" : await chatGroup(m.chat.id);
     await reply(await resultsText(code), priv ? openApp(code) : openBot(code));
@@ -705,7 +750,8 @@ async function onCron(action: string) {
         { command: "natija", description: "Oxirgi hafta natijalari" },
         { command: "tolov", description: "Obuna to'lovi (karta va chek)" },
         { command: "qoida", description: "Liga qoidalari" },
-        { command: "ulash", description: "Guruhni jamoaga ulash (admin)" }] }),
+        { command: "ulash", description: "Guruhni jamoaga ulash (admin)" },
+        { command: "muhokama", description: "Muhokama guruhini belgilash (liga admini)" }] }),
       menu: await tg("setChatMenuButton", { menu_button: { type: "web_app", text: "Liga", web_app: { url: APP } } }),
       desc: await tg("setMyDescription", { description: "Hisobchi Liga — buxgalterlar uchun haftalik musobaqa: har kuni provodka, QQS, ish haqi, soliq va qonunchilik bo'yicha yangi bosqich." }),
       short: await tg("setMyShortDescription", { short_description: "Buxgalterlar uchun haftalik liga" }),
@@ -777,7 +823,8 @@ async function onCron(action: string) {
       }
     }
     const names = await fillNames(150).catch(() => null);
-    return { ok: true, sent: n, polls, personal, tax, news, pairs, duels, names };
+    const invites = await inviteAll(300).catch(() => null);
+    return { ok: true, sent: n, polls, personal, tax, news, pairs, duels, names, invites };
   }
   if (action === "duel_due") {
     // kubok: yangi bosqich jufti, 5 daqiqa qoldi, boshlandi, g'olib
@@ -798,6 +845,7 @@ async function onCron(action: string) {
     return { ok: true, sent };
   }
   if (action === "tg_names") return await fillNames(500);
+  if (action === "discuss_invite") return await inviteAll(1000);
   if (action === "cup_schedule") {
     // kubok jadvalini hozir hammaga yuborish (o'zgartirishdan keyin)
     const { data: dp } = await db.rpc("liga_cup_start_sys");
@@ -967,7 +1015,7 @@ async function onApp(req: Request) {
   if (!b.p_id || !(await authOk(b.p_id, b.token))) return jres({ error: "bad_token" }, 403);
   if (action === "link") {
     const { data } = await db.rpc("liga_tg_link_sys", { p_id: b.p_id, p_token: b.token, p_tg: user.id });
-    if (data === true) await seen(user);
+    if (data === true) { await seen(user); const cfg = await discussCfg(); if (cfg) await inviteOne(cfg, user.id, user.language_code === "ru" ? "ru" : "uz", user.first_name).catch(() => null); }
     return jres({ ok: data === true });
   }
   if (action === "card") {

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { entry } from "../boot";
-import { Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing } from "lucide-react";
+import { Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing, MessagesSquare } from "lucide-react";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, toast } from "../lib/nav";
@@ -34,6 +34,18 @@ export function TgLinkCard() {
       <span className="grow"><b>{t("Natijangiz Telegram'ga kelsin")}</b>
         <span className="small">{t("Har bosqichdan keyin balingiz, ertalab bosqich eslatmasi, juma kuni o'rningiz — shaxsan sizga.")}</span></span>
       <span className="chip blue">{t("Ulash")}<ChevronRight size={13} /></span>
+    </button>);
+}
+/* liga ishtirokchilarining Telegram muhokama guruhi (havola admin /muhokama qilgandan keyin paydo bo'ladi) */
+export function DiscussCard() {
+  const link: string = S.discuss || "";
+  if (!link || !S.pid) return null;
+  return (
+    <button className="card tglink" id="discuss" onClick={() => openTg(link)}>
+      <span className="ic"><MessagesSquare size={22} /></span>
+      <span className="grow"><b>{t("Ishtirokchilar guruhi")}</b>
+        <span className="small">{t("Savollar, provodkalar va duellarni muhokama qilamiz, raqib bilan kelishib olamiz.")}</span></span>
+      <span className="chip blue">{t("Qo'shilish")}<ChevronRight size={13} /></span>
     </button>);
 }
 export const playerBlocked = () => !S.trial && !!(S.me && S.me.personal && S.me.ok === false);
@@ -152,6 +164,7 @@ export default function Home() {
         <PerksCard />
         <TeamLiveCard />
         <TgLinkCard />
+        <DiscussCard />
         <DeadlineCard />
         <NewsCard />
         {S.streak > 1 && <div className="row small" style={{ fontWeight: 800, color: "var(--ink-2)" }}><Flame size={18} color="#E8590C" fill="#FFB020" />{t("{n} kunlik seriya — davom eting!", { n: S.streak })}</div>}

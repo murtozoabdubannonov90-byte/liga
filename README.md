@@ -226,6 +226,17 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - Faollik: har javob urinishi (to'g'ri yoki xato) `liga_live.a_act / b_act` ga yoziladi. Do'stona duellarga ta'sir qilmaydi.
 - Migratsiya: `db/2026-10-14d_duel_faolsiz.sql`.
 
+## Ishtirokchilar muhokama guruhi (2026-10-14)
+Telegram qoidasi bo'yicha bot guruh ocholmaydi va odamni guruhga o'zi qo'sha olmaydi, shuning uchun:
+1. Liga administratori Telegram'da yangi guruh ochadi va @Buxgalterlar_Ligasi_bot ni qo'shadi.
+2. Botni guruhda **administrator** qiladi («Foydalanuvchilarni taklif qilish» huquqi bilan).
+3. Guruhda `/muhokama` deb yozadi (faqat `liga_admin_chats` dagi admin ishlata oladi).
+4. Bot taklif havolasini yaratadi va Telegram'i ulangan har bir ishtirokchiga shaxsan «💬 Guruhga qo'shilish» tugmasini yuboradi (guruhda borlarga yubormaydi), oxirida hisobotni guruhga yozadi.
+- Yangi ishtirokchilarga — har ish kuni 09:00 dagi `day_start` da va Telegram'ni ilovadan ulagan zahoti.
+- Telegram'i ulanmaganlar havolani ilovaning bosh sahifasida («Ishtirokchilar guruhi» kartasi) ko'radi.
+- Guruh jamoaga (`ASOSIY`) ulanadi — bosqich e'lonlari va juma natijalari u yerga ham chiqadi.
+- Qo'lda qayta yuborish: cron amali `discuss_invite`. Migratsiya: `db/2026-10-14f_muhokama_guruhi.sql`.
+
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
 09:00 — bosqich ochildi · 16:00 — 1 soat qoldi · 17:00 — o'yin tugadi · juma 11:00 — liga tugashiga 1 soat · juma 12:01 — natijalar (har jamoaga o'zinikini).
 

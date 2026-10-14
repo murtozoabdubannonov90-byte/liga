@@ -962,4 +962,7 @@ export const RU: Record<string, string> = {
   "javob bermagan yutqazdi": "не отвечавший проиграл",
   "o'ynamay to'xtatildi": "остановлена без игры",
   "7 daqiqa davomida birorta ham javob bermagan o'yinchi yutqazadi — duel shu zahoti yakunlanadi.": "Игрок, не давший ни одного ответа за 7 минут, проигрывает — дуэль сразу завершается.",
+  "Ishtirokchilar guruhi": "Группа участников",
+  "Savollar, provodkalar va duellarni muhokama qilamiz, raqib bilan kelishib olamiz.": "Обсуждаем вопросы, проводки и дуэли, договариваемся с соперником.",
+  "Qo'shilish": "Вступить",
 };

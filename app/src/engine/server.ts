@@ -100,6 +100,7 @@ export async function pull(force = false) {
       if (di) S.day = di; if (dd !== undefined) S.dd = dd;
       const [dl, dm] = await Promise.all([rpc<any[]>("liga_cup_list", { p_id: S.pid }).catch(() => null), rpc<any>("liga_cup_me2", { p_id: S.pid }).catch(() => null)]);
       if (dl) S.dl = dl; if (dm) S.dm = dm;
+      if (S.token) { const ln = await rpc<string | null>("liga_discuss_link", { p_id: S.pid, p_token: S.token }).catch(() => undefined); if (ln !== undefined) S.discuss = ln || ""; }
     }
     rpc<boolean>("liga_trial").then((v) => { S.trial = !!v; persist(); }).catch(() => {});
     rpc<number>("liga_free_days").then((v) => { S.freeDays = Number(v) || 0; persist(); }).catch(() => {});
