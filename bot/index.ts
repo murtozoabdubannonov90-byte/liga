@@ -2,6 +2,7 @@
 // Token Supabase Secrets'da: TELEGRAM_BOT_TOKEN. Kodda token yo'q.
 // Jamoalar: har bir Telegram guruh /ulash KOD bilan bitta jamoaga bog'lanadi; natijalar va bosqich xabarlari jamoa bo'yicha.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { adReason, mentionsOf } from "./reklama.ts";
 
 const TOKEN = Deno.env.get("TELEGRAM_BOT_TOKEN") ?? "";
 const SB_URL = Deno.env.get("SUPABASE_URL")!;
@@ -506,6 +507,43 @@ async function inviteAll(limit = 500) {
   return out;
 }
 
+// muhokama guruhida reklama: o'chirish, ogohlantirish, 3-martada 24 soat yozishdan cheklash (adminlarga tegmaydi)
+const RK_WHY: Record<string, string> = { link: "begona havola", forward: "kanal yoki guruhdan forward", buttons: "tugmali xabar", inline_bot: "reklama boti", mention: "kanal/guruh/bot reklamasi" };
+const bg = (p: Promise<unknown>) => { const ER = (globalThis as any).EdgeRuntime; if (ER?.waitUntil) ER.waitUntil(p.catch(() => null)); };
+async function moderate(m: any): Promise<boolean> {
+  if (!["group", "supergroup"].includes(m.chat?.type)) return false;
+  const cfg = await discussCfg(); if (!cfg || m.chat.id !== cfg.chat) return false;
+  if (m.sender_chat && m.sender_chat.id === m.chat.id) return false;            // anonim admin
+  let why = m.sender_chat ? "forward" : adReason(m, BOT);                       // kanal nomidan yozish ham reklama
+  if (!why) for (const u of mentionsOf(m).slice(0, 5)) {
+    if (/bot$/i.test(u)) { why = "mention"; break; }
+    const c = await tg("getChat", { chat_id: "@" + u });
+    if (c?.ok && ["channel", "supergroup", "group"].includes(c.result?.type) && c.result?.id !== m.chat.id) { why = "mention"; break; }
+  }
+  if (!why) return false;
+  if (m.from?.id && !m.sender_chat) {
+    const mem = await tg("getChatMember", { chat_id: m.chat.id, user_id: m.from.id });
+    if (["administrator", "creator"].includes(mem?.result?.status)) return false;
+    if (m.from.is_bot && String(m.from.username ?? "").toLowerCase() === BOT.toLowerCase()) return false;
+  }
+  await tg("deleteMessage", { chat_id: m.chat.id, message_id: m.message_id });
+  const who = m.from?.id && !m.sender_chat ? m.from : null;
+  let n = 1;
+  if (who) { const { data } = await db.rpc("liga_discuss_strike_sys", { p_tg: who.id }); n = Number(data) || 1; }
+  const name = who ? `<a href="tg://user?id=${who.id}">${esc(who.first_name ?? "")}</a>` : "";
+  let text = `🚫 ${name ? name + ", " : ""}guruhda reklama mumkin emas (${RK_WHY[why] ?? why}). Xabar o'chirildi.`;
+  if (who && n >= 3) {
+    await tg("restrictChatMember", { chat_id: m.chat.id, user_id: who.id, until_date: Math.floor(Date.now() / 1000) + 86400,
+      permissions: { can_send_messages: false, can_send_audios: false, can_send_documents: false, can_send_photos: false, can_send_videos: false,
+        can_send_video_notes: false, can_send_voice_notes: false, can_send_polls: false, can_send_other_messages: false, can_add_web_page_previews: false } });
+    text += "\n⛔ 3-marta takrorlandi — 24 soat yozish cheklandi.";
+  } else if (who) text += `\n⚠️ Ogohlantirish ${n}/3. Savol, provodka, qonun havolalari (lex.uz, soliq.uz) — mumkin.`;
+  else if (m.sender_chat?.type === "channel") await tg("banChatSenderChat", { chat_id: m.chat.id, sender_chat_id: m.sender_chat.id });
+  const w = await tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML", text, disable_notification: true });
+  if (w?.result?.message_id) bg((async () => { await pause(20000); await tg("deleteMessage", { chat_id: m.chat.id, message_id: w.result.message_id }); })());
+  return true;
+}
+
 async function onUpdate(u: any) {
   try { return await onUpdate0(u); }
   finally { await seen(u.message?.from ?? u.callback_query?.from); }
@@ -524,8 +562,10 @@ async function onUpdate0(u: any) {
     }
     return;
   }
+  if (u.edited_message) { await moderate(u.edited_message); return; }
   const m = u.message;
   if (!m) return;
+  if (await moderate(m)) return;
   if (m.migrate_to_chat_id) {
     const code = await chatGroup(m.chat.id);
     await db.from("liga_bot_chats").update({ active: false }).eq("chat_id", m.chat.id);
@@ -744,7 +784,7 @@ async function onCron(action: string) {
   if (action === "setup") {
     const url = `${SB_URL}/functions/v1/liga-bot`;
     return {
-      webhook: await tg("setWebhook", { url, secret_token: await hookSecret(), allowed_updates: ["message", "my_chat_member", "callback_query"], drop_pending_updates: true }),
+      webhook: await tg("setWebhook", { url, secret_token: await hookSecret(), allowed_updates: ["message", "edited_message", "my_chat_member", "callback_query"], drop_pending_updates: true }),
       commands: await tg("setMyCommands", { commands: [
         { command: "liga", description: "Ilovani ochish" },
         { command: "natija", description: "Oxirgi hafta natijalari" },
