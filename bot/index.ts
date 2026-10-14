@@ -1056,6 +1056,9 @@ async function onCron(action: string, body: any = {}) {
     const bm = await tg("getChatMember", { chat_id: cfg.chat, user_id: me?.result?.id });
     const out: any = { cfg, chat: { ok: chat?.ok, type: chat?.result?.type, title: chat?.result?.title, err: chat?.description, migrated_to: chat?.parameters?.migrate_to_chat_id },
       bot: { status: bm?.result?.status, can_invite: bm?.result?.can_invite_users, can_delete: bm?.result?.can_delete_messages, can_restrict: bm?.result?.can_restrict_members, err: bm?.description } };
+    const ad = await tg("getChatAdministrators", { chat_id: cfg.chat });
+    out.admins = ((ad?.result ?? []) as any[]).map((a) => ({ name: [a.user?.first_name, a.user?.last_name].filter(Boolean).join(" "), username: a.user?.username, bot: a.user?.is_bot,
+      status: a.status, can_restrict: a.can_restrict_members, can_promote: a.can_promote_members, can_change_info: a.can_change_info, custom_title: a.custom_title }));
     if (body.fix && chat?.ok) {
       const inv = await tg("createChatInviteLink", { chat_id: cfg.chat, name: "Hisobchi Liga " + new Date().toISOString().slice(0, 16) });
       out.new_link = inv?.result?.invite_link ?? null; out.link_err = inv?.description;
