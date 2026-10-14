@@ -101,7 +101,7 @@ export function TeamLiveCard() {
         <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{t("Bugungi juftliklar")}</p>
         <div className="board" id="pairs">{pairs.map((p, k) => (
           <div key={k} className="r"><span className="p" style={{ fontSize: 12 }}>{p.slot}</span>
-            <span className="n">{p.a_name} — {p.b_name}<small>{p.status === "done" ? (p.note === "cancel" ? t("o'ynalmadi") : p.note === "forfeit" ? t("kelmagan yutqazdi") : t("yakunlandi")) : p.status === "play" ? t("o'ynamoqda") : t("kutilmoqda")}</small></span>
+            <span className="n">{p.a_name} — {p.b_name}<small>{p.status === "done" ? (p.note === "cancel" ? t("o'ynalmadi") : p.note === "forfeit" ? t("kelmagan yutqazdi") : p.note === "idle" ? t("javob bermagan yutqazdi") : p.note === "idle2" ? t("o'ynamay to'xtatildi") : t("yakunlandi")) : p.status === "play" ? t("o'ynamoqda") : t("kutilmoqda")}</small></span>
             <span className="x">{p.status === "wait" ? "–" : `${p.a_pts}:${p.b_pts}`}</span></div>))}</div></>}
     </section>);
 }

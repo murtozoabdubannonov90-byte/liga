@@ -219,6 +219,13 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - Migratsiya: `db/2026-10-14b_raqib_aloqa.sql`.
 - Bot ham kubok xabarlarida (09:00 dagi juftlik e'loni, keyingi bosqichga chiqish, «5 daqiqa qoldi», «Duel boshlandi») oxiriga «Raqib bilan bog'lanish: 📞 telefon · ✈️ @nik» qatorini qo'shadi (`liga_duel_opp_contact_sys`, migratsiya `db/2026-10-14c_raqib_aloqa_bot.sql`).
 
+## Kubokda faolsiz o'yinchi (2026-10-14)
+- Kubok duelida o'yinchi **3 daqiqa (2 savol)** davomida birorta ham javob bermasa — duel shu zahoti yakunlanadi (`liga_live_tick`, `liga_live_idle_sec()` = 180).
+- Biri faolsiz, ikkinchisi o'ynayapti → o'ynayotgan yutadi (`note = 'idle'`; oldinda bo'lmasa, ochkosi raqibnikidan 1 ta ko'p qilinadi).
+- Ikkalasi faolsiz → duel to'xtatiladi (`note = 'idle2'`), g'olib ochko/vaqt bo'yicha, teng bo'lsa — qur'a.
+- Faollik: har javob urinishi (to'g'ri yoki xato) `liga_live.a_act / b_act` ga yoziladi. Do'stona duellarga ta'sir qilmaydi.
+- Migratsiya: `db/2026-10-14d_duel_faolsiz.sql`.
+
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
 09:00 — bosqich ochildi · 16:00 — 1 soat qoldi · 17:00 — o'yin tugadi · juma 11:00 — liga tugashiga 1 soat · juma 12:01 — natijalar (har jamoaga o'zinikini).
 

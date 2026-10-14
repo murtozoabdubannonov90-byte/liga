@@ -123,6 +123,7 @@ export default function LiveDuel({ code }: { code: string }) {
           <p className="small muted">{t("Soat {e} gacha kirmagan o'yinchi yutqazadi. Bot vaqt kelganda xabar beradi.", { e: hhmm(v.win_to) })}</p>
         </section>
         <div className="note"><Zap size={18} /><span>{t("Faqat provodka, 15 ta savol, har biriga 1,5 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va ikkalangizga keyingi savol chiqadi.")}</span></div>
+        <div className="note" id="idle-rule"><Hourglass size={18} /><span>{t("3 daqiqa davomida birorta ham javob bermagan o'yinchi yutqazadi — duel shu zahoti yakunlanadi.")}</span></div>
       </div>);
   }
   /* kutish zali */
@@ -151,6 +152,8 @@ export default function LiveDuel({ code }: { code: string }) {
           <Score />
           <p className="small muted" id="live-note">{v.note === "cancel" ? t("Ikkalangiz bir vaqtda kirmadingiz — duel hisoblanmadi.")
             : v.note === "forfeit" ? (win === me ? t("Raqib belgilangan vaqtda kirmadi — g'alaba sizga berildi.") : t("Siz belgilangan vaqtda kirmadingiz — g'alaba raqibga berildi."))
+            : v.note === "idle" ? (win === me ? t("Raqib 3 daqiqa javob bermadi — duel to'xtatildi, g'alaba sizga berildi.") : t("Siz 3 daqiqa javob bermadingiz — duel to'xtatildi, g'alaba raqibga berildi."))
+            : v.note === "idle2" ? t("Ikkalangiz ham 3 daqiqa javob bermadingiz — duel to'xtatildi. Teng bo'lsa, g'olib qur'a bilan aniqlanadi.")
             : t("Teng ochkoda to'g'ri javoblarga kam vaqt sarflagan yutadi.")}</p>
         </section>
         <div className="btn-row">

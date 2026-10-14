@@ -956,4 +956,10 @@ export const RU: Record<string, string> = {
   "Yozish": "Написать",
   "Raqibingiz duelga kirmayotgan bo'lsa — qo'ng'iroq qiling yoki yozing. Raqam faqat duel raqibiga ko'rinadi.": "Если соперник не заходит на дуэль — позвоните или напишите ему. Номер виден только сопернику по дуэли.",
   "Raqib ismiga bosing — telefoni va Telegrami chiqadi": "Нажмите на имя соперника — появятся телефон и Telegram",
+  "Raqib 3 daqiqa javob bermadi — duel to'xtatildi, g'alaba sizga berildi.": "Соперник не отвечал 3 минуты — дуэль остановлена, победа присуждена вам.",
+  "Siz 3 daqiqa javob bermadingiz — duel to'xtatildi, g'alaba raqibga berildi.": "Вы не отвечали 3 минуты — дуэль остановлена, победа присуждена сопернику.",
+  "Ikkalangiz ham 3 daqiqa javob bermadingiz — duel to'xtatildi. Teng bo'lsa, g'olib qur'a bilan aniqlanadi.": "Вы оба не отвечали 3 минуты — дуэль остановлена. При равенстве победитель определяется жребием.",
+  "javob bermagan yutqazdi": "не отвечавший проиграл",
+  "o'ynamay to'xtatildi": "остановлена без игры",
+  "3 daqiqa davomida birorta ham javob bermagan o'yinchi yutqazadi — duel shu zahoti yakunlanadi.": "Игрок, не давший ни одного ответа за 3 минуты, проигрывает — дуэль сразу завершается.",
 };
