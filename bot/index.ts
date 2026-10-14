@@ -603,6 +603,7 @@ async function groupLive(code: string) {
   const { data } = await db.rpc("liga_group_live_sys", { p_code: code }); const v = data as any;
   if (!v) return { skip: true };
   if (v.status === "done") return await groupDue();
+  if (v.status === "wait" && !v.b_name) return { skip: "no_opponent" };
   const a = esc(v.a_name ?? ""), b = esc(v.b_name ?? "");
   let text: string;
   if (v.status === "wait") text = `⚔️ <b>${a}</b> ⚡ <b>${b}</b> — jonli duel!\n⏳ Ikkalasi kirishi kutilmoqda. Kirgach o'yin shu yerda jonli ko'rinadi.`;
@@ -621,6 +622,21 @@ async function groupLive(code: string) {
     reply_markup: { inline_keyboard: [[{ text: "▶️ Duelga kirish (o'yinchilar)", url: duelLink(code) }]] } });
   return { ok: true };
 }
+// duel yakuni: ismlar, hisob va har savol bo'yicha kim to'g'ri / kim xato
+const first = (n: string) => esc(String(n || "").split(/\s+/)[0] || n || "");
+async function duelResultText(code: string, d: any): Promise<string> {
+  const head = `🏁 <b>Duel yakunlandi</b>\n${d.winner === "a" ? "🏆 " : ""}<b>${esc(d.a_name ?? "")}</b>   ${d.a_pts} : ${d.b_pts}   <b>${esc(d.b_name ?? "")}</b>${d.winner === "b" ? " 🏆" : ""}` +
+    (d.winner === "tie" ? "\n🤝 Durang!" : "") + (d.note === "idle" ? "\n⏱ Raqiblardan biri 7 daqiqa javob bermadi." : "");
+  const { data } = await db.rpc("liga_live_detail_sys", { p_code: code }); const x = data as any;
+  const items: any[] = x?.items ?? []; if (!items.length) return head;
+  const an = first(x.a), bn = first(x.b);
+  const sym = (it: any, side: "a" | "b") => it.w === side ? "✅" : (side === "a" ? it.al : it.bl) ? "❌" : "➖";
+  const build = (withQ: boolean) => head + "\n\n<b>Savollar bo'yicha:</b>\n" + items.map((it, i) => {
+    const q = String(it.q ?? ""), qs = q.length > 70 ? q.slice(0, 67) + "…" : q;
+    return `${i + 1}. ${withQ ? esc(qs) + "\n    " : ""}${sym(it, "a")} ${an} · ${sym(it, "b")} ${bn} — 💡 ${revealText(it)}`;
+  }).join("\n") + "\n\n✅ birinchi to'g'ri topdi · ❌ xato javob · ➖ javob bermadi yoki raqib oldin topdi";
+  const full = build(true); return full.length <= 4000 ? full : build(false).slice(0, 4000);
+}
 // guruhga natijalar: chaqiruv duellari va kubok raundlari
 async function groupDue() {
   let edited = 0, rounds = 0;
@@ -629,10 +645,15 @@ async function groupDue() {
     const text = d.kind === "expired"
       ? `⌛ <b>${esc(d.a_name ?? "")}</b> chaqiruvini hech kim qabul qilmadi.`
       : d.note === "cancel" ? `⚔️ ${esc(d.a_name ?? "")} ⚡ ${esc(d.b_name ?? "")} — duel o'ynalmadi (ikkalasi bir vaqtda kirmadi).`
-      : `🏁 <b>Duel yakunlandi</b>\n${d.winner === "a" ? "🏆 " : ""}<b>${esc(d.a_name ?? "")}</b>  ${d.a_pts}:${d.b_pts}  <b>${esc(d.b_name ?? "")}</b>${d.winner === "b" ? " 🏆" : ""}` +
-        (d.winner === "tie" ? "\n🤝 Durang!" : "") + (d.note === "idle" ? "\n⏱ Raqiblardan biri 7 daqiqa javob bermadi." : "");
+      : await duelResultText(d.code, d);
     const r = await tg("editMessageText", { chat_id: d.chat_id, message_id: d.msg_id, parse_mode: "HTML", text, reply_markup: { inline_keyboard: [] } });
     if (!r?.ok) await tg("sendMessage", { chat_id: d.chat_id, parse_mode: "HTML", text });
+    // natija guruhda bildirishnoma bilan ham chiqsin — o'sha duel xabariga javob (belgilab) qilib
+    else if (d.kind === "done" && d.note !== "cancel") {
+      const w = d.winner === "a" ? d.a_name : d.winner === "b" ? d.b_name : "";
+      await tg("sendMessage", { chat_id: d.chat_id, parse_mode: "HTML", reply_to_message_id: d.msg_id, allow_sending_without_reply: true,
+        text: `🏁 ${esc(d.a_name ?? "")} ${d.a_pts}:${d.b_pts} ${esc(d.b_name ?? "")}` + (w ? ` — 🏆 <b>${esc(w)}</b> yutdi!` : " — 🤝 durang") + "\n👆 Savollar bo'yicha tafsilot yuqoridagi xabarda." });
+    }
     edited++;
   }
   const cfg = await discussCfg();
@@ -648,6 +669,26 @@ async function groupDue() {
     rounds++;
   }
   return { edited, rounds };
+}
+
+// ilovadan guruhga tashlangan duel havolasi (…?start=d_LXXXXXX) — bot uni kuzatadi: jonli tablo va yakuniy natija
+async function trackSharedDuel(m: any): Promise<boolean> {
+  if (!["group", "supergroup"].includes(m.chat?.type)) return false;
+  const parts: string[] = [m.text ?? "", m.caption ?? ""];
+  for (const e of (m.entities ?? m.caption_entities ?? []) as any[]) if (e.url) parts.push(e.url);
+  for (const row of (m.reply_markup?.inline_keyboard ?? []) as any[]) for (const b of row) if (b.url) parts.push(b.url);
+  const mt = /start=d_(L[A-Za-z0-9]{6})\b/.exec(parts.join(" ")); if (!mt) return false;
+  const cfg = await discussCfg(); if (!cfg || m.chat.id !== cfg.chat) return false;
+  const code = mt[1].toUpperCase();
+  const { data } = await db.rpc("liga_group_track_sys", { p_code: code, p_chat: m.chat.id, p_msg: 0 }); const r = (data ?? {}) as any;
+  if (!r.ok) return false;
+  const text = r.b
+    ? `⚔️ <b>${esc(r.a ?? "")}</b> ⚡ <b>${esc(r.b ?? "")}</b> — jonli duel!\n⏳ Ikkalasi kirishi kutilmoqda. O'yin shu yerda jonli ko'rinadi, natija oxirida chiqadi.`
+    : `⚔️ <b>${esc(r.a ?? "")}</b> jonli duelga chaqirdi!\n👉 <b>Birinchi kirgan</b> o'ynaydi, qolganlarga «band» deyiladi.\nO'yin shu yerda jonli ko'rinadi, natija oxirida chiqadi.`;
+  const sent = await tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML", text, reply_to_message_id: m.message_id, allow_sending_without_reply: true,
+    reply_markup: { inline_keyboard: [[{ text: r.b ? "▶️ Duelga kirish (o'yinchilar)" : "⚔️ Qabul qilish", url: duelLink(code) }]] } });
+  if (sent?.result?.message_id) await db.rpc("liga_group_post_add_sys", { p_code: code, p_chat: m.chat.id, p_msg: sent.result.message_id });
+  return true;
 }
 
 async function onUpdate(u: any) {
@@ -672,6 +713,7 @@ async function onUpdate0(u: any) {
   const m = u.message;
   if (!m) return;
   if (await moderate(m)) return;
+  if (await trackSharedDuel(m)) return;
   if (m.migrate_to_chat_id) {
     const code = await chatGroup(m.chat.id);
     await db.from("liga_bot_chats").update({ active: false }).eq("chat_id", m.chat.id);
