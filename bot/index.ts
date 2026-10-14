@@ -320,6 +320,11 @@ async function resultsText(code: string) {
   return `🏁 <b>Haftalik liga natijalari</b>\n\n${rows.join("\n")}\n\n🏆 G'olib: <b>${esc(win.name ?? "")}</b> — tabriklaymiz!\n👑🥈🥉 Kuchli uchlik ilovada nishon va sertifikat oladi.\nYangi hafta dushanba soat 09:00 da boshlanadi 👇`;
 }
 
+// guruh haqiqatan jamoaga ulanganmi (standart "ASOSIY" siz)
+async function linkedCode(chatId: number): Promise<string> {
+  const { data } = await db.from("liga_bot_chats").select("group_code").eq("chat_id", chatId).maybeSingle();
+  return (data?.group_code as string) || "";
+}
 async function chatGroup(chatId: number): Promise<string> {
   const { data } = await db.from("liga_bot_chats").select("group_code").eq("chat_id", chatId).maybeSingle();
   return (data?.group_code as string) || "ASOSIY";
@@ -701,7 +706,9 @@ async function onUpdate0(u: any) {
   if (cm && ["group", "supergroup"].includes(cm.chat.type)) {
     const st = cm.new_chat_member?.status;
     if (st === "member" || st === "administrator") {
+      const was = await linkedCode(cm.chat.id);
       await db.from("liga_bot_chats").upsert({ chat_id: cm.chat.id, title: cm.chat.title, active: true });
+      if (was) return;   // allaqachon jamoaga ulangan guruh (masalan, bot qayta qo'shildi) — salom xabari va /ulash ko'rsatmasi kerak emas
       await tg("sendMessage", { chat_id: cm.chat.id, parse_mode: "HTML", reply_markup: openBot(await chatGroup(cm.chat.id)),
         text: "👋 Salom, buxgalterlar!\n\n<b>Hisobchi Liga</b> — haftalik musobaqa:\n• har ish kuni 09:00–17:00 da yangi bosqich (20 savol);\n• liga dushanbadan <b>juma 17:00</b> gacha;\n• hafta davomida natijangizni faqat o'zingiz ko'rasiz;\n• yakuniy jadval juma 17:00 da shu guruhga chiqadi.\n\n🔗 Jamoa administratori: guruhda <b>/ulash KOD</b> deb yozing (kod admin panelda).\nBoshlash uchun pastdagi tugmani bosing." });
     } else if (st === "left" || st === "kicked") {
@@ -802,7 +809,9 @@ async function onUpdate0(u: any) {
     if (priv) return reply("Bu buyruq Telegram guruhda ishlaydi: botni guruhga qo'shing va guruhda <b>/ulash KOD</b> deb yozing.");
     const mem = await tg("getChatMember", { chat_id: m.chat.id, user_id: m.from?.id });
     const role = mem?.result?.status;
-    if (role !== "administrator" && role !== "creator") return reply("⛔ Faqat guruh administratori jamoani ulay oladi.");
+    // oddiy a'zo bossa — javob yozmaymiz (guruh to'lib ketmasin), buyruqni jimgina o'chiramiz
+    if (role !== "administrator" && role !== "creator") { await tg("deleteMessage", { chat_id: m.chat.id, message_id: m.message_id }); return; }
+    if (!arg && (await linkedCode(m.chat.id))) { await tg("deleteMessage", { chat_id: m.chat.id, message_id: m.message_id }); return; }
     const code = arg.toUpperCase().replace(/[^A-Z0-9]/g, "");
     if (!code) return reply("Foydalanish: <b>/ulash KOD</b> (kod jamoa admin panelida).");
     const { data: g } = await db.from("liga_groups").select("code,name").eq("code", code).maybeSingle();
@@ -814,7 +823,7 @@ async function onUpdate0(u: any) {
   } else if (cmd === "/muhokama") {
     // faqat liga administratori (to'lov cheklari keladigan shaxsiy chat egasi)
     const { data: adm } = await db.from("liga_admin_chats").select("group_code").eq("chat_id", m.from?.id ?? 0).maybeSingle();
-    if (!adm) return reply("⛔ Bu buyruq faqat liga administratori uchun.");
+    if (!adm) { if (!priv) await tg("deleteMessage", { chat_id: m.chat.id, message_id: m.message_id }); else await reply("⛔ Bu buyruq faqat liga administratori uchun."); return; }
     if (priv) return reply("Bu buyruqni muhokama guruhining o'zida yozing: guruh oching, botni administrator qiling (\"Foydalanuvchilarni taklif qilish\" huquqi bilan) va guruhda <b>/muhokama</b> deb yozing.");
     const me = await tg("getMe", {}), bm = await tg("getChatMember", { chat_id: m.chat.id, user_id: me?.result?.id });
     if (bm?.result?.status !== "administrator" || bm?.result?.can_invite_users === false)
@@ -946,14 +955,25 @@ async function onCron(action: string, body: any = {}) {
     const url = `${SB_URL}/functions/v1/liga-bot`;
     return {
       webhook: await tg("setWebhook", { url, secret_token: await hookSecret(), allowed_updates: ["message", "edited_message", "my_chat_member", "callback_query"], drop_pending_updates: true }),
-      commands: await tg("setMyCommands", { commands: [
-        { command: "liga", description: "Ilovani ochish" },
-        { command: "natija", description: "Oxirgi hafta natijalari" },
-        { command: "tolov", description: "Obuna to'lovi (karta va chek)" },
-        { command: "qoida", description: "Liga qoidalari" },
-        { command: "ulash", description: "Guruhni jamoaga ulash (admin)" },
-        { command: "muhokama", description: "Muhokama guruhini belgilash (liga admini)" },
-        { command: "duel", description: "Guruhda jonli duelga chaqirish" }] }),
+      // buyruqlar menyusi: oddiy a'zolarga faqat o'zlariga keraklilari, admin buyruqlari faqat guruh adminlariga ko'rinadi
+      commands: await Promise.all([
+        tg("deleteMyCommands", {}),
+        tg("setMyCommands", { scope: { type: "all_private_chats" }, commands: [
+          { command: "liga", description: "Ilovani ochish" },
+          { command: "natija", description: "Oxirgi hafta natijalari" },
+          { command: "tolov", description: "Obuna to'lovi (karta va chek)" },
+          { command: "qoida", description: "Liga qoidalari" }] }),
+        tg("setMyCommands", { scope: { type: "all_group_chats" }, commands: [
+          { command: "duel", description: "Jonli duelga chaqirish" },
+          { command: "natija", description: "Oxirgi hafta natijalari" },
+          { command: "qoida", description: "Liga qoidalari" }] }),
+        tg("setMyCommands", { scope: { type: "all_chat_administrators" }, commands: [
+          { command: "duel", description: "Jonli duelga chaqirish" },
+          { command: "natija", description: "Oxirgi hafta natijalari" },
+          { command: "qoida", description: "Liga qoidalari" },
+          { command: "ulash", description: "Guruhni jamoaga ulash (admin)" },
+          { command: "muhokama", description: "Muhokama guruhini belgilash (liga admini)" }] }),
+      ]),
       menu: await tg("setChatMenuButton", { menu_button: { type: "web_app", text: "Liga", web_app: { url: APP } } }),
       desc: await tg("setMyDescription", { description: "Hisobchi Liga — buxgalterlar uchun haftalik musobaqa: har kuni provodka, QQS, ish haqi, soliq va qonunchilik bo'yicha yangi bosqich." }),
       short: await tg("setMyShortDescription", { short_description: "Buxgalterlar uchun haftalik liga" }),
