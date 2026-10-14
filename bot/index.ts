@@ -920,8 +920,21 @@ async function dailyReport() {
     if (error || !r) { out[code] = error?.message ?? "no data"; continue; }
     const { data: ptd } = await db.rpc("liga_plan_today_sys"); if (ptd?.[0]) r.plan_title = ptd[0].title?.uz;
     const text = reportText(r, g);
-    for (const a of (adm as Chat[]).filter((x) => x.group_code === code)) if (await dm(a.chat_id, text, appBtn("🏆 Ligani ochish", g.code !== "ASOSIY" ? `?g=${encodeURIComponent(g.code)}` : ""))) sent++;
-    out[code] = "ok";
+    // ishtirokchilar ko'payib, hisobot 4096 belgidan oshib ketdi — qismlarga bo'lib yuboriladi; xato bo'lsa sababini qaytaradi
+    const parts = chunks(text), btn = appBtn("🏆 Ligani ochish", g.code !== "ASOSIY" ? `?g=${encodeURIComponent(g.code)}` : "");
+    const errs: string[] = [];
+    for (const a of (adm as Chat[]).filter((x) => x.group_code === code)) {
+      let ok = true;
+      for (let i = 0; i < parts.length; i++) {
+        const last = i === parts.length - 1;
+        let res = await tg("sendMessage", { chat_id: a.chat_id, parse_mode: "HTML", text: parts[i], reply_markup: last ? btn : undefined });
+        if (!res?.ok) res = await tg("sendMessage", { chat_id: a.chat_id, text: parts[i].replace(/<[^>]+>/g, ""), reply_markup: last ? btn : undefined });
+        if (!res?.ok) { ok = false; errs.push(String(res?.description ?? "send_failed")); }
+        await pause(60);
+      }
+      if (ok) sent++;
+    }
+    out[code] = errs.length ? errs.join("; ") : `ok (${parts.length} qism, ${text.length} belgi)`;
   }
   return { ok: true, sent, groups: out };
 }
