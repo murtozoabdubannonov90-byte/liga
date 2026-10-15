@@ -259,6 +259,28 @@ function chunks(text: string, max = 3900) {
   if (cur) out.push(cur);
   return out;
 }
+// Telegram kanal(lar) — kubok qurasi va natijalari shu yerga ham chiqadi
+async function channels(): Promise<number[]> {
+  const { data } = await db.from("liga_channels").select("chat_id").eq("active", true);
+  return ((data ?? []) as any[]).map((c) => Number(c.chat_id));
+}
+async function toChannels(text: string, kb?: unknown) {
+  let n = 0;
+  for (const ch of await channels()) for (const part of chunks(text)) {
+    const r = await tg("sendMessage", { chat_id: ch, parse_mode: "HTML", text: part, reply_markup: kb, disable_web_page_preview: true });
+    if (r?.ok) n++;
+    else if (/chat not found|kicked|not enough rights|have no rights|CHAT_WRITE_FORBIDDEN/i.test(String(r?.description ?? ""))) await db.from("liga_channels").update({ active: false }).eq("chat_id", ch);
+    await pause(60);
+  }
+  return n;
+}
+// bugungi kubok jadvali (juftlar, natijalar, kun jadvali) — kanal yoki guruh uchun to'liq matn
+async function cupFullText(code = "ASOSIY") {
+  const by = await cupBoard(), bys = await cupByes(); const rows = by[code] ?? [];
+  if (!rows.length) return "";
+  const plan = await cupPlan(rows.filter((x) => x.round === 1).length * 2 + (bys[code] ?? []).length);
+  return cupText(rows, "uz", bys[code] ?? [], plan);
+}
 // jadvalni hammaga (shaxsan, o'z dueli bilan) va jamoa guruhlariga yuborish
 async function cupBroadcast(rows: any[]) {
   const by = await cupBoard(), bys = await cupByes(); let n = 0;
@@ -266,6 +288,7 @@ async function cupBroadcast(rows: any[]) {
   for (const code of Object.keys(by)) plans[code] = await cupPlan(by[code].filter((x) => x.round === 1).length * 2 + (bys[code] ?? []).length);
   for (const code of Object.keys(by)) for (const c of await chatsOf(code))
     for (const part of chunks(cupText(by[code], "uz", bys[code] ?? [], plans[code]))) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: part });
+  if (by["ASOSIY"]) await toChannels(cupText(by["ASOSIY"], "uz", bys["ASOSIY"] ?? [], plans["ASOSIY"]), openBot("ASOSIY"));
   const mine: Record<string, any> = {}; for (const x of rows) mine[x.player] = x;
   const bye: Record<string, any> = {}; for (const code of Object.keys(bys)) for (const b of bys[code]) bye[b.player] = b;
   const { data: ppl } = await db.rpc("liga_cup_people_sys");
@@ -663,14 +686,25 @@ async function groupDue() {
   }
   const cfg = await discussCfg();
   const { data: rs } = await db.rpc("liga_cup_rounds_due_sys");
-  if (cfg) for (const x of (rs ?? []) as any[]) {
+  for (const x of (rs ?? []) as any[]) {
     const lines = ((x.lines ?? []) as any[]).map((l, i) => {
       const a = (l.w === "a" ? "✅ " : "") + esc(l.a ?? ""), b = esc(l.b ?? "") + (l.w === "b" ? " ✅" : "");
       const n = l.note === "forfeit" ? " · kelmadi" : l.note === "idle" ? " · javob bermadi" : l.note === "idle2" ? " · o'ynalmadi" : l.note === "cancel" ? " · qur'a" : "";
       return `${i + 1}. ${a} <b>${l.ap ?? 0}:${l.bp ?? 0}</b> ${b}${n}`;
     });
     const head = `🏆 <b>Kunlik duel kubogi — ${esc(stageName(x.stage ?? ""))}</b> natijalari:`;
-    for (const part of chunks(head + "\n" + lines.join("\n"))) await tg("sendMessage", { chat_id: cfg.chat, parse_mode: "HTML", text: part, disable_notification: true });
+    // keyingi raund qurasi (juftlar) — natija bilan birga
+    const nb = ((await cupBoard())[x.group_code] ?? []).filter((r: any) => r.round === x.round + 1);
+    const nbye = await db.from("liga_day_byes").select("player_id").eq("day", tzDate().toISOString().slice(0, 10)).eq("group_code", x.group_code).eq("round", x.round + 1);
+    let next = "";
+    if (nb.length) {
+      next = `\n\n🎲 <b>Qura: ${esc(stageName(nb[0].stage ?? ""))}</b> · soat ${String(nb[0].slot).slice(0, 5)}\n` + nb.map((r: any, i: number) => `${i + 1}. ${esc(r.a_name ?? "")} ⚔️ ${esc(r.b_name ?? "")}`).join("\n");
+      const bp = (nbye.data ?? [])[0]?.player_id;
+      if (bp) { const { data: nm } = await db.rpc("liga_pname", { p: bp }); if (nm) next += `\n➡️ Avtomatik o'tdi: ${esc(String(nm))}`; }
+    }
+    const full = head + "\n" + lines.join("\n") + next;
+    if (cfg) for (const part of chunks(full)) await tg("sendMessage", { chat_id: cfg.chat, parse_mode: "HTML", text: part, disable_notification: true });
+    await toChannels(full, openBot(x.group_code));
     rounds++;
   }
   return { edited, rounds };
@@ -703,6 +737,19 @@ async function onUpdate(u: any) {
 async function onUpdate0(u: any) {
   if (u.callback_query) return onCallback(u.callback_query);
   const cm = u.my_chat_member;
+  if (cm && cm.chat.type === "channel") {
+    const st = cm.new_chat_member?.status;
+    if (st === "administrator") {
+      await db.from("liga_channels").upsert({ chat_id: cm.chat.id, title: cm.chat.title, active: true });
+      const t = await cupFullText();
+      await tg("sendMessage", { chat_id: cm.chat.id, parse_mode: "HTML", reply_markup: openBot("ASOSIY"),
+        text: "🏆 <b>Hisobchi Liga</b> kanali ulandi.\nBu yerga har kuni kunlik duel kubogi qurasi (juftlar), har raund natijalari va kubok g'olibi chiqadi." });
+      if (t) await toChannels(t, openBot("ASOSIY"));
+    } else if (["left", "kicked", "member", "restricted"].includes(st)) {
+      await db.from("liga_channels").update({ active: false }).eq("chat_id", cm.chat.id);
+    }
+    return;
+  }
   if (cm && ["group", "supergroup"].includes(cm.chat.type)) {
     const st = cm.new_chat_member?.status;
     if (st === "member" || st === "administrator") {
@@ -1076,12 +1123,15 @@ async function onCron(action: string, body: any = {}) {
       if (text && ["pair", "five", "start"].includes(x.kind)) text += await oppLine(x.code, x.tg, x.lang);
       if (text && await dm(x.tg, text, btn)) sent++;
     }
-    for (const k of champG) { const [code, nm] = k.split("|"); for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: tr("uz", "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.", { n: esc(nm) }) }); }
+    for (const k of champG) { const [code, nm] = k.split("|"); const ct = tr("uz", "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.", { n: esc(nm) });
+      for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: ct });
+      if (code === "ASOSIY") await toChannels(ct, openBot(code)); }
     return { ok: true, sent };
   }
   if (action === "tg_names") return await fillNames(500);
   if (action === "discuss_invite") return await inviteAll(1000);
   if (action === "group_due") return await groupDue();
+  if (action === "channel_cup") { const t = await cupFullText(); return { sent: t ? await toChannels(t, openBot("ASOSIY")) : 0, channels: (await channels()).length }; }
   // muhokama guruhi holati: guruh, botning huquqlari, havola; fix=true bo'lsa — yangi havola yaratib saqlaydi
   if (action === "discuss_diag") {
     const cfg = await discussCfg(); if (!cfg) return { skip: "no_group" };
