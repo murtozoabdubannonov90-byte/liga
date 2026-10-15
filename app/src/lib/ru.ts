@@ -964,4 +964,7 @@ export const RU: Record<string, string> = {
   "Ishtirokchilar guruhi": "Группа участников",
   "Savollar, provodkalar va duellarni muhokama qilamiz, raqib bilan kelishib olamiz.": "Обсуждаем вопросы, проводки и дуэли, договариваемся с соперником.",
   "Qo'shilish": "Вступить",
+  "Siz tomoshabinsiz — hisob va o'tgan savollar shu yerda ko'rinadi. Joriy savolni faqat o'yinchilar ko'radi.": "Вы зритель — здесь виден счёт и прошлые вопросы. Текущий вопрос видят только игроки.",
+  "Juftsiz qoldi — keyingi raundga avtomatik o'tdi": "Без пары — автоматически прошёл в следующий раунд",
+  "Siz juftsiz qoldingiz va {st} dan keyingi raundga avtomatik o'tdingiz. Keyingi duelingiz haqida bot xabar beradi.": "Вы остались без пары и автоматически прошли {st}. О следующей дуэли сообщит бот.",
 };

@@ -404,6 +404,9 @@ with sync_playwright() as p:
         pg.wait_for_timeout(400); seen.add(pg.inner_text(".qtext") if pg.locator(".qtext").count() else "-")
     check("sekin internetda ekran o'chib-yonmaydi (eski javob e'tiborsiz)", len(seen) == 1 and "Savol №5" in list(seen)[0], seen)
     LIVE.pop("_stale", None)
+    LIVE.update({"me": None, "q_in": 0}); pg.wait_for_timeout(1500)
+    check("tomoshabin: javob tugmasi yo'q, «tomoshabinsiz» yozuvi bor", pg.locator("#live-spectator").count() == 1 and pg.locator("#live-send").count() == 0)
+    LIVE["me"] = "a"
     LIVE.update({"status": "done", "winner": "a", "a_pts": 6, "b_pts": 4}); pg.wait_for_timeout(1500)
     check("jonli duel yakuni: g'olib", pg.locator("#live-done").count() == 1 and "Siz yutdingiz" in txt(pg))
 

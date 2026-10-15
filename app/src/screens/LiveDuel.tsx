@@ -2,7 +2,7 @@
    Savollar serverdan javobsiz keladi, javob serverda tekshiriladi, vaqtni server hisoblaydi. */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Copy, Send, Crown, Zap, Home as HomeI, Lock, Hourglass } from "lucide-react";
+import { Copy, Send, Crown, Zap, Home as HomeI, Lock, Hourglass, Eye } from "lucide-react";
 import { S, persist } from "../engine/state";
 import { t, tx } from "../lib/i18n";
 import { rpc, errMsg } from "../engine/server";
@@ -80,7 +80,7 @@ export default function LiveDuel({ code }: { code: string }) {
   const item = v?.item, A = C().A;
   const opts = useMemo(() => (item?.t === "mc" ? shuffle((item.o || []).map((x: string, i: number) => ({ x: tx(x), i }))) : []), [v?.cur, item?.t]);
   const keys = useMemo(() => (item?.t === "pv" ? shuffle([...(item.o || [])]) : []), [v?.cur, item?.t]);
-  const canSend = item && !v.locked && (item.t === "pv" ? !!(ans.dt && ans.kt) : item.t === "mc" ? ans.pick != null : ans.val.replace(/\D/g, "") !== "");
+  const canSend = item && !!v?.me && !v.locked && (item.t === "pv" ? !!(ans.dt && ans.kt) : item.t === "mc" ? ans.pick != null : ans.val.replace(/\D/g, "") !== "");
 
   async function send() {
     if (!canSend || busy.current) return;
@@ -207,7 +207,8 @@ export default function LiveDuel({ code }: { code: string }) {
               <div className="unit">{item.unit ? tx(item.unit) : t("so'm")}</div></div>}
           </motion.article>)}
       </AnimatePresence>
-      {!inPause && <div className="dock">
+      {!v.me && v.status === "play" && <div className="note" id="live-spectator"><Eye size={18} /><span>{t("Siz tomoshabinsiz — hisob va o'tgan savollar shu yerda ko'rinadi. Joriy savolni faqat o'yinchilar ko'radi.")}</span></div>}
+      {!inPause && !!v.me && <div className="dock">
         {v.locked ? <div className="note" id="live-locked" style={{ background: "var(--red-soft)" }}><Lock size={18} color="var(--red)" /><span>{t("Xato — bu savolda qulflandingiz. Raqib javobini kuting.")}</span></div>
           : <button className="btn" id="live-send" disabled={!canSend} onClick={send}>{v.opp_locked ? t("Raqib xato qildi — javob bering!") : t("Javob berish")}</button>}
       </div>}

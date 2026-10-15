@@ -2,7 +2,7 @@
    Savollar serverdan JAVOBSIZ keladi; har javob serverda tekshiriladi, vaqt va ball serverda hisoblanadi.
    Ilovada bu savollarning to'g'ri javobi hech qachon saqlanmaydi. */
 import { S, persist, bump } from "./state";
-import { rpc } from "./server";
+import { rpc, joinServer } from "./server";
 import { tx } from "../lib/i18n";
 import { addXP, award, dailyTick, markDay, recalcWeek } from "./score";
 import { STAGE_N } from "./time";
@@ -49,6 +49,11 @@ function fromView(mode: Mode, v: any, o: Partial<Run>): Run {
 const errOf = (e: unknown) => { const m = String((e as any)?.message || e); return m; };
 
 export async function startStageR(si: number): Promise<Run | string> {
+  // telefonda hisob serverga hali ulanmagan bo'lsa (pid bo'sh) — avval ulanib olamiz, aks holda server «uuid» xatosini qaytaradi
+  if (!S.pid || !S.token) {
+    const r = await joinServer(true);
+    if (!r.ok || !S.pid || !S.token) return r.msg || "Hisobingiz bu telefonga ulanmagan — «Qayta ulanish» tugmasini bosing";
+  }
   try {
     const v = await rpc<any>("liga_stage_start", { p_id: S.pid, p_token: S.token, p_si: si, p_lang: lang() });
     keepState(si, v); persist(); bump();

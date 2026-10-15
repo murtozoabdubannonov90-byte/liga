@@ -123,11 +123,14 @@ export function DayDuelCard() {
   const done = d?.status === "done", open = !!d?.open && !done;
   const champ = list.find((x) => x.champion)?.champion;
   const res = done ? (d.won ? (d.stage === "final" ? t("Siz kubok g'olibisiz! 🏆") : t("Siz keyingi bosqichga chiqdingiz!")) : t("Bu safar raqib kuchliroq — ertaga yana kubok")) : "";
+  const myBye = list.find((x) => x.status === "bye" && x.mine && x.round > (d?.round ?? 0));
   const rounds = [...new Set(list.map((x) => x.round))].sort((a, b) => a - b);
   const cur = rounds.length ? rounds[rounds.length - 1] : 0;
   const st = (p: any) => p.status === "done" ? `${p.a_pts}:${p.b_pts}` : p.status === "play" ? t("o'ynamoqda") : "";
   const next = plan.find((x) => x.round === 2);
-  const row = (p: any, k: number) => (
+  const row = (p: any, k: number) => p.status === "bye" ? (
+    <div key={"b" + k} className={"r bye" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>➡️</span>
+      <span className="n">{p.a_name}<small>{t("Juftsiz qoldi — keyingi raundga avtomatik o'tdi")}</small></span><span className="x" /></div>) : (
     <div key={k} className={"r" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>{k}</span>
       <span className="n">{p.a_name} — {p.b_name}{p.winner_name && <small>✅ {p.winner_name}</small>}</span><span className="x" style={{ fontSize: 13 }}>{st(p)}</span></div>);
   return (
@@ -137,10 +140,10 @@ export function DayDuelCard() {
       {d ? <>
         <div className="dd-vs"><b>{t("Siz")}</b><span className="num">{done ? `${d.my_pts}:${d.opp_pts}` : "⚡"}</span><OppName code={d.code} name={d.opp} id="dd-opp" /></div>
         {!done && d.opp && <p className="tiny muted dd-tip">{t("Raqib ismiga bosing — telefoni va Telegrami chiqadi")}</p>}
-        <p className="small muted" style={{ fontWeight: 600 }}>{done ? res
+        <p className="small muted" style={{ fontWeight: 600 }}>{done ? (myBye ? t("Siz juftsiz qoldingiz va {st} dan keyingi raundga avtomatik o'tdingiz. Keyingi duelingiz haqida bot xabar beradi.", { st: stageName(myBye.stage) }) : res)
           : open ? t("Duel ochiq — raqibingiz bilan bir vaqtda kiring.") : d.closed ? t("Vaqt tugadi") : t("Faqat provodka · 15 savol · har biriga 1,5 daqiqa · soat {s} da ochiladi, 30 daqiqa ochiq", { s: d.slot })}</p>
         {!done && <button className={"btn " + (open ? "" : "ghost")} style={{ marginTop: 10 }} id="dd-go" onClick={() => go("duel", { code: d.code })}>{open ? t("Duelga kirish") : t("Duelni ochish")}</button>}
-      </> : me2?.bye && next ? <p className="dd-bye" id="dd-bye">{t("Siz 1-raunddan avtomatik o'tdingiz. Keyingi duelingiz — soat {s} ({st}). Raqib 1-raund tugagach chiqadi.", { s: next.at, st: stageName(next.stage) })}</p>
+      </> : me2?.bye && next && cur <= 1 ? <p className="dd-bye" id="dd-bye">{t("Siz 1-raunddan avtomatik o'tdingiz. Keyingi duelingiz — soat {s} ({st}). Raqib 1-raund tugagach chiqadi.", { s: next.at, st: stageName(next.stage) })}</p>
         : <p className="small muted" style={{ fontWeight: 600 }} id="dd-wait">{wk || (n.wd === 5 && n.h >= 9 && !list.length) ? t("Kubok juftlari dushanba soat 09:00 da tasodifiy tuziladi, duellar 10:00 dan. Bot sizga raqibingiz va soatni yuboradi.")
           : n.h < 9 ? t("Kubok juftlari bugun soat 09:00 da tasodifiy tuziladi, duellar 10:00 dan. Bot sizga raqibingiz va soatni yuboradi.")
           : list.length ? t("Bugungi kubok 09:00 da tuzilgan — siz ro'yxatga kirmadingiz. Keyingi kubok — {w}: juftlar 09:00 da, duellar 10:00 dan.", { w: nextWord() }) : t("Kubok har ish kuni: juftlar 09:00 da, duellar 10:00 dan. Keyingisi — ertaga.")}</p>}
@@ -150,10 +153,11 @@ export function DayDuelCard() {
           <span className="num">{x.at}</span><b>{stageName(x.stage)}</b><small>{t("{d} duel", { d: x.duels })}</small></li>)}</ol>
         <p className="tiny muted">{t("Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Final — 17:00.")}</p>
       </div>}
-      {rounds.map((r) => { const rr = list.filter((x) => x.round === r), big = rr.length > BIG && !all[r], mine = rr.filter((x) => x.mine); return (
+      {rounds.map((r) => { const rr = list.filter((x) => x.round === r && x.status !== "bye"), by = list.filter((x) => x.round === r && x.status === "bye"),
+        big = rr.length > BIG && !all[r], mine = rr.filter((x) => x.mine); if (!rr.length) return null; return (
         <div key={r}>
           <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{stageName(rr[0].stage)} · {rr[0].slot}<span className="muted" style={{ fontWeight: 600 }}> · {t("{d} duel", { d: rr.length })}</span></p>
-          <div className="board dd-list">{(big ? mine : rr).map((p) => row(p, rr.indexOf(p) + 1))}</div>
+          <div className="board dd-list">{(big ? mine : rr).map((p) => row(p, rr.indexOf(p) + 1))}{by.map((p, i) => row(p, i))}</div>
           {rr.length > BIG && <button className="dd-more" onClick={() => setAll({ ...all, [r]: !all[r] })}>
             {all[r] ? t("Yig'ish") : t("Barcha {d} duelni ko'rish", { d: rr.length })}</button>}
         </div>); })}
