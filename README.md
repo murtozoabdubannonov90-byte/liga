@@ -226,6 +226,12 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - Faollik: har javob urinishi (to'g'ri yoki xato) `liga_live.a_act / b_act` ga yoziladi. Do'stona duellarga ta'sir qilmaydi.
 - Migratsiya: `db/2026-10-14d_duel_faolsiz.sql`.
 
+## Kubok: hamma 1-raunddan o'ynaydi (2026-10-15)
+- Avval setka 2 ning darajasiga moslanardi: 132 kishida faqat 4 ta saralash dueli bo'lib, 124 kishi 1-raunddan avtomatik o'tib ketardi.
+- Endi har raundda hamma juftlanadi (n/2 duel). Toq bo'lsa faqat 1 kishi o'tadi — u tasodifiy, bugun hali avtomatik o'tmaganlar ichidan tanlanadi. Keyingi raund juftlari ham har safar tasodifiy.
+- 132 kishi: 66 → 33 → 16(+1) → 8(+1) → 4(+1) → 2(+1) → yarim final → final 17:00. Raund nomi o'yinchilar sonidan kattaroq eng yaqin 2 ning darajasi bo'yicha (`liga_cup_pstage`).
+- Raund ikki marta tuzilib qolmasligi uchun `pg_advisory_xact_lock`. Migratsiya: `db/2026-10-15_kubok_hamma_oynaydi.sql`.
+
 ## Juma ham 09:00–17:00 (2026-10-14)
 - Juma kuni bosqich boshqa kunlar kabi 17:00 gacha ochiq (`liga_close_hour` = 17). Haftalik liga **juma 17:00** da yakunlanadi: natijalar 17:01, darajalar 17:10, «1 soat qoldi» ogohlantirishi 16:00.
 - Hafta identifikatori yozuvi o'zgarmadi (`YYYY-MM-DDT07:00`, juma sanasi) — faqat almashish payti 12:00 → 17:00 (`liga_cur_week_id`, `liga_last_week_id`, ilovada `weekEnd`/`weekId`). Shuning uchun joriy hafta ballari saqlanib qoladi.
