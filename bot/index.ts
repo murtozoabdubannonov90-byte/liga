@@ -106,6 +106,7 @@ const RU: Record<string, string> = {
   "❌ <b>To'lov chekingiz tasdiqlanmadi</b> — pul kartaga tushmagan.\nBosqichlar yopiq. Haqiqatan to'lagan bo'lsangiz, administratorga yozing: @murtozo_44": "❌ <b>Чек не подтверждён</b> — деньги на карту не поступили.\nЭтапы закрыты. Если вы действительно оплатили, напишите администратору: @murtozo_44",
   "🔔 <b>Duel boshlandi!</b>\nRaqibingiz <b>{o}</b>. Soat {e} gacha kiring — kelmasangiz, duel raqibga beriladi.": "🔔 <b>Дуэль началась!</b>\nВаш соперник — <b>{o}</b>. Зайдите до {e} — иначе победа достанется сопернику.",
   "Raqib bilan bog'lanish:": "Связь с соперником:",
+  "ℹ️ <b>Bugun ishtirokchilar soni toq bo'ldi</b> — eng oxirgi qo'shilgan siz bo'lganingiz uchun bugungi kubokda juftingiz yo'q. <b>Ertadan kubokda qatnashasiz.</b> Kunlik bosqich odatdagidek ochiq — o'ynashni unutmang!": "ℹ️ <b>Сегодня число участников нечётное</b> — вы присоединились последним, поэтому сегодня в кубке у вас нет пары. <b>С завтрашнего дня вы участвуете в кубке.</b> Ежедневный этап открыт как обычно — не забудьте сыграть!",
   "💬 Guruhga qo'shilish": "💬 Вступить в группу",
   "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:": "💬 <b>{n}, открылась группа участников Hisobchi Liga!</b>\nЗдесь обсуждаем вопросы, проводки и дуэли, договариваемся с соперником. Присоединяйтесь:",
 };
@@ -291,6 +292,7 @@ async function cupBroadcast(rows: any[]) {
   if (by["ASOSIY"]) await toChannels(cupText(by["ASOSIY"], "uz", bys["ASOSIY"] ?? [], plans["ASOSIY"]), openBot("ASOSIY"));
   const mine: Record<string, any> = {}; for (const x of rows) mine[x.player] = x;
   const bye: Record<string, any> = {}; for (const code of Object.keys(bys)) for (const b of bys[code]) bye[b.player] = b;
+  const { data: bn } = await db.rpc("liga_cup_bench_sys"); const bench = new Set(((bn ?? []) as any[]).map((x) => x.player));
   const { data: ppl } = await db.rpc("liga_cup_people_sys");
   for (const p of (ppl ?? []) as any[]) {
     const m = mine[p.player], board = by[p.group_code]; if (!board) continue;
@@ -299,6 +301,7 @@ async function cupBroadcast(rows: any[]) {
     if (m) txt += "\n\n" + tr(p.lang, "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.", { st: stageName(m.stage, p.lang), s: String(m.slot).slice(0, 5), o: esc(m.opp_name ?? "") });
     else if (bye[p.player]) txt += "\n\n" + tr(p.lang, "✅ <b>Siz 1-raunddan avtomatik o'tdingiz!</b>\nKeyingi duelingiz — soat <b>{s}</b> ({st}). Raqib 1-raund tugagach ma'lum bo'ladi, bot xabar beradi.",
       { s: String(plan[1]?.at ?? "").slice(0, 5), st: stageName(plan[1]?.stage ?? "", p.lang) });
+    if (!m && !bye[p.player] && bench.has(p.player)) txt += "\n\n" + tr(p.lang, "ℹ️ <b>Bugun ishtirokchilar soni toq bo'ldi</b> — eng oxirgi qo'shilgan siz bo'lganingiz uchun bugungi kubokda juftingiz yo'q. <b>Ertadan kubokda qatnashasiz.</b> Kunlik bosqich odatdagidek ochiq — o'ynashni unutmang!");
     const opp = m ? await oppLine(m.code, p.tg, p.lang) : "";
     if (await dm(p.tg, (txt.length > 4000 ? cupShort(board, p.lang, bb, plan) : txt) + opp, m ? appBtn(tr(p.lang, "Duelni ochish"), "?d=" + m.code) : appBtn(tr(p.lang, "Ligani ochish")))) n++;
   }

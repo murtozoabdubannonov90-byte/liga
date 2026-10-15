@@ -471,6 +471,9 @@ with sync_playwright() as p:
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
     by = pg.inner_text("#dd-bye") if pg.locator("#dd-bye").count() else ""
     check("RU: avtomatik o'tish va jadval ruscha", "автоматически" in by and "1/16 финала" in by and "Отборочный раунд" in pg.inner_text("#dd-plan"), by)
+    EXTRA["liga_cup_me2"] = {"players": 60, "bye": False, "bench": True, "table": tbl}
+    pg, e = page(b); ALLERR += e
+    check("toq sonda oxirgi qo'shilgan: «ertadan kubokda qatnashasiz»", "Ertadan kubokda" in (pg.inner_text("#dd-bench") if pg.locator("#dd-bench").count() else ""))
     EXTRA["liga_cup_me2"] = {"players": 60, "bye": False, "table": tbl}
     pg, e = page(b); ALLERR += e
     check("ro'yxatda yo'q: keyingi kubok vaqti aytiladi", "ro'yxatga kirmadingiz" in (pg.inner_text("#dd-wait") if pg.locator("#dd-wait").count() else ""))

@@ -232,6 +232,7 @@ Shundan keyin admin panelda Payme/Click tugmalari chiqadi.
 - 132 kishi: 66 → 33 → 16(+1) → 8(+1) → 4(+1) → 2(+1) → yarim final → final 17:00. Raund nomi o'yinchilar sonidan kattaroq eng yaqin 2 ning darajasi bo'yicha (`liga_cup_pstage`).
 - Har kuni ishtirokchilar soni o'zgarsa ham jadval to'g'ri tuziladi: 2 dan 400 gacha bo'lgan har bir son uchun tekshirildi (bitta final, final doim 17:00, raundlar ustma-ust tushmaydi; 256 dan ko'pda 16:00 dan keyin 30 daqiqalik qadam).
 - **Telegram kanal:** botni kanalga administrator («Post Messages» huquqi bilan) qilib qo'shilsa, kanal `liga_channels` ga yoziladi va darhol bugungi qura chiqadi. Keyin har kuni: 09:00 dagi qura, har raund natijalari + keyingi raund qurasi, kubok g'olibi. Qo'lda qayta yuborish: bot amali `channel_cup`. Migratsiya: `db/2026-10-15b_kanal.sql`.
+- **1-raund doim juft (2026-10-15):** ishtirokchilar soni toq bo'lsa, eng oxirgi ro'yxatdan o'tgan o'yinchi o'sha kuni kubokda qatnashmaydi (`liga_day_bench`), kunlik bosqichda odatdagidek o'ynaydi. Bot va ilova unga «ertadan kubokda qatnashasiz» deydi. Keyingi raundlarda toq son chiqsa (masalan 66 → 33), bitta g'olib avtomatik o'tadi va ro'yxatda «➡️ juftsiz qoldi» deb ko'rinadi. Migratsiya: `db/2026-10-15e_kubok_juft.sql`.
 - Raund ikki marta tuzilib qolmasligi uchun `pg_advisory_xact_lock`. Migratsiya: `db/2026-10-15_kubok_hamma_oynaydi.sql`.
 
 ## Juma ham 09:00–17:00 (2026-10-14)

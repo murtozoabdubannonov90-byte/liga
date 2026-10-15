@@ -967,4 +967,5 @@ export const RU: Record<string, string> = {
   "Siz tomoshabinsiz — hisob va o'tgan savollar shu yerda ko'rinadi. Joriy savolni faqat o'yinchilar ko'radi.": "Вы зритель — здесь виден счёт и прошлые вопросы. Текущий вопрос видят только игроки.",
   "Juftsiz qoldi — keyingi raundga avtomatik o'tdi": "Без пары — автоматически прошёл в следующий раунд",
   "Siz juftsiz qoldingiz va {st} dan keyingi raundga avtomatik o'tdingiz. Keyingi duelingiz haqida bot xabar beradi.": "Вы остались без пары и автоматически прошли {st}. О следующей дуэли сообщит бот.",
+  "Bugun ishtirokchilar soni toq bo'ldi — eng oxirgi qo'shilgan siz bo'lganingiz uchun bugungi kubokda juftingiz yo'q. Ertadan kubokda qatnashasiz. Kunlik bosqich odatdagidek ochiq.": "Сегодня число участников нечётное — вы присоединились последним, поэтому сегодня в кубке у вас нет пары. С завтрашнего дня вы участвуете в кубке. Ежедневный этап открыт как обычно.",
 };
