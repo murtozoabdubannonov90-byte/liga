@@ -276,6 +276,13 @@ Telegram qoidasi bo'yicha bot guruh ocholmaydi va odamni guruhga o'zi qo'sha olm
 - **AI (Gemini, Jarvis) nazorati kuchaytirildi:** chegara 3 → 1,5 soniya; ekran ustiga chiqadigan AI oynasi (Android blur), Telegram'da boshqa chatga o'tish (`deactivated`) ham ushlanadi; 0,4 soniyadan uzoq har bir chiqish serverga yoziladi (`liga_away`, `liga_run_away`, `liga_live_away`) va admin ro'yxatida kim necha marta chiqqani, nechta savol shu sababli xato bo'lgani ko'rinadi (`liga_admin_away`). Umumiy kod: `app/src/lib/guard.ts`.
 - Migratsiya: `db/2026-10-16c_ai_nazorat_kurs.sql`.
 
+## SMS eslatma (Eskiz.uz) — 2026-10-16
+- **Kimga:** (1) kubok dueli ochilganidan 5 daqiqa o'tib ham kirmagan o'yinchiga — duel yopilishidan oldin; (2) 15:00–16:30 da bugungi bosqichni hali boshlamagan faol ishtirokchiga. Bir kishiga bir kunda har turdan bittadan, kunlik chegara `sms_cap` (400).
+- **Ishlash:** cron `liga-sms` har 5 daqiqada (09:00–17:55, du–ju) → bot `sms_tick` → `liga_sms_due()` navbat beradi → Eskiz API → `liga_sms_mark`. Jurnal: `liga_sms_log`. Holat: `liga_sms_preview()`.
+- **Yoqish (admin, botga shaxsiy):** `/sms_login email parol` (xabar darhol o'chiriladi; yoki edge secret ESKIZ_EMAIL/ESKIZ_PASSWORD) → `/sms test 998901234567` → `/sms on`. O'chirish `/sms off`, chegara `/sms cap 300`, holat `/sms`.
+- **Matnlar o'zgarmas** (`bot/index.ts` → `SMS_TEXT`) — Eskiz kabinetida shablon sifatida tasdiqlatiladi.
+- Migratsiya: `db/2026-10-16d_sms.sql`.
+
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
 09:00 — bosqich ochildi · **12:00 — bosqichni hali bajarmaganlarga shaxsan eslatma** (`remind_noon`, cron `liga-eslatma-12`) · 16:00 — 1 soat qoldi · 17:00 — o'yin tugadi · juma 11:00 — liga tugashiga 1 soat · juma 12:01 — natijalar (har jamoaga o'zinikini).
 
