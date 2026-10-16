@@ -1,6 +1,6 @@
 /* G'oliblar: kunlik kuchli uchlik mukofoti (bosqich boshida va oxirida), bosh sahifadagi «Imtiyozlaringiz», reytingdagi kunlik uchlik */
 import { useEffect, useState } from "react";
-import { Timer, Award, Trophy, HelpCircle, ChevronRight, Medal, Eye, Swords, Crown } from "lucide-react";
+import { Timer, Award, Trophy, HelpCircle, ChevronRight, ChevronDown, Medal, Eye, Swords, Crown } from "lucide-react";
 import { useNow } from "../components/ui";
 import { rpc } from "../engine/server";
 import { S } from "../engine/state";
@@ -113,10 +113,9 @@ export const stageName = (st?: string) => {
   if (STAGE[st]) return t(STAGE[st]);
   const m = /^r(\d+)$/.exec(st); return m && Number(m[1]) >= 4 ? t("1/{n} final", { n: Number(m[1]) / 2 }) : t("Raund");
 };
-const BIG = 8;          // bundan ko'p duelli raund yig'ib ko'rsatiladi (faqat o'z dueli + «hammasini ko'rish»)
 export function DayDuelCard() {
   useNow(20000);
-  const [all, setAll] = useState<Record<number, boolean>>({});
+  const [openR, setOpenR] = useState<number | null>(null), [planOn, setPlanOn] = useState(false);
   if (!S.pid) return null;
   const d = S.dd, list: any[] = S.dl || [], me2 = S.dm, n = tzNow(), wk = n.wd === 0 || n.wd === 6;
   const plan: { round: number; stage: string; duels: number; at: string }[] = me2?.table || [];
@@ -127,7 +126,7 @@ export function DayDuelCard() {
   const rounds = [...new Set(list.map((x) => x.round))].sort((a, b) => a - b);
   const cur = rounds.length ? rounds[rounds.length - 1] : 0;
   const st = (p: any) => p.status === "done" ? `${p.a_pts}:${p.b_pts}` : p.status === "play" ? t("o'ynamoqda") : "";
-  const next = plan.find((x) => x.round === 2);
+  const next = plan.find((x) => x.round === 2), curPlan = plan.find((x) => x.round === cur);
   const row = (p: any, k: number) => p.status === "bye" ? (
     <div key={"b" + k} className={"r bye" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>➡️</span>
       <span className="n">{p.a_name}<small>{t("Juftsiz qoldi — keyingi raundga avtomatik o'tdi")}</small></span><span className="x" /></div>) : (
@@ -149,18 +148,25 @@ export function DayDuelCard() {
           : n.h < 9 ? t("Kubok juftlari bugun soat 09:00 da tasodifiy tuziladi, duellar 10:00 dan. Bot sizga raqibingiz va soatni yuboradi.")
           : list.length ? t("Bugungi kubok 09:00 da tuzilgan — siz ro'yxatga kirmadingiz. Keyingi kubok — {w}: juftlar 09:00 da, duellar 10:00 dan.", { w: nextWord() }) : t("Kubok har ish kuni: juftlar 09:00 da, duellar 10:00 dan. Keyingisi — ertaga.")}</p>}
       {plan.length > 1 && <div className="dd-plan" id="dd-plan">
-        <p className="small" style={{ fontWeight: 800 }}>{t("Kun jadvali · {n} ishtirokchi", { n: me2.players })}</p>
-        <ol>{plan.map((x) => <li key={x.round} className={x.round === cur ? "now" : x.round < cur ? "past" : ""}>
+        <button className="dd-plan-h" id="dd-plan-h" aria-expanded={planOn} onClick={() => setPlanOn(!planOn)}>
+          <span className="grow"><b>{t("Kun jadvali")}</b><small>{t("{n} ishtirokchi", { n: me2.players })}{curPlan ? " · " + t("hozir: {s}, {a}", { s: stageName(curPlan.stage), a: curPlan.at }) : ""}</small></span>
+          <ChevronDown size={18} className="dd-chev" /></button>
+        {planOn && <><ol>{plan.map((x) => <li key={x.round} className={x.round === cur ? "now" : x.round < cur ? "past" : ""}>
           <span className="num">{x.at}</span><b>{stageName(x.stage)}</b><small>{t("{d} duel", { d: x.duels })}</small></li>)}</ol>
-        <p className="tiny muted">{t("Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Final — 17:00.")}</p>
+        <p className="tiny muted">{t("Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Final — 17:00.")}</p></>}
       </div>}
-      {rounds.map((r) => { const rr = list.filter((x) => x.round === r && x.status !== "bye"), by = list.filter((x) => x.round === r && x.status === "bye"),
-        big = rr.length > BIG && !all[r], mine = rr.filter((x) => x.mine); if (!rr.length) return null; return (
-        <div key={r}>
-          <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{stageName(rr[0].stage)} · {rr[0].slot}<span className="muted" style={{ fontWeight: 600 }}> · {t("{d} duel", { d: rr.length })}</span></p>
-          <div className="board dd-list">{(big ? mine : rr).map((p) => row(p, rr.indexOf(p) + 1))}{by.map((p, i) => row(p, i))}</div>
-          {rr.length > BIG && <button className="dd-more" onClick={() => setAll({ ...all, [r]: !all[r] })}>
-            {all[r] ? t("Yig'ish") : t("Barcha {d} duelni ko'rish", { d: rr.length })}</button>}
-        </div>); })}
+      {rounds.length > 0 && <div className="dd-rounds" id="dd-rounds">
+        <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{t("Ishtirokchilar")}</p>
+        {[...rounds].reverse().map((r) => { const rr = list.filter((x) => x.round === r && x.status !== "bye"), by = list.filter((x) => x.round === r && x.status === "bye");
+          if (!rr.length) return null; const on = openR === r, mine = rr.some((x) => x.mine) || by.some((x) => x.mine), live = rr.filter((x) => x.status === "play").length;
+          return (
+          <div key={r} className={"dd-round" + (on ? " on" : "")}>
+            <button className="dd-rh" aria-expanded={on} onClick={() => setOpenR(on ? null : r)}>
+              <span className="grow"><b>{stageName(rr[0].stage)}</b><small>{rr[0].slot} · {t("{d} duel", { d: rr.length })}{live ? " · " + t("{n} tasi o'ynamoqda", { n: live }) : ""}{mine ? " · " + t("siz shu yerda") : ""}</small></span>
+              <ChevronDown size={18} className="dd-chev" />
+            </button>
+            {on && <div className="board dd-list">{rr.map((p) => row(p, rr.indexOf(p) + 1))}{by.map((p, i) => row(p, i))}</div>}
+          </div>); })}
+      </div>}
     </section>);
 }

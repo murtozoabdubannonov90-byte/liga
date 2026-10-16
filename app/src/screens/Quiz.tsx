@@ -96,15 +96,18 @@ export default function Quiz({ run }: { run: Run }) {
   useEffect(() => {
     if (!isFair(r)) return;
     /* 3 soniyagacha chiqib qaytish kechiriladi (qo'ng'iroq, bildirishnoma); undan uzoq — savol xato */
-    const vis = () => {
-      if (document.hidden) { awayAt.current = Date.now(); return; }
+    /* telefon: ilova fonga o'tsa (visibilitychange); kompyuter: boshqa oynaga (masalan, AI chatga) o'tilsa — blur */
+    const leave = () => { if (!awayAt.current) awayAt.current = Date.now(); };
+    const back = () => {
       const away = awayAt.current ? Date.now() - awayAt.current : 0; awayAt.current = 0;
       if (away > AWAY_MS && !answered.current && !fin) check("left");
     };
+    const vis = () => (document.hidden ? leave() : back());
     const block = (e: Event) => e.preventDefault();
-    document.addEventListener("visibilitychange", vis);
+    document.addEventListener("visibilitychange", vis); window.addEventListener("blur", leave); window.addEventListener("focus", back);
     ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.addEventListener(ev, block));
-    return () => { document.removeEventListener("visibilitychange", vis); ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.removeEventListener(ev, block)); };
+    return () => { document.removeEventListener("visibilitychange", vis); window.removeEventListener("blur", leave); window.removeEventListener("focus", back);
+      ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.removeEventListener(ev, block)); };
   });
   /* orqaga — tasdiq */
   useEffect(() => { setBackGuard(() => { if (fin) return true; setAsk(true); return false; }); return () => setBackGuard(null); }, [fin]);

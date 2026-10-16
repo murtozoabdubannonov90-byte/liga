@@ -24,7 +24,7 @@ async function draw(kind: "week" | "stage", si?: number, stars = 0): Promise<str
   g.fillStyle = "#2446D8"; g.beginPath(); (g as any).roundRect(80, 80, 96, 96, 28); g.fill();
   g.strokeStyle = "#fff"; g.lineWidth = 8; g.lineCap = "round"; g.beginPath(); g.moveTo(100, 113); g.lineTo(156, 113); g.moveTo(128, 113); g.lineTo(128, 156); g.stroke();
   g.fillStyle = "#EAF4EF"; g.font = "700 40px 'Unbounded Variable', sans-serif"; g.fillText("Hisobchi Liga", 200, 142);
-  g.fillStyle = "#A9C4BA"; g.font = "600 34px 'Manrope Variable', sans-serif";
+  g.fillStyle = "#A9C4BA"; g.font = "600 34px 'Golos Text Variable', sans-serif";
   const name = (S.user.first + " " + (S.user.last || "").slice(0, 1) + ".").trim();
   g.fillText(name + (S.group?.name ? " · " + S.group.name : ""), 80, 300);
   g.fillStyle = "#EAF4EF"; g.font = "800 220px 'Unbounded Variable', sans-serif";
@@ -33,16 +33,16 @@ async function draw(kind: "week" | "stage", si?: number, stars = 0): Promise<str
   else { big = (si! + 1) + ""; sub = t("bosqich") + " · " + (S.week.stages[si!] || 0) + " ball"; }
   g.fillText(big, 72, 560);
   g.fillStyle = "#F2B32A"; g.font = "700 52px 'Unbounded Variable', sans-serif"; g.fillText(sub, 80, 650);
-  if (kind === "stage") { g.font = "120px sans-serif"; for (let k = 0; k < 3; k++) { g.fillStyle = k < stars ? "#F2B32A" : "rgba(234,244,239,.18)"; star(g, 140 + k * 150, 790, 60); } g.font = "600 40px 'Manrope Variable', sans-serif"; g.fillStyle = "#EAF4EF"; g.fillText(C().STAGES[si!].title, 80, 930); }
+  if (kind === "stage") { g.font = "120px sans-serif"; for (let k = 0; k < 3; k++) { g.fillStyle = k < stars ? "#F2B32A" : "rgba(234,244,239,.18)"; star(g, 140 + k * 150, 790, 60); } g.font = "600 40px 'Golos Text Variable', sans-serif"; g.fillStyle = "#EAF4EF"; g.fillText(C().STAGES[si!].title, 80, 930); }
   else {
     const tier = S.tier || 0; g.fillStyle = TIER_HEX[tier]; shield(g, 80, 720, 120);
     g.fillStyle = "#EAF4EF"; g.font = "700 52px 'Unbounded Variable', sans-serif"; g.fillText(t("{t} liga", { t: t(TIERS[tier]) }), 230, 790);
-    g.fillStyle = "#A9C4BA"; g.font = "600 38px 'Manrope Variable', sans-serif"; g.fillText(t(rankOf(S.xp).cur[1]) + " · " + fmt(S.xp) + " ball", 230, 845);
+    g.fillStyle = "#A9C4BA"; g.font = "600 38px 'Golos Text Variable', sans-serif"; g.fillText(t(rankOf(S.xp).cur[1]) + " · " + fmt(S.xp) + " ball", 230, 845);
   }
   g.strokeStyle = "rgba(234,244,239,.25)"; g.setLineDash([16, 14]); g.lineWidth = 3; g.beginPath(); g.moveTo(60, 1080); g.lineTo(W - 60, 1080); g.stroke(); g.setLineDash([]);
-  g.fillStyle = "#EAF4EF"; g.font = "700 40px 'Manrope Variable', sans-serif"; g.fillText(t("Buxgalterlar uchun haftalik liga"), 80, 1160);
+  g.fillStyle = "#EAF4EF"; g.font = "700 40px 'Golos Text Variable', sans-serif"; g.fillText(t("Buxgalterlar uchun haftalik liga"), 80, 1160);
   g.fillStyle = "#F2B32A"; g.font = "600 36px 'JetBrains Mono', monospace"; g.fillText("@Buxgalterlar_Ligasi_bot", 80, 1230);
-  if (S.me?.ref_code) { g.fillStyle = "#A9C4BA"; g.font = "600 32px 'Manrope Variable', sans-serif"; g.fillText(t("Taklif kodi") + ": " + S.me.ref_code, 80, 1285); }
+  if (S.me?.ref_code) { g.fillStyle = "#A9C4BA"; g.font = "600 32px 'Golos Text Variable', sans-serif"; g.fillText(t("Taklif kodi") + ": " + S.me.ref_code, 80, 1285); }
   return cv.toDataURL("image/jpeg", 0.9);
 }
 function star(g: CanvasRenderingContext2D, cx: number, cy: number, r: number) { g.beginPath(); for (let i = 0; i < 10; i++) { const a = (Math.PI / 5) * i - Math.PI / 2, rr = i % 2 ? r * 0.45 : r; g.lineTo(cx + Math.cos(a) * rr, cy + Math.sin(a) * rr); } g.closePath(); g.fill(); }

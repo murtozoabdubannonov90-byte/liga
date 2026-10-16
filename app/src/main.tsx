@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import "@fontsource-variable/manrope";
+import "@fontsource-variable/golos-text";
 import "@fontsource-variable/unbounded";
 import "@fontsource/jetbrains-mono/500.css";
 import "@fontsource/jetbrains-mono/700.css";

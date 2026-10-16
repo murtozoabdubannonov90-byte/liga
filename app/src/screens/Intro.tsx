@@ -53,7 +53,7 @@ export default function Intro({ si }: { si: number }) {
         </div>
         <DayRewards when="start" />
         <div className="note" style={{ background: "var(--stamp-soft)" }}><ShieldAlert size={18} color="var(--stamp)" />
-          <span>{t("Halol o'yin: savol ochiq turganda ilovadan chiqsangiz (boshqa ilova, brauzer, sun'iy intellekt) — savol avtomatik xato hisoblanadi. Matnni nusxalab bo'lmaydi, ekranda ismingiz yozilgan.")}</span></div>
+          <span>{t("Halol o'yin: savol ochiq turganda ilovadan chiqsangiz yoki kompyuterda boshqa oynaga o'tsangiz (AI chat, brauzer, boshqa dastur) — 3 soniyadan keyin savol avtomatik xato hisoblanadi. Matnni nusxalab bo'lmaydi, ekranda ismingiz yozilgan.")}</span></div>
       </div>
       <div className="dock"><button className="btn" id="go" onClick={start}>{busy ? t("Yuklanmoqda...") : left < total ? t("Davom etish") : t("Boshlash")}</button></div>
     </div>

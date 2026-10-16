@@ -553,3 +553,83 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .opp-row small{display:block;font-size:12px;color:var(--muted);font-weight:700}
 .opp-row b{display:block;font-size:16px;color:var(--ink);overflow-wrap:anywhere}
 .opp-sheet a.btn{text-decoration:none}
+
+/* ===================== 2026-10-16 · dizayn yangilanishi =====================
+   Maqsad: shablon ko'rinishidan qochish. Bitta oila — Golos Text (ParaType, o'zbek kirilini to'liq qamraydi);
+   Unbounded faqat katta raqamlar uchun (bosqich raqami, hisob, ball) — chekdagi bosma raqamlarga o'xshab.
+   Kartalar bir xil soyali «SaaS» qutichalari emas: asosiy narsa (chek, kubok) ko'tarilgan, qolganlari — daftar sahifasidagi
+   chiziqli bloklar. Tezkor amallar — buxgalteriya jurnali kataklari. */
+:root{
+  --ui:"Golos Text Variable","Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:var(--ui);
+  --figure:"Unbounded Variable","Unbounded",var(--ui);
+  --r-l:16px; --r-m:12px; --r-s:8px;
+  --lift:0 1px 0 var(--rule);
+}
+.card h3,.ptitle h2,.result h2,.sheet-fb h4,.rw-h h3,.gf-sheet h2,.live-who{font-weight:700;letter-spacing:-.015em}
+.card h3{font-size:16.5px}
+.ticket .t-no,.total-line .big,.live-score .ls b,.live-count,.result .hero-n,.dd-vs span,.stat3 b,.rw-podium b{font-family:var(--figure)}
+.ticket{border-radius:18px;box-shadow:0 10px 24px -16px rgba(15,42,36,.55)}
+.card{box-shadow:none}
+/* soya faqat bosiladigan yoki jonli joyda */
+.dayduel{box-shadow:0 1px 0 var(--rule),0 10px 22px -18px rgba(15,42,36,.5)}
+.chip{border-radius:6px;font-weight:700;padding:4px 8px}
+.btn{border-radius:12px}
+.xp-pill{border-radius:10px;box-shadow:none}
+
+/* tezkor amallar: jurnal kataklari (2×3 jadval, chiziqlar bilan) */
+.tiles{gap:0;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-l);overflow:hidden}
+.tile{border:0;border-radius:0;box-shadow:none;background:transparent;padding:14px 12px;border-bottom:1px solid var(--rule)}
+.tile:nth-child(odd){border-right:1px solid var(--rule)}
+.tile:nth-last-child(-n+2){border-bottom:0}
+.tile .ic{background:transparent;width:26px;height:26px;border-radius:0;color:var(--green)}
+.tile.hot .ic{background:transparent;color:#B07D0B}
+.tile.hot b::after{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-left:6px;vertical-align:2px}
+.tile:active{transform:none;background:var(--paper-2)}
+
+/* ikkinchi darajali bannerlar: chiziqli, rangli qutichasiz */
+.tglink{border:1px solid var(--rule);border-left:4px solid var(--stamp);background:var(--card)}
+.tglink .ic,.news-card .ic{background:transparent;color:var(--stamp);width:28px;height:28px;border-radius:0}
+.perks{background:var(--card);border-left:4px solid var(--gold)}
+.perk-list .pi{background:transparent;width:28px}
+.note{border-radius:var(--r-s)}
+
+/* kubok: raundlar yig'ilgan, bosganda ochiladi */
+.dd-rounds{display:grid}
+.dd-round{border-top:1px solid var(--rule)}
+.dd-round:last-child{border-bottom:1px solid var(--rule)}
+.dd-rh{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 2px}
+.dd-rh b{display:block;font-weight:700;font-size:14.5px}
+.dd-rh small{display:block;color:var(--muted);font-weight:600;font-size:12.5px}
+.dd-chev{flex:none;color:var(--muted);transition:transform .18s}
+[aria-expanded="true"]>.dd-chev{transform:rotate(180deg)}
+.dd-round.on .dd-list{padding-bottom:8px}
+.dd-plan-h{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:2px 0}
+.dd-plan-h b{display:block;font-weight:700;font-size:14.5px}
+.dd-plan-h small{display:block;color:var(--muted);font-weight:600;font-size:12.5px}
+
+/* buxgalter ma'lumotnomasi */
+.info-lead{font-weight:600;margin:-4px 0 8px}
+.info-list{display:grid}
+.info-it{border-top:1px solid var(--rule)}
+.info-it:last-child{border-bottom:1px solid var(--rule)}
+.info-h{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:12px 2px}
+.info-h b{display:block;font-weight:700;font-size:15px;line-height:1.25}
+.info-h small{display:block;color:var(--muted);font-weight:500;font-size:12.5px;line-height:1.3;margin-top:2px}
+.info-tag{flex:none;min-width:46px;text-align:center;font-family:var(--figure);font-weight:600;font-size:12px;color:var(--green);border:1.5px solid currentColor;border-radius:6px;padding:4px 6px}
+.info-b{padding:2px 2px 14px}
+.info-b dl{margin:0;display:grid;gap:0;border:1px solid var(--rule);border-radius:var(--r-s);overflow:hidden}
+.info-b dl>div{display:grid;grid-template-columns:minmax(92px,32%) 1fr;gap:10px;padding:8px 10px;border-bottom:1px solid var(--rule);font-size:13.5px}
+.info-b dl>div:last-child{border-bottom:0}
+.info-b dl>div:nth-child(even){background:var(--paper-2)}
+.info-b dt{font-weight:700;color:var(--muted)}
+.info-b dd{margin:0;font-weight:500;line-height:1.4}
+.info-sub{font-weight:700;font-size:13.5px;margin:12px 0 4px}
+.info-b ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:13.5px;line-height:1.4}
+.info-b li::marker{color:var(--green)}
+.info-note{margin-top:10px;font-weight:600}
+
+/* jonli duel: tomoshabin */
+.qcard.watch{border-style:dashed}
+.qcard.watch .key,.qcard.watch .opt{cursor:default}
+.live-score .ls-lock{font-style:normal;font-size:11px;font-weight:800;color:#FFB4A8}

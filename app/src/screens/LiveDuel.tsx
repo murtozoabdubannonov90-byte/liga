@@ -20,6 +20,7 @@ export const hhmm = (iso?: string) => (iso ? new Date(new Date(iso).getTime() + 
 const cd = (ms: number) => { const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
   return (h ? h + ":" + String(m).padStart(2, "0") : String(m)) + ":" + String(x).padStart(2, "0"); };
 export const isLive = (code?: string) => !!code && code.length === 7 && code[0] === "L";
+const AWAY_MS = 3000;
 const link = (code: string) => BOT_LINK + "?start=d_" + code;
 export function shareLive(code: string) {
   const text = t("Jonli duelga chaqiraman: 10 ta savol, kim birinchi to'g'ri topsa — ochko o'shaniki! ⚡");
@@ -77,6 +78,32 @@ export default function LiveDuel({ code }: { code: string }) {
     return () => { on = false; clearInterval(iv); clearInterval(tk); };
   }, [code]);
 
+  /* halol o'yin: savol ochiq turganda ilovadan (yoki kompyuterda oynadan) 3 soniyadan ko'p chiqqan o'yinchi shu savolda qulflanadi.
+     AI-botga savolni ko'chirib, javob kutib qaytish shu vaqtdan uzoq. Nusxalash va matnni belgilash taqiqlangan. */
+  const vRef = useRef<V>(null); vRef.current = v;
+  useEffect(() => {
+    let awayAt = 0;
+    const playing = () => { const x = vRef.current; return !!(x && x.me && x.status === "play" && x.item && !x.locked && Date.now() >= showAt.current); };
+    const leave = () => { if (!awayAt && playing()) awayAt = Date.now(); };
+    const back = () => {
+      const away = awayAt ? Date.now() - awayAt : 0; awayAt = 0;
+      const x = vRef.current;
+      if (away > AWAY_MS && playing() && !busy.current) {
+        busy.current = true; const id = ++seq.current;
+        rpc<V>("liga_live_answer", { p_id: S.pid, p_token: S.token, p_code: code, p_k: x.cur, p_ans: { left: true } })
+          .then((y) => { toast(t("Duel paytida ilovadan chiqdingiz — bu savolda qulflandingiz.")); sfx("bad"); busy.current = false; apply(y, id); })
+          .catch(() => { busy.current = false; });
+      }
+    };
+    const vis = () => (document.hidden ? leave() : back());
+    const block = (e: Event) => { if (vRef.current?.me) e.preventDefault(); };
+    document.addEventListener("visibilitychange", vis); window.addEventListener("blur", leave); window.addEventListener("focus", back);
+    ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.addEventListener(ev, block));
+    return () => { document.removeEventListener("visibilitychange", vis); window.removeEventListener("blur", leave); window.removeEventListener("focus", back);
+      ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.removeEventListener(ev, block)); };
+  }, [code]);
+  const wm = useMemo(() => { const u = S.user; return (((u.first || "") + " " + (u.last || "")).trim() + " · " + String(u.phone || "").slice(-4) + "   ").repeat(60); }, []);
+
   const item = v?.item, A = C().A;
   const opts = useMemo(() => (item?.t === "mc" ? shuffle((item.o || []).map((x: string, i: number) => ({ x: tx(x), i }))) : []), [v?.cur, item?.t]);
   const keys = useMemo(() => (item?.t === "pv" ? shuffle([...(item.o || [])]) : []), [v?.cur, item?.t]);
@@ -99,11 +126,14 @@ export default function LiveDuel({ code }: { code: string }) {
   if (!v) return <div className="empty">{t("Yuklanmoqda...")}</div>;
   const me = v.me as "a" | "b" | undefined, op = me === "a" ? "b" : "a";
   const myName = me ? v[me + "_name"] : "", opName = me ? v[op + "_name"] : "";
+  const nm = (side: "a" | "b") => (side === me ? t("Siz") : v[side + "_name"] || t("Raqib"));
+  /* tomoshabin uchun chap — A o'yinchi, o'ng — B; o'yinchi uchun chap — o'zi */
+  const L1 = (me || "a") as "a" | "b", R1 = (L1 === "a" ? "b" : "a") as "a" | "b";
   const Score = () => (
     <div className="live-score" id="live-score">
-      <div className={"ls me" + (v.winner === me ? " win" : "")}><b className="num">{me ? v[me + "_pts"] : v.a_pts}</b><span>{t("Siz")}</span></div>
+      <div className={"ls me" + (v.winner === L1 ? " win" : "")}><b className="num">{v[L1 + "_pts"]}</b><span>{nm(L1)}</span>{!me && v[L1 + "_locked"] && <i className="ls-lock">{t("xato")}</i>}</div>
       <div className="ls-mid"><Zap size={18} /><small className="num">{Math.min(v.cur + 1, v.n)}/{v.n}</small></div>
-      <div className={"ls op" + (v.winner === op ? " win" : "")}><b className="num">{me ? v[op + "_pts"] : v.b_pts}</b><span>{opName || t("Raqib")}</span></div>
+      <div className={"ls op" + (v.winner === R1 ? " win" : "")}><b className="num">{v[R1 + "_pts"]}</b><span>{nm(R1)}</span>{!me && v[R1 + "_locked"] && <i className="ls-lock">{t("xato")}</i>}</div>
     </div>);
 
   /* kunlik juftlik dueli: belgilangan soatni kutish */
@@ -174,40 +204,41 @@ export default function LiveDuel({ code }: { code: string }) {
         {inPause ? (
           <motion.section key={"p" + v.cur} className="card live-pause" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
             {v.cur === 0 ? <>
-              <p className="small muted" style={{ fontWeight: 700 }}>{myName} ⚡ {opName}</p>
+              <p className="small muted" style={{ fontWeight: 700 }}>{v.a_name} ⚡ {v.b_name}</p>
               <div className="disp live-count num">{Math.max(1, Math.ceil((showAt.current - now) / 1000))}</div>
               <p style={{ fontWeight: 800 }}>{t("Tayyorlaning!")}</p></> : L && <>
               <p className={"live-who " + (L.w === me ? "ok" : L.w ? "bad" : "")} id="live-who">
-                {L.w === me ? t("Siz birinchi topdingiz! +1") : L.w ? t("{n} birinchi topdi", { n: opName }) : t("Hech kim topmadi")}</p>
+                {me && L.w === me ? t("Siz birinchi topdingiz! +1") : L.w ? t("{n} birinchi topdi", { n: v[L.w + "_name"] || opName }) : t("Hech kim topmadi")}</p>
               <p className="small" style={{ fontWeight: 700 }}>{tx(L.q || "")}</p>
               <p className="ex-line">{L.t === "pv" ? `Dt ${L.dt} — Kt ${L.kt}` : L.t === "mc" ? tx((L.o || [])[Number(L.a)] || "") : fmt(Number(L.a))}</p>
               {L.e && <p className="small muted">{tx(L.e)}</p>}
               <p className="tiny muted">{t("Keyingi savol {s} soniyada", { s: Math.max(1, Math.ceil((showAt.current - now) / 1000)) })}</p></>}
           </motion.section>
         ) : (
-          <motion.article key={"q" + v.cur} className="qcard" initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+          <motion.article key={"q" + v.cur} className={"qcard" + (me ? "" : " watch")} id={me ? undefined : "live-watch-q"} initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
+            {me && <div className="wm" aria-hidden="true">{wm}</div>}
             <div className="row" style={{ marginBottom: 8 }}>
-              <span className="qkind grow">{t("Jonli duel")} · {t(item.t === "pv" ? "Provodka tuzing" : item.t === "mc" ? "Test" : "Hisoblang")}</span>
+              <span className="qkind grow">{me ? t("Jonli duel") : t("Tomosha")} · {t(item.t === "pv" ? "Provodka tuzing" : item.t === "mc" ? "Test" : "Hisoblang")}</span>
               <Ring pct={left / qsec} size={40} stroke={4} color={left <= 8 ? "var(--red)" : "var(--stamp)"}><b className="num" style={{ fontSize: 13 }}>{left}</b></Ring>
             </div>
             <p className="qtext">{tx(item.q)}</p>
             {item.t === "pv" && <>
               <div className="taccount">
                 {(["dt", "kt"] as const).map((s) => <div className="side" key={s}><span className="lbl">{s === "dt" ? t("Debet") : t("Kredit")}</span>
-                  <button className={"slot " + (ans[s] ? "filled" : "")} disabled={v.locked} onClick={() => setAns({ ...ans, [s]: null })}>
+                  <button className={"slot " + (ans[s] ? "filled" : "")} disabled={v.locked || !me} onClick={() => setAns({ ...ans, [s]: null })}>
                     {ans[s] ? <span><span className="code">{ans[s]}</span><span className="nm">{A[ans[s]!]}</span></span> : <span>{t("Bo'sh")}</span>}</button></div>)}
               </div>
-              <div className="keys">{keys.map((k: string) => <button key={k} className={"key" + (k === ans.dt || k === ans.kt ? " used" : "")} disabled={v.locked}
+              <div className="keys">{keys.map((k: string) => <button key={k} className={"key" + (k === ans.dt || k === ans.kt ? " used" : "")} disabled={v.locked || !me}
                 onClick={() => { sfx("tap"); const n = { ...ans }; if (n.dt === k) n.dt = null; else if (n.kt === k) n.kt = null; else if (!n.dt) n.dt = k; else n.kt = k; setAns(n); }}>{k}</button>)}</div>
             </>}
-            {item.t === "mc" && <div className="opts">{opts.map((o: any, k: number) => <button key={k} className={"opt " + (k === ans.pick ? (flash === "bad" ? "wrong" : "sel") : "")} disabled={v.locked}
+            {item.t === "mc" && <div className="opts">{opts.map((o: any, k: number) => <button key={k} className={"opt " + (k === ans.pick ? (flash === "bad" ? "wrong" : "sel") : "")} disabled={v.locked || !me}
               onClick={() => { sfx("tap"); setAns({ ...ans, pick: k }); }}>{o.x}</button>)}</div>}
-            {item.t === "calc" && <div className="calc"><input id="num" inputMode="numeric" autoComplete="off" placeholder="0" disabled={v.locked} value={ans.val} aria-label={t("Javob")}
+            {item.t === "calc" && <div className="calc"><input id="num" inputMode="numeric" autoComplete="off" placeholder="0" disabled={v.locked || !me} value={ans.val} aria-label={t("Javob")}
               onChange={(e) => { const d = e.target.value.replace(/\D/g, ""); setAns({ ...ans, val: d ? fmt(+d) : "" }); }} onKeyDown={(e) => { if (e.key === "Enter") send(); }} />
               <div className="unit">{item.unit ? tx(item.unit) : t("so'm")}</div></div>}
           </motion.article>)}
       </AnimatePresence>
-      {!v.me && v.status === "play" && <div className="note" id="live-spectator"><Eye size={18} /><span>{t("Siz tomoshabinsiz — hisob va o'tgan savollar shu yerda ko'rinadi. Joriy savolni faqat o'yinchilar ko'radi.")}</span></div>}
+      {!v.me && v.status === "play" && <div className="note" id="live-spectator"><Eye size={18} /><span>{t("Siz tomoshabinsiz: savolni va kim birinchi topganini ko'rasiz, javob bera olmaysiz.")}</span></div>}
       {!inPause && !!v.me && <div className="dock">
         {v.locked ? <div className="note" id="live-locked" style={{ background: "var(--red-soft)" }}><Lock size={18} color="var(--red)" /><span>{t("Xato — bu savolda qulflandingiz. Raqib javobini kuting.")}</span></div>
           : <button className="btn" id="live-send" disabled={!canSend} onClick={send}>{v.opp_locked ? t("Raqib xato qildi — javob bering!") : t("Javob berish")}</button>}

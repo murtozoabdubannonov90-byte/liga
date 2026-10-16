@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { entry } from "../boot";
-import { Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing, MessagesSquare } from "lucide-react";
+import { Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing, MessagesSquare, Coffee } from "lucide-react";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, toast } from "../lib/nav";
@@ -19,6 +19,7 @@ import { sfx } from "../lib/fx";
 import { DeadlineCard, NewsCard } from "./Tools";
 import { PerksCard, TeamLiveCard, DayDuelCard } from "./Perks";
 import { GrandCard } from "./Grand";
+import { InfoCard } from "../components/Malumot";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -80,7 +81,7 @@ function Ticket() {
     const nx = Array.from({ length: 12 }, (_, i) => i).find((i) => stageState(i) === "future");
     return (
       <div className="ticket"><span className="hole l" /><span className="hole r" />
-        <div className="t-top"><div className="t-no">☕</div><div className="grow"><div className="t-title">{t("Dam olish kuni")}</div>
+        <div className="t-top"><div className="t-no"><Coffee size={44} strokeWidth={1.6} /></div><div className="grow"><div className="t-title">{t("Dam olish kuni")}</div>
           <div className="t-meta">{nx != null ? t("Keyingi bosqich: {d}, 09:00", { d: stageDay(nx) }) : t("Bosqichlar ish kunlari ochiladi")}</div></div></div>
         <div className="t-bottom"><button className="btn ghost" onClick={() => runOrToast(startPractice())}>{t("Qo'shimcha mashq")}</button></div>
       </div>);
@@ -180,6 +181,7 @@ export default function Home() {
         {L && <button className="card" style={{ textAlign: "left" }} onClick={() => go("lesson", { id: L.id })}>
           <div className="card-h"><BookOpenCheck size={20} color="var(--green)" /><h3>{t("Bugungi dars")}</h3><span className="chip ok">{t("1 daqiqa")}</span></div>
           <p style={{ fontWeight: 800 }}>{L.title}</p><p className="small muted" style={{ marginTop: 4 }}>{L.body.slice(0, 110)}…</p></button>}
+        <InfoCard />
         <div className="tiles">
           {tiles.map(([Ic, title, sub, fn, hot]) => (
             <button key={title} className={"tile" + (hot ? " hot" : "")} onClick={fn}><span className="ic"><Ic size={20} /></span><b>{t(title)}</b><i>{sub}</i></button>

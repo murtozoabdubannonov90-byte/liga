@@ -109,6 +109,8 @@ const RU: Record<string, string> = {
   "ℹ️ <b>Bugun ishtirokchilar soni toq bo'ldi</b> — eng oxirgi qo'shilgan siz bo'lganingiz uchun bugungi kubokda juftingiz yo'q. <b>Ertadan kubokda qatnashasiz.</b> Kunlik bosqich odatdagidek ochiq — o'ynashni unutmang!": "ℹ️ <b>Сегодня число участников нечётное</b> — вы присоединились последним, поэтому сегодня в кубке у вас нет пары. <b>С завтрашнего дня вы участвуете в кубке.</b> Ежедневный этап открыт как обычно — не забудьте сыграть!",
   "💬 Guruhga qo'shilish": "💬 Вступить в группу",
   "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:": "💬 <b>{n}, открылась группа участников Hisobchi Liga!</b>\nЗдесь обсуждаем вопросы, проводки и дуэли, договариваемся с соперником. Присоединяйтесь:",
+  "🕛 <b>{n}, bugungi {s}-bosqich hali bajarilmagan.</b>\nSoat {c} gacha vaqt bor — hozir 10–15 daqiqa ajrating, keyin unutib qo'yasiz.": "🕛 <b>{n}, сегодняшний этап {s} ещё не пройден.</b>\nВремя есть до {c} — уделите 10–15 минут сейчас, потом забудете.",
+  "Jamoangizdan {p} kishi bugun bajarib bo'ldi.": "Из вашей команды сегодня уже прошли: {p}.",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
 function tr(lang: string | null | undefined, uz: string, v: Record<string, string | number> = {}) {
@@ -884,7 +886,7 @@ async function onUpdate0(u: any) {
     await db.from("liga_bot_chats").upsert({ chat_id: m.chat.id, title: m.chat.title, active: true, group_code: adm.group_code });
     await reply("✅ Bu guruh — <b>liga muhokama guruhi</b>.\nBarcha ishtirokchilarga shaxsan taklif yuborilmoqda...");
     // ko'p odamga yuborish vaqt oladi — Telegram webhook'ini kutdirmaslik uchun fonda
-    const task = (async () => { const r: any = await inviteAll(1000); await reply(`📨 Taklif yuborildi: <b>${r.sent ?? 0}</b> kishiga\n✅ Guruhda allaqachon bor: ${r.in ?? 0}\n⚠️ Yetib bormadi (botni bloklagan): ${r.fail ?? 0}\n\nTelegram'i ulanmagan ishtirokchilar havolani ilovaning bosh sahifasida ko'radi. Yangi qo'shilganlarga bot har kuni ertalab yuboradi.\n\nHavola: ${link}`); })().catch((e) => console.error(e));
+    const task = (async () => { await discussPin().catch(() => {}); const r: any = await inviteAll(1000); await reply(`📨 Taklif yuborildi: <b>${r.sent ?? 0}</b> kishiga\n✅ Guruhda allaqachon bor: ${r.in ?? 0}\n⚠️ Yetib bormadi (botni bloklagan): ${r.fail ?? 0}\n\nTelegram'i ulanmagan ishtirokchilar havolani ilovaning bosh sahifasida ko'radi. Yangi qo'shilganlarga bot har kuni ertalab yuboradi.\n\nHavola: ${link}`); })().catch((e) => console.error(e));
     const ER = (globalThis as any).EdgeRuntime; if (ER?.waitUntil) ER.waitUntil(task); else await task;
     return;
   } else if (cmd === "/natija") {
@@ -1011,6 +1013,40 @@ async function remindAll(w: number, groupText: string) {
       appBtn(tr(p.lang, "Bosqichni ochish")))) personal++;
   }
   return { ok: true, sent, personal };
+}
+
+// 12:00 — bugungi bosqichni hali bajarmaganlarga shaxsan (guruhga emas)
+async function remindNoon(w: number) {
+  const cnt = await todayCounts();
+  const { data: list } = await db.rpc("liga_remind_list2"); let personal = 0, total = 0;
+  for (const p of (list ?? []) as any[]) {
+    total++;
+    const c = cnt[p.group_code ?? ""];
+    const extra = c && c.played > 0 ? "\n" + tr(p.lang, "Jamoangizdan {p} kishi bugun bajarib bo'ldi.", { p: c.played }) : "";
+    if (await dm(p.tg, tr(p.lang, "🕛 <b>{n}, bugungi {s}-bosqich hali bajarilmagan.</b>\nSoat {c} gacha vaqt bor — hozir 10–15 daqiqa ajrating, keyin unutib qo'yasiz.",
+      { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w) }).replace("<b>, ", "<b>") + extra, appBtn(tr(p.lang, "Bosqichni ochish")))) personal++;
+  }
+  return { ok: true, total, personal };
+}
+
+// muhokama guruhi tepasida (qadalgan xabar) guruh havolasi; guruh tavsifiga ham yoziladi
+async function discussPin() {
+  const cfg = await discussCfg(); if (!cfg) return { ok: false, why: "no_group" };
+  const share = "https://t.me/share/url?url=" + encodeURIComponent(cfg.link) + "&text=" + encodeURIComponent("Hisobchi Liga — buxgalterlar guruhi. Qo'shiling:");
+  const text = "📌 <b>Hisobchi Liga — ishtirokchilar guruhi</b>\n\n" +
+    "🔗 Guruh havolasi — hamkasbingizga yuboring:\n" + cfg.link + "\n\n" +
+    "• Har ish kuni 09:00–17:00 — yangi bosqich (juma ham 17:00 gacha).\n" +
+    "• Duelga chaqirish: guruhda /duel yozing — birinchi qabul qilgan o'ynaydi, natija shu yerga chiqadi.\n" +
+    "• Savol, provodka, qonun — bemalol muhokama qiling. Reklama mumkin emas, bot o'chiradi.";
+  const kb = { inline_keyboard: [[{ text: "📤 Havolani yuborish", url: share }], [{ text: "🏆 Ligani ochish", url: deep("ASOSIY") }]] };
+  const old = (await db.from("liga_bot_config").select("value").eq("key", "discuss_pin_msg").maybeSingle()).data?.value;
+  if (old) await tg("unpinChatMessage", { chat_id: cfg.chat, message_id: Number(old) });
+  const sent = await tg("sendMessage", { chat_id: cfg.chat, text, parse_mode: "HTML", reply_markup: kb, disable_web_page_preview: true });
+  const mid = sent?.result?.message_id; if (!mid) return { ok: false, why: sent?.description };
+  const pin = await tg("pinChatMessage", { chat_id: cfg.chat, message_id: mid, disable_notification: true });
+  await db.from("liga_bot_config").upsert({ key: "discuss_pin_msg", value: String(mid) });
+  const desc = await tg("setChatDescription", { chat_id: cfg.chat, description: "Hisobchi Liga ishtirokchilari guruhi. Havola: " + cfg.link + " · Duel: /duel · Reklama mumkin emas." });
+  return { ok: !!pin?.ok, pinned: !!pin?.ok, pin_err: pin?.ok ? undefined : pin?.description, desc: !!desc?.ok, desc_err: desc?.ok ? undefined : desc?.description, mid };
 }
 
 async function onCron(action: string, body: any = {}) {
@@ -1172,6 +1208,11 @@ async function onCron(action: string, body: any = {}) {
     const { data: dp } = await db.rpc("liga_cup_start_sys");
     return { ok: true, sent: await cupBroadcast((dp ?? []) as any[]) };
   }
+  if (action === "remind_noon") {
+    if (w < 1 || w > 5 || !(await once("remind_noon"))) return { skip: true };
+    return await remindNoon(w);
+  }
+  if (action === "discuss_pin") return await discussPin();
   if (action === "remind") {
     // juma kuni eslatma friday_warn (16:00) da ketadi — u liga yakunini ham eslatadi
     if (w < 1 || w > 4 || !(await once("remind"))) return { skip: true };
