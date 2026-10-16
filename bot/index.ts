@@ -872,6 +872,27 @@ async function onUpdate0(u: any) {
     await reply(`✅ Guruh «<b>${esc(g.name)}</b>» jamoasiga ulandi.\nBosqich xabarlari va juma kungi natijalar shu yerga chiqadi.`, openBot(g.code));
   } else if (cmd === "/duel" && !priv) {
     return groupDuelCmd(m);
+  } else if ((cmd === "/sms" || cmd === "/sms_login") && priv) {
+    // faqat liga administratori (to'lov cheklari keladigan shaxsiy chat egasi)
+    const { data: adm } = await db.from("liga_admin_chats").select("group_code").eq("chat_id", m.from?.id ?? 0).maybeSingle();
+    if (!adm) return reply("⛔ Bu buyruq faqat liga administratori uchun.");
+    const args = String(m.text ?? "").trim().split(/\s+/).slice(1);
+    if (cmd === "/sms_login") {
+      await tg("deleteMessage", { chat_id: m.chat.id, message_id: m.message_id });   // parol chatda qolmasin
+      if (args.length < 2) return reply("Yozing: <code>/sms_login email parol</code> (Eskiz.uz kabinetidagi). Xabaringiz darhol o'chiriladi.");
+      await cfgSet("eskiz_email", args[0]); await cfgSet("eskiz_password", args.slice(1).join(" ")); await db.from("liga_bot_config").delete().eq("key", "eskiz_token");
+      const t = await eskizToken(true);
+      return reply(t ? "✅ Eskiz'ga ulandi. Endi <b>/sms test 99890XXXXXXX</b> bilan sinab ko'ring, keyin <b>/sms on</b>." : "❌ Eskiz login yoki parol noto'g'ri — qayta yuboring.");
+    }
+    if (args[0] === "on" || args[0] === "off") { await cfgSet("sms_mode", args[0]); return reply(await smsStatusText()); }
+    if (args[0] === "cap" && Number(args[1]) > 0) { await cfgSet("sms_cap", String(Math.floor(Number(args[1])))); return reply(await smsStatusText()); }
+    if (args[0] === "test") {
+      const ph = String(args[1] ?? "").replace(/\D/g, "");
+      if (!/^998\d{9}$/.test(ph)) return reply("Yozing: <code>/sms test 998901234567</code>");
+      const r = await smsSend(ph, SMS_TEXT.stage.uz);
+      return reply(r.ok ? "✅ SMS yuborildi (" + esc(r.id ?? "") + ")." : "❌ Yuborilmadi: " + esc(r.err ?? "") + "\n\nAgar «shablon» yoki «moderation» xatosi bo'lsa — matnni Eskiz kabinetida shablon sifatida tasdiqlatish kerak.");
+    }
+    return reply(await smsStatusText());
   } else if (cmd === "/muhokama") {
     // faqat liga administratori (to'lov cheklari keladigan shaxsiy chat egasi)
     const { data: adm } = await db.from("liga_admin_chats").select("group_code").eq("chat_id", m.from?.id ?? 0).maybeSingle();
@@ -1065,6 +1086,62 @@ async function fetchRates() {
   return { ok: !error, n: rows.length, date: rows[0]?.rate_date, err: error?.message };
 }
 
+// ---------------- SMS (Eskiz.uz): bosqichni bajarmaganlar va kubok dueliga kirmaganlar ----------------
+// Login: edge secret ESKIZ_EMAIL / ESKIZ_PASSWORD yoki admin botda /sms_login email parol. Yoqish: /sms on.
+// Matnlar o'zgarmas — Eskiz kabinetida shablon sifatida tasdiqlatiladi (o'zgaruvchisiz, shuning uchun moderatsiya oson).
+const ESKIZ = "https://notify.eskiz.uz/api";
+const SMS_TEXT: Record<string, Record<string, string>> = {
+  stage: { uz: "Hisobchi Liga: bugungi bosqich hali bajarilmagan. Soat 17:00 gacha vaqt bor. Kirish: t.me/Buxgalterlar_Ligasi_bot",
+           ru: "Hisobchi Liga: этап сегодня не пройден. Успейте до 17:00: t.me/Buxgalterlar_Ligasi_bot" },
+  duel: { uz: "Hisobchi Liga: kubok duelingiz ochildi, raqibingiz kutmoqda. Vaqtida kirmasangiz yutqazasiz. Kirish: t.me/Buxgalterlar_Ligasi_bot",
+          ru: "Hisobchi Liga: дуэль кубка открыта, соперник ждёт: t.me/Buxgalterlar_Ligasi_bot" },
+};
+async function cfgGet(key: string) { return (await db.from("liga_bot_config").select("value").eq("key", key).maybeSingle()).data?.value as string | undefined; }
+async function cfgSet(key: string, value: string) { await db.from("liga_bot_config").upsert({ key, value }); }
+async function eskizToken(fresh = false): Promise<string | null> {
+  if (!fresh) { const t = await cfgGet("eskiz_token"); if (t) return t; }
+  const email = Deno.env.get("ESKIZ_EMAIL") || (await cfgGet("eskiz_email")), password = Deno.env.get("ESKIZ_PASSWORD") || (await cfgGet("eskiz_password"));
+  if (!email || !password) return null;
+  const f = new FormData(); f.set("email", email); f.set("password", password);
+  const r = await fetch(ESKIZ + "/auth/login", { method: "POST", body: f });
+  const j: any = await r.json().catch(() => ({}));
+  const t = j?.data?.token; if (!t) return null;
+  await cfgSet("eskiz_token", t); return t;
+}
+async function smsSend(phone: string, text: string): Promise<{ ok: boolean; id?: string; err?: string }> {
+  const from = (await cfgGet("sms_from")) || "4546";
+  for (let i = 0; i < 2; i++) {
+    const tok = await eskizToken(i > 0); if (!tok) return { ok: false, err: "no_login" };
+    const f = new FormData(); f.set("mobile_phone", phone.replace(/\D/g, "")); f.set("message", text); f.set("from", from);
+    const r = await fetch(ESKIZ + "/message/sms/send", { method: "POST", headers: { Authorization: "Bearer " + tok }, body: f });
+    if (r.status === 401) continue;
+    const j: any = await r.json().catch(() => ({}));
+    if (r.ok && (j?.id || j?.status)) return { ok: true, id: String(j.id ?? "") };
+    return { ok: false, err: `${r.status} ${JSON.stringify(j).slice(0, 200)}` };
+  }
+  return { ok: false, err: "auth_failed" };
+}
+async function smsTick() {
+  const { data, error } = await db.rpc("liga_sms_due"); if (error) return { ok: false, err: error.message };
+  let sent = 0, fail = 0;
+  for (const x of (data ?? []) as any[]) {
+    const r = await smsSend(x.phone, SMS_TEXT[x.kind]?.[x.lang === "ru" ? "ru" : "uz"] ?? SMS_TEXT.stage.uz);
+    await db.rpc("liga_sms_mark", { p_id: x.id, p_status: r.ok ? "sent" : "fail", p_provider: r.id ?? null, p_err: r.err ?? null });
+    if (r.ok) sent++; else { fail++; if (r.err === "no_login" || r.err === "auth_failed") break; }
+  }
+  return { ok: true, sent, fail };
+}
+async function smsStatusText() {
+  const { data: p } = await db.rpc("liga_sms_preview");
+  const login = !!(Deno.env.get("ESKIZ_EMAIL") || (await cfgGet("eskiz_email")));
+  const x: any = p ?? {};
+  return `📱 <b>SMS eslatma</b>: ${x.mode === "on" ? "✅ yoqilgan" : "⏸ o'chirilgan"}\n` +
+    `Eskiz login: ${login ? "bor" : "<b>yo'q</b> — /sms_login email parol"}\n` +
+    `Kunlik chegara: ${x.cap} ta\nBugun yuborildi: ${x.today_sent} · xato: ${x.today_fail}\n\n` +
+    `Bugun bosqichni boshlamaganlar: ${x.stage_not_started} (15:00 da SMS)\nKubok dueliga kelmaganlar (5 kun o'rtachasi): ~${x.duel_noshow_5d_avg} ta duel\n\n` +
+    `Buyruqlar: /sms on · /sms off · /sms test 998901234567 · /sms cap 400`;
+}
+
 async function onCron(action: string, body: any = {}) {
   if (action === "setup") {
     const url = `${SB_URL}/functions/v1/liga-bot`;
@@ -1225,6 +1302,7 @@ async function onCron(action: string, body: any = {}) {
     return { ok: true, sent: await cupBroadcast((dp ?? []) as any[]) };
   }
   if (action === "rates") return await fetchRates();
+  if (action === "sms_tick") return await smsTick();
   if (action === "remind_noon") {
     if (w < 1 || w > 5 || !(await once("remind_noon"))) return { skip: true };
     return await remindNoon(w);
