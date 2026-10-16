@@ -14,13 +14,13 @@ import { sfx, burst, cheer } from "../lib/fx";
 import { Ring, copyText } from "../components/ui";
 import { BOT_LINK, openTg } from "../lib/tg";
 import { OppName } from "../components/OppContact";
+import { watchAway, AWAY_MS, AWAY_LOG_MS } from "../lib/guard";
 
 /* Toshkent vaqti HH:MM */
 export const hhmm = (iso?: string) => (iso ? new Date(new Date(iso).getTime() + 5 * 3600e3).toISOString().slice(11, 16) : "");
 const cd = (ms: number) => { const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
   return (h ? h + ":" + String(m).padStart(2, "0") : String(m)) + ":" + String(x).padStart(2, "0"); };
 export const isLive = (code?: string) => !!code && code.length === 7 && code[0] === "L";
-const AWAY_MS = 3000;
 const link = (code: string) => BOT_LINK + "?start=d_" + code;
 export function shareLive(code: string) {
   const text = t("Jonli duelga chaqiraman: 10 ta savol, kim birinchi to'g'ri topsa — ochko o'shaniki! ⚡");
@@ -78,29 +78,24 @@ export default function LiveDuel({ code }: { code: string }) {
     return () => { on = false; clearInterval(iv); clearInterval(tk); };
   }, [code]);
 
-  /* halol o'yin: savol ochiq turganda ilovadan (yoki kompyuterda oynadan) 3 soniyadan ko'p chiqqan o'yinchi shu savolda qulflanadi.
+  /* halol o'yin: savol ochiq turganda ilovadan (yoki kompyuterda oynadan) 1,5 soniyadan ko'p chiqqan o'yinchi shu savolda qulflanadi.
      AI-botga savolni ko'chirib, javob kutib qaytish shu vaqtdan uzoq. Nusxalash va matnni belgilash taqiqlangan. */
   const vRef = useRef<V>(null); vRef.current = v;
   useEffect(() => {
-    let awayAt = 0;
     const playing = () => { const x = vRef.current; return !!(x && x.me && x.status === "play" && x.item && !x.locked && Date.now() >= showAt.current); };
-    const leave = () => { if (!awayAt && playing()) awayAt = Date.now(); };
-    const back = () => {
-      const away = awayAt ? Date.now() - awayAt : 0; awayAt = 0;
-      const x = vRef.current;
-      if (away > AWAY_MS && playing() && !busy.current) {
+    const stop = watchAway(playing, (ms) => {
+      const x = vRef.current; if (!x || !x.me) return;
+      if (ms >= AWAY_LOG_MS) rpc("liga_live_away", { p_id: S.pid, p_token: S.token, p_code: code, p_k: x.cur, p_ms: Math.round(ms) }).catch(() => {});
+      if (ms > AWAY_MS && x.status === "play" && !x.locked && !busy.current) {
         busy.current = true; const id = ++seq.current;
         rpc<V>("liga_live_answer", { p_id: S.pid, p_token: S.token, p_code: code, p_k: x.cur, p_ans: { left: true } })
           .then((y) => { toast(t("Duel paytida ilovadan chiqdingiz — bu savolda qulflandingiz.")); sfx("bad"); busy.current = false; apply(y, id); })
           .catch(() => { busy.current = false; });
       }
-    };
-    const vis = () => (document.hidden ? leave() : back());
+    });
     const block = (e: Event) => { if (vRef.current?.me) e.preventDefault(); };
-    document.addEventListener("visibilitychange", vis); window.addEventListener("blur", leave); window.addEventListener("focus", back);
     ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.addEventListener(ev, block));
-    return () => { document.removeEventListener("visibilitychange", vis); window.removeEventListener("blur", leave); window.removeEventListener("focus", back);
-      ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.removeEventListener(ev, block)); };
+    return () => { stop(); ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.removeEventListener(ev, block)); };
   }, [code]);
   const wm = useMemo(() => { const u = S.user; return (((u.first || "") + " " + (u.last || "")).trim() + " · " + String(u.phone || "").slice(-4) + "   ").repeat(60); }, []);
 

@@ -633,3 +633,16 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .qcard.watch{border-style:dashed}
 .qcard.watch .key,.qcard.watch .opt{cursor:default}
 .live-score .ls-lock{font-style:normal;font-size:11px;font-weight:800;color:#FFB4A8}
+
+/* sana va Markaziy bank kurslari */
+.rates{background:var(--card);border:1px solid var(--rule);border-radius:var(--r-l);padding:10px 12px}
+.rates-h{display:flex;align-items:center;gap:8px;color:var(--ink-2)}
+.rates-h b{font-weight:700;font-size:14.5px;color:var(--ink)}
+.rates-g{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));margin-top:8px;border-top:1px solid var(--rule)}
+.rates .rt{display:grid;gap:1px;padding:8px 6px 2px;border-left:1px solid var(--rule)}
+.rates .rt:first-child{border-left:0;padding-left:0}
+.rates .cc{font-size:11.5px;font-weight:700;color:var(--muted)}
+.rates .rt b{font-weight:700;font-size:14px;white-space:nowrap}
+.rates .rt i{font-style:normal;font-size:11px;font-weight:700;color:var(--muted)}
+.rates .rt i.up{color:var(--green)} .rates .rt i.dn{color:var(--red)}
+@media (max-width:380px){.rates-g{grid-template-columns:repeat(2,minmax(0,1fr))}.rates .rt:nth-child(3){border-left:0;padding-left:0}}

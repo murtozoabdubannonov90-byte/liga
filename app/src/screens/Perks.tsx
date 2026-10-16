@@ -69,40 +69,60 @@ export function DayTopCard() {
     </section>);
 }
 
-/* faqat admin (PIN bilan kirgan) uchun: jamoa a'zolarining bosqich ballari — bugungi va haftalik. Kunlik mashq va blits kirmaydi. */
+/* faqat admin (PIN bilan kirgan) uchun: jamoa a'zolarining bosqich ballari, bugungi juftliklar va savol paytida ilovadan chiqqanlar.
+   Uchala ro'yxat ham yig'ilgan — sarlavhasi bosilganda ochiladi (bir vaqtda bittasi). Kunlik mashq va blits kirmaydi. */
 export function TeamLiveCard() {
   const pin = S.adminPin || S.superPin;
   const [rows, setRows] = useState<any[] | null>(null);
   const [pairs, setPairs] = useState<any[] | null>(null);
+  const [away, setAway] = useState<any[] | null>(null);
+  const [open, setOpen] = useState<"" | "team" | "pairs" | "away">("");
   useEffect(() => {
     if (!pin) return; let on = true;
     const load = () => { rpc<any[]>("liga_admin_live", { p_pin: pin }).then((r) => on && setRows(r || [])).catch(() => on && setRows([]));
-      rpc<any[]>("liga_day_duels_admin", { p_pin: pin }).then((r) => on && setPairs(r || [])).catch(() => {}); };
+      rpc<any[]>("liga_day_duels_admin", { p_pin: pin }).then((r) => on && setPairs(r || [])).catch(() => {});
+      rpc<any[]>("liga_admin_away", { p_pin: pin }).then((r) => on && setAway(r || [])).catch(() => {}); };
     load(); const iv = setInterval(load, 60000); return () => { on = false; clearInterval(iv); };
   }, [pin]);
   if (!pin || !rows || !rows.length) return null;
-  const played = rows.filter((r) => r.today_done > 0).length;
+  const played = rows.filter((r) => r.today_done > 0).length, live = (pairs || []).filter((p) => p.status === "play").length;
+  const Head = ({ id, title, sub }: { id: "team" | "pairs" | "away"; title: string; sub: string }) => (
+    <button className="dd-rh" id={"tl-" + id} aria-expanded={open === id} onClick={() => setOpen(open === id ? "" : id)}>
+      <span className="grow"><b>{title}</b><small>{sub}</small></span><ChevronDown size={18} className="dd-chev" /></button>);
   return (
     <section className="card team-live" id="team-live">
       <div className="card-h"><Eye size={20} color="var(--stamp)" /><h3>{t("Jamoa natijalari")}</h3><span className="chip blue">{t("faqat sizga")}</span></div>
-      <p className="small muted" style={{ fontWeight: 600, marginBottom: 8 }}>{t("Faqat bosqich ballari (kunlik mashq va blits kirmaydi). Bugun o'ynaganlar: {a}/{b}.", { a: played, b: rows.length })}</p>
-      <div className="board">
-        {rows.map((r, k) => (
-          <div key={k} className={"r" + (k < 3 && r.week_pts > 0 ? " top" + (k + 1) : "")}>
-            <span className="p">{r.week_pts > 0 ? k + 1 : "·"}</span>
-            <span className="n">{r.name}<small>{r.today_done > 0
-              ? t("Bugun: {s}-bosqich · {r}/{n} to'g'ri · {p} ball", { s: (r.today_si ?? 0) + 1, r: r.today_right, n: r.today_n, p: r.today_pts }) + (r.today_finished ? " ✅" : " ⏳")
-              : t("Bugun hali o'ynamagan")}</small></span>
-            <span className="x">{r.week_pts}</span>
-          </div>))}
+      <div className="dd-rounds">
+        <div className="dd-round">
+          <Head id="team" title={t("Bosqich ballari")} sub={t("Bugun o'ynaganlar: {a}/{b}", { a: played, b: rows.length })} />
+          {open === "team" && <><div className="board">
+            {rows.map((r, k) => (
+              <div key={k} className={"r" + (k < 3 && r.week_pts > 0 ? " top" + (k + 1) : "")}>
+                <span className="p">{r.week_pts > 0 ? k + 1 : "·"}</span>
+                <span className="n">{r.name}<small>{r.today_done > 0
+                  ? t("Bugun: {s}-bosqich · {r}/{n} to'g'ri · {p} ball", { s: (r.today_si ?? 0) + 1, r: r.today_right, n: r.today_n, p: r.today_pts }) + (r.today_finished ? " ✅" : " ⏳")
+                  : t("Bugun hali o'ynamagan")}</small></span>
+                <span className="x">{r.week_pts}</span>
+              </div>))}
+          </div>
+          <p className="tiny muted" style={{ margin: "6px 0 8px", textAlign: "right" }}>{t("Faqat bosqich ballari (kunlik mashq va blits kirmaydi); o'ng tomonda — haftalik bal")}</p></>}
+        </div>
+        {pairs && pairs.length > 0 && <div className="dd-round">
+          <Head id="pairs" title={t("Bugungi juftliklar")} sub={t("{d} duel", { d: pairs.length }) + (live ? " · " + t("{n} tasi o'ynamoqda", { n: live }) : "")} />
+          {open === "pairs" && <div className="board" id="pairs">{pairs.map((p, k) => (
+            <div key={k} className="r"><span className="p" style={{ fontSize: 12 }}>{p.slot}</span>
+              <span className="n">{p.a_name} — {p.b_name}<small>{p.status === "done" ? (p.note === "cancel" ? t("o'ynalmadi") : p.note === "forfeit" ? t("kelmagan yutqazdi") : p.note === "idle" ? t("javob bermagan yutqazdi") : p.note === "idle2" ? t("o'ynamay to'xtatildi") : t("yakunlandi")) : p.status === "play" ? t("o'ynamoqda") : t("kutilmoqda")}</small></span>
+              <span className="x">{p.status === "wait" ? "–" : `${p.a_pts}:${p.b_pts}`}</span></div>))}</div>}
+        </div>}
+        <div className="dd-round">
+          <Head id="away" title={t("Savol paytida ilovadan chiqqanlar")} sub={away && away.length ? t("{n} kishi · AI yordamchi, boshqa ilova yoki oyna", { n: away.length }) : t("Bugun hech kim chiqmagan")} />
+          {open === "away" && <><div className="board" id="away-list">{(away || []).map((a, k) => (
+            <div key={k} className="r"><span className="p" style={{ fontSize: 12, color: a.lost_n > 0 ? "var(--red)" : undefined }}>{a.away_n}×</span>
+              <span className="n">{a.name}<small>{t("{l} savol xato hisoblandi · jami {s} soniya tashqarida", { l: a.lost_n, s: a.away_s })}{a.done_n ? " · " + t("{r}/{n} to'g'ri", { r: a.right_n, n: a.done_n }) : ""}</small></span>
+              <span className="x" style={{ fontSize: 12 }}>{a.phone ? String(a.phone).slice(-4) : ""}</span></div>))}</div>
+          <p className="tiny muted" style={{ margin: "6px 0 8px" }}>{t("Savol ochiq turganda 0,4 soniyadan uzoq har bir chiqish yoziladi; 1,5 soniyadan uzoq bo'lsa savol avtomatik xato hisoblanadi.")}</p></>}
+        </div>
       </div>
-      <p className="tiny muted" style={{ marginTop: 6, textAlign: "right" }}>{t("o'ng tomonda — haftalik bosqich bali")}</p>
-      {pairs && pairs.length > 0 && <>
-        <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{t("Bugungi juftliklar")}</p>
-        <div className="board" id="pairs">{pairs.map((p, k) => (
-          <div key={k} className="r"><span className="p" style={{ fontSize: 12 }}>{p.slot}</span>
-            <span className="n">{p.a_name} — {p.b_name}<small>{p.status === "done" ? (p.note === "cancel" ? t("o'ynalmadi") : p.note === "forfeit" ? t("kelmagan yutqazdi") : p.note === "idle" ? t("javob bermagan yutqazdi") : p.note === "idle2" ? t("o'ynamay to'xtatildi") : t("yakunlandi")) : p.status === "play" ? t("o'ynamoqda") : t("kutilmoqda")}</small></span>
-            <span className="x">{p.status === "wait" ? "–" : `${p.a_pts}:${p.b_pts}`}</span></div>))}</div></>}
     </section>);
 }
 

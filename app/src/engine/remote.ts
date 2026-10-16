@@ -106,6 +106,10 @@ export async function beginTestR(code: string, name: string, phone: string): Pro
 export async function showR(r: Run, k: number): Promise<number> {
   return rpc<number>("liga_run_show", { ...auth(r), p_run: r.remote!.id, p_k: k });
 }
+/* savol paytida ilovadan/oynadan chiqish — serverga yoziladi (javobni kutmaydi) */
+export function awayR(r: Run, k: number, ms: number) {
+  rpc("liga_run_away", { ...auth(r), p_run: r.remote!.id, p_k: k, p_ms: Math.round(ms) }).catch(() => {});
+}
 export async function answerR(r: Run, k: number, ans: Record<string, unknown>): Promise<RRes> {
   const x = await rpc<any>("liga_run_answer", { ...auth(r), p_run: r.remote!.id, p_k: k, p_ans: ans });
   const st: RState = x; r.state = st;

@@ -92,4 +92,51 @@ export const INFO: Info[] = [
     ],
     note: { uz: "Manbalar: lex.uz (O'RQ-1108), president.uz (29.05.2026 farmon), buxgalter.uz.", ru: "Источники: lex.uz (ЗРУ-1108), president.uz (указ от 29.05.2026), buxgalter.uz." },
   },
+  {
+    id: "ijtimoiy", short: { uz: "1%", ru: "1%" },
+    title: { uz: "Ijtimoiy soliq imtiyozlari", ru: "Льготы по социальному налогу" },
+    sub: { uz: "12% o'rniga 1% — kimlar uchun va qanday shartda", ru: "1% вместо 12% — для кого и на каких условиях" },
+    rows: [
+      [{ uz: "Asosiy stavka", ru: "Базовая ставка" }, { uz: "12%", ru: "12%" }],
+      [{ uz: "Xizmat sohalari", ru: "Сфера услуг" }, { uz: "1% — 30 yoshgacha, oylik ish haqi kamida 2,5 MHTEKM bo'lgan xodimlar uchun; 10 soha: chakana savdo, umumiy ovqatlanish, mehmonxona, avtotransportda yo'lovchi va yuk tashish, avtomobil ta'miri, kompyuter xizmatlari, maishiy texnika ta'miri, qishloq xo'jaligi va veterinariya xizmatlari, ko'ngilochar markazlar. 1.01.2028 gacha (PQ-78, 27.02.2025)", ru: "1% — для работников до 30 лет с зарплатой не менее 2,5 МРОТ; 10 сфер: розница, общепит, гостиницы, автоперевозки пассажиров и грузов, ремонт авто, компьютерные услуги, ремонт бытовой техники, сельхоз- и ветеринарные услуги, развлекательные центры. До 01.01.2028 (ПП-78 от 27.02.2025)" }],
+      [{ uz: "Nogironligi bor xodim", ru: "Работник с инвалидностью" }, { uz: "I va II guruh nogironligi bo'lgan xodim uchun nodavlat yuridik shaxs — 1% (ish haqi eng kam miqdordan kam bo'lmasa); YaTT bunday xodim uchun ijtimoiy soliq to'lamaydi", ru: "За работника с инвалидностью I и II группы негосударственное юрлицо платит 1% (если зарплата не ниже минимальной); ИП за такого работника соцналог не платит" }],
+      [{ uz: "To'qimachilik, poyabzal, charm", ru: "Текстиль, обувь, кожа" }, { uz: "I–II guruh nogironligi bo'lganlarni ishga olsa: foyda solig'i 2%, ijtimoiy soliq 1% — 1.01.2025–1.01.2028 (PF-229)", ru: "При найме лиц с инвалидностью I–II группы: налог на прибыль 2%, соцналог 1% — 01.01.2025–01.01.2028 (УП-229)" }],
+      [{ uz: "YaTT o'zi uchun", ru: "ИП за себя" }, { uz: "Oyiga 1 BHM (1.09.2026 dan 440 000 so'm)", ru: "1 БРВ в месяц (с 01.09.2026 — 440 000 сумов)" }],
+    ],
+    note: { uz: "Imtiyozli stavka faqat shartga mos keladigan xodimlarga qo'llanadi, qolganlar uchun — 12%.", ru: "Льготная ставка применяется только к работникам, подходящим под условия, по остальным — 12%." },
+  },
+  {
+    id: "itpark", short: { uz: "IT", ru: "IT" },
+    title: { uz: "IT Park rezidentlari", ru: "Резиденты IT Park" },
+    sub: { uz: "Dasturiy mahsulot va IT-xizmatlar eksporti uchun", ru: "Для экспорта ПО и IT-услуг" },
+    rows: [
+      [{ uz: "Soliqlar", ru: "Налоги" }, { uz: "Barcha soliqlar va ijtimoiy soliqdan ozod — QQSdan tashqari", ru: "Освобождены от всех налогов и соцналога — кроме НДС" }],
+      [{ uz: "Xodimlar JShDS", ru: "НДФЛ работников" }, { uz: "Qat'iy 7,5%", ru: "Фиксированно 7,5%" }],
+      [{ uz: "Muddat", ru: "Срок" }, { uz: "1.01.2040 gacha uzaytirilgan (oldin 2028 gacha edi)", ru: "Продлено до 01.01.2040 (ранее до 2028)" }],
+      [{ uz: "Shart", ru: "Условие" }, { uz: "Yillik daromadning 50% dan ko'pi — ruxsat etilgan faoliyat eksportidan (yoki IT-ta'limda bitiruvchilarning yarmidan ko'pi eksportchi rezidentlarga ishga kirgan)", ru: "Более 50% годового дохода — экспорт разрешённых видов деятельности (или в IT-образовании более половины выпускников трудоустроены у резидентов-экспортёров)" }],
+      [{ uz: "Bojxona", ru: "Таможня" }, { uz: "O'z ehtiyoji uchun uskuna va dasturlar importida bojxona to'lovlaridan ozod (yig'imlardan tashqari)", ru: "Освобождение от таможенных платежей (кроме сборов) при импорте оборудования и ПО для своих нужд" }],
+    ],
+  },
+  {
+    id: "jshds", short: { uz: "JShDS", ru: "НДФЛ" },
+    title: { uz: "Xodim uchun daromad solig'i imtiyozlari", ru: "Льготы по НДФЛ для работника" },
+    sub: { uz: "Ish haqining bir qismi soliqdan ozod — xodimlarga ayting", ru: "Часть зарплаты освобождается от налога — расскажите работникам" },
+    rows: [
+      [{ uz: "Xususiy bog'cha va maktab", ru: "Частный сад и школа" }, { uz: "Farzand uchun to'lov — har bir bolaga oyiga 3 mln so'mgacha ish haqi soliqdan ozod", ru: "Оплата за ребёнка — до 3 млн сумов в месяц на каждого ребёнка освобождается от налога" }],
+      [{ uz: "Kasbiy va oliy ta'lim", ru: "Профессиональное и высшее образование" }, { uz: "O'zi, 26 yoshgacha farzandi yoki turmush o'rtog'i uchun kontrakt to'lovi va ta'lim krediti (foizlari bilan) soliqdan ozod", ru: "Контракт за себя, детей до 26 лет или супруга, а также образовательный кредит (с процентами) освобождаются от налога" }],
+      [{ uz: "Qanday olinadi", ru: "Как получить" }, { uz: "1) Ish beruvchiga ariza — buxgalteriya ish haqining shu qismini to'g'ridan-to'g'ri ta'lim muassasasiga o'tkazadi; 2) yoki yil oxirida daromad deklaratsiyasi va to'lov hujjatlari bilan soliq organidan qaytarib olinadi", ru: "1) Заявление работодателю — бухгалтерия перечисляет эту часть зарплаты прямо в учебное заведение; 2) или в конце года через декларацию о доходах с платёжными документами" }],
+    ],
+    note: { uz: "30.09.2026 da Prezident xususiy maktab uchun chegarani 6 mln so'mga oshirishni e'lon qildi — qonun hujjati chiqqach yangilanadi.", ru: "30.09.2026 Президент объявил о повышении лимита для частных школ до 6 млн сумов — обновим после выхода нормативного акта." },
+  },
+  {
+    id: "mulk", short: { uz: "Yer", ru: "Земля" },
+    title: { uz: "Mol-mulk va yer solig'i imtiyozlari: yangi shart", ru: "Льготы по налогу на имущество и землю: новое условие" },
+    sub: { uz: "2026 yildan imtiyozdan foydalanish uchun xodim va ish haqi talabi", ru: "С 2026 года для льготы нужны работники и уровень зарплаты" },
+    rows: [
+      [{ uz: "Kimga", ru: "Кому" }, { uz: "Mol-mulk va yer solig'i imtiyozidan foydalanayotgan yuridik shaxslar", ru: "Юрлицам, пользующимся льготами по налогу на имущество и землю" }],
+      [{ uz: "Shartlar (hammasi birga)", ru: "Условия (все одновременно)" }, { uz: "Yillik o'rtacha xodimlar soni kamida 3 nafar; har bir xodimning ish haqi kamida 2 MHTEKM; sotishdan tushum imtiyoz summasidan ko'p", ru: "Среднегодовая численность — не менее 3 человек; зарплата каждого — не ниже 2 МРОТ; выручка от реализации больше суммы льготы" }],
+      [{ uz: "Talab qo'llanmaydi", ru: "Не применяется к" }, { uz: "Byudjet va notijorat tashkilotlar, to'g'ridan-to'g'ri xorijiy investitsiyali korxonalar, MTBK ishtirokchilari, 1.01.2026 holatiga EIZ ishtirokchilari, nogironlar jamiyatlari tashkil etgan korxonalar", ru: "Бюджетным и некоммерческим организациям, предприятиям с прямыми иностранными инвестициями, участникам СРП, участникам СЭЗ на 01.01.2026, предприятиям обществ инвалидов" }],
+      [{ uz: "Qachondan", ru: "С какого момента" }, { uz: "Yil yakuni bo'yicha tekshiriladi; yil davomida tashkil etilganlar — keyingi yil oxiridan", ru: "Проверяется по итогам года; созданные в течение года — с конца следующего года" }],
+    ],
+  },
 ];

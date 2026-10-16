@@ -269,6 +269,13 @@ Telegram qoidasi bo'yicha bot guruh ocholmaydi va odamni guruhga o'zi qo'sha olm
 - **AI'dan foydalanishga qarshi:** bosqichda ham, jonli duelda ham savol ochiq turganda ilovadan chiqish yoki **kompyuterda boshqa oynaga o'tish** (AI chat) 3 soniyadan oshsa — bosqichda savol xato, duelda shu savolda qulflanadi. Duelda ham matnni nusxalab bo'lmaydi va ekranda o'yinchi ismi (suv belgisi) bor. Ikkinchi telefon bilan suratga olishni texnik to'liq to'sib bo'lmaydi — vaqt chegarasi va suv belgisi buni qiyinlashtiradi.
 - Migratsiya: `db/2026-10-16b_tomoshabin_savol_eslatma.sql`.
 
+## 2026-10-16 (kechqurun)
+- **Sana va valyuta kursi** bosh sahifaning eng tepasida: bugungi sana (hafta kuni bilan) va Markaziy bank kursi — USD, EUR, RUB, CNY, o'zgarishi bilan. Bot har soatda (`:07`) cbu.uz dan oladi (`rates`, cron `liga-kurs`), jadval `liga_rates`, ilova `liga_rates()` orqali o'qiydi.
+- **Admin kartasi yig'iladi:** «Bosqich ballari», «Bugungi juftliklar», «Savol paytida ilovadan chiqqanlar» — har biri bosganda ochiladi.
+- **Ma'lumotnoma kengaydi (9 mavzu):** ijtimoiy soliq 1% imtiyozlari (PQ-78, nogironligi bor xodimlar, PF-229), IT Park (2040 gacha, JShDS 7,5%), xodim uchun JShDS imtiyozlari (bog'cha/maktab 3 mln, kontrakt), mol-mulk va yer solig'i imtiyozi uchun yangi shartlar.
+- **AI (Gemini, Jarvis) nazorati kuchaytirildi:** chegara 3 → 1,5 soniya; ekran ustiga chiqadigan AI oynasi (Android blur), Telegram'da boshqa chatga o'tish (`deactivated`) ham ushlanadi; 0,4 soniyadan uzoq har bir chiqish serverga yoziladi (`liga_away`, `liga_run_away`, `liga_live_away`) va admin ro'yxatida kim necha marta chiqqani, nechta savol shu sababli xato bo'lgani ko'rinadi (`liga_admin_away`). Umumiy kod: `app/src/lib/guard.ts`.
+- Migratsiya: `db/2026-10-16c_ai_nazorat_kurs.sql`.
+
 ## Bot jadvali (Toshkent vaqti, dushanba–juma)
 09:00 — bosqich ochildi · **12:00 — bosqichni hali bajarmaganlarga shaxsan eslatma** (`remind_noon`, cron `liga-eslatma-12`) · 16:00 — 1 soat qoldi · 17:00 — o'yin tugadi · juma 11:00 — liga tugashiga 1 soat · juma 12:01 — natijalar (har jamoaga o'zinikini).
 

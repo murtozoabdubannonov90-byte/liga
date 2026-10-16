@@ -95,8 +95,8 @@ with sync_playwright() as p:
     pg.click("#nx"); pg.wait_for_timeout(400)
     HIDE = "()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});Object.defineProperty(document,'visibilityState',{value:'hidden',configurable:true});document.dispatchEvent(new Event('visibilitychange'))}"
     SHOW = "()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});Object.defineProperty(document,'visibilityState',{value:'visible',configurable:true});document.dispatchEvent(new Event('visibilitychange'))}"
-    pg.evaluate(HIDE); pg.clock.fast_forward(1500); pg.evaluate(SHOW); pg.wait_for_timeout(300)
-    check("1.5 soniya chiqib qaytish kechiriladi (qo'ng'iroq)", "Ilovadan chiqildi" not in txt(pg) and pg.locator("#chk").count() == 1)
+    pg.evaluate(HIDE); pg.clock.fast_forward(1000); pg.evaluate(SHOW); pg.wait_for_timeout(300)
+    check("1 soniya chiqib qaytish kechiriladi (bildirishnoma)", "Ilovadan chiqildi" not in txt(pg) and pg.locator("#chk").count() == 1)
     pg.evaluate(HIDE); pg.clock.fast_forward(5000); pg.evaluate(SHOW); pg.wait_for_timeout(400)
     check("ilovadan uzoq chiqish = xato (halol o'yin)", "Ilovadan chiqildi" in txt(pg), txt(pg)[-300:])
     check("nusxa olish bloklangan", pg.evaluate("()=>{const e=new Event('copy',{cancelable:true});document.dispatchEvent(e);return e.defaultPrevented}"))
@@ -104,6 +104,8 @@ with sync_playwright() as p:
     pg.click("#nx"); pg.wait_for_timeout(400); pg.wait_for_selector("#chk")
     pg.evaluate("()=>window.dispatchEvent(new Event('blur'))"); pg.clock.fast_forward(5000); pg.evaluate("()=>window.dispatchEvent(new Event('focus'))"); pg.wait_for_timeout(900)
     check("kompyuterda boshqa oynaga (AI chat) o'tish ham = xato", "Ilovadan chiqildi" in txt(pg), txt(pg)[-200:])
+    aw = calls("liga_run_away")
+    check("har bir chiqish serverga yoziladi (savol raqami va soniya bilan)", len(aw) >= 2 and all(a.get("p_ms", 0) >= 400 and "p_k" in a for a in aw), aw)
     pg.click("#nx"); pg.wait_for_timeout(300)
     pg.evaluate("()=>__liga.nav.tryBack()"); pg.wait_for_timeout(300)
     check("orqaga bosilganda tasdiq so'raladi", "Chiqasizmi?" in txt(pg))
@@ -267,7 +269,7 @@ with sync_playwright() as p:
     pg.fill("#cn", "Nomzod Ikki"); pg.fill("#cp", "+998901234599"); CALLS.clear(); pg.click("#go"); pg.wait_for_timeout(700)
     check("test boshlandi (savollar serverdan)", pg.locator(".qtext").count() == 1 and len(calls("liga_test_begin")) == 1)
     answer(pg, True)
-    a = calls("liga_run_answer")
+    a = [x for x in calls("liga_run_answer") if not str(x.get("p_run", "")).startswith("stage")]   # oldingi sahifalarning kech javoblari hisobga olinmaydi
     check("nomzod javobi maxfiy kalit bilan tekshirildi", a and a[-1].get("p_secret") == "sek" and pg.locator(".stamp.ok").count() == 1, a[-1:] if a else a)
 
     print("10b. Telegram orqali kirish")
@@ -380,7 +382,10 @@ with sync_playwright() as p:
     pg, e = page(b); ALLERR += e
     check("oddiy ishtirokchiga jamoa natijalari ko'rinmaydi", pg.locator("#team-live").count() == 0)
     pg, e = page(b, seed={**SEED, "adminPin": "14"}); ALLERR += e
-    tl = pg.inner_text("#team-live") if pg.locator("#team-live").count() else ""
+    pg.wait_for_selector("#team-live", timeout=5000)
+    check("admin: jamoa ro'yxatlari yig'ilgan", pg.locator("#team-live .board").count() == 0 and "Bugun o'ynaganlar" in pg.inner_text("#team-live"))
+    pg.click("#tl-team"); pg.wait_for_timeout(200)
+    tl = pg.inner_text("#team-live")
     check("admin: asosiy ekranda jamoa natijalari (faqat bosqich bali)", "Aziz Rahimov" in tl and "480" in tl and "15/20" in tl and "hali o'ynamagan" in tl, tl[:200])
     go(pg, "duel"); pg.click("#create-live"); pg.wait_for_timeout(1300)
     check("jonli duel: kutish zali", "Raqibni kutyapmiz" in txt(pg) and "LQWERTY" in txt(pg))
@@ -437,6 +442,8 @@ with sync_playwright() as p:
     dd = pg.inner_text("#day-duel")
     check("asosiy ekranda bugungi duel: raqib va soat", "Aziz R." in dd and "11:30" in dd and "provodka" in dd, dd[:200])
     check("kubok jadvali: chorak final, g'olib, keyingi bosqich soatlari", pg.locator(".dd-list .r").count() == 4 and "Chorak final" in dd and "10:30" in dd and "6:4" in dd and "✅ Aziz R." in dd and "17:00" in dd and pg.locator(".dd-list .r.me").count() == 1, dd[:300])
+    pg.click("#tl-pairs"); pg.wait_for_timeout(200)
+    check("admin: juftliklar ochilganda jamoa ro'yxati yig'iladi", pg.locator("#team-live .board").count() == 1)
     check("admin: bugungi juftliklar ro'yxati", pg.locator("#pairs .r").count() == 2 and "6:4" in pg.inner_text("#pairs"))
     # raqib ustiga bosilsa — telefon va Telegram nik (faqat duel ishtirokchisiga, token bilan)
     EXTRA["liga_duel_opp_contact"] = {"name": "Aziz Rahimov", "phone": "+998931112233", "tg": "aziz_buh", "tg_id": 555, "region": "Farg'ona viloyati"}
@@ -515,7 +522,7 @@ with sync_playwright() as p:
 
     print("10g2. Buxgalter ma'lumotnomasi (yig'iladigan)")
     pg, e = page(b); ALLERR += e
-    check("ma'lumotnoma: 5 mavzu, hammasi yig'ilgan", pg.locator("#info .info-it").count() == 5 and pg.locator("#info .info-b").count() == 0)
+    check("ma'lumotnoma: 9 mavzu, hammasi yig'ilgan", pg.locator("#info .info-it").count() == 9 and pg.locator("#info .info-b").count() == 0)
     pg.click("#info-ok .info-h"); pg.wait_for_timeout(200)
     ib = pg.inner_text("#info-ok")
     check("oilaviy korxona ochiladi: qarindoshlar, imtiyozlar (aholi tarifi, uyda faoliyat)", "qarindosh" in ib and "aholi tarifida" in ib and "Turar joyda" in ib and pg.locator("#info .info-b").count() == 1, ib[:300])
@@ -523,11 +530,27 @@ with sync_playwright() as p:
     check("boshqasi bosilsa — oldingisi yig'iladi (bir vaqtda bittasi)", pg.locator("#info .info-b").count() == 1 and "50 gacha" in pg.inner_text("#info-mchj"))
     pg.click("#info-soliq .info-h"); pg.wait_for_timeout(200)
     check("2026 stavkalari: 12 000 BHM chegarasi, QQS 12%, 6% soddalashtirilgan", all(x in pg.inner_text("#info-soliq") for x in ["12 000 BHM", "5,28 mlrd", "12%", "6%"]))
+    for sid, words in [("ijtimoiy", ["1%", "30 yoshgacha", "PQ-78"]), ("itpark", ["7,5%", "2040", "QQSdan tashqari"]), ("jshds", ["3 mln", "26 yoshgacha", "deklaratsiya"]), ("mulk", ["kamida 3", "2 MHTEKM"])]:
+        pg.click(f"#info-{sid} .info-h"); pg.wait_for_timeout(150)
+        check(f"ma'lumotnoma: «{sid}» bo'limi", all(w in pg.inner_text(f"#info-{sid}") for w in words), pg.inner_text(f"#info-{sid}")[:200])
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
     pg.click("#info-xk .info-h"); pg.wait_for_timeout(200)
     check("RU: ma'lumotnoma ruscha", "Справочник бухгалтера" in pg.inner_text("#info") and "Частное предприятие" in pg.inner_text("#info-xk"))
     pg, e = page(b, seed={**SEED, "lang": "uzc"}); ALLERR += e
     check("kirill: ma'lumotnoma kirillda", "Оилавий корхона" in pg.inner_text("#info"))
+
+    print("10g3. Sana va Markaziy bank kurslari")
+    EXTRA["liga_rates"] = [{"ccy": "USD", "rate": 12011.65, "diff": 48.49, "date": "2026-10-01"}, {"ccy": "EUR", "rate": 13462.66, "diff": -12.3, "date": "2026-10-01"},
+                           {"ccy": "RUB", "rate": 143.17, "diff": 0.84, "date": "2026-10-01"}, {"ccy": "CNY", "rate": 1795.17, "diff": 7.7, "date": "2026-10-01"}, {"ccy": "KZT", "rate": 26.51, "diff": 0.04, "date": "2026-10-01"}]
+    pg, e = page(b); ALLERR += e
+    rt = pg.inner_text("#rates") if pg.locator("#rates").count() else ""
+    check("asosiy ekranda sana (1-oktabr, payshanba)", "1-oktabr, payshanba" in rt, rt)
+    check("kurslar: $ 12 011,65 ▲48,49, € pastga, MB kursi sanasi", "12 011,65" in rt and "▲ 48,49" in rt and "▼ 12,30" in rt and "MB kursi · 01.10.2026" in rt and pg.locator("#rates .rt").count() == 4, rt)
+    pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
+    check("RU: sana ruscha", "1 октября, четверг" in pg.inner_text("#rates"))
+    pg, e = page(b, w=320); ALLERR += e
+    check("320px: kurslar sig'adi", pg.evaluate("()=>document.documentElement.scrollWidth<=320"))
+    EXTRA.pop("liga_rates", None)
 
     print("10h. Ishtirokchilar muhokama guruhi")
     pg, e = page(b); ALLERR += e

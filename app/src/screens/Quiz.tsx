@@ -7,7 +7,8 @@ import { back, replace, setBackGuard, tab, toast, go } from "../lib/nav";
 import { C, QSEC, apply, finish, grade, markPending, giftReward, startBlitz, startDaily, startErrs, startTopic, startPractice, type Run, type Q, type Ans, type Fin } from "../engine/run";
 import { shuffle, fmt } from "../engine/data";
 import { saSettle } from "../engine/score";
-import { answerR, showR, finishR, stageFinishedLocal, type RState } from "../engine/remote";
+import { watchAway, AWAY_MS, AWAY_LOG_MS } from "../lib/guard";
+import { answerR, awayR, showR, finishR, stageFinishedLocal, type RState } from "../engine/remote";
 import { stageOpen, closeStr } from "../engine/time";
 import { rpc, syncSoon, syncNow, errMsg, stageDoneNotify } from "../engine/server";
 import { sfx, burst, cheer } from "../lib/fx";
@@ -17,7 +18,6 @@ import { DayRewards } from "./Perks";
 import { Ring, Star, CountUp } from "../components/ui";
 import { botNotify } from "./Duel";
 
-const AWAY_MS = 3000;
 const KIND: Record<string, string> = { mc: "Test", pv: "Provodka tuzing", calc: "Hisoblang" };
 const isFair = (r: Run) => r.fair;
 
@@ -49,7 +49,7 @@ export default function Quiz({ run }: { run: Run }) {
   const [exp, setExp] = useState(false);
   const QS = r.qsec || QSEC;
   const tq: Q = r.queue[i];
-  const answered = useRef(false); const awayAt = useRef(0); answered.current = !!res;
+  const answered = useRef(false); const away = useRef({ at: 0 }); answered.current = !!res;
   const qEnd = useRef(Date.now() + (r.qsec || QSEC) * 1000);
 
   /* variantlar va hisobvaraq tugmalari — har savolda bir marta aralashtiriladi */
@@ -95,19 +95,14 @@ export default function Quiz({ run }: { run: Run }) {
   /* halol o'yin: ilovadan chiqish = xato; nusxalash taqiqlangan */
   useEffect(() => {
     if (!isFair(r)) return;
-    /* 3 soniyagacha chiqib qaytish kechiriladi (qo'ng'iroq, bildirishnoma); undan uzoq — savol xato */
-    /* telefon: ilova fonga o'tsa (visibilitychange); kompyuter: boshqa oynaga (masalan, AI chatga) o'tilsa — blur */
-    const leave = () => { if (!awayAt.current) awayAt.current = Date.now(); };
-    const back = () => {
-      const away = awayAt.current ? Date.now() - awayAt.current : 0; awayAt.current = 0;
-      if (away > AWAY_MS && !answered.current && !fin) check("left");
-    };
-    const vis = () => (document.hidden ? leave() : back());
+    /* 1,5 soniyagacha chiqib qaytish kechiriladi (bildirishnoma); undan uzoq — savol xato. Har bir chiqish serverga yoziladi */
+    const stop = watchAway(() => !answered.current && !fin, (ms) => {
+      if (ms >= AWAY_LOG_MS && r.remote && tq) awayR(r, tq.k, ms);
+      if (ms > AWAY_MS && !answered.current && !fin) check("left");
+    }, away.current);
     const block = (e: Event) => e.preventDefault();
-    document.addEventListener("visibilitychange", vis); window.addEventListener("blur", leave); window.addEventListener("focus", back);
     ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.addEventListener(ev, block));
-    return () => { document.removeEventListener("visibilitychange", vis); window.removeEventListener("blur", leave); window.removeEventListener("focus", back);
-      ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.removeEventListener(ev, block)); };
+    return () => { stop(); ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.removeEventListener(ev, block)); };
   });
   /* orqaga — tasdiq */
   useEffect(() => { setBackGuard(() => { if (fin) return true; setAsk(true); return false; }); return () => setBackGuard(null); }, [fin]);

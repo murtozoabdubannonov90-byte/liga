@@ -20,6 +20,7 @@ import { DeadlineCard, NewsCard } from "./Tools";
 import { PerksCard, TeamLiveCard, DayDuelCard } from "./Perks";
 import { GrandCard } from "./Grand";
 import { InfoCard } from "../components/Malumot";
+import { RatesCard } from "../components/Rates";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -151,6 +152,7 @@ export default function Home() {
     <div className="shell">
       <TopBar />
       <div className="stack">
+        <RatesCard />
         {S.user.first && !S.token && (S.tokenLost || S.joinErr) && (
           <div className="card" style={{ borderColor: "var(--red)" }}>
             <div className="row"><KeyRound size={20} color="var(--red)" /><b className="grow">{S.tokenLost ? t("Hisobingiz boshqa telefonga o'tkazilgan.") : t(S.joinErr || "")}</b></div>
