@@ -1049,6 +1049,22 @@ async function discussPin() {
   return { ok: !!pin?.ok, pinned: !!pin?.ok, pin_err: pin?.ok ? undefined : pin?.description, desc: !!desc?.ok, desc_err: desc?.ok ? undefined : desc?.description, mid };
 }
 
+// Markaziy bank kurslari (cbu.uz) — bosh sahifadagi kurs kartasi uchun
+async function fetchRates() {
+  const r = await fetch("https://cbu.uz/uz/arkhiv-kursov-valyut/json/", { headers: { "user-agent": "Mozilla/5.0 HisobchiLiga" } });
+  if (!r.ok) return { ok: false, status: r.status };
+  const list = (await r.json()) as any[];
+  const want = new Set(["USD", "EUR", "RUB", "CNY", "KZT"]); const rows: any[] = [];
+  for (const x of list ?? []) {
+    if (!want.has(x.Ccy)) continue;
+    const [d, m, y] = String(x.Date).split(".");
+    rows.push({ ccy: x.Ccy, rate: Number(x.Rate), diff: Number(x.Diff), rate_date: `${y}-${m}-${d}`, updated_at: new Date().toISOString() });
+  }
+  if (!rows.length) return { ok: false, why: "empty" };
+  const { error } = await db.from("liga_rates").upsert(rows);
+  return { ok: !error, n: rows.length, date: rows[0]?.rate_date, err: error?.message };
+}
+
 async function onCron(action: string, body: any = {}) {
   if (action === "setup") {
     const url = `${SB_URL}/functions/v1/liga-bot`;
@@ -1208,6 +1224,7 @@ async function onCron(action: string, body: any = {}) {
     const { data: dp } = await db.rpc("liga_cup_start_sys");
     return { ok: true, sent: await cupBroadcast((dp ?? []) as any[]) };
   }
+  if (action === "rates") return await fetchRates();
   if (action === "remind_noon") {
     if (w < 1 || w > 5 || !(await once("remind_noon"))) return { skip: true };
     return await remindNoon(w);
