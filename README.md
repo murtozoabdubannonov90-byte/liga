@@ -34,7 +34,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (124 ta)
+python3 tests/app.test.py        # 2.0 testlari (214 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -42,6 +42,13 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
+## 2026-10-19: ball xatosi, kurs 12:00 da, ma'lumotnoma har hafta, kirmaganlar
+- **Xato tuzatildi:** juma 17:00 dan keyin ilovani ochganlarda o'tgan haftaning bosqich bali yangi haftada qolib ketardi (24 kishi). Endi yangi hafta 0 dan boshlanadi; o'tgan hafta natijalari buzilmagan.
+- **Valyuta kursi** — har kuni 12:00 da (cbu.uz javob bermasa 12:20, 12:40 da qayta). Kartada: «Yangilandi: bugun 12:00 · har kuni 12:00 da».
+- **Buxgalter ma'lumotnomasi** bazada (`liga_info`), sarlavhada «Yangilandi: sana». Har dushanba avtomatik tekshiriladi (scheduled task): yangilik bo'lsa `app/src/data/malumot.ts` yangilanadi → `node app/scripts/info-seed.mjs "izoh"` SQL → bazaga; o'zgarish bo'lmasa faqat «Oxirgi tekshiruv» sanasi (`select liga_info_set_sys(null, 'izoh')`). Internet bo'lmasa — telefonda saqlangani, u ham bo'lmasa ilovadagi zaxira.
+- **Kirmaganlar:** bot o'yinchini ajratadi (`liga_player_kind`): hech o'ynamagan — «xush kelibsiz, birinchi bosqich» (09:00, 12:00, 16:00), 2+ ish kuni o'ynamagan — «sizni sog'indik» (09:00, 12:00). Ilovada hali o'ynamaganga «Birinchi bosqichingiz» kartasi. Kunlik hisobotda (20:00) ikkala son.
+- Baza: `db/2026-10-19_ball_kurs_kirmaganlar.sql`. Bot: v45. Testlar: 214 ta.
 
 ## 2026-10-07b: kubok — 15 savol, 90 soniya, 30 daqiqa
 - Kubok duellari: 15 ta provodka, har savolga 90 soniya (jonli duel ham 90 soniya), har duel 30 daqiqa ochiq. Bugungi juftlar ham yangilandi va jadval hammaga qayta yuborildi.

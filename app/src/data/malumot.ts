@@ -1,6 +1,7 @@
 /* Buxgalter ma'lumotnomasi: tashkiliy-huquqiy shakllar va 2026 soliq qoidalari (bosh sahifada, yig'ilgan holda).
-   Holat: 16.10.2026. O'zgarsa — shu faylni yangilang (UPDATED sanasi bilan). */
-export const UPDATED = "16.10.2026";
+   Bu — zaxira nusxa: ilova avval bazadagi liga_info() ni o'qiydi (har dushanba yangilanadi), ochilmasa shu ro'yxat ko'rinadi.
+   Holat: 19.10.2026. Bazani yangilaganda shu faylni ham yangilang (scripts/info-seed.mjs). */
+export const UPDATED = "19.10.2026";
 type L = { uz: string; ru: string };
 export type Info = { id: string; short: L; title: L; sub: L; rows: [L, L][]; plus?: L[]; note?: L };
 
@@ -103,7 +104,7 @@ export const INFO: Info[] = [
       [{ uz: "To'qimachilik, poyabzal, charm", ru: "Текстиль, обувь, кожа" }, { uz: "I–II guruh nogironligi bo'lganlarni ishga olsa: foyda solig'i 2%, ijtimoiy soliq 1% — 1.01.2025–1.01.2028 (PF-229)", ru: "При найме лиц с инвалидностью I–II группы: налог на прибыль 2%, соцналог 1% — 01.01.2025–01.01.2028 (УП-229)" }],
       [{ uz: "YaTT o'zi uchun", ru: "ИП за себя" }, { uz: "Oyiga 1 BHM (1.09.2026 dan 440 000 so'm)", ru: "1 БРВ в месяц (с 01.09.2026 — 440 000 сумов)" }],
     ],
-    note: { uz: "Imtiyozli stavka faqat shartga mos keladigan xodimlarga qo'llanadi, qolganlar uchun — 12%.", ru: "Льготная ставка применяется только к работникам, подходящим под условия, по остальным — 12%." },
+    note: { uz: "Imtiyozli stavka faqat shartga mos keladigan xodimlarga qo'llanadi, qolganlar uchun — 12%. Diqqat: Iqtisodiyot va moliya vazirligi ijtimoiy soliq imtiyozlarini bosqichma-bosqich qisqartirib, 2030 yildan to'liq bekor qilishni taklif qildi (22.09.2026) — hozircha taklif, amaldagi imtiyozlar saqlanadi.", ru: "Льготная ставка применяется только к работникам, подходящим под условия, по остальным — 12%. Внимание: Минэкономфин предложил поэтапно сократить льготы по соцналогу и полностью отменить их с 2030 года (22.09.2026) — пока это предложение, действующие льготы сохраняются." },
   },
   {
     id: "itpark", short: { uz: "IT", ru: "IT" },
@@ -126,7 +127,7 @@ export const INFO: Info[] = [
       [{ uz: "Kasbiy va oliy ta'lim", ru: "Профессиональное и высшее образование" }, { uz: "O'zi, 26 yoshgacha farzandi yoki turmush o'rtog'i uchun kontrakt to'lovi va ta'lim krediti (foizlari bilan) soliqdan ozod", ru: "Контракт за себя, детей до 26 лет или супруга, а также образовательный кредит (с процентами) освобождаются от налога" }],
       [{ uz: "Qanday olinadi", ru: "Как получить" }, { uz: "1) Ish beruvchiga ariza — buxgalteriya ish haqining shu qismini to'g'ridan-to'g'ri ta'lim muassasasiga o'tkazadi; 2) yoki yil oxirida daromad deklaratsiyasi va to'lov hujjatlari bilan soliq organidan qaytarib olinadi", ru: "1) Заявление работодателю — бухгалтерия перечисляет эту часть зарплаты прямо в учебное заведение; 2) или в конце года через декларацию о доходах с платёжными документами" }],
     ],
-    note: { uz: "30.09.2026 da Prezident xususiy maktab uchun chegarani 6 mln so'mga oshirishni e'lon qildi — qonun hujjati chiqqach yangilanadi.", ru: "30.09.2026 Президент объявил о повышении лимита для частных школ до 6 млн сумов — обновим после выхода нормативного акта." },
+    note: { uz: "30.09.2026 da Prezident xususiy maktab uchun chegarani 6 mln so'mga oshirishni e'lon qildi. 19.10.2026 holatiga normativ hujjat chiqmagan — hozircha 3 mln so'm amal qiladi.", ru: "30.09.2026 Президент объявил о повышении лимита для частных школ до 6 млн сумов. На 19.10.2026 нормативный акт не вышел — пока действует 3 млн сумов." },
   },
   {
     id: "mulk", short: { uz: "Yer", ru: "Земля" },
@@ -137,6 +138,9 @@ export const INFO: Info[] = [
       [{ uz: "Shartlar (hammasi birga)", ru: "Условия (все одновременно)" }, { uz: "Yillik o'rtacha xodimlar soni kamida 3 nafar; har bir xodimning ish haqi kamida 2 MHTEKM; sotishdan tushum imtiyoz summasidan ko'p", ru: "Среднегодовая численность — не менее 3 человек; зарплата каждого — не ниже 2 МРОТ; выручка от реализации больше суммы льготы" }],
       [{ uz: "Talab qo'llanmaydi", ru: "Не применяется к" }, { uz: "Byudjet va notijorat tashkilotlar, to'g'ridan-to'g'ri xorijiy investitsiyali korxonalar, MTBK ishtirokchilari, 1.01.2026 holatiga EIZ ishtirokchilari, nogironlar jamiyatlari tashkil etgan korxonalar", ru: "Бюджетным и некоммерческим организациям, предприятиям с прямыми иностранными инвестициями, участникам СРП, участникам СЭЗ на 01.01.2026, предприятиям обществ инвалидов" }],
       [{ uz: "Qachondan", ru: "С какого момента" }, { uz: "Yil yakuni bo'yicha tekshiriladi; yil davomida tashkil etilganlar — keyingi yil oxiridan", ru: "Проверяется по итогам года; созданные в течение года — с конца следующего года" }],
+    ],
+    plus: [
+      { uz: "Yangi (12.10.2026, PQ-368): transport-logistika markazlari yer va mol-mulk solig'idan 2040 yilgacha to'liq ozod. Shart: ESKATO quruqlik portlari bitimi ro'yxatida bo'lish, TOS va WMS tizimlari, «E-logistika» platformasida «BB» va undan yuqori reyting", ru: "Новое (12.10.2026, ПП-368): транспортно-логистические центры полностью освобождены от земельного налога и налога на имущество до 2040 года. Условия: включение в соглашение ЭСКАТО о сухих портах, системы TOS и WMS, рейтинг «BB» и выше на платформе «E-logistika»" },
     ],
   },
 ];

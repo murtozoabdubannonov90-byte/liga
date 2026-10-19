@@ -550,7 +550,50 @@ with sync_playwright() as p:
     check("RU: sana ruscha", "1 октября, четверг" in pg.inner_text("#rates"))
     pg, e = page(b, w=320); ALLERR += e
     check("320px: kurslar sig'adi", pg.evaluate("()=>document.documentElement.scrollWidth<=320"))
+    EXTRA["liga_rates"] = [{"ccy": "USD", "rate": 12011.65, "diff": 48.49, "date": "2026-10-01", "upd": "2026-09-30T12:00"}]
+    pg, e = page(b); ALLERR += e
+    ru = pg.inner_text("#rates-upd") if pg.locator("#rates-upd").count() else ""
+    check("kurs: yangilangan vaqti va «har kuni 12:00 da»", "Yangilandi: kecha 12:00" in ru and "har kuni 12:00 da" in ru, ru)
+    EXTRA["liga_rates"] = [{"ccy": "USD", "rate": 12011.65, "diff": 48.49, "date": "2026-10-01", "upd": "2026-10-01T12:00"}]
+    pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
+    check("RU: kurs «Обновлено: сегодня 12:00»", "Обновлено: сегодня 12:00" in (pg.inner_text("#rates-upd") if pg.locator("#rates-upd").count() else ""))
     EXTRA.pop("liga_rates", None)
+
+    print("10g4. Ma'lumotnoma bazadan, «Yangilandi» sanasi")
+    pg, e = page(b); ALLERR += e
+    check("bazadan kelmasa — ilovadagi zaxira (9 mavzu) va uning sanasi", pg.locator("#info .info-it").count() == 9 and "Yangilandi: 19.10.2026" in pg.inner_text("#info-updated"), pg.inner_text("#info")[:200])
+    check("ma'lumotnoma bazadan so'raladi (liga_info)", bool(calls("liga_info")))
+    pg.click("#info-mulk .info-h"); pg.wait_for_timeout(150)
+    check("yangi imtiyoz: logistika markazlari 2040 gacha (PQ-368)", all(w in pg.inner_text("#info-mulk") for w in ["PQ-368", "2040", "logistika"]))
+    pg.click("#info-ijtimoiy .info-h"); pg.wait_for_timeout(150)
+    check("ijtimoiy soliq: 2030 dan bekor qilish taklifi eslatmasi", "2030" in pg.inner_text("#info-ijtimoiy") and "taklif" in pg.inner_text("#info-ijtimoiy"))
+    it = lambda i, n: {"id": i, "short": {"uz": n, "ru": n}, "title": {"uz": n + " sarlavha", "ru": n + " заголовок"}, "sub": {"uz": "izoh", "ru": "пояснение"}, "rows": [[{"uz": "Stavka", "ru": "Ставка"}, {"uz": "7%", "ru": "7%"}]]}
+    EXTRA["liga_info"] = {"updated": "26.10.2026", "checked": "02.11.2026", "items": [it("a1", "Yangi1"), it("a2", "Yangi2"), it("a3", "Yangi3")]}
+    pg, e = page(b); ALLERR += e
+    check("bazadagi ma'lumot ko'rsatiladi (3 mavzu) va sanasi", pg.locator("#info .info-it").count() == 3 and "Yangi2 sarlavha" in pg.inner_text("#info") and "Yangilandi: 26.10.2026" in pg.inner_text("#info-updated"))
+    check("tekshirildi, o'zgarish yo'q — oxirgi tekshiruv sanasi", "Oxirgi tekshiruv: 02.11.2026" in pg.inner_text("#info-checked"))
+    check("bazadagi ma'lumot telefonda saqlanadi (internet bo'lmasa)", S(pg, "S.info && S.info.updated") == "26.10.2026")
+    pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
+    check("RU: «Обновлено: 26.10.2026»", "Обновлено: 26.10.2026" in pg.inner_text("#info-updated"))
+    EXTRA["liga_info"] = {"updated": "26.10.2026", "items": [{"id": "x"}]}
+    pg, e = page(b); ALLERR += e
+    check("buzuq ma'lumot kelsa — zaxira ishlatiladi", pg.locator("#info .info-it").count() == 9)
+    EXTRA.pop("liga_info", None)
+
+    print("10g5. Hali o'ynamagan yangi a'zo — «Birinchi bosqichingiz»")
+    NEW = {**SEED, "week": {"id": "2026-10-02T07:00", "my": 0, "part": {"stage": 0, "daily": 0, "blitz": 0, "bonus": 0}, "stages": {}}, "stars": {}}
+    EXTRA["liga_my_kind"] = "never"
+    pg, e = page(b, seed=NEW); ALLERR += e
+    fs = pg.inner_text("#first-step") if pg.locator("#first-step").count() else ""
+    check("yangi a'zoga kartada 3 qadam va «Birinchi bosqichni boshlash»", "Birinchi bosqichingiz" in fs and "15 daqiqa" in fs and pg.locator("#first-go").count() == 1, fs)
+    pg.click("#first-go"); pg.wait_for_timeout(400)
+    check("tugma bugungi bosqichga olib boradi", pg.evaluate("()=>__liga.nav.current().name") == "intro")
+    pg, e = page(b, seed=NEW, when="2026-10-01T13:00:00Z"); ALLERR += e
+    check("bosqich yopiq bo'lsa — mashq tugmasi", pg.locator("#first-practice").count() == 1 and pg.locator("#first-go").count() == 0)
+    EXTRA["liga_my_kind"] = "ok"
+    pg, e = page(b, seed=NEW); ALLERR += e
+    check("o'ynagan a'zoga karta chiqmaydi", pg.locator("#first-step").count() == 0)
+    EXTRA.pop("liga_my_kind", None)
 
     print("10h. Ishtirokchilar muhokama guruhi")
     pg, e = page(b); ALLERR += e

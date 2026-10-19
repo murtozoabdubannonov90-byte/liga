@@ -1,7 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { entry } from "../boot";
-import { Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing, MessagesSquare, Coffee } from "lucide-react";
+import { Rocket, Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing, MessagesSquare, Coffee } from "lucide-react";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, toast } from "../lib/nav";
@@ -9,7 +9,7 @@ import { C, startDaily, startBlitz, startErrs, startGift, startPractice } from "
 import { stLeft, stTotal, stg } from "../engine/remote";
 import { rankOf, giftDone, giftReady, giftCorrect, GIFT_NEED, WEEK_GOAL } from "../engine/score";
 import { stageState, todayStage, tzNow, isWeekend, weekDays, stageOfDate, dkey, OPEN_H, closeH, closeStr, hm, weekEnd, stageDay } from "../engine/time";
-import { joinServer, pull, tgLinkCode } from "../engine/server";
+import { joinServer, pull, tgLinkCode, rpc } from "../engine/server";
 import { CountUp, TierBadge, useNow } from "../components/ui";
 import { canHomeScreen, addToHomeScreen, inTelegram, openTg, BOT_LINK } from "../lib/tg";
 import { persist } from "../engine/state";
@@ -114,6 +114,35 @@ function Ticket() {
   );
 }
 
+/* Hali birorta bosqich o'ynamagan yangi a'zo uchun: qanday o'ynaladi va birinchi qadam (server: liga_my_kind) */
+export function FirstStepCard() {
+  useNow(60000);
+  const [kind, setKind] = useState<string | null>(S.kind ?? null);
+  useEffect(() => {
+    if (!S.pid || !S.token) return;
+    let on = true;
+    rpc<string>("liga_my_kind", { p_id: S.pid, p_token: S.token }).then((k) => { if (on && typeof k === "string") { setKind(k); S.kind = k; persist(); } }).catch(() => {});
+    return () => { on = false; };
+  }, []);
+  const si = todayStage();
+  const played = Object.keys(S.week.stages || {}).length > 0;
+  if (kind !== "never" || played || playerBlocked()) return null;
+  const open = si != null && !isWeekend() && stageState(si) === "open" && !groupBlocked();
+  return (
+    <section className="card" id="first-step" style={{ borderColor: "var(--green)" }}>
+      <div className="card-h"><Rocket size={20} color="var(--green)" /><h3>{t("Birinchi bosqichingiz")}</h3></div>
+      <ol className="small" style={{ margin: "6px 0 10px", paddingLeft: 18, fontWeight: 600, lineHeight: 1.5 }}>
+        <li>{t("Har ish kuni 09:00–17:00 da yangi bosqich ochiladi: 20 savol, taxminan 15 daqiqa.")}</li>
+        <li>{t("Xato qilsangiz — to'g'ri javob va tushuntirish ko'rsatiladi.")}</li>
+        <li>{t("Natijangizni hafta davomida faqat siz ko'rasiz. Jadval juma 17:00 da ochiladi.")}</li>
+      </ol>
+      {open
+        ? <button className="btn" id="first-go" onClick={() => go("intro", { si })}>{t("Birinchi bosqichni boshlash")}</button>
+        : <><p className="small muted" style={{ marginBottom: 8 }}>{t("Bosqich hozir yopiq — keyingi bosqich ish kuni 09:00 da. Hozircha mashq qilib turing:")}</p>
+          <button className="btn ghost" id="first-practice" onClick={() => runOrToast(isWeekend() ? startPractice() : startDaily())}>{t("Mashq qilish")}</button></>}
+    </section>);
+}
+
 function WeekLedger() {
   useNow(60000);
   const days = weekDays(), my = S.week.my, td = tzNow().day;
@@ -161,6 +190,7 @@ export default function Home() {
         {groupBlocked() && <div className="note" style={{ background: "var(--red-soft)" }}><CreditCard size={18} /><span>{t("«{n}» obunasi tugagan. Bosqichlar yopiq — administratorga murojaat qiling.", { n: S.group?.name || "" })}</span></div>}
         {fin && finalCanPlay() && <button className="ticket" style={{ textAlign: "left" }} onClick={() => go("finalLive")}>
           <div className="t-top"><Trophy size={40} color="var(--gold)" /><div className="grow"><div className="t-title">{S.fin?.month === S.grand?.month ? t("Katta final boshlandi!") : t("Oylik final boshlandi!")}</div><div className="t-meta">{t("Siz saralangansiz · 13:00 gacha")}</div></div><ChevronRight /></div></button>}
+        <FirstStepCard />
         <Ticket />
         <DayDuelCard />
         <GrandCard />
