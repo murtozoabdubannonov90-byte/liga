@@ -725,14 +725,18 @@ async function groupDue() {
       ? `⌛ <b>${esc(d.a_name ?? "")}</b> chaqiruvini hech kim qabul qilmadi.`
       : d.note === "cancel" ? `⚔️ ${esc(d.a_name ?? "")} ⚡ ${esc(d.b_name ?? "")} — duel o'ynalmadi (ikkalasi bir vaqtda kirmadi).`
       : await duelResultText(d.code, d);
+    // to'liq natija (savollar bo'yicha) guruh oxiriga yangi xabar bo'lib chiqadi — hamma ko'radi, bildirishnoma keladi;
+    // yuqoridagi chaqiruv xabari esa qisqa yozuvga almashadi (tugmalar olinadi)
+    if (d.kind === "done" && d.note !== "cancel") {
+      const w = d.winner === "a" ? d.a_name : d.winner === "b" ? d.b_name : "";
+      const sent = await tg("sendMessage", { chat_id: d.chat_id, parse_mode: "HTML", text, reply_to_message_id: d.msg_id, allow_sending_without_reply: true });
+      if (!sent?.ok) await tg("sendMessage", { chat_id: d.chat_id, text: text.replace(/<[^>]+>/g, "") });
+      await tg("editMessageText", { chat_id: d.chat_id, message_id: d.msg_id, parse_mode: "HTML", reply_markup: { inline_keyboard: [] },
+        text: `🏁 <b>Duel yakunlandi:</b> ${esc(d.a_name ?? "")} ${d.a_pts}:${d.b_pts} ${esc(d.b_name ?? "")}` + (w ? ` — 🏆 <b>${esc(w)}</b>` : " — 🤝 durang") + "\n👇 To'liq natija pastda." });
+      edited++; continue;
+    }
     const r = await tg("editMessageText", { chat_id: d.chat_id, message_id: d.msg_id, parse_mode: "HTML", text, reply_markup: { inline_keyboard: [] } });
     if (!r?.ok) await tg("sendMessage", { chat_id: d.chat_id, parse_mode: "HTML", text });
-    // natija guruhda bildirishnoma bilan ham chiqsin — o'sha duel xabariga javob (belgilab) qilib
-    else if (d.kind === "done" && d.note !== "cancel") {
-      const w = d.winner === "a" ? d.a_name : d.winner === "b" ? d.b_name : "";
-      await tg("sendMessage", { chat_id: d.chat_id, parse_mode: "HTML", reply_to_message_id: d.msg_id, allow_sending_without_reply: true,
-        text: `🏁 ${esc(d.a_name ?? "")} ${d.a_pts}:${d.b_pts} ${esc(d.b_name ?? "")}` + (w ? ` — 🏆 <b>${esc(w)}</b> yutdi!` : " — 🤝 durang") + "\n👆 Savollar bo'yicha tafsilot yuqoridagi xabarda." });
-    }
     edited++;
   }
   const cfg = await discussCfg();
