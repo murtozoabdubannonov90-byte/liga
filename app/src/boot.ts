@@ -40,8 +40,10 @@ export function boot() {
   /* Telegram ichida: hisob Telegram ID orqali topiladi (yangi telefon/kompyuter — qayta ro'yxatsiz) */
   if (inTelegram && (!S.pid || !S.token)) {
     S.tgTry = true;
+    /* sekin internet: 10 soniyadan keyin kutmasdan ilovani ochamiz (Telegram orqali kirish fonda davom etadi) */
+    const giveUp = setTimeout(() => { if (S.tgTry) { S.tgTry = false; bump(); } }, 10000);
     tgLogin().then((ok) => {
-      S.tgTry = false; bump();
+      clearTimeout(giveUp); S.tgTry = false; bump();
       if (!ok && S.user.first && (!S.pid || (!S.token && !S.tokenLost))) joinServer().then(() => pull(true)); else pull(true);
     });
   } else if (S.user.first && (!S.pid || (!S.token && !S.tokenLost))) joinServer().then(() => pull(true)); else pull(true);

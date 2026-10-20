@@ -3,7 +3,7 @@
    Telefon: visibilitychange; Android'da ekran ustiga chiqadigan AI oynasi: blur; Telegram: deactivated/activated. */
 import { W } from "./tg";
 
-export const AWAY_MS = 1500;      // shundan uzoq chiqish — savol xato (duelda — qulf)
+export const AWAY_MS = 3000;      // shundan uzoq chiqish — savol xato (duelda — qulf). 2026-10-20: 1,5 s → 3 s (bildirishnoma, tasodifiy bosish)
 export const AWAY_LOG_MS = 400;   // shundan uzoq har bir chiqish serverga yoziladi (admin ko'radi)
 
 /* st — komponent qayta chizilsa ham chiqish vaqti yo'qolmasligi uchun (useRef obyekti) */

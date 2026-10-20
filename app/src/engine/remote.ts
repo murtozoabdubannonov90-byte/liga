@@ -40,7 +40,7 @@ function fromView(mode: Mode, v: any, o: Partial<Run>): Run {
   const all: Q[] = items.map((x) => ({ id: "R" + x.k, k: x.k, t: x.t, q: tx(x.q || ""), o: x.t === "mc" ? (x.o || []).map((s: string) => tx(s)) : x.o, unit: x.unit ? tx(x.unit) : undefined, e: "" } as Q));
   const queue = all.filter((_, k) => !items[k].st);
   return {
-    mode, si: null, title: "", queue, i: 0, lives: 5, maxLives: 5, combo: v.combo || 0, mistakes: items.filter((x) => x.st === "bad").length,
+    mode, si: null, title: "", queue, i: 0, lives: 99, maxLives: 0, combo: v.combo || 0, mistakes: items.filter((x) => x.st === "bad").length,
     marks: items.map((x) => (x.st || "") as any), earned: 0, right: v.right_n || 0, noXP: true, timed: true, startedAt: Date.now(), fair: true, answers: [],
     remote: { id: v.run }, state: v, qsec: v.qsec || 60, extraSec: v.extra_sec || 0, ...o,
   } as Run;

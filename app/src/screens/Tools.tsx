@@ -134,7 +134,7 @@ function Salary() {
       <Money id="sv" label={mode === "gross" ? t("Hisoblangan ish haqi") : t("Xodim qo'liga oladigan summa")} v={v} set={setV} suffix={t("so'm")} />
       <div className="row2"><Pct id="sr" label={t("JShDS stavkasi")} v={r} set={setR} /><Pct id="ss" label={t("Ijtimoiy soliq stavkasi")} v={s} set={setS} /></div>
       <Lines rows={[[t("Hisoblangan ish haqi"), gross], [t("JShDS (xodimdan ushlanadi)"), jsh], [t("Xodim qo'liga"), net, true], [t("Ijtimoiy soliq (ish beruvchi to'laydi)"), soc], [t("Ish beruvchining jami xarajati"), gross + soc, true]]} />
-      <div className="note small"><span>{t("Provodkalar: Dt 9420 (yoki 2010) — Kt 6710; Dt 6710 — Kt 6410 (JShDS); Dt 9420 (yoki 2010) — Kt 6410 (ijtimoiy soliq).")}</span></div>
+      <div className="note small"><span>{t("Provodkalar: Dt 9420 (yoki 2010) — Kt 6710; Dt 6710 — Kt 6410 (JShDS); Dt 9420 (yoki 2010) — Kt 6520 (ijtimoiy soliq).")}</span></div>
     </div>);
 }
 function Vat() {

@@ -1159,36 +1159,36 @@
     "t": "pv",
     "q": "Menejer oyligiga 12% ijtimoiy soliq hisoblandi.",
     "dt": "9420",
-    "kt": "6410",
+    "kt": "6520",
     "o": [
      "9210",
      "4730",
      "9020",
      "6410",
-     "9540",
+     "6520",
      "9420"
     ],
-    "e": "Ijtimoiy soliq — firmaning xarajati (Dt 9420), budjetga qarz (Kt 6410). Xodimdan ushlanmaydi."
+    "e": "Ijtimoiy soliq — firmaning xarajati (Dt 9420), ijtimoiy soliq bo'yicha qarz (Kt 6520). Xodimdan ushlanmaydi. Ijtimoiy soliq 6520 da, JShDS va QQS — 6410 da."
    },
    {
     "t": "pv",
     "q": "Sex ishchisi oyligiga ijtimoiy soliq hisoblandi.",
     "dt": "2010",
-    "kt": "6410",
+    "kt": "6520",
     "o": [
      "9310",
      "6710",
      "6310",
-     "4220",
+     "6520",
      "2010",
      "6410"
     ],
-    "e": "Ishlab chiqarish ishchisi bo'yicha ijtimoiy soliq ham tannarxga kiradi (Dt 2010), budjetga qarz (Kt 6410)."
+    "e": "Ishlab chiqarish ishchisi bo'yicha ijtimoiy soliq ham tannarxga kiradi (Dt 2010), ijtimoiy soliq bo'yicha qarz (Kt 6520). Ijtimoiy soliq 6520 da, JShDS va QQS — 6410 da."
    },
    {
     "t": "pv",
     "q": "Ijtimoiy soliq budjetga to'landi.",
-    "dt": "6410",
+    "dt": "6520",
     "kt": "5110",
     "o": [
      "5110",
@@ -1196,9 +1196,9 @@
      "6710",
      "6410",
      "0820",
-     "0230"
+     "6520"
     ],
-    "e": "Budjetga qarz yopildi (Dt 6410), bank kamaydi (Kt 5110)."
+    "e": "Ijtimoiy soliq bo'yicha qarz yopildi (Dt 6520), bank kamaydi (Kt 5110). Ijtimoiy soliq 6520 da, JShDS va QQS — 6410 da."
    },
    {
     "t": "pv",
@@ -2210,16 +2210,16 @@
     "t": "pv",
     "q": "Imtiyozli firma: ijtimoiy soliq 1% stavkada hisoblandi (ma'muriy xodimlar).",
     "dt": "9420",
-    "kt": "6410",
+    "kt": "6520",
     "o": [
      "6410",
      "0130",
      "2810",
      "2910",
-     "4410",
+     "6520",
      "9420"
     ],
-    "e": "Stavka imtiyozli bo'lsa ham provodka o'sha: Dt 9420 — Kt 6410."
+    "e": "Stavka imtiyozli bo'lsa ham provodka o'sha: Dt 9420 — Kt 6520. Ijtimoiy soliq 6520 da, JShDS va QQS — 6410 da."
    },
    {
     "t": "pv",

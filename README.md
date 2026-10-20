@@ -34,7 +34,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (214 ta)
+python3 tests/app.test.py        # 2.0 testlari (230 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -42,6 +42,14 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
+## 2026-10-20b: bo'sh ekran, javobsiz xato, limitlar, ijtimoiy soliq 6520
+- **Bo'sh ekran / ochilmaslik:** Telegram skripti endi sahifani to'xtatib turmaydi (Telegram ichida 6 s gacha kutiladi, brauzerda kutilmaydi); server so'rovlariga vaqt chegarasi (20 s); Telegram orqali kirish 10 s da javob bermasa ilova baribir ochiladi; eski telefonlar (Android 6–9 WebView, iOS 11–13) uchun alohida ES5 to'plam (`@vitejs/plugin-legacy`); service worker: sahifa 5 s da kelmasa — keshdagisi, oldingi 3 ta versiya fayllari serverda saqlanadi (`assets/builds.json`); yuklanish ekrani va 15 s nazorat — ochilmasa «Qayta yuklash» (kesh tozalanadi); ekranda xato bo'lsa — oq ekran o'rniga xabar (`Boundary`); savol/dars topilmasa — xabar va «Bosh sahifa».
+- **Qurilma xatolari jurnali:** `liga_client_err` jadvali — qaysi telefonda nima buzilganini ko'rish uchun (`select * from liga_client_err order by at desc`).
+- **Javob bermasa ham xato:** halol o'yin chegarasi 1,5 s → 3 s; bosqichdagi birinchi uzoq chiqish faqat ogohlantirish, keyingilari xato.
+- **Kunlik limitlar olib tashlandi:** bosqich va mashqlarda 5 ta jon (5 xatodan keyin to'xtash) yo'q; duel/jonli duel kuniga 20/30 cheklovi yo'q (faqat 2 daqiqada 15 tadan ko'p — spam himoyasi).
+- **Ijtimoiy soliq — 6520** (buxgalter.uz, «Проводки по зарплате»: Дт затрат — Кт 6520; to'lov Дт 6520 — Кт 5110). Bazada 18 ta, ilovada 4 ta savol, 2 ta dars, kalkulyator izohi tuzatildi; 6520 hisobvaraqlar ro'yxatiga qo'shildi. «JShDS va ijtimoiy soliq birga to'landi» savollari faqat JShDS ga o'zgartirildi. Tuzatish skripti: `app/scripts/fix_6520.py`.
+- Baza: `db/2026-10-20b_limitlar_xatolar_6520.sql`. Testlar: 230 ta.
 
 ## 2026-10-20: Telegram niki yo'qlardan nik so'rash
 - Bot Telegram niki (username) yo'q ishtirokchilarga shaxsan yozadi: nik nima uchun kerak (kubok duelida raqib yozishi uchun), qanday qo'yiladi (Sozlamalar → Foydalanuvchi nomi) va «✅ Nik qo'ydim — tekshirish» tugmasi. Tugma bosilganda bot nikni darhol tekshiradi va saqlaydi.

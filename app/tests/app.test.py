@@ -95,10 +95,12 @@ with sync_playwright() as p:
     pg.click("#nx"); pg.wait_for_timeout(400)
     HIDE = "()=>{Object.defineProperty(document,'hidden',{value:true,configurable:true});Object.defineProperty(document,'visibilityState',{value:'hidden',configurable:true});document.dispatchEvent(new Event('visibilitychange'))}"
     SHOW = "()=>{Object.defineProperty(document,'hidden',{value:false,configurable:true});Object.defineProperty(document,'visibilityState',{value:'visible',configurable:true});document.dispatchEvent(new Event('visibilitychange'))}"
-    pg.evaluate(HIDE); pg.clock.fast_forward(1000); pg.evaluate(SHOW); pg.wait_for_timeout(300)
-    check("1 soniya chiqib qaytish kechiriladi (bildirishnoma)", "Ilovadan chiqildi" not in txt(pg) and pg.locator("#chk").count() == 1)
+    pg.evaluate(HIDE); pg.clock.fast_forward(2500); pg.evaluate(SHOW); pg.wait_for_timeout(300)
+    check("3 soniyagacha chiqib qaytish kechiriladi (bildirishnoma, qo'ng'iroq)", "Ilovadan chiqildi" not in txt(pg) and pg.locator("#chk").count() == 1)
     pg.evaluate(HIDE); pg.clock.fast_forward(5000); pg.evaluate(SHOW); pg.wait_for_timeout(400)
-    check("ilovadan uzoq chiqish = xato (halol o'yin)", "Ilovadan chiqildi" in txt(pg), txt(pg)[-300:])
+    check("bosqichdagi birinchi uzoq chiqish — faqat ogohlantirish, savol xato emas", "Ilovadan chiqildi" not in txt(pg) and pg.locator("#chk").count() == 1 and "Ogohlantirish" in txt(pg), txt(pg)[-300:])
+    pg.evaluate(HIDE); pg.clock.fast_forward(5000); pg.evaluate(SHOW); pg.wait_for_timeout(400)
+    check("ikkinchi uzoq chiqish = xato (halol o'yin)", "Ilovadan chiqildi" in txt(pg), txt(pg)[-300:])
     check("nusxa olish bloklangan", pg.evaluate("()=>{const e=new Event('copy',{cancelable:true});document.dispatchEvent(e);return e.defaultPrevented}"))
     check("ekranda ism suv belgisi", pg.locator(".wm").count() == 1 and "Dilnoza" in pg.inner_text(".wm"))
     pg.click("#nx"); pg.wait_for_timeout(400); pg.wait_for_selector("#chk")
@@ -109,6 +111,52 @@ with sync_playwright() as p:
     pg.click("#nx"); pg.wait_for_timeout(300)
     pg.evaluate("()=>__liga.nav.tryBack()"); pg.wait_for_timeout(300)
     check("orqaga bosilganda tasdiq so'raladi", "Chiqasizmi?" in txt(pg))
+
+    print("3b. Jon cheklovi yo'q: 6 ta xatodan keyin ham bosqich davom etadi")
+    pg, e = page(b); ALLERR += e
+    go(pg, "intro", {"si": 3}); pg.click("#go"); pg.wait_for_timeout(500)
+    check("bosqichda yurakchalar (jon) ko'rsatilmaydi", pg.locator(".hearts").count() == 0)
+    for _ in range(6):
+        answer(pg, False); pg.click("#nx"); pg.wait_for_timeout(350)
+    check("6 ta xatodan keyin ham keyingi savol ochiq (bosqich to'xtamadi)", pg.locator(".qtext").count() == 1 and pg.locator("#chk").count() == 1, txt(pg)[:200])
+    pg, e = page(b); ALLERR += e
+    rr = pg.evaluate("()=>{const r=__liga.run.startDaily();return [r.maxLives,r.lives]}")
+    check("kunlik mashqda ham jon cheklovi yo'q", rr[0] == 0 and rr[1] >= 99, rr)
+
+    print("3c. Ijtimoiy soliq — 6520")
+    bad = pg.evaluate("""()=>{const c=__liga.run.C(); const all=c.STAGES.flatMap(s=>s.tasks);
+      return all.filter(t=>t.t==='pv'&&/ijtimoiy soliq/i.test(t.q)&&!/JShDS/.test(t.q)&&(t.dt==='6410'||t.kt==='6410')).map(t=>t.q)}""")
+    check("mashq savollarida ijtimoiy soliq 6410 da emas", bad == [], bad)
+    soc = pg.evaluate("""()=>__liga.run.C().STAGES.flatMap(s=>s.tasks).filter(t=>t.t==='pv'&&/ijtimoiy soliq hisoblandi/i.test(t.q))""")
+    check("ijtimoiy soliq hisoblanishi: Kt 6520 va 6520 variantlarda", len(soc) >= 2 and all(t["kt"] == "6520" and "6520" in t["o"] for t in soc), soc[:2])
+    check("hisobvaraqlar ro'yxatida 6520 bor", pg.evaluate("()=>!!__liga.run.C().A['6520']"))
+
+    print("3d. Ochilish: yuklanish ekrani, xato bo'lsa qayta yuklash")
+    raw = open(os.path.join(ROOT, "dist", "index.html"), encoding="utf-8").read()
+    check("Telegram skripti sahifani to'xtatib turmaydi (sinxron <script src=telegram> yo'q)", 'src="https://telegram.org' not in raw)
+    check("yuklanish ekrani va 15 s nazorat bor", 'id="boot"' in raw and "__ligaFail" in raw and "Qayta yuklash" in raw)
+    check("eski telefonlar uchun legacy to'plam (nomodule)", "nomodule" in raw and "polyfills-legacy" in raw)
+    import glob
+    leg = glob.glob(os.path.join(ROOT, "dist", "assets", "start-legacy-*.js"))
+    es5 = subprocess.run(["npx", "-y", "esbuild@0.24", leg[0], "--target=es5", "--log-level=error", "--outfile=/dev/null"], capture_output=True, text=True) if leg else None
+    check("legacy to'plam ES5 (const/=>/class yo'q)", bool(leg) and es5.returncode == 0, (es5.stderr[:300] if es5 else "yo'q"))
+    check("ilova yuklangach yuklanish ekrani yo'qoladi", pg.locator("#boot").count() == 0 and pg.evaluate("()=>window.__ligaMounted===true"))
+    sw = open(os.path.join(ROOT, "dist", "sw.js"), encoding="utf-8").read()
+    check("service worker: sahifa 5 s da kelmasa — keshdagisi", "netFirst(r, 5000)" in sw and "hisobchi-liga-v3" in sw)
+    crash = b.new_context().new_page(); cerr = []
+    crash.on("pageerror", lambda x: cerr.append(str(x)))
+    crash.route("**supabase.co/**", handler); crash.route("**telegram.org/**", lambda r: r.fulfill(status=200, body=""))
+    crash.route("**/assets/start-*.js", lambda r: r.fulfill(status=404, body=""))
+    crash.clock.install(); crash.goto(BASE); crash.wait_for_timeout(800)
+    crash.clock.fast_forward(16000); crash.wait_for_timeout(300)
+    check("ilova fayli yuklanmasa — oq ekran emas, «Qayta yuklash» tugmasi", crash.locator("#boot-reload").count() == 1 and "ochilmadi" in crash.inner_text("body"), crash.inner_text("body")[:200])
+    check("ochilmaslik serverga yoziladi (liga_client_err)", any(f == "liga_client_err" for f, _ in CALLS))
+    crash.close()
+
+    print("3e. Ekranda xato bo'lsa — Boundary")
+    pg, e = page(b); ALLERR += e
+    pg.evaluate("()=>{__liga.nav.go('lesson',{id:'__yoq__'})}"); pg.wait_for_timeout(500)
+    check("buzuq ekran oq qolmaydi (xabar yoki bosh sahifa)", len(txt(pg).strip()) > 20)
 
     print("4. Vaqt qoidalari")
     pg, e = page(b); ALLERR += e

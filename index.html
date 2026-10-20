@@ -1,6 +1,8 @@
 <!doctype html>
 <html lang="uz">
 <head>
+  <script type="module" crossorigin src="./assets/polyfills-Cq3fVjNo.js"></script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <title>Hisobchi Liga</title>
@@ -10,11 +12,55 @@
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
-  <script type="module" crossorigin src="./assets/index-DsN-q98Z.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-B28xm8sx.css">
+<style>
+  #boot{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#0F2A24;color:#EAF4EF;font:600 15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;text-align:center;padding:24px}
+  #boot b{font-size:20px;letter-spacing:.02em}
+  #boot .sp{width:34px;height:34px;border:3px solid rgba(234,244,239,.25);border-top-color:#6EE7B7;border-radius:50%;animation:bs 0.9s linear infinite}
+  #boot button{margin-top:6px;background:#6EE7B7;color:#0F2A24;border:0;border-radius:12px;padding:12px 22px;font:700 15px system-ui,sans-serif}
+  #boot a{color:#6EE7B7}
+  #boot .m{max-width:340px;opacity:.85;font-weight:500}
+  @keyframes bs{to{transform:rotate(360deg)}}
+</style>
+  <script type="module" crossorigin src="./assets/index-BzaQeHbv.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-BrH8avnv.css">
+  <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
+  <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
 </head>
 <body>
-<div id="root"></div>
+<div id="root"><div id="boot"><b>Hisobchi Liga</b><span class="sp"></span><span class="m" id="boot-msg">Yuklanmoqda…</span></div></div>
+<script>
+/* ES5 — eng eski telefonda ham ishlaydi. Ilova 15 soniyada ochilmasa: sababini ko'rsatadi va qayta yuklash tugmasini beradi. */
+(function () {
+  var t0 = Date.now(), errs = [];
+  window.__ligaVer = "2026-10-20";
+  function send(m, s) {
+    try {
+      if (errs.length > 4 || errs.indexOf(m) >= 0) return; errs.push(m);
+      var x = new XMLHttpRequest(); x.open("POST", "https://bopzjxboembvcqycfwin.supabase.co/rest/v1/rpc/liga_client_err", true);
+      var k = "sb_publishable_DWSUYhML5IH5cOksXdlCDA_SNt6c9Dm";
+      x.setRequestHeader("apikey", k); x.setRequestHeader("Authorization", "Bearer " + k); x.setRequestHeader("Content-Type", "application/json");
+      x.send(JSON.stringify({ p_msg: String(m).slice(0, 400), p_stack: String(s || "").slice(0, 1500), p_ua: navigator.userAgent.slice(0, 300), p_where: "boot " + location.pathname, p_tg: "", p_ver: window.__ligaVer }));
+    } catch (e) {}
+  }
+  window.addEventListener("error", function (e) { if (!window.__ligaMounted) send("boot: " + (e.message || "script error"), (e.filename || "") + ":" + (e.lineno || "")); }, true);
+  function reload() {
+    try { if (window.caches) caches.keys().then(function (ks) { ks.forEach(function (k) { caches["delete"](k); }); }); } catch (e) {}
+    try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }); } catch (e) {}
+    setTimeout(function () { location.reload(); }, 400);
+  }
+  window.__ligaFail = function (why) {
+    var b = document.getElementById("boot"); if (!b) return;
+    b.innerHTML = "<b>Hisobchi Liga</b><span class='m'>Ilova ochilmadi. Internetni tekshirib, «Qayta yuklash» tugmasini bosing.</span>" +
+      "<button id='boot-reload'>Qayta yuklash</button>" +
+      "<span class='m' style='font-size:13px'>Yordam bermasa: Telegram'ni yangilang (Play Market / App Store) yoki ligani brauzerda oching: <a href='https://murtozoabdubannonov90-byte.github.io/liga/'>murtozoabdubannonov90-byte.github.io/liga</a></span>";
+    document.getElementById("boot-reload").onclick = reload;
+    if (why) send("boot_fail: " + why, "");
+  };
+  setTimeout(function () { if (!window.__ligaMounted) { send("boot_timeout " + Math.round((Date.now() - t0) / 1000) + "s", ""); window.__ligaFail(""); } }, 15000);
+})();
+</script>
+  <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
+  <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-CjB5Ao4A.js"></script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-GuRnPxBE.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 </html>

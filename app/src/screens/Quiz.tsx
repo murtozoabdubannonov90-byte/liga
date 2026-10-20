@@ -1,3 +1,4 @@
+import { EmptyScreen } from "../components/Boundary";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Flame, Heart, Zap, Share2, RotateCcw, Home as HomeI, Trophy, Clock3, Lightbulb, ChevronDown, NotebookPen, Timer } from "lucide-react";
@@ -98,7 +99,13 @@ export default function Quiz({ run }: { run: Run }) {
     /* 1,5 soniyagacha chiqib qaytish kechiriladi (bildirishnoma); undan uzoq — savol xato. Har bir chiqish serverga yoziladi */
     const stop = watchAway(() => !answered.current && !fin, (ms) => {
       if (ms >= AWAY_LOG_MS && r.remote && tq) awayR(r, tq.k, ms);
-      if (ms > AWAY_MS && !answered.current && !fin) check("left");
+      if (ms > AWAY_MS && !answered.current && !fin) {
+        /* bosqichdagi birinchi chiqish kechiriladi (tasodifiy bildirishnoma, qo'ng'iroq) — faqat ogohlantirish; keyingilari — xato */
+        const key = r.remote?.id || r.mode + ":" + r.startedAt;
+        S.awayWarn = S.awayWarn || {};
+        if (!S.awayWarn[key]) { S.awayWarn[key] = Date.now(); persist(); sfx("bad"); toast(t("Ogohlantirish: savol paytida ilovadan chiqmang. Keyingi safar savol xato hisoblanadi.")); return; }
+        check("left");
+      }
     }, away.current);
     const block = (e: Event) => e.preventDefault();
     ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.addEventListener(ev, block));
@@ -208,7 +215,7 @@ export default function Quiz({ run }: { run: Run }) {
 
   const wm = useMemo(() => { const u = S.user; return (((u.first || "") + " " + (u.last || "")).trim() + " · " + String(u.phone || "").slice(-4) + "   ").repeat(60); }, []);
   if (fin) return <Result r={r} f={fin} extra={extra} />;
-  if (!tq) return null;
+  if (!tq) return <EmptyScreen text={t("Savollar topilmadi — bosh sahifadan qayta oching.")} />;
   const pct = left / QS;
   return (
     <div className="shell bare" style={{ paddingTop: "calc(6px + var(--safe-t))" }}>

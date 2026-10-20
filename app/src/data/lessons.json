@@ -324,14 +324,14 @@
   "topic": "ish",
   "uz": {
    "title": "Ijtimoiy soliq — firma hisobidan",
-   "body": "Ijtimoiy soliq (12%) xodim oyligidan ushlanmaydi — uni firma o'z mablag'idan to'laydi. U oylik qaysi schyotga yozilgan bo'lsa, o'sha xarajatga qo'shiladi: ofis uchun Dt 9420 — Kt 6410, sex uchun Dt 2010 — Kt 6410.",
+   "body": "Ijtimoiy soliq (12%) xodim oyligidan ushlanmaydi — uni firma o'z mablag'idan to'laydi. U oylik qaysi schyotga yozilgan bo'lsa, o'sha xarajatga qo'shiladi: ofis uchun Dt 9420 — Kt 6520, sex uchun Dt 2010 — Kt 6520. To'langanda: Dt 6520 — Kt 5110.",
    "tip": "Eslab qoling: ijtimoiy soliqni Dt 6710 ga yozish — xodimning qonuniy maoshini kamaytirish degani, bu xato.",
    "dt": "9420",
-   "kt": "6410"
+   "kt": "6520"
   },
   "ru": {
    "title": "Социальный налог — за счёт фирмы",
-   "body": "Социальный налог (12%) из зарплаты работника не удерживается — его платит фирма за свой счёт. Он относится на тот же счёт затрат, что и зарплата: офис — Дт 9420 — Кт 6410, цех — Дт 2010 — Кт 6410.",
+   "body": "Социальный налог (12%) из зарплаты работника не удерживается — его платит фирма за свой счёт. Он относится на тот же счёт затрат, что и зарплата: офис — Дт 9420 — Кт 6520, цех — Дт 2010 — Кт 6520. При уплате: Дт 6520 — Кт 5110.",
    "tip": "Запомните: соцналог по Дт 6710 — это незаконное уменьшение зарплаты работника, ошибка."
   }
  },
@@ -500,15 +500,15 @@
   "topic": "sol",
   "uz": {
    "title": "Asosiy soliq stavkalari xaritasi",
-   "body": "Ilovada ishlatiladigan asosiy stavkalar: QQS — 12%, foyda solig'i — 15%, JShDS — 12%, ijtimoiy soliq — 12%, jismoniy shaxs dividendi — 5%, aylanmadan olinadigan soliq — 4%. Ularning barchasi budjet bilan hisob-kitob schyoti 6410 da yuritiladi.",
-   "tip": "Eslab qoling: har bir soliq turi bo'yicha 6410 da alohida analitika yuriting, aks holda qarzlar aralashib ketadi.",
+   "body": "Ilovada ishlatiladigan asosiy stavkalar: QQS — 12%, foyda solig'i — 15%, JShDS — 12%, ijtimoiy soliq — 12%, jismoniy shaxs dividendi — 5%, aylanmadan olinadigan soliq — 4%. QQS, foyda solig'i, JShDS va dividend solig'i budjet bilan hisob-kitob schyoti 6410 da, ijtimoiy soliq esa 6520 da yuritiladi.",
+   "tip": "Eslab qoling: 6410 da har bir soliq turi bo'yicha alohida analitika yuriting; ijtimoiy soliqni 6410 ga emas, 6520 ga yozing.",
    "dt": null,
    "kt": null
   },
   "ru": {
    "title": "Карта основных налоговых ставок",
-   "body": "Основные ставки, используемые в приложении: НДС — 12%, налог на прибыль — 15%, НДФЛ — 12%, социальный налог — 12%, дивиденды физлицам — 5%, налог с оборота — 4%. Расчёты по всем ним ведутся на счёте 6410.",
-   "tip": "Запомните: ведите на 6410 аналитику по каждому налогу, иначе долги смешаются."
+   "body": "Основные ставки, используемые в приложении: НДС — 12%, налог на прибыль — 15%, НДФЛ — 12%, социальный налог — 12%, дивиденды физлицам — 5%, налог с оборота — 4%. НДС, налог на прибыль, НДФЛ и налог на дивиденды учитываются на счёте 6410, социальный налог — на 6520.",
+   "tip": "Запомните: на 6410 ведите аналитику по каждому налогу; соцналог отражайте не на 6410, а на 6520."
   }
  },
  {

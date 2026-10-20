@@ -12,7 +12,7 @@ import { sfx, burst } from "../lib/fx";
 import { toast } from "../lib/nav";
 
 type Side = "a" | "l" | "e";
-const ASSETS = ["0130", "1010", "2910", "2810", "4010", "4310", "5010", "5110"], LIAB = ["6010", "6310", "6410", "6710", "6810", "7810"], EQ = ["8330", "8710"];
+const ASSETS = ["0130", "1010", "2910", "2810", "4010", "4310", "5010", "5110"], LIAB = ["6010", "6310", "6410", "6520", "6710", "6810", "7810"], EQ = ["8330", "8710"];
 const r = (a: number, b: number) => (a + Math.floor(Math.random() * (b - a + 1))) * 1_000_000;
 function makeGame() {
   const as = shuffle(ASSETS.slice()).slice(0, 4).map((c) => ({ c, v: r(5, 90), s: "a" as Side }));

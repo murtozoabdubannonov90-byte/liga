@@ -4,11 +4,12 @@ import { accStats, recalcWeek } from "./score";
 import { setLigaStart } from "./time";
 import { tgUser, inTelegram, W } from "../lib/tg";
 import { t } from "../lib/i18n";
+import { fetchT } from "../lib/net";
 
 export const SUPA_URL = "https://bopzjxboembvcqycfwin.supabase.co";
 const head = () => ({ apikey: S.key, Authorization: "Bearer " + S.key, "Content-Type": "application/json" });
 export async function rpc<T = any>(fn: string, args?: Record<string, unknown>): Promise<T> {
-  const r = await fetch(SUPA_URL + "/rest/v1/rpc/" + fn, { method: "POST", headers: head(), body: JSON.stringify(args || {}) });
+  const r = await fetchT(SUPA_URL + "/rest/v1/rpc/" + fn, { method: "POST", headers: head(), body: JSON.stringify(args || {}) }, 20000);
   const t = await r.text(); if (!r.ok) throw new Error(t); return (t ? JSON.parse(t) : null) as T;
 }
 export const ERR: Record<string, string> = {
@@ -118,8 +119,8 @@ export const syncNow = async () => { await pushMe(); await pull(true); };
 /* Telegram orqali ochilgan bo'lsa — shaxsiy eslatmalar uchun bog'lash (bot initData ni tekshiradi) */
 export const BOT_API = SUPA_URL + "/functions/v1/liga-bot/app";
 export async function botApp(action: string, extra: Record<string, unknown> = {}) {
-  const r = await fetch(BOT_API, { method: "POST", headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, initData: inTelegram ? W.initData : "", p_id: S.pid, token: S.token, ...extra }) });
+  const r = await fetchT(BOT_API, { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action, initData: inTelegram ? W.initData : "", p_id: S.pid, token: S.token, ...extra }) }, 15000);
   const j = await r.json().catch(() => ({})); if (!r.ok || j.error) throw new Error(j.error || "net"); return j;
 }
 /* bosqich yakunlandi — bot o'yinchiga shaxsan natijasini yuboradi (Telegram ulangan bo'lsa) */

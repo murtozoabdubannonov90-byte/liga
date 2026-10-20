@@ -14,9 +14,18 @@ if (!fs.existsSync(path.join(v1, "index.html"))) {
     console.log("eski ilova → v1/");
   }
 }
-// 2) eski build fayllarini tozalash va yangisini nusxalash
-fs.rmSync(path.join(root, "assets"), { recursive: true, force: true });
+// 2) yangi build fayllarini nusxalash. Oldingi 3 ta versiya fayllari saqlanadi: telefon keshidagi eski sahifa
+//    o'chirilgan faylni so'rasa, oq ekran bo'lib qolardi. Undan eskilari o'chiriladi (ro'yxat: assets/builds.json).
+const adir = path.join(root, "assets"), bj = path.join(adir, "builds.json");
+let builds = [];
+try { builds = JSON.parse(fs.readFileSync(bj, "utf8")); } catch { builds = []; }
+if (!builds.length && fs.existsSync(adir)) builds = [fs.readdirSync(adir).filter((f) => f !== "builds.json")];   // birinchi marta: hozirgilari — bitta oldingi versiya
+const fresh = fs.readdirSync(path.join(dist, "assets"));
+builds.push(fresh); builds = builds.slice(-4);
+const keep = new Set(builds.flat());
 fs.cpSync(dist, root, { recursive: true });
+for (const f of fs.readdirSync(adir)) if (f !== "builds.json" && !keep.has(f)) fs.rmSync(path.join(adir, f), { force: true });
+fs.writeFileSync(bj, JSON.stringify(builds));
 // GitHub Pages: Jekyll'siz (assets/_ fayllar uchun)
 fs.writeFileSync(path.join(root, ".nojekyll"), "");
 console.log("tayyor:", fs.readdirSync(dist).join(", "));

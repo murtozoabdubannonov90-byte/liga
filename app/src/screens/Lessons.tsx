@@ -1,3 +1,4 @@
+import { EmptyScreen } from "../components/Boundary";
 import { Check, BookOpenCheck, Lightbulb } from "lucide-react";
 import { S, persist } from "../engine/state";
 import { t } from "../lib/i18n";
@@ -30,7 +31,7 @@ export function Lessons() {
   );
 }
 export function LessonView({ id }: { id: string }) {
-  const c = C(), l = c.LESSONS.find((x) => x.id === id); if (!l) return null;
+  const c = C(), l = c.LESSONS.find((x) => x.id === id); if (!l) return <EmptyScreen text={t("Dars topilmadi.")} />;
   const done = !!(S.lessonsRead || {})[l.id];
   const finish = () => { if (!done) { S.lessonsRead = { ...(S.lessonsRead || {}), [l.id]: tzNow().day }; addXP(15); persist(); sfx("coin"); } back(); };
   return (

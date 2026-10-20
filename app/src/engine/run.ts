@@ -32,7 +32,8 @@ function freshFirst(pool: Task[]): Task[] { const now = Date.now(), seen = S.see
 const openIdx = () => { const o = Array.from({ length: STAGE_N }, (_, i) => i).filter(unlocked); return o.length ? o : [0]; };
 const q = (arr: Task[]): Q[] => arr.map((t, k) => ({ ...t, k }));
 function mk(mode: Mode, queue: Q[], o: Partial<Run> = {}): Run {
-  return { mode, si: null, title: "", queue, i: 0, lives: 5, maxLives: 5, combo: 0, mistakes: 0, marks: queue.map(() => ""), earned: 0, right: 0,
+  /* 2026-10-20: jon (5 ta xatodan keyin to'xtatish) cheklovi olib tashlandi — barcha savollar oxirigacha */
+  return { mode, si: null, title: "", queue, i: 0, lives: 99, maxLives: 0, combo: 0, mistakes: 0, marks: queue.map(() => ""), earned: 0, right: 0,
     noXP: false, timed: true, startedAt: Date.now(), fair: false, answers: [], ...o };
 }
 
@@ -49,7 +50,7 @@ export function startBlitz(): Run {
 export function startErrs(): Run | string {
   const ids = Object.keys(S.errs); if (!ids.length) return "Xato daftari bo'sh — zo'r!";
   const pool = shuffle(ids.map(taskById).filter(Boolean) as Task[]).slice(0, 12);
-  return mk("errs", q(pool), { noXP: isWeekend(), lives: isWeekend() ? 99 : 5, title: "Xato daftari" });
+  return mk("errs", q(pool), { noXP: isWeekend(), title: "Xato daftari" });
 }
 export function startGift(): Run | string {
   if (isWeekend()) return "Shanba va yakshanba sovg'a yo'q";
