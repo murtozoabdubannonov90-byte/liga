@@ -43,6 +43,12 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-20: Telegram niki yo'qlardan nik so'rash
+- Bot Telegram niki (username) yo'q ishtirokchilarga shaxsan yozadi: nik nima uchun kerak (kubok duelida raqib yozishi uchun), qanday qo'yiladi (Sozlamalar → Foydalanuvchi nomi) va «✅ Nik qo'ydim — tekshirish» tugmasi. Tugma bosilganda bot nikni darhol tekshiradi va saqlaydi.
+- Ish kunlari 13:00 da (cron `liga-nik`), bir odamga ko'pi bilan 4 marta, kamida 2 kun oraliq bilan; yuborishdan oldin nik qo'yilgan-qo'yilmaganini tekshiradi. Qo'lda: bot amali `nick_ask_now`.
+- 20:00 kunlik hisobotda: niki yo'qlar soni, so'ralganlar, so'ralgach qo'yganlar.
+- Baza: `db/2026-10-20_nik_sorash.sql`.
+
 ## 2026-10-19: ball xatosi, kurs 12:00 da, ma'lumotnoma har hafta, kirmaganlar
 - **Xato tuzatildi:** juma 17:00 dan keyin ilovani ochganlarda o'tgan haftaning bosqich bali yangi haftada qolib ketardi (24 kishi). Endi yangi hafta 0 dan boshlanadi; o'tgan hafta natijalari buzilmagan.
 - **Valyuta kursi** — har kuni 12:00 da (cbu.uz javob bermasa 12:20, 12:40 da qayta). Kartada: «Yangilandi: bugun 12:00 · har kuni 12:00 da».

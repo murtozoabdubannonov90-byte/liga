@@ -111,6 +111,11 @@ const RU: Record<string, string> = {
   "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:": "💬 <b>{n}, открылась группа участников Hisobchi Liga!</b>\nЗдесь обсуждаем вопросы, проводки и дуэли, договариваемся с соперником. Присоединяйтесь:",
   "🕛 <b>{n}, bugungi {s}-bosqich hali bajarilmagan.</b>\nSoat {c} gacha vaqt bor — hozir 10–15 daqiqa ajrating, keyin unutib qo'yasiz.": "🕛 <b>{n}, сегодняшний этап {s} ещё не пройден.</b>\nВремя есть до {c} — уделите 10–15 минут сейчас, потом забудете.",
   "Jamoangizdan {p} kishi bugun bajarib bo'ldi.": "Из вашей команды сегодня уже прошли: {p}.",
+  "👤 <b>{n}, Telegram'da nikingiz (username) yo'q.</b>\nKubok duelida raqibingiz sizga Telegram'da yoza olishi uchun nik kerak — hozir sizni topib bo'lmayapti.\n\n<b>Nik qo'yish (1 daqiqa):</b>\n1. Telegram → <b>Sozlamalar</b> (Settings / Настройки)\n2. <b>Foydalanuvchi nomi</b> (Username / Имя пользователя)\n3. Nik yozing, masalan: <code>{ex}</code> → ✓\n\nKeyin pastdagi tugmani bosing.": "👤 <b>{n}, у вас в Telegram нет имени пользователя (username).</b>\nОно нужно, чтобы соперник по дуэли кубка мог вам написать — сейчас вас нельзя найти.\n\n<b>Как поставить (1 минута):</b>\n1. Telegram → <b>Настройки</b> (Settings)\n2. <b>Имя пользователя</b> (Username)\n3. Введите ник, например: <code>{ex}</code> → ✓\n\nЗатем нажмите кнопку ниже.",
+  "✅ Nik qo'ydim — tekshirish": "✅ Ник поставил — проверить",
+  "Nik hali ko'rinmayapti. Sozlamalar → Foydalanuvchi nomi bo'limida nik yozib, ✓ ni bosing, keyin qayta tekshiring.": "Ник пока не виден. Настройки → Имя пользователя: введите ник, нажмите ✓ и проверьте снова.",
+  "✅ <b>Rahmat! Nikingiz saqlandi: @{u}</b>\nEndi duel raqibingiz sizga Telegram'da yoza oladi.": "✅ <b>Спасибо! Ник сохранён: @{u}</b>\nТеперь соперник по дуэли сможет вам написать.",
+  "Saqlandi": "Сохранено",
   "👋 <b>{n}, ligaga xush kelibsiz!</b>\nSiz ro'yxatdan o'tgansiz, lekin hali birorta bosqich o'ynamadingiz.\n\nBugun <b>{s}-bosqich</b> ochiq: 20 savol, taxminan 15 daqiqa. Natijangiz faqat sizga ko'rinadi — bemalol sinab ko'ring.\n⏰ Soat {c} gacha.": "👋 <b>{n}, добро пожаловать в лигу!</b>\nВы зарегистрированы, но ещё не прошли ни одного этапа.\n\nСегодня открыт <b>этап {s}</b>: 20 вопросов, примерно 15 минут. Результат видите только вы — смело пробуйте.\n⏰ До {c}.",
   "👋 <b>{n}, birinchi bosqichingizni boshlang!</b>\nBugungi {s}-bosqich soat {c} gacha ochiq. 15 daqiqa ajrating — xato qilsangiz, to'g'ri javob va tushuntirish ko'rsatiladi.": "👋 <b>{n}, начните свой первый этап!</b>\nСегодняшний этап {s} открыт до {c}. Уделите 15 минут — при ошибке покажем правильный ответ и объяснение.",
   "⏰ <b>{n}, bugungi bosqich yopilishiga 1 soat qoldi.</b>\nHali birorta bosqich o'ynamadingiz — hoziroq birinchisini boshlang, 15 daqiqa yetadi.": "⏰ <b>{n}, до закрытия этапа остался 1 час.</b>\nВы ещё не прошли ни одного этапа — начните первый сейчас, хватит 15 минут.",
@@ -482,6 +487,16 @@ async function onCallback(q: any) {
   const data = String(q.data ?? ""), chatId = q.message?.chat?.id;
   const ack = (text?: string) => tg("answerCallbackQuery", { callback_query_id: q.id, text });
   if (data.startsWith("dq:")) return groupDuelTake(q, data.slice(3));
+  if (data === "nk") {
+    const lang = await playerLang(q.from?.id);
+    const u = q.from?.username || (q.from?.id ? await nickRefresh(q.from.id) : null);
+    if (!u) return tg("answerCallbackQuery", { callback_query_id: q.id, show_alert: true,
+      text: tr(lang, "Nik hali ko'rinmayapti. Sozlamalar → Foydalanuvchi nomi bo'limida nik yozib, ✓ ni bosing, keyin qayta tekshiring.") });
+    await db.rpc("liga_tg_seen_sys", { p_tg: q.from.id, p_username: u });
+    if (chatId && q.message?.message_id) await tg("editMessageText", { chat_id: chatId, message_id: q.message.message_id, parse_mode: "HTML",
+      text: tr(lang, "✅ <b>Rahmat! Nikingiz saqlandi: @{u}</b>\nEndi duel raqibingiz sizga Telegram'da yoza oladi.", { u: esc(u) }) });
+    return ack(tr(lang, "Saqlandi"));
+  }
   if (data.startsWith("m:")) {
     const months = Math.max(1, Math.min(12, Number(data.slice(2)) || 1));
     const { data: ses } = await db.from("liga_tg_sessions").select("player_id").eq("chat_id", chatId).maybeSingle();
@@ -518,6 +533,32 @@ async function fillNames(limit = 200) {
     await db.rpc("liga_tg_seen_sys", { p_tg: r.tg, p_username: u }); await pause(40);
   }
   return { checked: n, found };
+}
+
+// ---------------- Telegram niki (username) yo'qlardan nik qo'yishni so'rash ----------------
+const NICK_TEXT = "👤 <b>{n}, Telegram'da nikingiz (username) yo'q.</b>\nKubok duelida raqibingiz sizga Telegram'da yoza olishi uchun nik kerak — hozir sizni topib bo'lmayapti.\n\n<b>Nik qo'yish (1 daqiqa):</b>\n1. Telegram → <b>Sozlamalar</b> (Settings / Настройки)\n2. <b>Foydalanuvchi nomi</b> (Username / Имя пользователя)\n3. Nik yozing, masalan: <code>{ex}</code> → ✓\n\nKeyin pastdagi tugmani bosing.";
+const nickBtn = (lang: string | null | undefined) => ({ inline_keyboard: [[{ text: tr(lang, "✅ Nik qo'ydim — tekshirish"), callback_data: "nk" }]] });
+const nickExample = (name?: string | null) => {
+  const lat = String(name ?? "").toLowerCase().replace(/[ʻʼ'`‘’]/g, "").replace(/[^a-z0-9]/g, "");
+  return (lat.length >= 3 ? lat.slice(0, 16) : "ism") + "_buxgalter";
+};
+async function nickRefresh(tgId: number): Promise<string | null> {
+  const c = await tg("getChat", { chat_id: tgId });
+  const u = c?.ok ? (c.result?.username ?? null) : null;
+  await db.rpc("liga_tg_seen_sys", { p_tg: tgId, p_username: u });
+  return u;
+}
+async function nickAsk(limit = 500) {
+  const { data, error } = await db.rpc("liga_nick_ask_list_sys", { p_limit: limit }); if (error) return { ok: false, err: error.message };
+  let checked = 0, already = 0, sent = 0, fail = 0;
+  for (const p of (data ?? []) as any[]) {
+    checked++;
+    if (await nickRefresh(p.tg)) { already++; continue; }          // o'zi qo'yib bo'lgan — so'ramaymiz
+    const ok = await dm(p.tg, tr(p.lang, NICK_TEXT, { n: esc(p.first_name ?? ""), ex: nickExample(p.first_name) }), nickBtn(p.lang));
+    if (ok) { sent++; await db.rpc("liga_nick_asked_sys", { p_tg: p.tg }); } else fail++;
+    await pause(45);
+  }
+  return { ok: true, checked, already, sent, fail };
 }
 
 // ---------------- muhokama guruhi: bot guruh ochmaydi/odam qo'sha olmaydi — shaxsan taklif havolasi yuboradi ----------------
@@ -967,6 +1008,7 @@ function reportText(r: any, g: Group) {
   }
   if (r.idle.length) L.push(`😴 O'ynamadi: ${nmList(r.idle)}`);
   if (r.kinds) L.push(`🚪 Hali birorta bosqich o'ynamagan: <b>${r.kinds.never}</b> kishi` + (r.kinds.never_old ? ` (${r.kinds.never_old} tasi 2 kundan ko'p oldin qo'shilgan)` : "") + ` · 2+ ish kuni o'ynamay qo'ygan: <b>${r.kinds.away}</b>`);
+  if (r.nick) L.push(`👤 Telegram niki yo'q: <b>${r.nick.no_nick}</b> kishi` + (r.nick.asked ? ` (so'ralgan: ${r.nick.asked})` : "") + (r.nick.set_after_ask ? ` · so'ralgach qo'ydi: ${r.nick.set_after_ask}` : ""));
   if (r.cup_n > 0 || r.duels > 0) {
     L.push("", "⚔️ <b>Duellar</b>");
     if (r.cup_n > 0) {
@@ -999,6 +1041,7 @@ async function dailyReport() {
     if (error || !r) { out[code] = error?.message ?? "no data"; continue; }
     const { data: ptd } = await db.rpc("liga_plan_today_sys"); if (ptd?.[0]) r.plan_title = ptd[0].title?.uz;
     const { data: kinds } = await db.rpc("liga_daily_report_kinds_sys", { p_code: code }); if (kinds) r.kinds = kinds;
+    const { data: nick } = await db.rpc("liga_nick_stats_sys", { p_code: code }); if (nick) r.nick = nick;
     const text = reportText(r, g);
     // ishtirokchilar ko'payib, hisobot 4096 belgidan oshib ketdi — qismlarga bo'lib yuboriladi; xato bo'lsa sababini qaytaradi
     const parts = chunks(text), btn = appBtn("🏆 Ligani ochish", g.code !== "ASOSIY" ? `?g=${encodeURIComponent(g.code)}` : "");
@@ -1288,6 +1331,10 @@ async function onCron(action: string, body: any = {}) {
     return { ok: true, sent };
   }
   if (action === "tg_names") return await fillNames(500);
+  if (action === "nick_ask" || action === "nick_ask_now") {
+    if (action === "nick_ask" && (w < 1 || w > 5 || !(await once("nick_ask")))) return { skip: true };
+    return await nickAsk(Number(body.limit) || 500);
+  }
   if (action === "discuss_invite") return await inviteAll(1000);
   if (action === "group_due") return await groupDue();
   if (action === "channel_cup") { const t = await cupFullText(); return { sent: t ? await toChannels(t, openBot("ASOSIY")) : 0, channels: (await channels()).length }; }
