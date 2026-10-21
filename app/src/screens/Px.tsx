@@ -1,4 +1,5 @@
-/* «Sovrinli musobaqa» (avval «Mashq zali»): 3 ta tezkor o'yin (60 soniya), kunlik vazifalar, yutuqlar, oylik reyting va sovrin jamg'armasi.
+/* «Sovrinli musobaqa» (avval «Mashq zali»): 3 ta tezkor o'yin (40 soniya, har savolga 10 soniya), oylik reyting va sovrin jamg'armasi.
+   Faqat telefonda, faqat to'lov qilganlar, har kuni 09:00–18:00, ballar 22.10.2026 09:00 dan.
    Liga bali, bosqichlar, duel va kubokka ta'sir qilmaydi (server: liga_px_*). */
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,13 +13,44 @@ import { C } from "../engine/run";
 import { errMsg, rpc } from "../engine/server";
 import { sfx, burst } from "../lib/fx";
 import { watchAway, AWAY_MS } from "../lib/guard";
-import { KINDS, KIND_TITLE, KIND_SUB, SIDES, QUEST_T, ACH_T, fmtSum, daysLeftInMonth, pxMe, pxStart, pxAnswer, pxFinish, pxBoard, pxWinners,
+import { KINDS, KIND_TITLE, KIND_SUB, SIDES, QUEST_T, ACH_T, fmtSum, daysLeftInMonth, pxMe, pxStart, pxAnswer, pxFinish, pxBoard, pxWinners, pxOnPhone, pxAutomated,
   type PxKind, type PxMe, type PxState, type PxRes, type PxRow } from "../engine/px";
 
 const KIND_IC: Record<PxKind, any> = { pv: ArrowLeftRight, acc: ListOrdered, side: Scale };
 const ACH_IC: Record<string, any> = { first: Footprints, games10: Dumbbell, games50: ShieldCheck, r100: Target, r1000: Gem, sniper: Crosshair, clean: Sparkles,
   combo10: Flame, streak3: CalendarCheck, streak7: Repeat, master: BookMarked, top3: Crown };
 const MEDAL = ["🥇", "🥈", "🥉"];
+/* musobaqada ilovadan chiqish chegarasi qattiqroq (pul sovrini): 1,5 soniya */
+const PX_AWAY_MS = 1500;
+const tzNowHM = () => { const d = new Date(Date.now() + 5 * 3600e3); return d.toISOString().slice(11, 16); };
+const fmtDay = (s?: string | null) => { if (!s) return ""; const [y, m, d] = s.slice(0, 10).split("-").map(Number);
+  return t("{d}-{m}", { d, m: t(["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"][m - 1]) }) + (s.length > 10 ? " " + s.slice(11, 16) : ""); };
+/* o'ynash mumkinmi: telefon, to'lov, boshlanish sanasi, soat oralig'i */
+export function pxGate(me: PxMe | null): string {
+  if (pxAutomated()) return t("Avtomatlashtirilgan brauzerda o'ynab bo'lmaydi");
+  if (!pxOnPhone()) return t("Sovrinli musobaqa faqat telefonda ishlaydi — Telegram'da telefoningizdan oching");
+  if (!me) return "";
+  if (!me.eligible) return t("Sovrinli musobaqada faqat to'lov qilganlar qatnashadi — ligaga kirish 30 000 so'm");
+  if (me.started === false) return t("Musobaqa {d} da boshlanadi", { d: fmtDay(me.start_at) });
+  const hm = tzNowHM(), from = me.open_from || "09:00", to = me.open_to || "18:00";
+  if (hm < from || hm >= to) return t("Musobaqa har kuni {a} dan {b} gacha ochiq", { a: from, b: to });
+  return "";
+}
+function RulesCard({ me }: { me: PxMe }) {
+  const dl = me.days_left ?? daysLeftInMonth();
+  return (
+    <section className="card px-rules" id="px-rules">
+      <div className="row"><CalendarCheck size={20} color="var(--stamp)" /><b className="grow">{t("Musobaqa tugashiga {n} kun qoldi", { n: dl })}</b>
+        {me.end_day && <span className="chip">{fmtDay(me.end_day)}</span>}</div>
+      <ul className="small" style={{ margin: "8px 0 0", paddingLeft: 18, lineHeight: 1.55, fontWeight: 600 }}>
+        <li>{t("Har kuni {a} dan {b} gacha ochiq", { a: me.open_from || "09:00", b: me.open_to || "18:00" })}</li>
+        {me.start_at && <li>{t("Ballar {d} dan hisoblanadi", { d: fmtDay(me.start_at) })}</li>}
+        <li>{t("Har o'yin {s} soniya, har savolga {q} soniya", { s: me.secs, q: me.qs || 10 })}</li>
+        <li>{t("Faqat telefonda. Ilovadan chiqilsa — o'yin yakunlanadi")}</li>
+        <li>{t("Ballar liga baliga va umumiy ballga qo'shilmaydi")}</li>
+      </ul>
+    </section>);
+}
 const monName = (m?: string) => { if (!m) return ""; const [y, mm] = m.split("-"); return t(["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"][+mm - 1]) + " " + y; };
 
 function useMe(force = false) {
@@ -68,6 +100,7 @@ export default function Px() {
       <PageTitle title={t("Sovrinli musobaqa")} />
       {!me ? <Empty>{t("Yuklanmoqda...")}</Empty> : <div className="stack">
         <FundBanner me={me} />
+        <RulesCard me={me} />
         <div className="px-stats" id="px-stats">
           <div><b className="num">{fmtSum(me.month.pts)}</b><i>{t("oy bali")}</i></div>
           <div><b className="num">{me.month.rank ? me.month.rank + "/" + me.month.n : "—"}</b><i>{t("o'rin")}</i></div>
@@ -82,10 +115,14 @@ export default function Px() {
     </div>);
 }
 function Games({ me }: { me: PxMe }) {
+  useNow(30000);
+  const gate = pxGate(me);
   return (
     <div className="stack" style={{ gap: 10 }}>
+      {gate && <div className="note" id="px-gate" style={{ background: "var(--red-soft)" }}><Lock size={18} /><span className="grow">{gate}</span>
+        {!me.eligible && pxOnPhone() && <button className="btn sm gold" id="px-gate-pay" onClick={() => go("pay")}>{t("To'lov qilish")}</button>}</div>}
       {KINDS.map((k) => { const Ic = KIND_IC[k]; return (
-        <button key={k} className="card px-game" id={"px-" + k} onClick={() => { sfx("tap"); go("pxGame", { kind: k }); }}>
+        <button key={k} className="card px-game" id={"px-" + k} disabled={!!gate} style={gate ? { opacity: 0.55 } : undefined} onClick={() => { if (gate) { toast(gate); return; } sfx("tap"); go("pxGame", { kind: k }); }}>
           <span className="ic"><Ic size={24} /></span>
           <span className="grow"><b>{t(KIND_TITLE[k])}</b><span className="small">{t(KIND_SUB[k])}</span>
             <span className="small muted">{t("{s} soniya", { s: me.secs })} · {t("rekord {n}", { n: me.total.best[k] || 0 })}</span></span>
@@ -142,12 +179,23 @@ export function PxGame({ kind }: { kind: PxKind }) {
     try { const s = await pxStart(kind); end.current = Date.now() + s.left_ms; setSt(s); sfx("tap"); }
     catch (e) { setErr(errMsg(e)); }
   };
-  useEffect(() => { begin(); }, [kind]);
+  useEffect(() => { const g = pxGate((S.px as PxMe) || null); if (g) { setErr(g); return; } begin(); }, [kind]);
   /* chiqishni tasdiqlash: o'yin yakunlanadi, to'plangan ball saqlanadi */
   useEffect(() => { setBackGuard(() => { if (fin || !st) return true; if (confirm(t("O'yin yakunlansinmi? To'plangan ballar saqlanadi."))) { finish(); return true; } return false; }); return () => setBackGuard(null); }, [fin, st]);
   /* halol o'yin: 3 soniyadan ko'p boshqa ilova/oynaga chiqilsa — o'yin yakunlanadi */
-  useEffect(() => watchAway(() => !!stRef.current && !finRef.current, (ms) => { if (ms > AWAY_MS) finish(t("Ilovadan chiqildi — o'yin yakunlandi")); }, away.current), []);
+  useEffect(() => watchAway(() => !!stRef.current && !finRef.current, (ms) => { if (ms > PX_AWAY_MS) finish(t("Ilovadan chiqildi — o'yin yakunlandi")); }, away.current), []);
+  /* AI'ga qarshi: nusxalash, belgilash, kontekst menyu taqiqlangan */
+  useEffect(() => {
+    const block = (e: Event) => e.preventDefault();
+    ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.addEventListener(ev, block));
+    return () => { ["copy", "cut", "contextmenu", "selectstart"].forEach((ev) => document.removeEventListener(ev, block)); };
+  }, []);
+  /* har savolga {qs} soniya: o'tib ketsa — javobsiz yuboriladi (xato) */
+  const qStart = useRef(Date.now());
+  useEffect(() => { qStart.current = Date.now(); }, [st?.k]);
   const left = st && !fin ? Math.max(0, end.current - now) : 0;
+  const QS = (st?.qs || (S.px as any)?.qs || 10) * 1000, qLeft = st && !fin && !fb ? Math.max(0, qStart.current + QS - now) : QS;
+  useEffect(() => { if (st && !fin && !fb && !busy && qLeft <= 0 && left > 0) send({ timeout: true }); }, [qLeft <= 0]);
   useEffect(() => { if (st && !fin && left <= 0 && !busy) finish(); }, [left <= 0, st, fin, busy]);
 
   const send = async (ans: Record<string, unknown>) => {
@@ -169,7 +217,7 @@ export function PxGame({ kind }: { kind: PxKind }) {
       <button className="btn" onClick={begin}><RotateCcw size={18} />{t("Qayta urinish")}</button></div></div>);
   if (fin) return <PxResult kind={kind} r={fin} again={begin} />;
   if (!st || !st.q) return <div className="shell bare"><PageTitle title={t(KIND_TITLE[kind])} /><Empty>{t("Yuklanmoqda...")}</Empty></div>;
-  const q = st.q, secs = st.secs || (S.px?.secs as number) || 60, sec = Math.ceil(left / 1000), low = sec <= 10;
+  const q = st.q, secs = st.secs || (S.px?.secs as number) || 40, sec = Math.ceil(left / 1000), low = sec <= 10;
   const wm = ((S.user.first || "") + " " + (S.user.last || "") + " · ").repeat(40);
   const optLabel = (o: string) => q.t === "side" ? t(SIDES[o] || o) : q.t === "acc" && q.mode === "c2n" ? tx(o) : o;
   const okIdx = fb?.ans?.a;
@@ -186,6 +234,7 @@ export function PxGame({ kind }: { kind: PxKind }) {
         <span className="grow" />
         <AnimatePresence>{st.combo >= 2 && <motion.span key={st.combo} initial={{ scale: 0.6 }} animate={{ scale: 1 }} className="chip gold"><Flame size={14} />×{st.combo}</motion.span>}</AnimatePresence>
       </div>
+      <div className="meter px-qtimer" id="px-qtimer" style={{ marginBottom: 8 }}><i style={{ width: (qLeft / QS) * 100 + "%", background: qLeft < 3000 ? "var(--red)" : undefined }} /></div>
       <motion.article key={st.k} className="qcard" initial={{ x: 24, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ type: "spring", stiffness: 420, damping: 34 }}>
         <div className="wm" aria-hidden="true">{wm}</div>
         {q.t === "pv" && <>
@@ -215,7 +264,7 @@ export function PxGame({ kind }: { kind: PxKind }) {
           })}</div>
         </>}
         <AnimatePresence>{fb && <motion.div className={"stamp " + (fb.ok ? "ok" : "bad")} initial={{ scale: 2, opacity: 0, rotate: -30 }} animate={{ scale: 1, opacity: 1, rotate: -12 }}>
-          {fb.ok ? "+" + (fb.got || 0) : fb.why === "fast" ? t("JUDA TEZ") : t("XATO")}</motion.div>}</AnimatePresence>
+          {fb.ok ? "+" + (fb.got || 0) : fb.why === "fast" ? t("JUDA TEZ") : fb.why === "slow" ? t("VAQT") : t("XATO")}</motion.div>}</AnimatePresence>
       </motion.article>
       {fb && !fb.ok && <div className="px-fb" id="px-fb">
         {q.t === "pv" ? <><b>{t("To'g'ri provodka")}: Dt {fb.ans?.dt} — Kt {fb.ans?.kt}</b>{fb.e && <p className="small">{tx(fb.e)}</p>}</>

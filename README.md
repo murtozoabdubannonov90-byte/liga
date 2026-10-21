@@ -44,6 +44,14 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-21g: Sovrinli musobaqa — qoidalar
+- Ballar 22.10.2026 09:00 dan hisoblanadi (`px_start_at`); oldingi ballar reytingga kirmaydi. Ballar liga/umumiy ballga qo'shilmaydi.
+- Faqat to'lov qilganlar (`liga_px_paid`: paid_until ≥ bugun yoki free_phones) o'ynay oladi; ochiq vaqt 09:00–18:00 (`px_open_from/to`).
+- Har o'yin 40 soniya (`px_secs`), har savol 10 soniya (`px_q_secs`), kechikkan javob — xato. Savollar qiyinroq: provodkada 8 variant (yarmi o'tgan kunlik savollardan), schyotda 6 ta bir guruhdan.
+- Faqat telefonda: ilova va server `p_platform` ni tekshiradi (android/ios/mobile_web). AI/botga qarshi: avtomat brauzer bloklanadi, nusxa olish yopiq, boshqa oynaga 1,5 soniyadan ko'p chiqilsa o'yin tugaydi, juda tez (<0,35 s) javob — xato.
+- Ichida «tugashiga N kun qoldi» kartasi. Bot 22.10 09:05 dan hammaga qoidalarni yuboradi.
+- SQL: `db/2026-10-21g_musobaqa_qoidalar.sql`.
+
 ## 2026-10-21f: Sovrinli musobaqa — faqat savollar
 - Sahifada faqat **Savollar** (3 ta o'yin) va **Reyting**; «Vazifalar» va «Yutuqlar» olib tashlandi.
 - Ball faqat savollar uchun: to'g'ri javob 10 + seriya bonusi (+2 … +10), xato — 0. Vazifa bonuslari reytingga qo'shilmaydi (oldingi 74 ta yozuv, 2 750 ball, hisobdan chiqarildi). Tekshiruv: 489 ta o'yinda ball/to'g'ri javob/seriya mos — xato yo'q.

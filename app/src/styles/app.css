@@ -702,3 +702,4 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .px-fb{margin-top:12px;background:var(--red-soft);border-radius:14px;padding:12px;display:grid;gap:6px}
 .px-big{font-family:var(--display);font-size:56px;font-weight:700;line-height:1;color:var(--stamp)}
 .px-play .timer b{font-family:var(--display);font-size:13px}
+.px-qtimer i{transition:width .25s linear}
