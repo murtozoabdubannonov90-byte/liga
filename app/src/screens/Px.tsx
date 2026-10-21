@@ -37,7 +37,7 @@ export function PxCard() {
     <button className="card px-card" id="px-card" onClick={() => { sfx("tap"); go("px"); }}>
       <span className="ic"><Dumbbell size={22} /></span>
       <span className="grow"><b>{t("Sovrinli musobaqa")}</b>
-        <span className="small">{fund > 0 ? t("Oylik sovrin jamg'armasi: {s} so'm", { s: fmtSum(fund) }) : t("3 ta tezkor o'yin, vazifalar va yutuqlar")}
+        <span className="small">{fund > 0 ? t("Oylik sovrin jamg'armasi: {s} so'm", { s: fmtSum(fund) }) : t("3 ta tezkor o'yin — savollar")}
           {rk ? " · " + t("siz {n}-o'rinda", { n: rk }) : ""}</span></span>
       <span className="chip gold"><Coins size={13} />{me?.month?.pts ? fmtSum(me.month.pts) : t("O'ynash")}</span>
     </button>);
@@ -53,6 +53,7 @@ function FundBanner({ me }: { me: PxMe }) {
       <div className="px-fund-sum num"><CountUp to={f.amount} id="pxfund" /> <small>{t("so'm")}</small></div>
       <div className="px-prizes">{f.prizes.map((p, i) => <span key={i}><i>{MEDAL[i] || i + 1 + "."}</i><b className="num">{fmtSum(p)}</b></span>)}</div>
       <p className="small">{t("Oy oxirida Sovrinli musobaqa reytingining kuchli uchligi sovrinni bo'lishadi (obunasi faol bo'lganlar).")}</p>
+      <p className="small" id="px-entry">{t("Ligaga kirish — har bir kishi uchun oyiga 30 000 so'm. Ball faqat savollarga to'g'ri javob uchun beriladi.")}</p>
       {!me.eligible && <div className="px-elig"><Lock size={16} /><span className="grow">{t("Sovrin faqat obunasi faol ishtirokchilarga beriladi")}</span>
         <button className="btn sm gold" id="px-pay" onClick={() => go("pay")}>{t("Obuna bo'lish")}</button></div>}
     </section>);
@@ -61,7 +62,7 @@ function FundBanner({ me }: { me: PxMe }) {
 /* ---------- Mashq zali ---------- */
 export default function Px() {
   const me = useMe(true);
-  const [tb, setTb] = useState<"g" | "q" | "a" | "r">("g");
+  const [tb, setTb] = useState<"g" | "r">("g");
   return (
     <div className="shell bare">
       <PageTitle title={t("Sovrinli musobaqa")} />
@@ -74,8 +75,9 @@ export default function Px() {
           <div><b className="num"><Flame size={15} color="#E8590C" />{me.streak}</b><i>{t("kun ketma-ket")}</i></div>
         </div>
         <p className="small muted" style={{ fontWeight: 600 }}>{t("Sovrinli musobaqa ballari liga baliga, kunlik bosqich va duellarga qo'shilmaydi — alohida reyting.")}</p>
-        <Seg id="px" value={tb} onChange={setTb} items={[["g", t("O'yinlar")], ["q", t("Vazifalar")], ["a", t("Yutuqlar")], ["r", t("Reyting")]]} />
-        {tb === "g" && <Games me={me} />}{tb === "q" && <Quests me={me} />}{tb === "a" && <Achs me={me} />}{tb === "r" && <Board me={me} />}
+        {/* 2026-10-21: faqat savollar — vazifalar va yutuqlar bo'limlari olib tashlandi */}
+        <Seg id="px" value={tb} onChange={setTb} items={[["g", t("Savollar")], ["r", t("Reyting")]]} />
+        {tb === "g" && <Games me={me} />}{tb === "r" && <Board me={me} />}
       </div>}
     </div>);
 }
@@ -91,35 +93,6 @@ function Games({ me }: { me: PxMe }) {
         </button>); })}
       <div className="note"><Zap size={18} /><span>{t("To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xatoda bonus yo'qoladi.")}</span></div>
     </div>);
-}
-function Quests({ me }: { me: PxMe }) {
-  return (
-    <Card title={t("Bugungi vazifalar")} right={<span className="chip gold">+{me.quests.reduce((n, q) => n + q.pts, 0)}</span>}>
-      <ul className="px-quests" id="px-quests">
-        {me.quests.map((q) => (
-          <li key={q.id} className={q.got || q.done ? "done" : ""}>
-            <span className="qi">{q.got || q.done ? <CircleCheck size={20} /> : <Target size={20} />}</span>
-            <span className="grow"><b>{t(QUEST_T[q.id] || q.id)}</b>
-              <span className="meter" style={{ marginTop: 6 }}><i style={{ width: Math.min(100, (q.prog / q.need) * 100) + "%" }} /></span>
-              <i>{q.prog}/{q.need}</i></span>
-            <span className={"chip " + (q.got ? "ok" : "gold")}>+{q.pts}</span>
-          </li>))}
-      </ul>
-      <p className="small muted" style={{ marginTop: 8 }}>{t("Vazifalar har kuni yangilanadi. Ballari oylik reytingga qo'shiladi.")}</p>
-    </Card>);
-}
-function Achs({ me }: { me: PxMe }) {
-  const got = me.ach.filter((a) => a.prog >= a.need).length;
-  return (
-    <Card title={t("Yutuqlar")} right={<span className="chip">{got}/{me.ach.length}</span>}>
-      <div className="px-ach" id="px-ach">
-        {me.ach.map((a) => { const Ic = ACH_IC[a.id] || Award, on = a.prog >= a.need, [nm, ds] = ACH_T[a.id] || [a.id, ""];
-          return (<div key={a.id} className={"ach-it" + (on ? " on" : "")}>
-            <span className="ai"><Ic size={22} /></span><b>{t(nm)}</b><i>{t(ds)}</i>
-            {!on && <span className="meter"><i style={{ width: Math.min(100, (a.prog / a.need) * 100) + "%" }} /></span>}
-          </div>); })}
-      </div>
-    </Card>);
 }
 function Board({ me }: { me: PxMe }) {
   const [sc, setSc] = useState<"month" | "week" | "day">("month");
@@ -252,8 +225,6 @@ export function PxGame({ kind }: { kind: PxKind }) {
 }
 
 function PxResult({ kind, r, again }: { kind: PxKind; r: any; again: () => void }) {
-  const qn: { id: string; pts: number }[] = r.quests_new || [];
-  useEffect(() => { if (qn.length) setTimeout(() => sfx("coin"), 500); }, []);
   return (
     <div className="shell bare"><PageTitle title={t(KIND_TITLE[kind])} />
       <div className="stack" id="px-result">
@@ -263,9 +234,6 @@ function PxResult({ kind, r, again }: { kind: PxKind; r: any; again: () => void 
           <p style={{ fontWeight: 800 }}>{t("ball")} · {t("{r}/{n} to'g'ri", { r: r.right_n || 0, n: r.done_n || 0 })}</p>
           {r.best_combo > 1 && <p className="small muted">{t("Eng uzun seriya: {n}", { n: r.best_combo })}</p>}
         </section>
-        {qn.length > 0 && <Card title={t("Vazifa bajarildi!")} right={<Sparkles size={18} color="var(--gold)" />}>
-          <ul className="px-quests">{qn.map((q) => <li key={q.id} className="done"><span className="qi"><CircleCheck size={20} /></span><b className="grow">{t(QUEST_T[q.id] || q.id)}</b><span className="chip ok">+{q.pts}</span></li>)}</ul>
-        </Card>}
         {r.month_rank && <div className="note"><Trophy size={18} /><span>{t("Sovrinli musobaqa oylik reytingida {n}-o'rindasiz · {p} ball", { n: r.month_rank, p: fmtSum(r.month_pts || 0) })}</span></div>}
       </div>
       <div className="dock"><div className="row" style={{ gap: 10 }}>

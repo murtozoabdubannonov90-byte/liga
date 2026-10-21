@@ -111,7 +111,6 @@ const RU: Record<string, string> = {
   "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:": "💬 <b>{n}, открылась группа участников Hisobchi Liga!</b>\nЗдесь обсуждаем вопросы, проводки и дуэли, договариваемся с соперником. Присоединяйтесь:",
   "🕛 <b>{n}, bugungi {s}-bosqich hali bajarilmagan.</b>\nSoat {c} gacha vaqt bor — hozir 10–15 daqiqa ajrating, keyin unutib qo'yasiz.": "🕛 <b>{n}, сегодняшний этап {s} ещё не пройден.</b>\nВремя есть до {c} — уделите 10–15 минут сейчас, потом забудете.",
   "Jamoangizdan {p} kishi bugun bajarib bo'ldi.": "Из вашей команды сегодня уже прошли: {p}.",
-  "🏆 <b>{n}, «Sovrinli musobaqa» boshlandi!</b>\n\n💰 Sovrin jamg'armasi: <b>{f} so'm</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} so'm\n\n3 ta tezkor o'yin: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har biri 60 soniya. Qancha ko'p to'g'ri javob — shuncha ko'p ball.\n📅 G'oliblar 31-oktabr yakunida aniqlanadi (obunasi faol eng yaxshi 3 kishi).\nBallar liga va kubokka ta'sir qilmaydi.\n\n👉 Ilovada: Asosiy → «Sovrinli musobaqa»": "🏆 <b>{n}, стартовал «Призовой турнир»!</b>\n\n💰 Призовой фонд: <b>{f} сум</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} сум\n\n3 быстрые игры: Дебет ↔ Кредит, План счетов, Раздел баланса — по 60 секунд. Больше правильных ответов — больше баллов.\n📅 Победители определяются по итогам 31 октября (тройка лучших с активной подпиской).\nБаллы не влияют на лигу и кубок.\n\n👉 В приложении: Главная → «Призовой турнир»",
   "Musobaqaga kirish": "Войти в турнир",
   "⚖️ Hamma o'ynaydi. G'oliblardan keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi, keyin har raundda juftsiz odam qolmaydi.": "⚖️ Играют все. Из победителей дальше проходят {k} с наибольшими очками, затем в каждом раунде без пары никто не остаётся.",
   "🏁 <b>{n}, siz duelda yutdingiz, lekin bugun keyingi bosqichga chiqa olmadingiz.</b>\nBu raundda {w} kishi yutdi — keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi (teng ochkoda — tezroq javob bergan). Sizning ochkongiz: {p}.\nErtaga yana kubok — omad!": "🏁 <b>{n}, вы выиграли дуэль, но сегодня не прошли дальше.</b>\nВ этом раунде победили {w} чел. — дальше проходят {k} с наибольшими очками (при равенстве — кто быстрее). Ваши очки: {p}.\nЗавтра снова кубок — удачи!",
@@ -1118,9 +1117,9 @@ async function pxAnnounce(limit = 80) {
   await cfgSet(lk, String((ppl[ppl.length - 1] as any).tg_user_id));   // avval belgilaymiz — vaqt tugasa ham takrorlanmaydi
   let sent = 0, fail = 0;
   for (const p of (ppl ?? []) as any[]) {
-    const text = tr(p.lang, "🏆 <b>{n}, «Sovrinli musobaqa» boshlandi!</b>\n\n💰 Sovrin jamg'armasi: <b>{f} so'm</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} so'm\n\n3 ta tezkor o'yin: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har biri 60 soniya. Qancha ko'p to'g'ri javob — shuncha ko'p ball.\n📅 G'oliblar 31-oktabr yakunida aniqlanadi (obunasi faol eng yaxshi 3 kishi).\nBallar liga va kubokka ta'sir qilmaydi.\n\n👉 Ilovada: Asosiy → «Sovrinli musobaqa»",
+    const text = tr("uz", "🏆 <b>{n}, «Sovrinli musobaqa» boshlandi!</b>\n\n💰 Sovrin jamg'armasi: <b>{f} so'm</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} so'm\n\n❓ Faqat savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har o'yin 60 soniya.\n✅ To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xato — 0 ball.\n📅 G'oliblar 31-oktabr yakunida aniqlanadi — obunasi faol eng yaxshi 3 kishi.\n🎟 Ligaga kirish — har bir kishi uchun oyiga 30 000 so'm.\nBallar liga va kubokka ta'sir qilmaydi.\n\n👉 Ilovada: Asosiy → «Sovrinli musobaqa»",
       { n: esc(p.first_name ?? ""), f: fmtS(fund), a: pr[0] ?? "", b: pr[1] ?? "", c: pr[2] ?? "" });
-    if (await dm(p.tg_user_id, text, appBtn(tr(p.lang, "Musobaqaga kirish")))) sent++; else fail++;
+    if (await dm(p.tg_user_id, text, appBtn("Musobaqaga kirish"))) sent++; else fail++;
   }
   return { ok: true, sent, fail, fund };
 }
@@ -1451,8 +1450,8 @@ async function onCron(action: string, body: any = {}) {
     const text = `🏆 <b>Sovrinli musobaqa</b> — oylik reyting\n\n` +
       (b.fund > 0 ? `💰 Sovrin jamg'armasi: <b>${fmtS(b.fund)} so'm</b>\n${prizes.slice(0, 3).map((p, i) => `${md[i]} ${fmtS(p)}`).join(" · ")}\n\n` : "") +
       (top.length ? top.map((x, i) => `${md[i]} ${esc(x.name ?? "")} — ${fmtS(x.pts)} ball`).join("\n") : "Hali hech kim o'ynamagan — birinchi bo'ling!") +
-      `\n\nBugun ${b.today_games ?? 0} ta o'yin o'ynaldi. 3 ta tezkor o'yin: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har biri 60 soniya.\n` +
-      `Ballar liga baliga qo'shilmaydi. Sovrin — oy oxirida obunasi faol kuchli uchlikka.`;
+      `\n\nBugun ${b.today_games ?? 0} ta o'yin o'ynaldi. Faqat savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har biri 60 soniya.\n` +
+      `To'g'ri javob — 10 ball (+2…+10 seriya bonusi). Ballar liga baliga qo'shilmaydi. Sovrin — oy oxirida obunasi faol kuchli uchlikka. Ligaga kirish — oyiga 30 000 so'm.`;
     let n = 0;
     for (const c of await chatsOf("ASOSIY")) { const r = await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: openBot("ASOSIY") }); if (r?.ok) n++; await pause(60); }
     n += await toChannels(text, openBot("ASOSIY"));

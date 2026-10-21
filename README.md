@@ -44,6 +44,12 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-21f: Sovrinli musobaqa — faqat savollar
+- Sahifada faqat **Savollar** (3 ta o'yin) va **Reyting**; «Vazifalar» va «Yutuqlar» olib tashlandi.
+- Ball faqat savollar uchun: to'g'ri javob 10 + seriya bonusi (+2 … +10), xato — 0. Vazifa bonuslari reytingga qo'shilmaydi (oldingi 74 ta yozuv, 2 750 ball, hisobdan chiqarildi). Tekshiruv: 489 ta o'yinda ball/to'g'ri javob/seriya mos — xato yo'q.
+- Ligaga kirish — oyiga 30 000 so'm (sahifada va e'londa yozilgan). E'lon va 18:30 reyting xabari — faqat o'zbekcha.
+- Baza: `db/2026-10-21f_musobaqa_faqat_savollar.sql`.
+
 ## 2026-10-21e: «Mashq zali» → «Sovrinli musobaqa», jamg'arma 300 000 so'm
 - Nomi hamma joyda (ilova, bot, ruscha — «Призовой турнир») «Sovrinli musobaqa».
 - Oktabr jamg'armasi qat'iy **300 000 so'm** (`px_fund_base=300000`, `px_fund_per_pay=0`): 🥇 150 000 · 🥈 90 000 · 🥉 60 000; g'oliblar 31-oktabr yakunida (obunasi faol kuchli uchlik).

@@ -986,6 +986,8 @@ export const RU: Record<string, string> = {
   "Faqat bosqich ballari (kunlik mashq va blits kirmaydi); o'ng tomonda — haftalik bal": "Только баллы этапов (без ежедневной тренировки и блица); справа — баллы за неделю",
   "MB kursi · {d}": "Курс ЦБ · {d}",
   "Yangilandi: {d}": "Обновлено: {d}",
+  "3 ta tezkor o'yin — savollar": "3 быстрые игры — вопросы",
+  "Ligaga kirish — har bir kishi uchun oyiga 30 000 so'm. Ball faqat savollarga to'g'ri javob uchun beriladi.": "Вход в лигу — 30 000 сумов в месяц с человека. Баллы начисляются только за правильные ответы.",
   "1-raund": "1-й раунд",
   "⚖️ Hamma o'ynaydi. G'oliblardan keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi, keyin har raundda juftsiz odam qolmaydi.": "⚖️ Играют все. Из победителей дальше проходят {k} с наибольшими очками, затем в каждом раунде без пары никто не остаётся.",
   "Siz duelda yutdingiz, lekin ochko bo'yicha keyingi bosqichga kirmadingiz: {w} g'olibdan ochkosi eng ko'p {k} kishi o'tdi. Ertaga yana kubok!": "Вы выиграли дуэль, но по очкам не прошли дальше: из {w} победителей прошли {k} с наибольшими очками. Завтра снова кубок!",
