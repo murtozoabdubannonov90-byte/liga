@@ -97,7 +97,7 @@ const RU: Record<string, string> = {
   "Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Raund erta tugasa ham, keyingisi jadvaldagi vaqtda boshlanadi.": "Все дуэли раунда играются одновременно. 12:00–14:00 — перерыв. Даже если раунд закончится раньше, следующий начнётся по расписанию.",
   "➡️ Keyingi raundga avtomatik o'tdi: {n}": "➡️ Автоматически прошли в следующий раунд: {n}",
   "Bugun <b>{n}</b> kishi qatnashadi: 1-raundda {d} ta duel bir vaqtda o'ynaladi.": "Сегодня участвуют <b>{n}</b> человек: в 1-м раунде одновременно играются {d} дуэлей.",
-  "✅ <b>Siz 1-raunddan avtomatik o'tdingiz!</b>\nKeyingi duelingiz — soat <b>{s}</b> ({st}). Raqib 1-raund tugagach ma'lum bo'ladi, bot xabar beradi.": "✅ <b>Вы автоматически прошли 1-й раунд!</b>\nВаша следующая дуэль — в <b>{s}</b> ({st}). Соперник станет известен после 1-го раунда, бот сообщит.",
+  "✅ <b>Siz saralashsiz keyingi raundga o'tdingiz!</b>\nOxirgi 7 kundagi bosqich balingiz yuqori bo'lgani uchun saralash duelini o'ynamaysiz. Keyingi duelingiz — soat <b>{s}</b> ({st}). Raqib saralash tugagach ma'lum bo'ladi, bot xabar beradi.": "✅ <b>Вы прошли в следующий раунд без отбора!</b>\nУ вас высокий балл этапов за последние 7 дней, поэтому отборочную дуэль вы не играете. Следующая дуэль — в <b>{s}</b> ({st}). Соперник станет известен после отбора, бот сообщит.",
   "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.": "👉 Ваша дуэль ({st}): в <b>{s}</b>, соперник — <b>{o}</b>.",
   "🎉 <b>Siz {st}ga chiqdingiz!</b>\nRaqib: <b>{o}</b>, soat <b>{s}</b>. Faqat provodka, 15 savol, har biriga 1,5 daqiqa. Duel 30 daqiqa ochiq.": "🎉 <b>Вы вышли в {st}!</b>\nСоперник: <b>{o}</b>, в <b>{s}</b>. Только проводки, 15 вопросов, по 1,5 минуты. Дуэль открыта 30 минут.",
   "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.": "🏆 <b>Победитель кубка дуэлей дня — {n}!</b>\nПоздравляем! Следующий кубок — в следующий рабочий день: пары в 09:00, дуэли с 10:00.",
@@ -111,6 +111,8 @@ const RU: Record<string, string> = {
   "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:": "💬 <b>{n}, открылась группа участников Hisobchi Liga!</b>\nЗдесь обсуждаем вопросы, проводки и дуэли, договариваемся с соперником. Присоединяйтесь:",
   "🕛 <b>{n}, bugungi {s}-bosqich hali bajarilmagan.</b>\nSoat {c} gacha vaqt bor — hozir 10–15 daqiqa ajrating, keyin unutib qo'yasiz.": "🕛 <b>{n}, сегодняшний этап {s} ещё не пройден.</b>\nВремя есть до {c} — уделите 10–15 минут сейчас, потом забудете.",
   "Jamoangizdan {p} kishi bugun bajarib bo'ldi.": "Из вашей команды сегодня уже прошли: {p}.",
+  "➡️ Saralashsiz keyingi raundga o'tdi — {c} kishi (oxirgi 7 kundagi bosqich bali eng yuqorilar): {n}": "➡️ Без отбора в следующий раунд прошли {c} чел. (лучшие по баллам этапов за 7 дней): {n}",
+  "Bugun <b>{n}</b> kishi qatnashadi: saralashda {d} ta duel, {b} kishi (oxirgi 7 kundagi bosqich bali bo'yicha) saralashsiz keyingi raundga o'tdi. Keyingi raundlarda juftsiz odam qolmaydi.": "Сегодня участвуют <b>{n}</b> чел.: в отборе {d} дуэлей, {b} чел. (по баллам этапов за 7 дней) прошли в следующий раунд без отбора. Дальше без пары никто не останется.",
   "👤 <b>{n}, Telegram'da nikingiz (username) yo'q.</b>\nKubok duelida raqibingiz sizga Telegram'da yoza olishi uchun nik kerak — hozir sizni topib bo'lmayapti.\n\n<b>Nik qo'yish (1 daqiqa):</b>\n1. Telegram → <b>Sozlamalar</b> (Settings / Настройки)\n2. <b>Foydalanuvchi nomi</b> (Username / Имя пользователя)\n3. Nik yozing, masalan: <code>{ex}</code> → ✓\n\nKeyin pastdagi tugmani bosing.": "👤 <b>{n}, у вас в Telegram нет имени пользователя (username).</b>\nОно нужно, чтобы соперник по дуэли кубка мог вам написать — сейчас вас нельзя найти.\n\n<b>Как поставить (1 минута):</b>\n1. Telegram → <b>Настройки</b> (Settings)\n2. <b>Имя пользователя</b> (Username)\n3. Введите ник, например: <code>{ex}</code> → ✓\n\nЗатем нажмите кнопку ниже.",
   "✅ Nik qo'ydim — tekshirish": "✅ Ник поставил — проверить",
   "Nik hali ko'rinmayapti. Sozlamalar → Foydalanuvchi nomi bo'limida nik yozib, ✓ ni bosing, keyin qayta tekshiring.": "Ник пока не виден. Настройки → Имя пользователя: введите ник, нажмите ✓ и проверьте снова.",
@@ -214,8 +216,8 @@ async function dayTopDm(top: any[], w: number) {
   return n;
 }
 // duel kubogi: bosqich nomlari va jadval matni
-const STAGE_UZ: Record<string, string> = { qual: "Saralash raundi", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
-const STAGE_RU: Record<string, string> = { qual: "Отборочный раунд", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "Четвертьфинал", semi: "Полуфинал", final: "Финал" };
+const STAGE_UZ: Record<string, string> = { qual: "Saralash raundi", r256: "1/128 final", r128: "1/64 final", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
+const STAGE_RU: Record<string, string> = { qual: "Отборочный раунд", r256: "1/128 финала", r128: "1/64 финала", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "Четвертьфинал", semi: "Полуфинал", final: "Финал" };
 const STAGE_RU_ACC: Record<string, string> = { qual: "отборочный раунд", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "четвертьфинал", semi: "полуфинал", final: "финал" };
 const stageName = (st: string, lang?: string | null) => {
   const ru = lang === "ru", m = (ru ? STAGE_RU : STAGE_UZ)[st]; if (m) return m;
@@ -256,7 +258,7 @@ function cupText(rows: any[], lang?: string | null, byes: any[] = [], plan: any[
     const rr = rows.filter((x) => x.round === r);
     out.push("\n<b>" + stageName(rr[0].stage, lang) + "</b> · " + String(rr[0].slot).slice(0, 5));
     rr.forEach((x, i) => out.push(`${i + 1}. ${esc(x.a_name ?? "")} ⚔️ ${esc(x.b_name ?? "")}${x.winner_name ? " · ✅ " + esc(x.winner_name) : ""}`));
-    if (r === 1 && byes.length) out.push(tr(lang, "➡️ Keyingi raundga avtomatik o'tdi: {n}", { n: byes.map((b) => esc(b.name ?? "")).join(", ") }));
+    if (r === 1 && byes.length) out.push(tr(lang, "➡️ Saralashsiz keyingi raundga o'tdi — {c} kishi (oxirgi 7 kundagi bosqich bali eng yuqorilar): {n}", { c: byes.length, n: byes.map((b) => esc(b.name ?? "")).join(", ") }));
   }
   out.push(planText(plan, lang));
   return out.filter(Boolean).join("\n");
@@ -264,7 +266,10 @@ function cupText(rows: any[], lang?: string | null, byes: any[] = [], plan: any[
 // shaxsiy xabar uchun qisqa jadval: umumiy son, kun jadvali va o'z dueli
 function cupShort(rows: any[], lang: string | null | undefined, byes: any[], plan: any[]) {
   const r1 = rows.filter((x) => x.round === 1).length, n = r1 * 2 + byes.length;
-  return tr(lang, HEAD) + "\n\n" + tr(lang, "Bugun <b>{n}</b> kishi qatnashadi: 1-raundda {d} ta duel bir vaqtda o'ynaladi.", { n, d: r1 }) + planText(plan, lang);
+  const head = byes.length
+    ? tr(lang, "Bugun <b>{n}</b> kishi qatnashadi: saralashda {d} ta duel, {b} kishi (oxirgi 7 kundagi bosqich bali bo'yicha) saralashsiz keyingi raundga o'tdi. Keyingi raundlarda juftsiz odam qolmaydi.", { n, d: r1, b: byes.length })
+    : tr(lang, "Bugun <b>{n}</b> kishi qatnashadi: 1-raundda {d} ta duel bir vaqtda o'ynaladi.", { n, d: r1 });
+  return tr(lang, HEAD) + "\n\n" + head + planText(plan, lang);
 }
 function chunks(text: string, max = 3900) {
   const out: string[] = []; let cur = "";
@@ -311,7 +316,7 @@ async function cupBroadcast(rows: any[]) {
     const bb = bys[p.group_code] ?? [], plan = plans[p.group_code] ?? [];
     let txt = board.length > 8 ? cupShort(board, p.lang, bb, plan) : cupText(board, p.lang, bb, plan);
     if (m) txt += "\n\n" + tr(p.lang, "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.", { st: stageName(m.stage, p.lang), s: String(m.slot).slice(0, 5), o: esc(m.opp_name ?? "") });
-    else if (bye[p.player]) txt += "\n\n" + tr(p.lang, "✅ <b>Siz 1-raunddan avtomatik o'tdingiz!</b>\nKeyingi duelingiz — soat <b>{s}</b> ({st}). Raqib 1-raund tugagach ma'lum bo'ladi, bot xabar beradi.",
+    else if (bye[p.player]) txt += "\n\n" + tr(p.lang, "✅ <b>Siz saralashsiz keyingi raundga o'tdingiz!</b>\nOxirgi 7 kundagi bosqich balingiz yuqori bo'lgani uchun saralash duelini o'ynamaysiz. Keyingi duelingiz — soat <b>{s}</b> ({st}). Raqib saralash tugagach ma'lum bo'ladi, bot xabar beradi.",
       { s: String(plan[1]?.at ?? "").slice(0, 5), st: stageName(plan[1]?.stage ?? "", p.lang) });
     if (!m && !bye[p.player] && bench.has(p.player)) txt += "\n\n" + tr(p.lang, "ℹ️ <b>Bugun ishtirokchilar soni toq bo'ldi</b> — eng oxirgi qo'shilgan siz bo'lganingiz uchun bugungi kubokda juftingiz yo'q. <b>Ertadan kubokda qatnashasiz.</b> Kunlik bosqich odatdagidek ochiq — o'ynashni unutmang!");
     const opp = m ? await oppLine(m.code, p.tg, p.lang) : "";
@@ -1124,6 +1129,19 @@ async function remindNoon(w: number) {
   return { ok: true, total, personal };
 }
 
+// muhokama guruhi: oddiy a'zolar xabar qadamasin (pin) — faqat adminlar. Boshqa ruxsatlar o'zgarmaydi.
+async function discussPerms() {
+  const cfg = await discussCfg(); if (!cfg) return { ok: false, why: "no_group" };
+  const ch = await tg("getChat", { chat_id: cfg.chat });
+  const cur = (ch?.result?.permissions ?? {}) as Record<string, boolean>;
+  const perms = { can_send_messages: true, can_send_audios: true, can_send_documents: true, can_send_photos: true, can_send_videos: true,
+    can_send_video_notes: true, can_send_voice_notes: true, can_send_polls: true, can_send_other_messages: true, can_add_web_page_previews: true,
+    can_invite_users: true, can_change_info: false, can_manage_topics: false, ...cur, can_pin_messages: false };
+  const r = await tg("setChatPermissions", { chat_id: cfg.chat, permissions: perms, use_independent_chat_permissions: true });
+  const after = await tg("getChat", { chat_id: cfg.chat });
+  return { ok: !!r?.ok, err: r?.ok ? undefined : r?.description, can_pin_messages: after?.result?.permissions?.can_pin_messages };
+}
+
 // muhokama guruhi tepasida (qadalgan xabar) guruh havolasi; guruh tavsifiga ham yoziladi
 async function discussPin() {
   const cfg = await discussCfg(); if (!cfg) return { ok: false, why: "no_group" };
@@ -1312,7 +1330,8 @@ async function onCron(action: string, body: any = {}) {
     }
     const names = await fillNames(150).catch(() => null);
     const invites = await inviteAll(300).catch(() => null);
-    return { ok: true, sent: n, polls, personal, tax, news, pairs, duels, names, invites };
+    const perms = await discussPerms().catch(() => null);   // guruhda pin — faqat adminlar
+    return { ok: true, sent: n, polls, personal, tax, news, pairs, duels, names, invites, perms };
   }
   if (action === "duel_due") {
     // kubok: yangi bosqich jufti, 5 daqiqa qoldi, boshlandi, g'olib
@@ -1404,6 +1423,7 @@ async function onCron(action: string, body: any = {}) {
     return await remindNoon(w);
   }
   if (action === "discuss_pin") return await discussPin();
+  if (action === "discuss_perms") return await discussPerms();
   if (action === "remind") {
     // juma kuni eslatma friday_warn (16:00) da ketadi — u liga yakunini ham eslatadi
     if (w < 1 || w > 4 || !(await once("remind"))) return { skip: true };

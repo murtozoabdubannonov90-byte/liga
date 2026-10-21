@@ -60,6 +60,12 @@ Kunlik bosqichlar, liga bali, duellar va kubokka **ta'sir qilmaydi**: alohida ja
 - **Bot:** ish kunlari **18:30** da (bosqichlar yopilgandan keyin) guruh va kanalga jamg'arma va top-5 e'loni (cron `liga-mashq-elon`, qo'lda: `select liga_bot_call('px_board_now')`).
 - Baza: `db/2026-10-21_mashq_zali.sql`, savollar `db/2026-10-21b_mashq_savollar.sql` (qayta yasash: `python3 app/scripts/px-seed.py`), e'lon `db/2026-10-21c_mashq_elon.sql`. Ilova: `app/src/screens/Px.tsx`, `app/src/engine/px.ts`. Testlar: 266 ta.
 
+## 2026-10-21: kubok — saralash raundi, «eng yaxshi yutqazgan» bekor; guruhda pin faqat adminlarga
+- Yutqazgan endi hech qachon keyingi raundga qaytmaydi. Ishtirokchilar soni n, P — n dan oshmaydigan eng katta 2 ning darajasi. n > P bo'lsa 1-raund — **saralash**: (n − P) ta duel; oxirgi 7 kundagi bosqich bali eng yuqori (2P − n) kishi saralashsiz 2-raundga o'tadi. 2-raunddan boshlab soni P, P/2 … — toq bo'lmaydi. Masalan 290 → saralash 34 duel, 222 kishi to'g'ridan-to'g'ri → 256 → 128 → … → final 17:00.
+- Toq sonda oxirgi qo'shilganni chetlatish endi yo'q — hamma qatnashadi.
+- Muhokama guruhida oddiy a'zolar xabar qadamaydi (`setChatPermissions`, `can_pin_messages: false`); bot har ish kuni 09:00 da tekshirib qo'yadi. Qo'lda: bot amali `discuss_perms`.
+- Baza: `db/2026-10-21_kubok_saralash.sql`.
+
 ## 2026-10-20b: bo'sh ekran, javobsiz xato, limitlar, ijtimoiy soliq 6520
 - **Bo'sh ekran / ochilmaslik:** Telegram skripti endi sahifani to'xtatib turmaydi (Telegram ichida 6 s gacha kutiladi, brauzerda kutilmaydi); server so'rovlariga vaqt chegarasi (20 s); Telegram orqali kirish 10 s da javob bermasa ilova baribir ochiladi; eski telefonlar (Android 6–9 WebView, iOS 11–13) uchun alohida ES5 to'plam (`@vitejs/plugin-legacy`); service worker: sahifa 5 s da kelmasa — keshdagisi, oldingi 3 ta versiya fayllari serverda saqlanadi (`assets/builds.json`); yuklanish ekrani va 15 s nazorat — ochilmasa «Qayta yuklash» (kesh tozalanadi); ekranda xato bo'lsa — oq ekran o'rniga xabar (`Boundary`); savol/dars topilmasa — xabar va «Bosh sahifa».
 - **Qurilma xatolari jurnali:** `liga_client_err` jadvali — qaysi telefonda nima buzilganini ko'rish uchun (`select * from liga_client_err order by at desc`).

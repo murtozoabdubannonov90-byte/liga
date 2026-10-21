@@ -120,7 +120,7 @@ export function TeamLiveCard() {
             <div key={k} className="r"><span className="p" style={{ fontSize: 12, color: a.lost_n > 0 ? "var(--red)" : undefined }}>{a.away_n}×</span>
               <span className="n">{a.name}<small>{t("{l} savol xato hisoblandi · jami {s} soniya tashqarida", { l: a.lost_n, s: a.away_s })}{a.done_n ? " · " + t("{r}/{n} to'g'ri", { r: a.right_n, n: a.done_n }) : ""}</small></span>
               <span className="x" style={{ fontSize: 12 }}>{a.phone ? String(a.phone).slice(-4) : ""}</span></div>))}</div>
-          <p className="tiny muted" style={{ margin: "6px 0 8px" }}>{t("Savol ochiq turganda 0,4 soniyadan uzoq har bir chiqish yoziladi; 1,5 soniyadan uzoq bo'lsa savol avtomatik xato hisoblanadi.")}</p></>}
+          <p className="tiny muted" style={{ margin: "6px 0 8px" }}>{t("Savol ochiq turganda 0,4 soniyadan uzoq har bir chiqish yoziladi; 3 soniyadan uzoq bo'lsa savol xato hisoblanadi (bosqichda birinchi marta — faqat ogohlantirish).")}</p></>}
         </div>
       </div>
     </section>);
@@ -149,7 +149,7 @@ export function DayDuelCard() {
   const next = plan.find((x) => x.round === 2), curPlan = plan.find((x) => x.round === cur);
   const row = (p: any, k: number) => p.status === "bye" ? (
     <div key={"b" + k} className={"r bye" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>➡️</span>
-      <span className="n">{p.a_name}<small>{t("Juftsiz qoldi — keyingi raundga avtomatik o'tdi")}</small></span><span className="x" /></div>) : (
+      <span className="n">{p.a_name}<small>{t("Saralashsiz keyingi raundga o'tdi")}</small></span><span className="x" /></div>) : (
     <div key={k} className={"r" + (p.mine ? " me" : "")}><span className="p" style={{ fontSize: 12 }}>{k}</span>
       <span className="n">{p.a_name} — {p.b_name}{p.winner_name && <small>✅ {p.winner_name}</small>}</span><span className="x" style={{ fontSize: 13 }}>{st(p)}</span></div>);
   return (
@@ -159,11 +159,11 @@ export function DayDuelCard() {
       {d ? <>
         <div className="dd-vs"><b>{t("Siz")}</b><span className="num">{done ? `${d.my_pts}:${d.opp_pts}` : "⚡"}</span><OppName code={d.code} name={d.opp} id="dd-opp" /></div>
         {!done && d.opp && <p className="tiny muted dd-tip">{t("Raqib ismiga bosing — telefoni va Telegrami chiqadi")}</p>}
-        <p className="small muted" style={{ fontWeight: 600 }}>{done ? (myBye ? t("Siz juftsiz qoldingiz va {st} dan keyingi raundga avtomatik o'tdingiz. Keyingi duelingiz haqida bot xabar beradi.", { st: stageName(myBye.stage) }) : res)
+        <p className="small muted" style={{ fontWeight: 600 }}>{done ? (myBye ? t("Siz {st}ni o'ynamasdan keyingi raundga o'tdingiz (oxirgi 7 kundagi bosqich balingiz yuqori). Keyingi duelingiz haqida bot xabar beradi.", { st: stageName(myBye.stage) }) : res)
           : open ? t("Duel ochiq — raqibingiz bilan bir vaqtda kiring.") : d.closed ? t("Vaqt tugadi") : t("Faqat provodka · 15 savol · har biriga 1,5 daqiqa · soat {s} da ochiladi, 30 daqiqa ochiq", { s: d.slot })}</p>
         {!done && <button className={"btn " + (open ? "" : "ghost")} style={{ marginTop: 10 }} id="dd-go" onClick={() => go("duel", { code: d.code })}>{open ? t("Duelga kirish") : t("Duelni ochish")}</button>}
       </> : me2?.bench ? <p className="dd-bye" id="dd-bench">{t("Bugun ishtirokchilar soni toq bo'ldi — eng oxirgi qo'shilgan siz bo'lganingiz uchun bugungi kubokda juftingiz yo'q. Ertadan kubokda qatnashasiz. Kunlik bosqich odatdagidek ochiq.")}</p>
-        : me2?.bye && next && cur <= 1 ? <p className="dd-bye" id="dd-bye">{t("Siz 1-raunddan avtomatik o'tdingiz. Keyingi duelingiz — soat {s} ({st}). Raqib 1-raund tugagach chiqadi.", { s: next.at, st: stageName(next.stage) })}</p>
+        : me2?.bye && next && cur <= 1 ? <p className="dd-bye" id="dd-bye">{t("Siz saralashsiz keyingi raundga o'tdingiz (oxirgi 7 kundagi bosqich balingiz yuqori). Keyingi duelingiz — soat {s} ({st}). Raqib saralash tugagach chiqadi.", { s: next.at, st: stageName(next.stage) })}</p>
         : <p className="small muted" style={{ fontWeight: 600 }} id="dd-wait">{wk || (n.wd === 5 && n.h >= 9 && !list.length) ? t("Kubok juftlari dushanba soat 09:00 da tasodifiy tuziladi, duellar 10:00 dan. Bot sizga raqibingiz va soatni yuboradi.")
           : n.h < 9 ? t("Kubok juftlari bugun soat 09:00 da tasodifiy tuziladi, duellar 10:00 dan. Bot sizga raqibingiz va soatni yuboradi.")
           : list.length ? t("Bugungi kubok 09:00 da tuzilgan — siz ro'yxatga kirmadingiz. Keyingi kubok — {w}: juftlar 09:00 da, duellar 10:00 dan.", { w: nextWord() }) : t("Kubok har ish kuni: juftlar 09:00 da, duellar 10:00 dan. Keyingisi — ertaga.")}</p>}
