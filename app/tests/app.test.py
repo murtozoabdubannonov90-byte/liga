@@ -540,7 +540,7 @@ with sync_playwright() as p:
     EXTRA["liga_day_duel_me"] = {"code": "LDAY123", "slot": "10:00", "stage": "qual", "opp": "O'yinchi 36", "status": "play", "open": True, "closed": False, "my_pts": 0, "opp_pts": 0}
     pg, e = page(b); ALLERR += e
     dd = pg.inner_text("#day-duel")
-    check("60 kishi: raund yig'ilgan — sarlavhada 28 duel va «siz shu yerda»", pg.locator(".dd-list .r").count() == 0 and "Saralash raundi" in dd and "28 duel" in dd and "siz shu yerda" in dd, dd[:300])
+    check("60 kishi: raund yig'ilgan — sarlavhada 28 duel va «siz shu yerda»", pg.locator(".dd-list .r").count() == 0 and "1-raund" in dd and "28 duel" in dd and "siz shu yerda" in dd, dd[:300])
     pg.click("#dd-plan-h"); pg.wait_for_timeout(200)
     check("60 kishi: jadval saralash 10:00 → 1/16 10:40 → 1/8 11:20 → (12–14 tanaffus) chorak 14:00 → yarim 14:40 → final 17:00",
           pg.locator("#dd-plan li").count() == 6 and all(x in pg.inner_text("#dd-plan") for x in ["60 ishtirokchi", "1/16 final", "1/8 final", "10:00", "10:40", "11:20", "14:00", "14:40", "17:00", "12:00–14:00"]))
@@ -554,7 +554,7 @@ with sync_playwright() as p:
     check("saralashsiz o'tgan: sababi (7 kunlik bal) va keyingi duel 10:40 (1/16 final)", "saralashsiz" in by and "7 kundagi" in by and "10:40" in by and "1/16 final" in by, by)
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
     by = pg.inner_text("#dd-bye") if pg.locator("#dd-bye").count() else ""
-    check("RU: saralashsiz o'tish va jadval ruscha", "без отбора" in by and "1/16 финала" in by and "Отборочный раунд" in pg.inner_text("#dd-plan"), by)
+    check("RU: saralashsiz o'tish va jadval ruscha", "без отбора" in by and "1/16 финала" in by and "1-й раунд" in pg.inner_text("#dd-plan"), by)
     EXTRA["liga_cup_me2"] = {"players": 60, "bye": False, "bench": True, "table": tbl}
     pg, e = page(b); ALLERR += e
     check("toq sonda oxirgi qo'shilgan: «ertadan kubokda qatnashasiz»", "Ertadan kubokda" in (pg.inner_text("#dd-bench") if pg.locator("#dd-bench").count() else ""))

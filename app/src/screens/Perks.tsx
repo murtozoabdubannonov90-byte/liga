@@ -127,7 +127,7 @@ export function TeamLiveCard() {
 }
 
 /* bosh sahifa: kunlik duel kubogi — mening duelim, kun jadvali (saralash → 1/16 → 1/8 → chorak → yarim → final 17:00) */
-const STAGE: Record<string, string> = { qual: "Saralash raundi", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
+const STAGE: Record<string, string> = { qual: "1-raund", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
 export const stageName = (st?: string) => {
   if (!st) return "";
   if (STAGE[st]) return t(STAGE[st]);

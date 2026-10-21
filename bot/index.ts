@@ -218,9 +218,9 @@ async function dayTopDm(top: any[], w: number) {
   return n;
 }
 // duel kubogi: bosqich nomlari va jadval matni
-const STAGE_UZ: Record<string, string> = { qual: "Saralash raundi", r256: "1/128 final", r128: "1/64 final", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
-const STAGE_RU: Record<string, string> = { qual: "Отборочный раунд", r256: "1/128 финала", r128: "1/64 финала", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "Четвертьфинал", semi: "Полуфинал", final: "Финал" };
-const STAGE_RU_ACC: Record<string, string> = { qual: "отборочный раунд", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "четвертьфинал", semi: "полуфинал", final: "финал" };
+const STAGE_UZ: Record<string, string> = { qual: "1-raund", r256: "1/128 final", r128: "1/64 final", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
+const STAGE_RU: Record<string, string> = { qual: "1-й раунд", r256: "1/128 финала", r128: "1/64 финала", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "Четвертьфинал", semi: "Полуфинал", final: "Финал" };
+const STAGE_RU_ACC: Record<string, string> = { qual: "1-й раунд", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "четвертьфинал", semi: "полуфинал", final: "финал" };
 const stageName = (st: string, lang?: string | null) => {
   const ru = lang === "ru", m = (ru ? STAGE_RU : STAGE_UZ)[st]; if (m) return m;
   const k = /^r(\d+)$/.exec(st); const n = k ? Number(k[1]) : 0;
