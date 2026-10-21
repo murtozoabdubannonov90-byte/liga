@@ -571,6 +571,17 @@ with sync_playwright() as p:
     check("kubok g'olibi asosiy ekranda", pg.locator("#dd-champ").count() == 1 and "Aziz Rahimov" in pg.inner_text("#dd-champ"))
     EXTRA.pop("liga_day_duel_me", None); EXTRA.pop("liga_cup_list", None)
 
+    print("10g2a. Kubok: hamma o'ynaydi, g'oliblar ochko bo'yicha 2 ning darajasigacha")
+    tcut = [{"round": 1, "stage": "qual", "duels": 145, "at": "10:00"}, {"round": 2, "stage": "r128", "duels": 64, "at": "10:40"}, {"round": 3, "stage": "r64", "duels": 32, "at": "11:20"}]
+    EXTRA["liga_cup_me2"] = {"players": 290, "bye": False, "table": tcut}
+    EXTRA["liga_day_duel_me"] = {"code": "LDAY9", "slot": "10:00", "stage": "qual", "opp": "Ali V.", "status": "done", "open": False, "closed": True, "my_pts": 6, "opp_pts": 3, "won": True, "cut": True, "cut_keep": 128, "cut_winners": 145}
+    pg, e = page(b); ALLERR += e
+    dd = pg.inner_text("#day-duel") if pg.locator("#day-duel").count() else ""
+    check("yutgan, lekin ochko bo'yicha kirmagan: tushunarli xabar (145 dan 128)", "ochko bo'yicha" in dd and "145" in dd and "128" in dd and "Siz keyingi bosqichga chiqdingiz" not in dd, dd[:300])
+    if pg.locator("#dd-plan-h").count(): pg.click("#dd-plan-h"); pg.wait_for_timeout(200)
+    check("jadvalda qoida: hamma o'ynaydi, ochkosi eng ko'p 128 kishi o'tadi", "128" in (pg.inner_text("#dd-cut-rule") if pg.locator("#dd-cut-rule").count() else ""))
+    EXTRA.pop("liga_cup_me2", None); EXTRA.pop("liga_day_duel_me", None)
+
     print("10g2. Buxgalter ma'lumotnomasi (yig'iladigan)")
     pg, e = page(b); ALLERR += e
     check("ma'lumotnoma: 9 mavzu, hammasi yig'ilgan", pg.locator("#info .info-it").count() == 9 and pg.locator("#info .info-b").count() == 0)

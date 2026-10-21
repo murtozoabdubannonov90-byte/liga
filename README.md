@@ -44,6 +44,12 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-21b: kubok — hamma o'ynaydi, g'oliblar ochko bo'yicha (saralashsiz o'tish bekor)
+- Saralashsiz o'tish yo'q: 1-raundda hamma o'ynaydi. Har raundda faqat g'oliblar o'tadi — yutqazgan hech qachon qaytmaydi.
+- G'oliblar soni 2 ning darajasi bo'lmasa (290 → 145), keyingi bosqichga ochkosi eng ko'p P ta g'olib o'tadi (145 → 128; teng ochkoda — tezroq). Qolganlar «ochko bo'yicha chiqib qoldi» (`liga_day_cut`): bot shaxsan va guruhdagi raund natijasida aytadi, ilovada ham ko'rinadi. Keyingi raundlarda soni doim juft: 128 → 64 → … → final 17:00.
+- Ishtirokchilar soni toq bo'lsa — eng oxirgi qo'shilgan bugun kubokda emas («ertadan»), 1-raundda juftsiz odam qolmasligi uchun.
+- Baza: `db/2026-10-21b_kubok_hamma_ochko.sql` (2026-10-21 saralash tartibini almashtiradi).
+
 ## 2026-10-21: Mashq zali (ligadan alohida, sovrin jamg'armasi bilan)
 Kunlik bosqichlar, liga bali, duellar va kubokka **ta'sir qilmaydi**: alohida jadvallar (`liga_px_*`), alohida ball va reyting; mavjud funksiyalar o'zgartirilmagan.
 - **Qayerda:** Asosiy → «Mashq zali» kartasi (jamg'arma va o'rningiz) → bo'limlar: O'yinlar · Vazifalar · Yutuqlar · Reyting.

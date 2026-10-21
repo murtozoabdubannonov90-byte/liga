@@ -141,7 +141,7 @@ export function DayDuelCard() {
   const plan: { round: number; stage: string; duels: number; at: string }[] = me2?.table || [];
   const done = d?.status === "done", open = !!d?.open && !done;
   const champ = list.find((x) => x.champion)?.champion;
-  const res = done ? (d.won ? (d.stage === "final" ? t("Siz kubok g'olibisiz! 🏆") : t("Siz keyingi bosqichga chiqdingiz!")) : t("Bu safar raqib kuchliroq — ertaga yana kubok")) : "";
+  const res = done ? (d.won ? (d.stage === "final" ? t("Siz kubok g'olibisiz! 🏆") : d.cut ? t("Siz duelda yutdingiz, lekin ochko bo'yicha keyingi bosqichga kirmadingiz: {w} g'olibdan ochkosi eng ko'p {k} kishi o'tdi. Ertaga yana kubok!", { w: d.cut_winners, k: d.cut_keep }) : t("Siz keyingi bosqichga chiqdingiz!")) : t("Bu safar raqib kuchliroq — ertaga yana kubok")) : "";
   const myBye = list.find((x) => x.status === "bye" && x.mine && x.round > (d?.round ?? 0));
   const rounds = [...new Set(list.map((x) => x.round))].sort((a, b) => a - b);
   const cur = rounds.length ? rounds[rounds.length - 1] : 0;
@@ -173,7 +173,8 @@ export function DayDuelCard() {
           <ChevronDown size={18} className="dd-chev" /></button>
         {planOn && <><ol>{plan.map((x) => <li key={x.round} className={x.round === cur ? "now" : x.round < cur ? "past" : ""}>
           <span className="num">{x.at}</span><b>{stageName(x.stage)}</b><small>{t("{d} duel", { d: x.duels })}</small></li>)}</ol>
-        <p className="tiny muted">{t("Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Final — 17:00.")}</p></>}
+        <p className="tiny muted">{t("Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Final — 17:00.")}</p>
+        {plan[1] && plan[0].duels > plan[1].duels * 2 && <p className="tiny muted" id="dd-cut-rule">{t("⚖️ Hamma o'ynaydi. G'oliblardan keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi, keyin har raundda juftsiz odam qolmaydi.", { k: plan[1].duels * 2 })}</p>}</>}
       </div>}
       {rounds.length > 0 && <div className="dd-rounds" id="dd-rounds">
         <p className="small" style={{ fontWeight: 800, marginTop: 12 }}>{t("Ishtirokchilar")}</p>

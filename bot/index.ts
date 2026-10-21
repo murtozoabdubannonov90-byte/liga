@@ -111,6 +111,8 @@ const RU: Record<string, string> = {
   "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:": "💬 <b>{n}, открылась группа участников Hisobchi Liga!</b>\nЗдесь обсуждаем вопросы, проводки и дуэли, договариваемся с соперником. Присоединяйтесь:",
   "🕛 <b>{n}, bugungi {s}-bosqich hali bajarilmagan.</b>\nSoat {c} gacha vaqt bor — hozir 10–15 daqiqa ajrating, keyin unutib qo'yasiz.": "🕛 <b>{n}, сегодняшний этап {s} ещё не пройден.</b>\nВремя есть до {c} — уделите 10–15 минут сейчас, потом забудете.",
   "Jamoangizdan {p} kishi bugun bajarib bo'ldi.": "Из вашей команды сегодня уже прошли: {p}.",
+  "⚖️ Hamma o'ynaydi. G'oliblardan keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi, keyin har raundda juftsiz odam qolmaydi.": "⚖️ Играют все. Из победителей дальше проходят {k} с наибольшими очками, затем в каждом раунде без пары никто не остаётся.",
+  "🏁 <b>{n}, siz duelda yutdingiz, lekin bugun keyingi bosqichga chiqa olmadingiz.</b>\nBu raundda {w} kishi yutdi — keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi (teng ochkoda — tezroq javob bergan). Sizning ochkongiz: {p}.\nErtaga yana kubok — omad!": "🏁 <b>{n}, вы выиграли дуэль, но сегодня не прошли дальше.</b>\nВ этом раунде победили {w} чел. — дальше проходят {k} с наибольшими очками (при равенстве — кто быстрее). Ваши очки: {p}.\nЗавтра снова кубок — удачи!",
   "➡️ Saralashsiz keyingi raundga o'tdi — {c} kishi (oxirgi 7 kundagi bosqich bali eng yuqorilar): {n}": "➡️ Без отбора в следующий раунд прошли {c} чел. (лучшие по баллам этапов за 7 дней): {n}",
   "Bugun <b>{n}</b> kishi qatnashadi: saralashda {d} ta duel, {b} kishi (oxirgi 7 kundagi bosqich bali bo'yicha) saralashsiz keyingi raundga o'tdi. Keyingi raundlarda juftsiz odam qolmaydi.": "Сегодня участвуют <b>{n}</b> чел.: в отборе {d} дуэлей, {b} чел. (по баллам этапов за 7 дней) прошли в следующий раунд без отбора. Дальше без пары никто не останется.",
   "👤 <b>{n}, Telegram'da nikingiz (username) yo'q.</b>\nKubok duelida raqibingiz sizga Telegram'da yoza olishi uchun nik kerak — hozir sizni topib bo'lmayapti.\n\n<b>Nik qo'yish (1 daqiqa):</b>\n1. Telegram → <b>Sozlamalar</b> (Settings / Настройки)\n2. <b>Foydalanuvchi nomi</b> (Username / Имя пользователя)\n3. Nik yozing, masalan: <code>{ex}</code> → ✓\n\nKeyin pastdagi tugmani bosing.": "👤 <b>{n}, у вас в Telegram нет имени пользователя (username).</b>\nОно нужно, чтобы соперник по дуэли кубка мог вам написать — сейчас вас нельзя найти.\n\n<b>Как поставить (1 минута):</b>\n1. Telegram → <b>Настройки</b> (Settings)\n2. <b>Имя пользователя</b> (Username)\n3. Введите ник, например: <code>{ex}</code> → ✓\n\nЗатем нажмите кнопку ниже.",
@@ -247,6 +249,7 @@ function planText(plan: any[], lang?: string | null) {
   const L = ["\n" + tr(lang, "🗓 <b>Kun jadvali</b>")];
   for (const t of plan) L.push(tr(lang, "{at} — {st} ({d} duel)", { at: String(t.at).slice(0, 5), st: stageName(t.stage, lang), d: t.duels }));
   L.push(tr(lang, "Raundning barcha duellari bir vaqtda o'ynaladi. 12:00–14:00 — tanaffus. Raund erta tugasa ham, keyingisi jadvaldagi vaqtda boshlanadi."));
+  if (plan[1] && plan[0].duels > plan[1].duels * 2) L.push(tr(lang, "⚖️ Hamma o'ynaydi. G'oliblardan keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi, keyin har raundda juftsiz odam qolmaydi.", { k: plan[1].duels * 2 }));
   return L.join("\n");
 }
 const HEAD = "🏆 <b>Bugungi duel kubogi</b>\nFaqat provodka · 15 savol · har biriga 1,5 daqiqa · har duel 30 daqiqa ochiq. G'olib keyingi bosqichga o'tadi.";
@@ -762,7 +765,11 @@ async function groupDue() {
       const bp = (nbye.data ?? [])[0]?.player_id;
       if (bp) { const { data: nm } = await db.rpc("liga_pname", { p: bp }); if (nm) next += `\n➡️ Avtomatik o'tdi: ${esc(String(nm))}`; }
     }
-    const full = head + "\n" + lines.join("\n") + next;
+    // ochko bo'yicha chiqib qolgan g'oliblar
+    const { data: cl } = await db.rpc("liga_cup_cut_list_sys", { p_group: x.group_code, p_round: x.round });
+    const cutL = (cl ?? []) as any[];
+    const cutT = cutL.length ? `\n\n⚖️ G'oliblar ${cutL[0].winners} ta — keyingi bosqichga ochkosi eng ko'p <b>${cutL[0].keep}</b> kishi o'tdi. Ochko bo'yicha chiqib qoldi (${cutL.length}): ${cutL.map((c) => esc(c.name ?? "") + " " + (c.pts ?? 0)).join(", ")}` : "";
+    const full = head + "\n" + lines.join("\n") + cutT + next;
     if (cfg) for (const part of chunks(full)) await tg("sendMessage", { chat_id: cfg.chat, parse_mode: "HTML", text: part, disable_notification: true });
     await toChannels(full, openBot(x.group_code));
     rounds++;
@@ -1347,6 +1354,12 @@ async function onCron(action: string, body: any = {}) {
       } else if (x.kind === "champ") { text = tr(x.lang, "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.", { n: esc(x.extra ?? "") }); champG.add(x.group_code + "|" + (x.extra ?? "")); }
       if (text && ["pair", "five", "start"].includes(x.kind)) text += await oppLine(x.code, x.tg, x.lang);
       if (text && await dm(x.tg, text, btn)) sent++;
+    }
+    // duelda yutgan, lekin ochko bo'yicha keyingi bosqichga kirmaganlar (g'oliblar soni 2 ning darajasiga qisqartiriladi)
+    const { data: cut } = await db.rpc("liga_cup_cut_due_sys");
+    for (const x of (cut ?? []) as any[]) {
+      const text = tr(x.lang, "🏁 <b>{n}, siz duelda yutdingiz, lekin bugun keyingi bosqichga chiqa olmadingiz.</b>\nBu raundda {w} kishi yutdi — keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi (teng ochkoda — tezroq javob bergan). Sizning ochkongiz: {p}.\nErtaga yana kubok — omad!", { n: esc(x.name ?? ""), w: x.winners, k: x.keep, p: x.pts ?? 0 });
+      if (await dm(x.tg, text, appBtn(tr(x.lang, "Ligani ochish")))) sent++;
     }
     for (const k of champG) { const [code, nm] = k.split("|"); const ct = tr("uz", "🏆 <b>Bugungi duel kubogi g'olibi — {n}!</b>\nTabriklaymiz! Keyingi kubok — keyingi ish kuni: juftlar 09:00 da, duellar 10:00 dan.", { n: esc(nm) });
       for (const c of await chatsOf(code)) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: ct });
