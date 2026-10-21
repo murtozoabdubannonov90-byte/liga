@@ -192,6 +192,9 @@ with sync_playwright() as p:
     go(pg, "intro", {"si": si}); pg.click("#go"); pg.wait_for_timeout(600)
     del EXTRA["_prefill"]
     CALLS.clear(); answer(pg, True); pg.click("#nx"); pg.wait_for_timeout(1500)
+    for _ in range(10):
+        if calls("bot:stage_done"): break
+        pg.wait_for_timeout(400)
     sd = calls("bot:stage_done")
     check("bosqich tugaganda natija botga yuborildi", len(sd) == 1 and sd[0].get("si") == si and sd[0].get("right") == 20, sd)
     check("3 yulduz va bonus serverdan", "Bosqich yakunlandi" in txt(pg) and S(pg, "S.stars[%d]" % si) == 3, txt(pg)[:200])
@@ -548,10 +551,10 @@ with sync_playwright() as p:
     EXTRA["liga_day_duel_me"] = None; EXTRA["liga_cup_me2"] = {"players": 60, "bye": True, "table": tbl}
     pg, e = page(b); ALLERR += e
     by = pg.inner_text("#dd-bye") if pg.locator("#dd-bye").count() else ""
-    check("1-raunddan avtomatik o'tgan: keyingi duel 10:40 (1/16 final)", "avtomatik" in by and "10:40" in by and "1/16 final" in by, by)
+    check("saralashsiz o'tgan: sababi (7 kunlik bal) va keyingi duel 10:40 (1/16 final)", "saralashsiz" in by and "7 kundagi" in by and "10:40" in by and "1/16 final" in by, by)
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
     by = pg.inner_text("#dd-bye") if pg.locator("#dd-bye").count() else ""
-    check("RU: avtomatik o'tish va jadval ruscha", "автоматически" in by and "1/16 финала" in by and "Отборочный раунд" in pg.inner_text("#dd-plan"), by)
+    check("RU: saralashsiz o'tish va jadval ruscha", "без отбора" in by and "1/16 финала" in by and "Отборочный раунд" in pg.inner_text("#dd-plan"), by)
     EXTRA["liga_cup_me2"] = {"players": 60, "bye": False, "bench": True, "table": tbl}
     pg, e = page(b); ALLERR += e
     check("toq sonda oxirgi qo'shilgan: «ertadan kubokda qatnashasiz»", "Ertadan kubokda" in (pg.inner_text("#dd-bench") if pg.locator("#dd-bench").count() else ""))
@@ -731,11 +734,16 @@ with sync_playwright() as p:
     pg.locator(".opts .opt").first.click(); pg.wait_for_timeout(300)
     check("variant bosilishi bilan javob ketadi", calls("liga_px_answer")[-1]["p_ans"] == {"pick": 0})
     go(pg, "pxGame", {"kind": "side"}); pg.wait_for_timeout(500)
+    try: pg.wait_for_selector(".px-sides .opt", timeout=5000)
+    except Exception: pass
     check("balans bo'limi: 5 ta bo'lim", pg.locator(".px-sides .opt").count() == 5 and all(x in pg.inner_text(".px-sides") for x in ["Aktiv", "Majburiyat", "Kapital", "Daromad", "Xarajat"]))
     pg.locator(".px-sides .opt", has_text="Kapital").click(); pg.wait_for_timeout(400)
     check("xato bo'lim: to'g'ri javob ko'rsatiladi", "To'g'ri javob: 5010" in pg.inner_text("#px-fb") and "Aktiv" in pg.inner_text("#px-fb"))
     # halol o'yin: boshqa oynaga 3 soniyadan ko'p — o'yin yakunlanadi
-    go(pg, "pxGame", {"kind": "pv"}); pg.wait_for_timeout(500); n0 = len(calls("liga_px_finish"))
+    go(pg, "pxGame", {"kind": "pv"}); pg.wait_for_timeout(500)
+    try: pg.wait_for_selector("#px-q", timeout=5000)
+    except Exception: pass
+    pg.wait_for_timeout(300); n0 = len(calls("liga_px_finish"))
     pg.evaluate("()=>window.dispatchEvent(new Event('blur'))"); pg.clock.fast_forward(4000); pg.evaluate("()=>window.dispatchEvent(new Event('focus'))"); pg.wait_for_timeout(700)
     check("boshqa oynaga chiqilsa o'yin yakunlanadi", len(calls("liga_px_finish")) == n0 + 1 and pg.locator("#px-result").count() == 1)
     # obunasi yo'q

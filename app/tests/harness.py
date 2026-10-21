@@ -228,5 +228,11 @@ def page(b, when="2026-10-01T05:00:00Z", seed=SEED, w=390, h=844, dark=False, qu
     pg.clock.install(time=when)
     if tg: pg.add_init_script(TG_MOCK)
     if seed is not None: pg.add_init_script("localStorage.setItem('hisobchi-liga-v1',JSON.stringify(%s))" % json.dumps(seed))
-    pg.goto(BASE + query); pg.wait_for_timeout(900)
+    pg.goto(BASE + query)
+    # ilova bo'lib-bo'lib yuklanadi (Telegram kutiladi, keyin asosiy kod) — o'rnatilishi va server javoblarini kutamiz
+    try: pg.wait_for_function("window.__ligaMounted===true", timeout=15000)
+    except Exception: pass
+    try: pg.wait_for_load_state("networkidle", timeout=5000)
+    except Exception: pass
+    pg.wait_for_timeout(900)
     return pg, errs
