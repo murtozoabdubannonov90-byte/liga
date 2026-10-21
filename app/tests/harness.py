@@ -76,8 +76,7 @@ CERTS = {
                "week": {"id": "2026-09-25T07:00", "no": 39, "from": "2026-09-21", "to": "2026-09-25"}, "issued_at": "2026-10-01T10:00:00Z", "checked_at": "2026-10-01T05:00:00Z",
                "sig": "BE84-983E-0F75-FF79", "signer": "Hisobchi Liga Kengashi", "serial": "HL-2026-39-2-EFGH6789", "peers": [dict(p, me=p["pos"] == 2) for p in _PEERS]},
 }
-def body_for(fn, args):
-    if fn in EXTRA: return EXTRA[fn]
+def body_for0(fn, args):
     if fn == "liga_live_create": live_reset(); return "LQWERTY"
     if fn == "liga_live_state":
         if LIVE.get("_stale"):
@@ -151,6 +150,52 @@ def body_for(fn, args):
       "liga_receipt_submit": [{"id": 12, "paid_until": "2026-10-31"}], "liga_tg_pay_link": "pay_abc", "liga_admin_tg_link": "adm_abc",
     }
     return D.get(fn, None)
+# ---- Mashq zali taqlidi (liga_px_*) ----
+PX = {}
+PX_ACC = ["Kassa (so'm)", "Hisob-kitob schyoti", "Ombordagi tovarlar", "Valyuta schyoti"]
+def px_q(kind, k):
+    if kind == "pv": return {"t": "pv", "q": f"Mashq №{k+1}: bankdan kassaga pul olindi", "o": ["6010", "5110", "4010", "5010", "9420", "6410"]}
+    if kind == "acc": return {"t": "acc", "mode": "c2n", "ask": "5010", "o": PX_ACC}
+    return {"t": "side", "code": "5010", "o": ["a", "l", "e", "r", "x"]}
+def px_state():
+    return {k: PX[k] for k in ("sid", "kind", "k", "score", "right_n", "done_n", "combo", "left_ms")} | {"q": px_q(PX["kind"], PX["k"]) if not PX["over"] else None}
+def px_start(a):
+    PX.clear(); PX.update({"sid": f"px-{a['p_kind']}", "kind": a["p_kind"], "k": 0, "score": 0, "right_n": 0, "done_n": 0, "combo": 0, "best": 0, "left_ms": 60000, "over": False, "n": EXTRA.get("_px_n", 50)})
+    return px_state() | {"secs": 60}
+def px_answer(a):
+    p = a.get("p_ans") or {}
+    if a["p_k"] != PX["k"]: return px_state() | {"stale": True, "over": PX["over"]}
+    ok = (p.get("dt") == "5010" and p.get("kt") == "5110") if PX["kind"] == "pv" else p.get("pick") == 0
+    if ok: PX["combo"] += 1; g = 10 + min(PX["combo"] - 1, 5) * 2
+    else: PX["combo"] = 0; g = 0
+    PX["score"] += g; PX["right_n"] += int(ok); PX["done_n"] += 1; PX["k"] += 1; PX["best"] = max(PX["best"], PX["combo"]); PX["over"] = PX["k"] >= PX["n"]
+    return px_state() | {"ok": ok, "why": "", "got": g, "over": PX["over"], "e": "Kassa ko'paydi (Dt 5010), bank kamaydi (Kt 5110).",
+                         "ans": {"dt": "5010", "kt": "5110"} if PX["kind"] == "pv" else {"a": 0, "code": "5010"}}
+def px_finish(a):
+    return {"kind": PX.get("kind"), "score": PX.get("score", 0), "right_n": PX.get("right_n", 0), "done_n": PX.get("done_n", 0), "best_combo": PX.get("best", 0),
+            "record": PX.get("score", 0) > 0, "prev_best": 0, "quests_new": [{"id": "play3", "pts": 30}], "month_pts": 780, "month_rank": 2}
+PX_ME = {"mon": "2026-10", "secs": 60, "on": True, "streak": 3, "eligible": True, "today": {"games": 2, "pts": 160}, "month": {"pts": 780, "rank": 2, "n": 14},
+         "total": {"games": 12, "rights": 95, "answers": 120, "best": {"pv": 210, "acc": 180, "side": 0}},
+         "quests": [{"id": "play3", "pts": 30, "need": 3, "prog": 2, "done": False, "got": False}, {"id": "right10", "pts": 40, "need": 10, "prog": 10, "done": True, "got": True},
+                    {"id": "all3", "pts": 50, "need": 3, "prog": 2, "done": False, "got": False}, {"id": "combo7", "pts": 30, "need": 7, "prog": 7, "done": True, "got": True}],
+         "ach": [{"id": i, "prog": p, "need": n} for i, p, n in [("first", 1, 1), ("games10", 10, 10), ("games50", 12, 50), ("r100", 95, 100), ("r1000", 95, 1000), ("sniper", 14, 20),
+                 ("clean", 0, 1), ("combo10", 7, 10), ("streak3", 3, 3), ("streak7", 3, 7), ("master", 2, 3), ("top3", 1, 1)]],
+         "fund": {"amount": 85000, "split": [50, 30, 20], "prizes": [42500, 25500, 17000]}}
+PX_BOARD = [{"pos": 1, "name": "Aziz R.", "pts": 1240, "games": 15, "me": False, "ok": True}, {"pos": 2, "name": "Dilnoza K.", "pts": 780, "games": 12, "me": True, "ok": True},
+            {"pos": 3, "name": "Malika S.", "pts": 600, "games": 9, "me": False, "ok": False}, {"pos": 4, "name": "Bekzod T.", "pts": 400, "games": 5, "me": False, "ok": True}]
+PX_ADMIN = {"cfg": {"px_secs": "60", "px_fund_base": "0", "px_fund_per_pay": "5000", "px_split": "50,30,20", "px_on": "on"}, "mon": "2026-10", "fund": 85000, "players": 14, "games": 120,
+            "top": [{"name": "Aziz R.", "pts": 1240, "ok": True}], "wins": [{"mon": "2026-09", "pos": 1, "name": "Aziz R.", "phone": "+998931112233", "pts": 3000, "amount": 50000, "paid": False}]}
+def body_for(fn, args):
+    if fn in EXTRA: return EXTRA[fn]
+    if fn == "liga_px_start": return px_start(args)
+    if fn == "liga_px_answer": return px_answer(args)
+    if fn == "liga_px_finish": return px_finish(args)
+    if fn == "liga_px_me": return PX_ME
+    if fn == "liga_px_board": return PX_BOARD
+    if fn == "liga_px_winners": return [{"mon": "2026-09", "pos": 1, "name": "Aziz R.", "pts": 3000, "amount": 50000, "me": False}]
+    if fn == "liga_px_admin": return PX_ADMIN
+    if fn == "liga_px_admin_set": return True
+    return body_for0(fn, args)
 def handler(route):
     u = route.request.url
     if "/rpc/" in u:

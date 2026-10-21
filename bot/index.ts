@@ -1379,6 +1379,24 @@ async function onCron(action: string, body: any = {}) {
     const { data: dp } = await db.rpc("liga_cup_start_sys");
     return { ok: true, sent: await cupBroadcast((dp ?? []) as any[]) };
   }
+  // Mashq zali: ish kunlari 18:30 da guruh(lar) va kanalga oylik jamg'arma va top-5 (ligadan alohida reyting)
+  if (action === "px_board" || action === "px_board_now") {
+    if (action === "px_board" && (w < 1 || w > 5 || !(await once("px_board")))) return { skip: true };
+    const { data: pb } = await db.rpc("liga_px_board_sys", { p_group: "ASOSIY" });
+    const b: any = pb ?? {}; const top = (b.top ?? []) as any[];
+    const fmtS = (n: number) => Number(n || 0).toLocaleString("ru-RU").replace(/\s/g, " ");
+    const md = ["🥇", "🥈", "🥉", "4.", "5."];
+    const prizes = ((b.split ?? []) as number[]).map((x) => Math.floor((b.fund || 0) * x / 100));
+    const text = `🏋️ <b>Mashq zali</b> — oylik reyting\n\n` +
+      (b.fund > 0 ? `💰 Sovrin jamg'armasi: <b>${fmtS(b.fund)} so'm</b>\n${prizes.slice(0, 3).map((p, i) => `${md[i]} ${fmtS(p)}`).join(" · ")}\nJamg'arma har bir yangi obunachi bilan o'sadi.\n\n` : "") +
+      (top.length ? top.map((x, i) => `${md[i]} ${esc(x.name ?? "")} — ${fmtS(x.pts)} ball`).join("\n") : "Hali hech kim o'ynamagan — birinchi bo'ling!") +
+      `\n\nBugun ${b.today_games ?? 0} ta o'yin o'ynaldi. 3 ta tezkor o'yin: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har biri 60 soniya.\n` +
+      `Ballar liga baliga qo'shilmaydi. Sovrin — oy oxirida obunasi faol kuchli uchlikka.`;
+    let n = 0;
+    for (const c of await chatsOf("ASOSIY")) { const r = await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: openBot("ASOSIY") }); if (r?.ok) n++; await pause(60); }
+    n += await toChannels(text, openBot("ASOSIY"));
+    return { ok: true, sent: n };
+  }
   if (action === "rates") return await fetchRates();
   if (action === "sms_tick") return await smsTick();
   if (action === "remind_noon") {

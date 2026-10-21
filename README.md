@@ -24,6 +24,7 @@ Ilova qaytadan yozildi: React + Vite + TypeScript, yangi dizayn ("buxgalteriya d
 | Xodim tanlash testi (ro'yxatsiz havola) | Admin panel → Testlar → «Test yaratish» → havolani nomzodga yuboring |
 | QR sertifikat | Profil → Sertifikatlar; tekshiruv: `…/liga/?v=KOD` |
 | Shaxsiy eslatma 16:00 | Bot orqali ilovani ochgan o'yinchiga, bugungi bosqich bajarilmagan bo'lsa |
+| Mashq zali: 3 ta tezkor o'yin, vazifalar, yutuqlar, oylik sovrin jamg'armasi | Bosh sahifa → Mashq zali |
 | Android ilova (APK) | GitHub → Releases → **Hisobchi Liga — Android** → `HisobchiLiga.apk` |
 
 ### Dasturchi uchun
@@ -34,7 +35,7 @@ npm install
 npm run dev            # localhost da ishlatish
 npm run build          # tekshiruv + yig'ish (app/dist)
 npm run deploy         # yig'ib, sayt ildiziga joylash (keyin git commit + push)
-python3 tests/app.test.py        # 2.0 testlari (230 ta)
+python3 tests/app.test.py        # 2.0 testlari (266 ta)
 node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tekshiradi
 ```
 
@@ -42,6 +43,22 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Baza o'zgarishlari: `db/2026-10-02_v2_imkoniyatlar.sql`. Bot: `bot/index.ts` (Edge Function `liga-bot`, v11), `/app` manzili ilova uchun (duel xabari, Telegram ulash, kartochka ulashish — Telegram initData tekshiriladi).
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
+
+## 2026-10-21: Mashq zali (ligadan alohida, sovrin jamg'armasi bilan)
+Kunlik bosqichlar, liga bali, duellar va kubokka **ta'sir qilmaydi**: alohida jadvallar (`liga_px_*`), alohida ball va reyting; mavjud funksiyalar o'zgartirilmagan.
+- **Qayerda:** Asosiy → «Mashq zali» kartasi (jamg'arma va o'rningiz) → bo'limlar: O'yinlar · Vazifalar · Yutuqlar · Reyting.
+- **3 ta o'yin, har biri 60 soniya** (savol va javob faqat serverda tekshiriladi, vaqt serverda o'lchanadi):
+  - *Debet ↔ Kredit* — muomala → Dt va Kt (144 ta provodka, ikkinchi tugma bosilishi bilan javob ketadi);
+  - *Schyotlar rejasi* — raqam → nom yoki nom → raqam (53 ta hisobvaraq; chalg'ituvchilar shu guruhdan);
+  - *Balans bo'limi* — Aktiv / Majburiyat / Kapital / Daromad / Xarajat.
+- **Ball:** to'g'ri javob 10 + seriya bonusi (+2 … +10), xato — 0 va seriya yo'qoladi. 0,35 soniyadan tez javob — xato (skriptga qarshi). O'yin paytida 3 soniyadan ko'p boshqa ilova/oynaga o'tilsa — o'yin yakunlanadi (to'plangan ball saqlanadi). Ekranda ism suv belgisi.
+- **Kunlik vazifalar:** 3 ta o'yin (+30), bitta o'yinda 10 ta to'g'ri (+40), uchala o'yin turi (+50), 7 ta ketma-ket (+30) — oylik reytingga qo'shiladi.
+- **12 ta yutuq (nishon):** birinchi o'yin, 10/50 o'yin, 100/1000 to'g'ri, snayper (20 to'g'ri), xatosiz, 10 seriya, 3/7 kun ketma-ket, uch yo'nalish ustasi, oy kuchli uchligi.
+- **Reyting:** oy / hafta / bugun (o'z jamoasi ichida), o'tgan oylar g'oliblari.
+- **Sovrin jamg'armasi (asosiy liga):** `px_fund_base` + `px_fund_per_pay` (standart **5 000 so'm**) × shu oyda tasdiqlangan shaxsiy to'lovlar (oylar soni bilan). Taqsimot `px_split` = 50/30/20 %. Oy tugagach (har kuni 00:10 da cron `liga-mashq-oy` tekshiradi) **obunasi faol** eng yaxshi 3 kishi `liga_px_win` ga yoziladi. Obunasizlar o'ynaydi va reytingda ko'rinadi («obunasiz» belgisi), lekin sovrin olmaydi — ularga «Obuna bo'lish» tugmasi chiqadi.
+- **Superadmin → «Mashq»:** joriy jamg'arma, top-10, sozlamalar (to'lovdan ulush, boshlang'ich summa, taqsimot, o'yin vaqti, yoqish/o'chirish), g'oliblar telefoni va «berildi/berilmagan» belgisi.
+- **Bot:** ish kunlari **18:30** da (bosqichlar yopilgandan keyin) guruh va kanalga jamg'arma va top-5 e'loni (cron `liga-mashq-elon`, qo'lda: `select liga_bot_call('px_board_now')`).
+- Baza: `db/2026-10-21_mashq_zali.sql`, savollar `db/2026-10-21b_mashq_savollar.sql` (qayta yasash: `python3 app/scripts/px-seed.py`), e'lon `db/2026-10-21c_mashq_elon.sql`. Ilova: `app/src/screens/Px.tsx`, `app/src/engine/px.ts`. Testlar: 266 ta.
 
 ## 2026-10-20b: bo'sh ekran, javobsiz xato, limitlar, ijtimoiy soliq 6520
 - **Bo'sh ekran / ochilmaslik:** Telegram skripti endi sahifani to'xtatib turmaydi (Telegram ichida 6 s gacha kutiladi, brauzerda kutilmaydi); server so'rovlariga vaqt chegarasi (20 s); Telegram orqali kirish 10 s da javob bermasa ilova baribir ochiladi; eski telefonlar (Android 6–9 WebView, iOS 11–13) uchun alohida ES5 to'plam (`@vitejs/plugin-legacy`); service worker: sahifa 5 s da kelmasa — keshdagisi, oldingi 3 ta versiya fayllari serverda saqlanadi (`assets/builds.json`); yuklanish ekrani va 15 s nazorat — ochilmasa «Qayta yuklash» (kesh tozalanadi); ekranda xato bo'lsa — oq ekran o'rniga xabar (`Boundary`); savol/dars topilmasa — xabar va «Bosh sahifa».

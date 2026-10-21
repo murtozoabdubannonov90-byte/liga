@@ -21,6 +21,7 @@ import { PerksCard, TeamLiveCard, DayDuelCard } from "./Perks";
 import { GrandCard } from "./Grand";
 import { InfoCard } from "../components/Malumot";
 import { RatesCard } from "../components/Rates";
+import { PxCard } from "./Px";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -193,6 +194,7 @@ export default function Home() {
         <FirstStepCard />
         <Ticket />
         <DayDuelCard />
+        <PxCard />
         <GrandCard />
         <PerksCard />
         <TeamLiveCard />
