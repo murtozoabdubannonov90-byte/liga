@@ -1,4 +1,4 @@
-/* «Sovrinli musobaqa» (avval «Mashq zali»): 3 ta tezkor o'yin (40 soniya, har savolga 10 soniya), oylik reyting va sovrin jamg'armasi.
+/* «Sovrinli musobaqa» (avval «Mashq zali»): 3 ta tezkor o'yin (10 ta savol, har savolga 40 soniya), oylik reyting va sovrin jamg'armasi.
    Faqat telefonda, faqat to'lov qilganlar, har kuni 09:00–18:00, ballar 22.10.2026 09:00 dan.
    Liga bali, bosqichlar, duel va kubokka ta'sir qilmaydi (server: liga_px_*). */
 import { useEffect, useRef, useState } from "react";
@@ -45,7 +45,7 @@ function RulesCard({ me }: { me: PxMe }) {
       <ul className="small" style={{ margin: "8px 0 0", paddingLeft: 18, lineHeight: 1.55, fontWeight: 600 }}>
         <li>{t("Har kuni {a} dan {b} gacha ochiq", { a: me.open_from || "09:00", b: me.open_to || "18:00" })}</li>
         {me.start_at && <li>{t("Ballar {d} dan hisoblanadi", { d: fmtDay(me.start_at) })}</li>}
-        <li>{t("Har o'yin {s} soniya, har savolga {q} soniya", { s: me.secs, q: me.qs || 10 })}</li>
+        <li>{t("Har o'yin {n} ta savol, har savolga {q} soniya", { n: me.qn || 10, q: me.qs || 40 })}</li>
         <li>{t("Faqat telefonda. Ilovadan chiqilsa — o'yin yakunlanadi")}</li>
         <li>{t("Ballar liga baliga va umumiy ballga qo'shilmaydi")}</li>
       </ul>
@@ -125,7 +125,7 @@ function Games({ me }: { me: PxMe }) {
         <button key={k} className="card px-game" id={"px-" + k} disabled={!!gate} style={gate ? { opacity: 0.55 } : undefined} onClick={() => { if (gate) { toast(gate); return; } sfx("tap"); go("pxGame", { kind: k }); }}>
           <span className="ic"><Ic size={24} /></span>
           <span className="grow"><b>{t(KIND_TITLE[k])}</b><span className="small">{t(KIND_SUB[k])}</span>
-            <span className="small muted">{t("{s} soniya", { s: me.secs })} · {t("rekord {n}", { n: me.total.best[k] || 0 })}</span></span>
+            <span className="small muted">{t("{n} savol × {q} soniya", { n: me.qn || 10, q: me.qs || 40 })} · {t("rekord {n}", { n: me.total.best[k] || 0 })}</span></span>
           <ChevronRight size={20} />
         </button>); })}
       <div className="note"><Zap size={18} /><span>{t("To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xatoda bonus yo'qoladi.")}</span></div>
@@ -194,7 +194,7 @@ export function PxGame({ kind }: { kind: PxKind }) {
   const qStart = useRef(Date.now());
   useEffect(() => { qStart.current = Date.now(); }, [st?.k]);
   const left = st && !fin ? Math.max(0, end.current - now) : 0;
-  const QS = (st?.qs || (S.px as any)?.qs || 10) * 1000, qLeft = st && !fin && !fb ? Math.max(0, qStart.current + QS - now) : QS;
+  const QS = (st?.qs || (S.px as any)?.qs || 40) * 1000, qLeft = st && !fin && !fb ? Math.max(0, qStart.current + QS - now) : QS;
   useEffect(() => { if (st && !fin && !fb && !busy && qLeft <= 0 && left > 0) send({ timeout: true }); }, [qLeft <= 0]);
   useEffect(() => { if (st && !fin && left <= 0 && !busy) finish(); }, [left <= 0, st, fin, busy]);
 
@@ -217,7 +217,7 @@ export function PxGame({ kind }: { kind: PxKind }) {
       <button className="btn" onClick={begin}><RotateCcw size={18} />{t("Qayta urinish")}</button></div></div>);
   if (fin) return <PxResult kind={kind} r={fin} again={begin} />;
   if (!st || !st.q) return <div className="shell bare"><PageTitle title={t(KIND_TITLE[kind])} /><Empty>{t("Yuklanmoqda...")}</Empty></div>;
-  const q = st.q, secs = st.secs || (S.px?.secs as number) || 40, sec = Math.ceil(left / 1000), low = sec <= 10;
+  const q = st.q, QN = st.qn || (S.px as any)?.qn || 10, sec = Math.ceil(qLeft / 1000), low = sec <= 10;
   const wm = ((S.user.first || "") + " " + (S.user.last || "") + " · ").repeat(40);
   const optLabel = (o: string) => q.t === "side" ? t(SIDES[o] || o) : q.t === "acc" && q.mode === "c2n" ? tx(o) : o;
   const okIdx = fb?.ans?.a;
@@ -226,10 +226,11 @@ export function PxGame({ kind }: { kind: PxKind }) {
       <div className="ptitle">
         <button className="back" aria-label={t("Orqaga")} onClick={tryBack}><ArrowLeft size={20} /></button>
         <h2 className="grow">{t(KIND_TITLE[kind])}</h2>
-        <div className={"timer" + (low ? " low" : "")} id="px-timer"><Ring pct={left / (secs * 1000)} size={42} stroke={4} color={low ? "var(--red)" : "var(--stamp)"}><b className="num">{sec}</b></Ring></div>
+        <div className={"timer" + (low ? " low" : "")} id="px-timer"><Ring pct={qLeft / QS} size={42} stroke={4} color={low ? "var(--red)" : "var(--stamp)"}><b className="num">{sec}</b></Ring></div>
       </div>
       <div className="row" style={{ marginBottom: 10, minHeight: 26 }}>
         <span className="chip blue" id="px-score"><Coins size={13} /><span className="num">{st.score}</span></span>
+        <span className="chip" id="px-qn">{t("Savol {k}/{n}", { k: Math.min(st.k + 1, QN), n: QN })}</span>
         <span className="chip"><CircleCheck size={13} />{st.right_n}/{st.done_n}</span>
         <span className="grow" />
         <AnimatePresence>{st.combo >= 2 && <motion.span key={st.combo} initial={{ scale: 0.6 }} animate={{ scale: 1 }} className="chip gold"><Flame size={14} />×{st.combo}</motion.span>}</AnimatePresence>

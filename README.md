@@ -47,7 +47,7 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 ## 2026-10-21g: Sovrinli musobaqa — qoidalar
 - Ballar 22.10.2026 09:00 dan hisoblanadi (`px_start_at`); oldingi ballar reytingga kirmaydi. Ballar liga/umumiy ballga qo'shilmaydi.
 - Faqat to'lov qilganlar (`liga_px_paid`: paid_until ≥ bugun yoki free_phones) o'ynay oladi; ochiq vaqt 09:00–18:00 (`px_open_from/to`).
-- Har o'yin 40 soniya (`px_secs`), har savol 10 soniya (`px_q_secs`), kechikkan javob — xato. Savollar qiyinroq: provodkada 8 variant (yarmi o'tgan kunlik savollardan), schyotda 6 ta bir guruhdan.
+- Har o'yinda 10 ta savol (`px_q_n`), har savolga 40 soniya (`px_q_secs`; o'yin jami `px_secs`=400), vaqt o'tsa — xato. Savollar qiyinroq: provodkada 8 variant (yarmi o'tgan kunlik savollardan), schyotda 6 ta bir guruhdan.
 - Faqat telefonda: ilova va server `p_platform` ni tekshiradi (android/ios/mobile_web). AI/botga qarshi: avtomat brauzer bloklanadi, nusxa olish yopiq, boshqa oynaga 1,5 soniyadan ko'p chiqilsa o'yin tugaydi, juda tez (<0,35 s) javob — xato.
 - Ichida «tugashiga N kun qoldi» kartasi. Bot 22.10 09:05 dan hammaga qoidalarni yuboradi.
 - SQL: `db/2026-10-21g_musobaqa_qoidalar.sql`.

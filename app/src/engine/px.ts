@@ -5,12 +5,12 @@ import { S, persist, bump } from "./state";
 
 export type PxKind = "pv" | "acc" | "side";
 export interface PxQ { t: PxKind; q?: string; o: string[]; mode?: "c2n" | "n2c"; ask?: string; code?: string }
-export interface PxState { sid: string; kind: PxKind; k: number; score: number; right_n: number; done_n: number; combo: number; left_ms: number; q: PxQ | null; secs?: number; qs?: number }
+export interface PxState { sid: string; kind: PxKind; k: number; score: number; right_n: number; done_n: number; combo: number; left_ms: number; q: PxQ | null; secs?: number; qs?: number; qn?: number }
 export interface PxRes extends Partial<PxState> { ok?: boolean; why?: string; ans?: { dt?: string; kt?: string; a?: number; code?: string }; e?: string; got?: number; over?: boolean; stale?: boolean }
 export interface PxQuest { id: string; pts: number; need: number; prog: number; done: boolean; got: boolean }
 export interface PxAch { id: string; prog: number; need: number }
 export interface PxMe {
-  mon: string; secs: number; qs?: number; on: boolean; streak: number; eligible: boolean;
+  mon: string; secs: number; qs?: number; qn?: number; on: boolean; streak: number; eligible: boolean;
   start_at?: string | null; started?: boolean; open_from?: string; open_to?: string; end_day?: string; days_left?: number;
   today: { games: number; pts: number }; month: { pts: number; rank: number | null; n: number };
   total: { games: number; rights: number; answers: number; best: Record<PxKind, number> };

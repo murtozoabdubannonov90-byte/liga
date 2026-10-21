@@ -8,7 +8,7 @@
 --  Ballar liga baliga / umumiy XP ga qo'shilmaydi (alohida liga_px_sess).
 
 insert into public.liga_bot_config(key, value) values
-  ('px_secs', '40'), ('px_q_secs', '10'), ('px_start_at', '2026-10-22T09:00:00+05:00'), ('px_open_from', '09:00'), ('px_open_to', '18:00')
+  ('px_secs', '400'), ('px_q_secs', '40'), ('px_q_n', '10'), ('px_start_at', '2026-10-22T09:00:00+05:00'), ('px_open_from', '09:00'), ('px_open_to', '18:00')
 on conflict (key) do update set value = excluded.value;
 
 create or replace function public.liga_px_t0() returns timestamptz language sql stable security definer set search_path = public as $$
@@ -121,23 +121,23 @@ returns jsonb language sql stable security definer set search_path = public as $
   select case when p_cur is null then null
     when p_cur->>'t' = 'pv' and p_cur ? 'lbid' then jsonb_build_object('t', 'pv',
       'q', (select case when p_lang = 'ru' and l.ru ? 'q' then l.ru->>'q' else l.uz->>'q' end from public.liga_bank l where l.id = p_cur->>'lbid'), 'o', p_cur->'o',
-      'qs', public.liga_px_cfg('px_q_secs', '10')::int)
+      'qs', public.liga_px_cfg('px_q_secs', '40')::int)
     when p_cur->>'t' = 'pv' then jsonb_build_object('t', 'pv', 'q', (select case when p_lang = 'ru' then q_ru else q_uz end from public.liga_px_bank where id = (p_cur->>'bid')::int), 'o', p_cur->'o',
-      'qs', public.liga_px_cfg('px_q_secs', '10')::int)
+      'qs', public.liga_px_cfg('px_q_secs', '40')::int)
     when p_cur->>'t' = 'acc' and p_cur->>'mode' = 'c2n' then jsonb_build_object('t', 'acc', 'mode', 'c2n', 'ask', p_cur->'code',
       'o', (select jsonb_agg((select case when p_lang = 'ru' then name_ru else name_uz end from public.liga_px_acc where code = x) order by o) from jsonb_array_elements_text(p_cur->'o') with ordinality u(x, o)),
-      'qs', public.liga_px_cfg('px_q_secs', '10')::int)
+      'qs', public.liga_px_cfg('px_q_secs', '40')::int)
     when p_cur->>'t' = 'acc' then jsonb_build_object('t', 'acc', 'mode', 'n2c',
       'ask', (select case when p_lang = 'ru' then name_ru else name_uz end from public.liga_px_acc where code = p_cur->>'code'), 'o', p_cur->'o',
-      'qs', public.liga_px_cfg('px_q_secs', '10')::int)
-    else jsonb_build_object('t', 'side', 'code', p_cur->'code', 'o', p_cur->'o', 'qs', public.liga_px_cfg('px_q_secs', '10')::int) end
+      'qs', public.liga_px_cfg('px_q_secs', '40')::int)
+    else jsonb_build_object('t', 'side', 'code', p_cur->'code', 'o', p_cur->'o', 'qs', public.liga_px_cfg('px_q_secs', '40')::int) end
 $$;
 
 -- start: to'lov, vaqt oralig'i, telefon
 drop function if exists public.liga_px_start(uuid, text, text);
 create or replace function public.liga_px_start(p_id uuid, p_token text, p_kind text, p_platform text default null)
 returns jsonb language plpgsql security definer set search_path = public as $$
-declare s public.liga_px_sess; secs int := public.liga_px_cfg('px_secs', '40')::int; g text; v_lang text; q jsonb; tn time := (now() at time zone 'Asia/Tashkent')::time;
+declare s public.liga_px_sess; secs int := public.liga_px_cfg('px_secs', '400')::int; g text; v_lang text; q jsonb; tn time := (now() at time zone 'Asia/Tashkent')::time;
 begin
   if not public.liga_auth(p_id, p_token) then raise exception 'bad_token'; end if;
   if p_kind not in ('pv', 'acc', 'side') then raise exception 'bad_input'; end if;
@@ -154,15 +154,15 @@ begin
   values (p_id, g, p_kind, now() + make_interval(secs => secs), public.liga_today(), public.liga_px_mon(), q, now(), array[q->>'id'])
   returning * into s;
   return jsonb_build_object('sid', s.id, 'kind', s.kind, 'secs', secs, 'left_ms', secs * 1000, 'k', 0, 'score', 0, 'right_n', 0, 'done_n', 0, 'combo', 0,
-                            'qs', public.liga_px_cfg('px_q_secs', '10')::int, 'q', public.liga_px_pub(q, v_lang));
+                            'qs', public.liga_px_cfg('px_q_secs', '40')::int, 'qn', public.liga_px_cfg('px_q_n', '10')::int, 'q', public.liga_px_pub(q, v_lang));
 end $$;
 grant execute on function public.liga_px_start(uuid, text, text, text) to anon, authenticated;
 
--- javob: savolga 10 soniyadan ko'p o'ylansa — xato ('slow'); qiyin provodka izohi liga_bank dan
+-- javob: savolga 40 soniyadan ko'p o'ylansa — xato ('slow'); qiyin provodka izohi liga_bank dan
 create or replace function public.liga_px_answer(p_id uuid, p_token text, p_sid uuid, p_k integer, p_ans jsonb)
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare s public.liga_px_sess; ok boolean; fast boolean; slow boolean; pts int := 0; q jsonb; v_lang text; ans jsonb; e text; left_ms int;
-        qs int := public.liga_px_cfg('px_q_secs', '10')::int;
+        qs int := public.liga_px_cfg('px_q_secs', '40')::int; qn int := public.liga_px_cfg('px_q_n', '10')::int;
 begin
   if not public.liga_auth(p_id, p_token) then raise exception 'bad_token'; end if;
   select * into s from public.liga_px_sess where id = p_sid and player_id = p_id for update;
@@ -175,7 +175,7 @@ begin
                               'left_ms', left_ms, 'over', s.finished or now() > s.ends_at, 'q', case when s.finished or now() > s.ends_at then null else public.liga_px_pub(s.cur, v_lang) end);
   end if;
   fast := now() - s.q_at < interval '350 milliseconds';
-  slow := now() - s.q_at > make_interval(secs => qs + 1);
+  slow := now() - s.q_at > make_interval(secs => qs + 3);
   if s.cur->>'t' = 'pv' then
     ok := coalesce(p_ans->>'dt', '') = s.cur->>'dt' and coalesce(p_ans->>'kt', '') = s.cur->>'kt';
     ans := jsonb_build_object('dt', s.cur->'dt', 'kt', s.cur->'kt');
@@ -191,7 +191,7 @@ begin
   if fast or slow then ok := false; end if;
   if ok then s.combo := s.combo + 1; pts := public.liga_px_pts(s.combo); else s.combo := 0; end if;
   s.score := s.score + pts; s.right_n := s.right_n + ok::int; s.done_n := s.done_n + 1; s.best_combo := greatest(s.best_combo, s.combo);
-  q := case when now() < s.ends_at then public.liga_px_q(s.kind, s.seen) end;
+  q := case when now() < s.ends_at and s.done_n < qn then public.liga_px_q(s.kind, s.seen) end;
   update public.liga_px_sess set score = s.score, right_n = s.right_n, done_n = s.done_n, combo = s.combo, best_combo = s.best_combo,
          cur = q, q_at = now(), seen = case when q is null then seen else seen || (q->>'id') end
    where id = s.id;
@@ -218,7 +218,7 @@ begin
   dd := case when exists (select 1 from public.liga_px_sess where player_id = p_id and day = d and done_n > 0 and started_at >= t0) then d else d - 1 end;
   while exists (select 1 from public.liga_px_sess where player_id = p_id and day = dd and done_n > 0 and started_at >= t0) and streak < 400 loop streak := streak + 1; dd := dd - 1; end loop;
   fund := public.liga_px_fund(g, v_mon); v_sp := public.liga_px_split();
-  return jsonb_build_object('mon', v_mon, 'secs', public.liga_px_cfg('px_secs', '40')::int, 'qs', public.liga_px_cfg('px_q_secs', '10')::int,
+  return jsonb_build_object('mon', v_mon, 'secs', public.liga_px_cfg('px_secs', '400')::int, 'qs', public.liga_px_cfg('px_q_secs', '40')::int, 'qn', public.liga_px_cfg('px_q_n', '10')::int,
     'on', public.liga_px_cfg('px_on', 'on') = 'on',
     'start_at', case when t0 > '-infinity'::timestamptz then to_char(t0 at time zone 'Asia/Tashkent', 'YYYY-MM-DD"T"HH24:MI') end,
     'started', now() >= t0,

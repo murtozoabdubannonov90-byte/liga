@@ -160,8 +160,8 @@ def px_q(kind, k):
 def px_state():
     return {k: PX[k] for k in ("sid", "kind", "k", "score", "right_n", "done_n", "combo", "left_ms")} | {"q": px_q(PX["kind"], PX["k"]) if not PX["over"] else None}
 def px_start(a):
-    PX.clear(); PX.update({"sid": f"px-{a['p_kind']}", "kind": a["p_kind"], "k": 0, "score": 0, "right_n": 0, "done_n": 0, "combo": 0, "best": 0, "left_ms": 40000, "over": False, "n": EXTRA.get("_px_n", 50)})
-    return px_state() | {"secs": 40, "qs": 10}
+    PX.clear(); PX.update({"sid": f"px-{a['p_kind']}", "kind": a["p_kind"], "k": 0, "score": 0, "right_n": 0, "done_n": 0, "combo": 0, "best": 0, "left_ms": 400000, "over": False, "n": EXTRA.get("_px_n", 50)})
+    return px_state() | {"secs": 400, "qs": 40, "qn": 10}
 def px_answer(a):
     p = a.get("p_ans") or {}
     if a["p_k"] != PX["k"]: return px_state() | {"stale": True, "over": PX["over"]}
@@ -174,7 +174,7 @@ def px_answer(a):
 def px_finish(a):
     return {"kind": PX.get("kind"), "score": PX.get("score", 0), "right_n": PX.get("right_n", 0), "done_n": PX.get("done_n", 0), "best_combo": PX.get("best", 0),
             "record": PX.get("score", 0) > 0, "prev_best": 0, "quests_new": [{"id": "play3", "pts": 30}], "month_pts": 780, "month_rank": 2}
-PX_ME = {"mon": "2026-10", "secs": 40, "qs": 10, "started": True, "start_at": "2026-10-01T09:00", "open_from": "09:00", "open_to": "18:00", "end_day": "2026-10-31", "days_left": 31, "on": True, "streak": 3, "eligible": True, "today": {"games": 2, "pts": 160}, "month": {"pts": 780, "rank": 2, "n": 14},
+PX_ME = {"mon": "2026-10", "secs": 400, "qs": 40, "qn": 10, "started": True, "start_at": "2026-10-01T09:00", "open_from": "09:00", "open_to": "18:00", "end_day": "2026-10-31", "days_left": 31, "on": True, "streak": 3, "eligible": True, "today": {"games": 2, "pts": 160}, "month": {"pts": 780, "rank": 2, "n": 14},
          "total": {"games": 12, "rights": 95, "answers": 120, "best": {"pv": 210, "acc": 180, "side": 0}},
          "quests": [{"id": "play3", "pts": 30, "need": 3, "prog": 2, "done": False, "got": False}, {"id": "right10", "pts": 40, "need": 10, "prog": 10, "done": True, "got": True},
                     {"id": "all3", "pts": 50, "need": 3, "prog": 2, "done": False, "got": False}, {"id": "combo7", "pts": 30, "need": 7, "prog": 7, "done": True, "got": True}],
