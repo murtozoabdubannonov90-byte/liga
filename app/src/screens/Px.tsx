@@ -1,10 +1,10 @@
-/* «Sovrinli musobaqa» (avval «Mashq zali»): 3 ta tezkor o'yin (10 ta savol, har savolga 40 soniya), oylik reyting va sovrin jamg'armasi.
+/* «Sovrinli musobaqa» (avval «Mashq zali»): 3 ta tezkor o'yin (20 ta savol, har savolga 40 soniya), oylik reyting va sovrin jamg'armasi.
    Faqat telefonda, faqat to'lov qilganlar, har kuni 09:00–18:00, ballar 22.10.2026 09:00 dan.
    Liga bali, bosqichlar, duel va kubokka ta'sir qilmaydi (server: liga_px_*). */
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Dumbbell, ArrowLeftRight, ListOrdered, Scale, Coins, Trophy, Target, Award, Flame, ChevronRight, CircleCheck, Lock, RotateCcw,
-  Crown, Footprints, Crosshair, ShieldCheck, CalendarCheck, Zap, Repeat, Medal, Sparkles, BookMarked, Gem } from "lucide-react";
+  Crown, Footprints, Crosshair, ShieldCheck, CalendarCheck, Zap, Repeat, Medal, Sparkles, BookMarked, Gem, Copy, Bot, Upload, Hourglass, Ticket } from "lucide-react";
 import { S, useStore } from "../engine/state";
 import { t, tx } from "../lib/i18n";
 import { go, replace, setBackGuard, toast, tryBack } from "../lib/nav";
@@ -13,7 +13,10 @@ import { C } from "../engine/run";
 import { errMsg, rpc } from "../engine/server";
 import { sfx, burst } from "../lib/fx";
 import { watchAway, AWAY_MS } from "../lib/guard";
-import { KINDS, KIND_TITLE, KIND_SUB, SIDES, QUEST_T, ACH_T, fmtSum, daysLeftInMonth, pxMe, pxStart, pxAnswer, pxFinish, pxBoard, pxWinners, pxOnPhone, pxAutomated,
+import { shrink } from "./Pay";
+import { BOT_LINK, openTg } from "../lib/tg";
+import { copyText } from "../components/ui";
+import { KINDS, KIND_TITLE, KIND_SUB, SIDES, QUEST_T, ACH_T, fmtSum, daysLeftInMonth, pxMe, pxStart, pxAnswer, pxFinish, pxBoard, pxWinners, pxOnPhone, pxAutomated, pxReceipt,
   type PxKind, type PxMe, type PxState, type PxRes, type PxRow } from "../engine/px";
 
 const KIND_IC: Record<PxKind, any> = { pv: ArrowLeftRight, acc: ListOrdered, side: Scale };
@@ -30,7 +33,8 @@ export function pxGate(me: PxMe | null): string {
   if (pxAutomated()) return t("Avtomatlashtirilgan brauzerda o'ynab bo'lmaydi");
   if (!pxOnPhone()) return t("Sovrinli musobaqa faqat telefonda ishlaydi — Telegram'da telefoningizdan oching");
   if (!me) return "";
-  if (!me.eligible) return t("Sovrinli musobaqada faqat to'lov qilganlar qatnashadi — ligaga kirish 30 000 so'm");
+  if (!me.eligible && me.pay === "check") return t("Chekingiz tekshirilmoqda — administrator tasdiqlagach musobaqa ochiladi");
+  if (!me.eligible) return t("Sovrinli musobaqada faqat to'lov qilganlar qatnashadi — qatnashish {p} so'm", { p: fmtSum(me.price || 30000) });
   if (me.started === false) return t("Musobaqa {d} da boshlanadi", { d: fmtDay(me.start_at) });
   const hm = tzNowHM(), from = me.open_from || "09:00", to = me.open_to || "18:00";
   if (hm < from || hm >= to) return t("Musobaqa har kuni {a} dan {b} gacha ochiq", { a: from, b: to });
@@ -45,7 +49,7 @@ function RulesCard({ me }: { me: PxMe }) {
       <ul className="small" style={{ margin: "8px 0 0", paddingLeft: 18, lineHeight: 1.55, fontWeight: 600 }}>
         <li>{t("Har kuni {a} dan {b} gacha ochiq", { a: me.open_from || "09:00", b: me.open_to || "18:00" })}</li>
         {me.start_at && <li>{t("Ballar {d} dan hisoblanadi", { d: fmtDay(me.start_at) })}</li>}
-        <li>{t("Har o'yin {n} ta savol, har savolga {q} soniya", { n: me.qn || 10, q: me.qs || 40 })}</li>
+        <li>{t("Har o'yin {n} ta savol, har savolga {q} soniya", { n: me.qn || 20, q: me.qs || 40 })}</li>
         <li>{t("Faqat telefonda. Ilovadan chiqilsa — o'yin yakunlanadi")}</li>
         <li>{t("Ballar liga baliga va umumiy ballga qo'shilmaydi")}</li>
       </ul>
@@ -70,8 +74,9 @@ export function PxCard() {
       <span className="ic"><Dumbbell size={22} /></span>
       <span className="grow"><b>{t("Sovrinli musobaqa")}</b>
         <span className="small">{fund > 0 ? t("Oylik sovrin jamg'armasi: {s} so'm", { s: fmtSum(fund) }) : t("3 ta tezkor o'yin — savollar")}
-          {rk ? " · " + t("siz {n}-o'rinda", { n: rk }) : ""}</span></span>
-      <span className="chip gold"><Coins size={13} />{me?.month?.pts ? fmtSum(me.month.pts) : t("O'ynash")}</span>
+          {rk ? " · " + t("siz {n}-o'rinda", { n: rk }) : ""}</span>
+        {me && !me.eligible && <span className="small" id="px-card-promo" style={{ fontWeight: 700 }}>{me.pay === "check" ? t("Chekingiz tekshirilmoqda") : t("🥇 {a} · 🥈 {b} · 🥉 {c} — qatnashish {p} so'm", { a: fmtSum(me.fund?.prizes?.[0] || 0), b: fmtSum(me.fund?.prizes?.[1] || 0), c: fmtSum(me.fund?.prizes?.[2] || 0), p: fmtSum(me.price || 30000) })}</span>}</span>
+      <span className="chip gold"><Coins size={13} />{me && !me.eligible && me.pay !== "check" ? t("Qo'shilish") : me?.month?.pts ? fmtSum(me.month.pts) : t("O'ynash")}</span>
     </button>);
 }
 
@@ -84,10 +89,12 @@ function FundBanner({ me }: { me: PxMe }) {
       <div className="row"><Coins size={22} /><b className="grow">{t("Oylik sovrin jamg'armasi")}</b><span className="chip">{t("{d} kun qoldi", { d: daysLeftInMonth() })}</span></div>
       <div className="px-fund-sum num"><CountUp to={f.amount} id="pxfund" /> <small>{t("so'm")}</small></div>
       <div className="px-prizes">{f.prizes.map((p, i) => <span key={i}><i>{MEDAL[i] || i + 1 + "."}</i><b className="num">{fmtSum(p)}</b></span>)}</div>
-      <p className="small">{t("Oy oxirida Sovrinli musobaqa reytingining kuchli uchligi sovrinni bo'lishadi (obunasi faol bo'lganlar).")}</p>
-      <p className="small" id="px-entry">{t("Ligaga kirish — har bir kishi uchun oyiga 30 000 so'm. Ball faqat savollarga to'g'ri javob uchun beriladi.")}</p>
-      {!me.eligible && <div className="px-elig"><Lock size={16} /><span className="grow">{t("Sovrin faqat obunasi faol ishtirokchilarga beriladi")}</span>
-        <button className="btn sm gold" id="px-pay" onClick={() => go("pay")}>{t("Obuna bo'lish")}</button></div>}
+      <p className="small">{t("Oy oxirida Sovrinli musobaqa reytingining kuchli uchligi sovrinni bo'lishadi.")}</p>
+      <p className="small" id="px-entry">{t("Qatnashish — {p} so'm (31-oktabrgacha). Ball faqat savollarga to'g'ri javob uchun beriladi.", { p: fmtSum(me.price || 30000) })}</p>
+      {me.eligible ? <div className="px-elig" id="px-in"><CircleCheck size={16} /><span className="grow">{t("Siz musobaqa qatnashchisisiz")}</span></div>
+        : me.pay === "check" ? <div className="px-elig" id="px-wait"><Hourglass size={16} /><span className="grow">{t("Chekingiz tekshirilmoqda")}</span></div>
+        : <div className="px-elig"><Lock size={16} /><span className="grow">{t("Sovrin faqat to'lov qilgan ishtirokchilarga beriladi")}</span>
+        <button className="btn sm gold" id="px-pay" onClick={() => go("pxPay")}>{t("Qo'shilish")}</button></div>}
     </section>);
 }
 
@@ -120,12 +127,12 @@ function Games({ me }: { me: PxMe }) {
   return (
     <div className="stack" style={{ gap: 10 }}>
       {gate && <div className="note" id="px-gate" style={{ background: "var(--red-soft)" }}><Lock size={18} /><span className="grow">{gate}</span>
-        {!me.eligible && pxOnPhone() && <button className="btn sm gold" id="px-gate-pay" onClick={() => go("pay")}>{t("To'lov qilish")}</button>}</div>}
+        {!me.eligible && me.pay !== "check" && <button className="btn sm gold" id="px-gate-pay" onClick={() => go("pxPay")}>{t("To'lov qilish")}</button>}</div>}
       {KINDS.map((k) => { const Ic = KIND_IC[k]; return (
         <button key={k} className="card px-game" id={"px-" + k} disabled={!!gate} style={gate ? { opacity: 0.55 } : undefined} onClick={() => { if (gate) { toast(gate); return; } sfx("tap"); go("pxGame", { kind: k }); }}>
           <span className="ic"><Ic size={24} /></span>
           <span className="grow"><b>{t(KIND_TITLE[k])}</b><span className="small">{t(KIND_SUB[k])}</span>
-            <span className="small muted">{t("{n} savol × {q} soniya", { n: me.qn || 10, q: me.qs || 40 })} · {t("rekord {n}", { n: me.total.best[k] || 0 })}</span></span>
+            <span className="small muted">{t("{n} savol × {q} soniya", { n: me.qn || 20, q: me.qs || 40 })} · {t("rekord {n}", { n: me.total.best[k] || 0 })}</span></span>
           <ChevronRight size={20} />
         </button>); })}
       <div className="note"><Zap size={18} /><span>{t("To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xatoda bonus yo'qoladi.")}</span></div>
@@ -146,7 +153,7 @@ function Board({ me }: { me: PxMe }) {
             <li key={r.pos + r.name} className={r.me ? "me" : ""}>
               <span className="pos num">{r.pos <= 3 ? MEDAL[r.pos - 1] : r.pos}</span>
               <span className="grow"><b>{r.name}{r.me ? " · " + t("siz") : ""}</b>
-                <i>{t("{n} o'yin", { n: r.games })}{!r.ok ? " · " + t("obunasiz") : ""}{sc === "month" && r.pos <= 3 && prizes[r.pos - 1] && r.ok ? " · " + fmtSum(prizes[r.pos - 1]) + " " + t("so'm") : ""}</i></span>
+                <i>{t("{n} o'yin", { n: r.games })}{!r.ok ? " · " + t("to'lovsiz") : ""}{sc === "month" && r.pos <= 3 && prizes[r.pos - 1] && r.ok ? " · " + fmtSum(prizes[r.pos - 1]) + " " + t("so'm") : ""}</i></span>
               <b className="num">{fmtSum(r.pts)}</b>
             </li>))}</ol>}
       </Card>
@@ -217,7 +224,7 @@ export function PxGame({ kind }: { kind: PxKind }) {
       <button className="btn" onClick={begin}><RotateCcw size={18} />{t("Qayta urinish")}</button></div></div>);
   if (fin) return <PxResult kind={kind} r={fin} again={begin} />;
   if (!st || !st.q) return <div className="shell bare"><PageTitle title={t(KIND_TITLE[kind])} /><Empty>{t("Yuklanmoqda...")}</Empty></div>;
-  const q = st.q, QN = st.qn || (S.px as any)?.qn || 10, sec = Math.ceil(qLeft / 1000), low = sec <= 10;
+  const q = st.q, QN = st.qn || (S.px as any)?.qn || 20, sec = Math.ceil(qLeft / 1000), low = sec <= 10;
   const wm = ((S.user.first || "") + " " + (S.user.last || "") + " · ").repeat(40);
   const optLabel = (o: string) => q.t === "side" ? t(SIDES[o] || o) : q.t === "acc" && q.mode === "c2n" ? tx(o) : o;
   const okIdx = fb?.ans?.a;
@@ -328,5 +335,59 @@ export function PxSuper() {
               <button className={"chip " + (w.paid ? "ok" : "gold")} onClick={async () => { await rpc("liga_px_win_paid", { p_pin: S.superPin, p_mon: w.mon, p_pos: w.pos, p_paid: !w.paid }); load(); }}>
                 {w.paid ? t("berildi") : t("berilmagan")}</button></li>))}</ul>}
       </Card>
+    </div>);
+}
+
+/* ---------- musobaqaga qo'shilish: 30 000 so'm, karta + chek → administrator tasdiqlaydi ---------- */
+export function PxPay() {
+  const me = useMe(true);
+  const [img, setImg] = useState(""), [err, setErr] = useState(""), [busy, setBusy] = useState(false);
+  const c = S.payCfg || {}, card = String(c.card || "").replace(/\D/g, "").replace(/(\d{4})(?=\d)/g, "$1 ");
+  const price = me?.price || 30000, f = me?.fund;
+  const send = async () => {
+    if (!img) return; setBusy(true); setErr("");
+    try { await pxReceipt(img); sfx("ok"); setImg(""); } catch (e) { setErr(errMsg(e)); } finally { setBusy(false); }
+  };
+  if (!me) return <div className="shell bare"><PageTitle title={t("Musobaqaga qo'shilish")} /><Empty>{t("Yuklanmoqda...")}</Empty></div>;
+  if (me.eligible) return (
+    <div className="shell bare"><PageTitle title={t("Musobaqaga qo'shilish")} />
+      <div className="stack"><div className="note" id="pxpay-ok" style={{ background: "var(--green-soft)" }}><CircleCheck size={18} color="var(--green)" /><span>{t("To'lovingiz tasdiqlangan — siz musobaqa qatnashchisisiz.")}</span></div>
+        <button className="btn" onClick={() => replace("px")}>{t("Musobaqaga kirish")}</button></div></div>);
+  if (me.pay === "check") return (
+    <div className="shell bare"><PageTitle title={t("Musobaqaga qo'shilish")} />
+      <div className="result" id="pxpay-wait"><Hourglass size={72} color="var(--gold)" style={{ margin: "0 auto" }} /><h2>{t("Chek tekshiruvga yuborildi")}</h2>
+        <p className="small muted">{t("Administrator pul kartaga tushganini tekshiradi. Tasdiqlangach musobaqa ochiladi va Telegram'ga xabar keladi.")}</p></div>
+      <div className="dock"><button className="btn" onClick={() => replace("px")}>{t("Musobaqaga qaytish")}</button></div></div>);
+  return (
+    <div className="shell bare">
+      <PageTitle title={t("Musobaqaga qo'shilish")} />
+      <div className="stack">
+        {f && f.amount > 0 && <section className="px-fund" id="pxpay-fund">
+          <div className="row"><Trophy size={22} /><b className="grow">{t("Sovrin jamg'armasi")}</b><span className="chip">{t("{d} kun qoldi", { d: me.days_left ?? daysLeftInMonth() })}</span></div>
+          <div className="px-fund-sum num">{fmtSum(f.amount)} <small>{t("so'm")}</small></div>
+          <div className="px-prizes">{f.prizes.map((p, i) => <span key={i}><i>{MEDAL[i] || i + 1 + "."}</i><b className="num">{fmtSum(p)}</b></span>)}</div>
+        </section>}
+        <ul className="small" id="pxpay-why" style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6, fontWeight: 600 }}>
+          <li>{t("Har o'yinda {n} ta savol, har savolga {q} soniya", { n: me.qn || 20, q: me.qs || 40 })}</li>
+          <li>{t("Kuniga xohlagancha o'ynang — har o'yin bali oylik hisobga qo'shiladi")}</li>
+          <li>{t("Har kuni {a} dan {b} gacha, faqat telefonda", { a: me.open_from || "09:00", b: me.open_to || "18:00" })}</li>
+          <li>{t("Halol o'yin: AI va nusxa olish taqiqlangan — hamma uchun teng sharoit")}</li>
+        </ul>
+        {me.pay === "cancelled" && <div className="note" style={{ background: "var(--red-soft)" }}><span>{t("Oldingi chekingiz tasdiqlanmadi — pul kartaga tushmagan. To'g'ri chekni qayta yuboring.")}</span></div>}
+        <div className="paycard" id="pxpay-card">
+          <span className="small" style={{ color: "var(--on-board-2)", fontWeight: 700 }}><Ticket size={14} /> {t("Kartaga o'tkazing")} · <span id="pxpay-amt">{fmtSum(price)}</span> {t("so'm")}</span>
+          {card ? <><b>{card}</b><span className="small" style={{ color: "var(--on-board-2)" }}>{c.card_name}</span>
+            <button className="btn sm ghost" style={{ justifySelf: "start", marginTop: 6 }} onClick={() => copyText(String(c.card).replace(/\D/g, ""), () => toast(t("Nusxa olindi")))}><Copy size={16} />{t("Nusxa olish")}</button></>
+            : <span>{t("Karta raqami tez orada qo'shiladi. Hozircha yozing: @murtozo_44")}</span>}
+        </div>
+        <button className="btn" id="pxpay-bot" onClick={() => openTg(BOT_LINK + "?start=px")}><Bot size={18} />{t("Chekni botga yuborish")}</button>
+        <p className="small muted" style={{ textAlign: "center", fontWeight: 600 }}>{t("yoki chekni shu yerda yuklang")}</p>
+        <label className="btn ghost" htmlFor="pxrf" style={{ cursor: "pointer" }}><Upload size={18} />{img ? t("Boshqa rasm tanlash") : t("Chek rasmini tanlash")}</label>
+        <input id="pxrf" type="file" accept="image/*" hidden onChange={async (e) => { const fl = e.target.files?.[0]; if (!fl) return; try { setImg(await shrink(fl)); } catch { setErr(t("Chek rasmini qayta tanlang (JPG yoki PNG)")); } }} />
+        {img && <img id="pxrprev" src={img} alt={t("Chek")} style={{ maxHeight: 260, borderRadius: 14, justifySelf: "center" }} />}
+        <div className="note"><ShieldCheck size={18} /><span>{t("Musobaqa administrator pul kartaga tushganini tasdiqlagandan keyin ochiladi. Bu to'lov faqat Sovrinli musobaqa uchun, liga obunasidan alohida.")}</span></div>
+        <p className="err">{err}</p>
+      </div>
+      {img && <div className="dock"><button className="btn ok" id="pxpay-go" disabled={busy} onClick={send}>{busy ? t("Yuborilmoqda...") : t("Chekni yuborish")}</button></div>}
     </div>);
 }

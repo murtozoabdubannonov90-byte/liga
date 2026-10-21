@@ -430,6 +430,7 @@ async function onReceipt(m: any) {
   const chatId = m.chat.id;
   const { data: ses } = await db.from("liga_tg_sessions").select("player_id,months").eq("chat_id", chatId).maybeSingle();
   if (!ses) return askContact(chatId);
+  if (ses.months === 0) return onPxReceipt(m, ses.player_id);
   const photo = m.photo?.length ? m.photo[m.photo.length - 1] : null;
   const doc = m.document && /^image\//.test(m.document.mime_type ?? "") ? m.document : null;
   const f = photo ?? doc;
@@ -492,10 +493,120 @@ async function receiptNotify(x: { status?: string; player_chat?: number | null; 
   if (x.status === "cancelled") return dm(x.player_chat, tr(x.lang, "❌ <b>To'lov chekingiz tasdiqlanmadi</b> — pul kartaga tushmagan.\nBosqichlar yopiq. Haqiqatan to'lagan bo'lsangiz, administratorga yozing: @murtozo_44"));
   return false;
 }
+// ---------------- Sovrinli musobaqa: alohida to'lov (30 000 so'm) — karta + chek, administrator tasdiqlaydi ----------------
+const fmtS = (n: number) => fmt(Math.round(Number(n || 0)));
+async function pxFundLine() {
+  const { data: pb } = await db.rpc("liga_px_board_sys", { p_group: "ASOSIY" });
+  const b: any = pb ?? {}, fund = Number(b.fund || 0);
+  const pr = ((b.split ?? [50, 30, 20]) as number[]).map((x) => fmtS(Math.floor(fund * x / 100)));
+  return { fund, pr, players: Number(b.players || 0) };
+}
+async function pxPrice() { return Number((await cfgGet("px_price")) || 30000); }
+const pxJoinKb = (lang?: string | null) => ({ inline_keyboard: [[{ text: tr(lang, "💳 Musobaqaga qo'shilish"), callback_data: "pxj" }], [{ text: tr(lang, "🏆 Musobaqani ko'rish"), web_app: { url: APP + "?go=px" } }]] });
+async function pxCard(chatId: number, name?: string) {
+  const c = await payCfg(), price = await pxPrice(), f = await pxFundLine();
+  const text = `🏆 <b>Sovrinli musobaqaga qo'shilish</b>${name ? ` — ${esc(name)}` : ""}\n\n` +
+    `💰 Sovrin jamg'armasi: <b>${fmtS(f.fund)} so'm</b>\n🥇 ${f.pr[0]} · 🥈 ${f.pr[1]} · 🥉 ${f.pr[2]} so'm\n\n` +
+    `1️⃣ Kartaga <b>${fmt(price)} so'm</b> o'tkazing:\n<code>${esc(c.card || "—")}</code>\n${esc(c.card_name || "")}\n\n` +
+    `2️⃣ To'lov chekining rasmini (skrinshot) <b>shu yerga yuboring</b>.\n\n` +
+    `Administrator pul tushganini tekshiradi — tasdiqlangach musobaqa sizga ochiladi va shu yerga xabar keladi.\n` +
+    `ℹ️ Bu to'lov faqat Sovrinli musobaqa uchun (31-oktabrgacha), liga obunasidan alohida.`;
+  return tg("sendMessage", { chat_id: chatId, text, parse_mode: "HTML" });
+}
+// /start px, /musobaqa yoki «Qo'shilish» tugmasi
+async function pxJoin(chatId: number, tgId: number | undefined) {
+  const { data: x } = await db.rpc("liga_px_by_tg_sys", { p_tg: tgId ?? 0 });
+  if (!x?.id) { await cfgSet("px_want_" + chatId, "1"); return askContact(chatId); }
+  if (x.state === "paid") return dm(chatId, tr(x.lang, "✅ <b>Siz Sovrinli musobaqa qatnashchisisiz!</b>\nO'yin vaqti — har kuni 09:00–18:00. Omad! 💪"), appBtn(tr(x.lang, "Musobaqaga kirish"), "?go=px"));
+  if (x.state === "check") return dm(chatId, tr(x.lang, "⏳ Chekingiz tekshirilmoqda. Administrator tasdiqlagach musobaqa ochiladi va shu yerga xabar keladi."));
+  await setSession(chatId, x.id, 0);
+  return pxCard(chatId, x.first_name);
+}
+async function onPxReceipt(m: any, playerId: string) {
+  const chatId = m.chat.id;
+  const photo = m.photo?.length ? m.photo[m.photo.length - 1] : null;
+  const doc = m.document && /^image\//.test(m.document.mime_type ?? "") ? m.document : null;
+  const f = photo ?? doc;
+  if (!f) return tg("sendMessage", { chat_id: chatId, text: "❗ Chekni <b>rasm</b> (skrinshot) ko'rinishida yuboring.", parse_mode: "HTML" });
+  const d = await fileDataUri(f.file_id);
+  if (!d) return tg("sendMessage", { chat_id: chatId, text: "❗ Rasmni ochib bo'lmadi. Qayta yuboring." });
+  if ((d as any).big) return tg("sendMessage", { chat_id: chatId, text: "❗ Rasm juda katta. Skrinshotni oddiy rasm qilib yuboring." });
+  const { data: r, error } = await db.rpc("liga_px_receipt_sys", { p_player: playerId, p_image: d.uri, p_uid: f.file_unique_id, p_file_id: photo ? f.file_id : null, p_chat: chatId });
+  if (error) { console.error(error); return tg("sendMessage", { chat_id: chatId, text: "❗ Xatolik. Birozdan keyin qayta yuboring." }); }
+  if (r?.reason === "paid") return tg("sendMessage", { chat_id: chatId, text: "✅ To'lovingiz allaqachon tasdiqlangan — musobaqa ochiq." });
+  if (r?.reason === "dup") return tg("sendMessage", { chat_id: chatId, text: "⚠️ Bu chek avval yuborilgan. Bitta chek faqat bir marta qabul qilinadi." });
+  if (r?.reason === "pending") return tg("sendMessage", { chat_id: chatId, text: "⏳ Oldingi chekingiz hali tekshirilmoqda. Administrator javobini kuting — natija shu yerga keladi." });
+  if (r?.reason === "blocked") return tg("sendMessage", { chat_id: chatId, text: "⛔ Oxirgi cheklaringiz tasdiqlanmagani uchun chek qabul qilish vaqtincha to'xtatildi. Administrator bilan bog'laning: @murtozo_44" });
+  if (!r?.id) return tg("sendMessage", { chat_id: chatId, text: "❗ Xatolik. Birozdan keyin qayta yuboring." });
+  const p = await playerName(playerId);
+  await tg("sendMessage", { chat_id: chatId, parse_mode: "HTML",
+    text: `🧾 <b>Chek qabul qilindi${p?.first_name ? `, ${esc(p.first_name)}` : ""}!</b>\n\nAdministrator pul kartaga tushganini tekshiradi. Tasdiqlangach <b>Sovrinli musobaqa</b> sizga ochiladi va shu yerga xabar keladi.\n\n⚠️ Soxta chek yuborilsa, chek qabul qilish to'xtatiladi.` });
+  await pxNotifyAdmins(Number(r.id));
+}
+async function pxNotifyAdmins(id: number) {
+  const { data: x } = await db.rpc("liga_px_pay_info_sys", { p_id: id });
+  if (!x?.id) return { error: "no pay" };
+  const c0 = await payCfg(), last4 = String(c0.card ?? "").replace(/\D/g, "").slice(-4);
+  const caption = `🏆 <b>Sovrinli musobaqa — yangi chek</b> №M${x.id}\n👤 ${esc(x.name ?? "")}\n📞 ${esc(x.phone ?? "")}${x.region ? `\n📍 ${esc(x.region)}` : ""}\n` +
+    `💳 <b>${fmt(Number(x.amount))} so'm</b> · musobaqa (${esc(x.mon)})\n` + (x.rejected ? `⚠️ Avval rad etilgan cheklari: <b>${x.rejected}</b>\n` : "") +
+    `\nBank ilovangizda ${last4 ? `kartangizga (…${last4}) ` : ""}<b>${fmt(Number(x.amount))} so'm</b> tushganini tekshiring.\nPul tushgan bo'lsa — «✅ Pul tushdi», tushmagan bo'lsa — «❌ Soxta».`;
+  const kb = { inline_keyboard: [[{ text: "✅ Pul tushdi — ochish", callback_data: `rp:1:${x.id}` }, { text: "❌ Soxta", callback_data: `rp:0:${x.id}` }]] };
+  let n = 0;
+  for (const chat of (x.admins ?? []) as number[]) {
+    if (x.tg_file_id) { const r = await tg("sendPhoto", { chat_id: chat, photo: x.tg_file_id, caption, parse_mode: "HTML", reply_markup: kb }); if (r?.ok) n++; }
+    else if (x.receipt) {
+      const [head, b64] = String(x.receipt).split(",");
+      const fd = new FormData();
+      fd.append("chat_id", String(chat)); fd.append("caption", caption); fd.append("parse_mode", "HTML"); fd.append("reply_markup", JSON.stringify(kb));
+      fd.append("photo", new Blob([Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0))], { type: head.slice(5, head.indexOf(";")) }), "chek.jpg");
+      const r = await (await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, { method: "POST", body: fd })).json().catch(() => null); if (r?.ok) n++;
+    }
+  }
+  return { sent: n };
+}
+// qo'shilmaganlarga taklif: px_invite_day kuni 08:00 (a) va 08:30 (b), har daqiqada 80 tadan
+async function pxInvite(slot: "a" | "b", limit = 80) {
+  const day = tzDate().toISOString().slice(0, 10), lk = `px_invite_last_${day}_${slot}`;
+  const last = Number((await cfgGet(lk)) || 0);
+  const { data: ppl } = await db.rpc("liga_px_invite_list_sys", { p_after: last, p_limit: limit });
+  if (!ppl?.length) return { ok: true, done: true };
+  await cfgSet(lk, String((ppl[ppl.length - 1] as any).tg_user_id));
+  const f = await pxFundLine(), price = fmt(await pxPrice());
+  let sent = 0, fail = 0;
+  for (const p of ppl as any[]) {
+    const n = esc(p.first_name ?? "");
+    const text = slot === "a"
+      ? `🏆 <b>${n}, bugun soat 09:00 da «Sovrinli musobaqa» boshlanadi!</b>\n\n` +
+        `💰 Sovrin jamg'armasi — <b>${fmtS(f.fund)} so'm</b>\n🥇 ${f.pr[0]} · 🥈 ${f.pr[1]} · 🥉 ${f.pr[2]} so'm\n\n` +
+        `Buxgalteriya bilimingiz endi pulga aylanadi:\n` +
+        `✅ Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi\n⏱ Har o'yinda 20 ta savol, har savolga 40 soniya\n` +
+        `🔁 Kuniga xohlagancha o'ynang — har o'yin bali oylik hisobingizga qo'shiladi\n📱 Telefondan, har kuni 09:00–18:00, 31-oktabrgacha\n` +
+        `🛡 Halol o'yin: AI, nusxa olish va boshqa oynaga chiqish taqiqlangan — hamma uchun teng sharoit\n\n` +
+        `🎟 Qatnashish — <b>${price} so'm</b>:\n1) «💳 Musobaqaga qo'shilish» tugmasini bosing\n2) Kartaga to'lang va chekni shu botga yuboring\n3) Tasdiqlangach musobaqa ochiladi\n\n` +
+        `⏳ Qancha erta qo'shilsangiz — shuncha ko'p ball to'playsiz!`
+      : `⏰ <b>${n}, 30 daqiqadan keyin start!</b>\n\n«Sovrinli musobaqa» bugun 09:00 da boshlanadi — <b>${fmtS(f.fund)} so'm</b>lik sovrin jamg'armasi: 🥇 ${f.pr[0]} · 🥈 ${f.pr[1]} · 🥉 ${f.pr[2]}.\n\n` +
+        `Birinchi kundanoq ball to'plaganlar oldinda bo'ladi. Qatnashish — <b>${price} so'm</b>.\n\n👇 «💳 Musobaqaga qo'shilish» tugmasini bosing, chekni yuboring — tasdiqlangach o'ynaysiz.`;
+    if (await dm(p.tg_user_id, text, pxJoinKb("uz"))) sent++; else fail++;
+  }
+  return { ok: true, sent, fail };
+}
 async function onCallback(q: any) {
   const data = String(q.data ?? ""), chatId = q.message?.chat?.id;
   const ack = (text?: string) => tg("answerCallbackQuery", { callback_query_id: q.id, text });
   if (data.startsWith("dq:")) return groupDuelTake(q, data.slice(3));
+  if (data === "pxj") { await ack(); return chatId ? pxJoin(chatId, q.from?.id) : null; }
+  if (data.startsWith("rp:")) {
+    const [, ok, id] = data.split(":");
+    const { data: x } = await db.rpc("liga_px_decide_sys", { p_id: Number(id), p_ok: ok === "1", p_admin_chat: chatId });
+    if (!x?.done) return ack(x?.reason === "already" ? "Avval hal qilingan" : "Ruxsat yo'q");
+    const mark = x.status === "paid" ? "\n\n✅ <b>Pul tushdi — musobaqa ochildi.</b>" : "\n\n❌ <b>Soxta — rad etildi.</b>";
+    await tg("editMessageCaption", { chat_id: chatId, message_id: q.message.message_id, parse_mode: "HTML", caption: esc(q.message.caption ?? "") + mark });
+    if (x.player_chat) {
+      if (x.status === "paid") await dm(x.player_chat, tr(x.lang, "✅ <b>To'lovingiz tasdiqlandi — Sovrinli musobaqa ochildi!</b>\nO'yin vaqti — har kuni 09:00–18:00, faqat telefonda. Har o'yinda 20 ta savol, har savolga 40 soniya. Omad! 💪"), appBtn(tr(x.lang, "Musobaqaga kirish"), "?go=px"));
+      else await dm(x.player_chat, tr(x.lang, "❌ <b>Musobaqa cheki tasdiqlanmadi</b> — pul kartaga tushmagan.\nHaqiqatan to'lagan bo'lsangiz, administratorga yozing: @murtozo_44"));
+    }
+    return ack(x.status === "paid" ? "Tasdiqlandi" : "Rad etildi");
+  }
   if (data === "nk") {
     const lang = await playerLang(q.from?.id);
     const u = q.from?.username || (q.from?.id ? await nickRefresh(q.from.id) : null);
@@ -864,12 +975,14 @@ async function onUpdate0(u: any) {
     let ph = String(m.contact.phone_number ?? "").replace(/\D/g, ""); if (ph.length === 9) ph = "998" + ph;
     const { data: pl } = await db.from("safari_players").select("id,first_name").eq("phone", "+" + ph).maybeSingle();
     if (!pl) return reply("❌ Bu raqam bilan ro'yxatdan o'tilmagan. Avval ilovada ro'yxatdan o'ting, keyin chekni yuboring.", openApp());
-    await setSession(m.chat.id, pl.id, 1);
     await db.rpc("liga_tg_bind_sys", { p_player: pl.id, p_tg: m.from.id });
     await tg("sendMessage", { chat_id: m.chat.id, text: "✅ Topildi.", reply_markup: { remove_keyboard: true } });
+    if (await cfgGet("px_want_" + m.chat.id)) { await cfgSet("px_want_" + m.chat.id, ""); return pxJoin(m.chat.id, m.from.id); }
+    await setSession(m.chat.id, pl.id, 1);
     return cardMessage(m.chat.id, 1, pl.first_name);
   }
   if (priv && (m.photo || m.document)) return onReceipt(m);
+  if (priv && ((cmd === "/start" && arg === "px") || cmd === "/musobaqa")) return pxJoin(m.chat.id, m.from?.id);
   if (priv && cmd === "/start" && /^pay_[0-9a-f]+$/i.test(arg)) {
     const { data: l } = await db.from("liga_tg_links").select("player_id,created_at").eq("code", arg.slice(4)).eq("kind", "pay").maybeSingle();
     if (!l || Date.now() - new Date(l.created_at).getTime() > 7 * 864e5) return askContact(m.chat.id);
@@ -900,7 +1013,8 @@ async function onUpdate0(u: any) {
   if (priv && cmd === "/tolov") {
     const { data: ses } = await db.from("liga_tg_sessions").select("player_id,months").eq("chat_id", m.chat.id).maybeSingle();
     if (!ses) return askContact(m.chat.id);
-    return cardMessage(m.chat.id, ses.months);
+    const mo = Math.max(1, ses.months || 1); if (mo !== ses.months) await setSession(m.chat.id, ses.player_id, mo);
+    return cardMessage(m.chat.id, mo);
   }
   if (priv && cmd === "/start" && /^r_[A-Za-z0-9]+$/i.test(arg)) {
     const lang = await playerLang(m.from?.id);
@@ -1111,15 +1225,15 @@ async function pxAnnounce(limit = 80) {
   // navbat: tg_user_id bo'yicha tartib, oxirgi yuborilgani px_announce_last da saqlanadi (takror yubormaslik uchun)
   const day = tzDate().toISOString().slice(0, 10), lk = "px_announce_last_" + day;
   const last = Number((await cfgGet(lk)) || 0);
-  const { data: ppl } = await db.from("safari_players").select("tg_user_id,first_name,lang").not("tg_user_id", "is", null)
-    .gt("tg_user_id", last).order("tg_user_id").limit(limit);
+  // faqat musobaqaga to'lov qilganlarga (qo'shilmaganlarga 08:00 va 08:30 da taklif ketadi — pxInvite)
+  const { data: ppl } = await db.rpc("liga_px_paid_list_sys", { p_after: last, p_limit: limit });
   if (!ppl?.length) return { ok: true, done: true };
   await cfgSet(lk, String((ppl[ppl.length - 1] as any).tg_user_id));   // avval belgilaymiz — vaqt tugasa ham takrorlanmaydi
   let sent = 0, fail = 0;
   for (const p of (ppl ?? []) as any[]) {
-    const text = tr("uz", "🏆 <b>{n}, «Sovrinli musobaqa» boshlandi!</b>\n\n💰 Sovrin jamg'armasi: <b>{f} so'm</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} so'm\n\n📌 <b>Qoidalar:</b>\n• Ballar <b>22-oktabr soat 09:00</b> dan hisoblanadi — 21-oktabrdagi sinov ballari hisobga olinmaydi.\n• Faqat to'lov qilganlar qatnashadi: <b>30 000 so'm</b> (ligaga kirish, oyiga).\n• O'yin vaqti: har kuni <b>09:00 — 18:00</b>.\n• Har o'yinda <b>10 ta savol</b>, har savolga <b>40 soniya</b>. Vaqt o'tsa — xato.\n• Faqat <b>telefonda</b> ishlaydi (kompyuterda ochilmaydi).\n• Boshqa oynaga chiqilsa yoki nusxa olinsa o'yin to'xtaydi.\n• Musobaqa ballari liga va umumiy ballarga <b>qo'shilmaydi</b>.\n\n❓ Savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi.\n✅ To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xato — 0 ball.\n📅 G'oliblar 31-oktabr yakunida aniqlanadi — to'lov qilgan eng yaxshi 3 kishi.\n\n👉 Ilovada: Asosiy → «Sovrinli musobaqa»",
+    const text = tr("uz", "🏆 <b>{n}, «Sovrinli musobaqa» boshlandi!</b>\n\n💰 Sovrin jamg'armasi: <b>{f} so'm</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} so'm\n\n📌 <b>Qoidalar:</b>\n• Ballar <b>22-oktabr soat 09:00</b> dan hisoblanadi — 21-oktabrdagi sinov ballari hisobga olinmaydi.\n• O'yin vaqti: har kuni <b>09:00 — 18:00</b>.\n• Har o'yinda <b>20 ta savol</b>, har savolga <b>40 soniya</b>. Vaqt o'tsa — xato.\n• Faqat <b>telefonda</b> ishlaydi (kompyuterda ochilmaydi).\n• Boshqa oynaga chiqilsa yoki nusxa olinsa o'yin to'xtaydi.\n• Musobaqa ballari liga va umumiy ballarga <b>qo'shilmaydi</b>.\n\n❓ Savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi.\n✅ To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xato — 0 ball.\n📅 G'oliblar 31-oktabr yakunida aniqlanadi — eng yaxshi 3 kishi.\n\n👉 Ilovada: Asosiy → «Sovrinli musobaqa»",
       { n: esc(p.first_name ?? ""), f: fmtS(fund), a: pr[0] ?? "", b: pr[1] ?? "", c: pr[2] ?? "" });
-    if (await dm(p.tg_user_id, text, appBtn("Musobaqaga kirish"))) sent++; else fail++;
+    if (await dm(p.tg_user_id, text, appBtn("Musobaqaga kirish", "?go=px"))) sent++; else fail++;
   }
   return { ok: true, sent, fail, fund };
 }
@@ -1275,6 +1389,7 @@ async function onCron(action: string, body: any = {}) {
           { command: "liga", description: "Ilovani ochish" },
           { command: "natija", description: "Oxirgi hafta natijalari" },
           { command: "tolov", description: "Obuna to'lovi (karta va chek)" },
+          { command: "musobaqa", description: "Sovrinli musobaqaga qo'shilish (30 000 so'm)" },
           { command: "qoida", description: "Liga qoidalari" }] }),
         tg("setMyCommands", { scope: { type: "all_group_chats" }, commands: [
           { command: "duel", description: "Jonli duelga chaqirish" },
@@ -1450,8 +1565,8 @@ async function onCron(action: string, body: any = {}) {
     const text = `🏆 <b>Sovrinli musobaqa</b> — oylik reyting\n\n` +
       (b.fund > 0 ? `💰 Sovrin jamg'armasi: <b>${fmtS(b.fund)} so'm</b>\n${prizes.slice(0, 3).map((p, i) => `${md[i]} ${fmtS(p)}`).join(" · ")}\n\n` : "") +
       (top.length ? top.map((x, i) => `${md[i]} ${esc(x.name ?? "")} — ${fmtS(x.pts)} ball`).join("\n") : "Hali hech kim o'ynamagan — birinchi bo'ling!") +
-      `\n\nBugun ${b.today_games ?? 0} ta o'yin o'ynaldi. Savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har o'yinda 10 ta savol, har savolga 40 soniya.\n` +
-      `O'yin vaqti 09:00 — 18:00, faqat telefonda. To'g'ri javob — 10 ball (+2…+10 seriya bonusi). Ballar liga va umumiy ballarga qo'shilmaydi. Qatnashish — 30 000 so'm to'lov qilganlar uchun. Sovrin — oy oxirida kuchli uchlikka.`;
+      `\n\nBugun ${b.today_games ?? 0} ta o'yin o'ynaldi. Savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har o'yinda 20 ta savol, har savolga 40 soniya.\n` +
+      `O'yin vaqti 09:00 — 18:00, faqat telefonda. To'g'ri javob — 10 ball (+2…+10 seriya bonusi). Ballar liga va umumiy ballarga qo'shilmaydi. Qatnashish — 30 000 so'm (/musobaqa). Sovrin — oy oxirida kuchli uchlikka.`;
     let n = 0;
     for (const c of await chatsOf("ASOSIY")) { const r = await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: openBot("ASOSIY") }); if (r?.ok) n++; await pause(60); }
     n += await toChannels(text, openBot("ASOSIY"));
@@ -1562,6 +1677,11 @@ async function onCron(action: string, body: any = {}) {
     return { ok: true, groups: sent, personal };
   }
   if (action.startsWith("receipt:")) return await notifyAdmins(Number(action.slice(8)));
+  if (action.startsWith("pxreceipt:")) return await pxNotifyAdmins(Number(action.slice(10)));
+  if (action === "px_invite_a" || action === "px_invite_b" || action === "px_invite_now") {
+    if (action !== "px_invite_now" && (await cfgGet("px_invite_day")) !== tzDate().toISOString().slice(0, 10)) return { skip: true };
+    return await pxInvite(action === "px_invite_b" ? "b" : "a", Number(body.limit) || 80);
+  }
   if (action.startsWith("receipt_done:")) {
     const { data: i } = await db.from("liga_invoices").select("status,tg_chat_id,player_id").eq("id", Number(action.slice(13))).maybeSingle();
     if (!i) return { error: "no invoice" };

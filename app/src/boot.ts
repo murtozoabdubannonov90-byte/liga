@@ -17,12 +17,14 @@ export function applyTheme() {
   tgInit(dark);
 }
 /* havola: ?g=KOD, ?r=TAKLIF, ?d=DUEL, ?t=TEST, ?v=SERTIFIKAT yoki Telegram start_param g_/r_/d_/t_/v_ */
+let goPx = false;
 export const entry: { g?: string; r?: string; d?: string; t?: string; v?: string; tp?: string } = {};
 function readEntry() {
   const qs = new URLSearchParams(location.search);
   for (const k of ["g", "r", "d", "t", "v"] as const) { const v = qs.get(k); if (v) entry[k] = v.toUpperCase().replace(/[^A-Z0-9]/g, ""); }
   const sp = startParam(); const m = /^([grdtv])_([A-Za-z0-9]+)$/.exec(sp || "");
   if (m) (entry as any)[m[1]] = m[2].toUpperCase();
+  if (qs.get("go") === "px" || sp === "px") goPx = true;
   const tp = qs.get("tp"); if (tp && /^[a-z]{2,12}$/.test(tp)) entry.tp = tp;
   if (entry.r && !S.pid) { S.ref = entry.r; persist(); }
 }
@@ -49,6 +51,8 @@ export function boot() {
   } else if (S.user.first && (!S.pid || (!S.token && !S.tokenLost))) joinServer().then(() => pull(true)); else pull(true);
   /* soliq taqvimi eslatmasidan: ?tp=qqs — o'sha yo'nalish mashqi */
   if (entry.tp && S.user.first) setTimeout(() => { const r = startTopic(entry.tp!); entry.tp = undefined; if (typeof r !== "string") go("quiz", { run: r }); }, 600);
+  /* bot xabaridagi «Musobaqaga kirish»: ?go=px — to'g'ri Sovrinli musobaqaga */
+  if (goPx) setTimeout(() => { if (S.user.first) go("px"); }, 700);
   linkTelegram();
   flushFinal();
   /* ilova ochiq turganda juma 17:00 o'tsa — hafta yangilanadi (eski hafta bali yangi haftaga o'tib ketmaydi) */

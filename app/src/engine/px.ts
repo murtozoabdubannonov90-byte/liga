@@ -15,6 +15,7 @@ export interface PxMe {
   today: { games: number; pts: number }; month: { pts: number; rank: number | null; n: number };
   total: { games: number; rights: number; answers: number; best: Record<PxKind, number> };
   quests: PxQuest[]; ach: PxAch[]; fund: { amount: number; split: number[]; prizes: number[] };
+  pay?: "none" | "check" | "paid" | "cancelled"; price?: number; paid_n?: number;
 }
 export interface PxRow { pos: number; name: string; pts: number; games: number; me: boolean; ok: boolean }
 
@@ -70,6 +71,13 @@ export const pxOnPhone = () => pxPlatform() !== "desktop";
 /* avtomatlashtirilgan brauzer (bot/skript) — o'ynatilmaydi */
 export const pxAutomated = () => !!(navigator as any).webdriver;
 export const pxStart = (kind: PxKind) => rpc<PxState>("liga_px_start", { ...auth(), p_kind: kind, p_platform: pxAutomated() ? "bot" : pxPlatform() });
+/* musobaqa to'lovi: chek rasmi ilova ichidan (bot orqali ham bo'ladi: /start px) */
+export async function pxReceipt(img: string) {
+  const r = await rpc<any>("liga_px_receipt_submit", { ...auth(), p_image: img });
+  if (S.px) { S.px = { ...(S.px as any), pay: "check" }; persist(); }
+  lastMe = 0; bump();
+  return r;
+}
 export const pxAnswer = (sid: string, k: number, ans: Record<string, unknown>) => rpc<PxRes>("liga_px_answer", { ...auth(), p_sid: sid, p_k: k, p_ans: ans });
 export async function pxFinish(sid: string) {
   const r = await rpc<any>("liga_px_finish", { ...auth(), p_sid: sid });

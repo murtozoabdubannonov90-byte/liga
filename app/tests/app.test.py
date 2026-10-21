@@ -711,7 +711,7 @@ with sync_playwright() as p:
     check("ligaga kirish 30 000 so'm va «ball faqat savollarga» yozilgan", "30 000" in pg.inner_text("#px-entry") and "savollarga" in pg.inner_text("#px-entry"))
     pg.click(".seg >> text=Reyting"); pg.wait_for_timeout(400)
     bd = pg.inner_text("#px-board") if pg.locator("#px-board").count() else ""
-    check("reyting: medallar, o'zi belgilangan, obunasizlar, sovrin summasi", "🥇" in bd and "siz" in bd and "obunasiz" in bd and "42 500" in bd and pg.locator("#px-board li.me").count() == 1, bd)
+    check("reyting: medallar, o'zi belgilangan, obunasizlar, sovrin summasi", "🥇" in bd and "siz" in bd and "to'lovsiz" in bd and "42 500" in bd and pg.locator("#px-board li.me").count() == 1, bd)
     check("reytingda obunasiz 3-o'ringa sovrin yozilmaydi", "17 000" not in bd)
     check("o'tgan oy g'oliblari", "Sentyabr 2026" in pg.inner_text("#px-wins"))
     pg.click("text=Hafta"); pg.wait_for_timeout(300)
@@ -729,7 +729,7 @@ with sync_playwright() as p:
     check("xato: to'g'ri provodka va izoh ko'rinadi", pg.locator("#px-fb").count() == 1 and "Dt 5010 — Kt 5110" in pg.inner_text("#px-fb") and "Kassa ko'paydi" in pg.inner_text("#px-fb"))
     pg.wait_for_timeout(1500)
     check("xatodan keyin seriya 0, ball o'zgarmadi", pg.inner_text("#px-score").strip() == "10")
-    pg.clock.fast_forward(401000); pg.wait_for_timeout(800)
+    pg.clock.fast_forward(801000); pg.wait_for_timeout(800)
     check("vaqt tugadi — natija: ball, yangi rekord, o'rin (vazifa yo'q)", pg.locator("#px-result").count() == 1 and "Yangi rekord" in txt(pg) and "Vazifa bajarildi" not in txt(pg) and "2-o'rindasiz" in txt(pg), txt(pg)[:300])
     check("liga_px_finish chaqirildi", len(calls("liga_px_finish")) == 1)
     check("liga bali va hafta bosqichlari o'zgarmadi", S(pg, "S.xp") == xp0 and S(pg, "JSON.stringify(S.week)") == wk0)
@@ -758,12 +758,12 @@ with sync_playwright() as p:
     # yangi qoidalar: qoidalar kartasi, telefon, to'lov, soat, savol taymeri
     pg, e = page(b, phone=True); ALLERR += e; go(pg, "px"); pg.wait_for_timeout(400)
     rl = pg.inner_text("#px-rules") if pg.locator("#px-rules").count() else ""
-    check("qoidalar: necha kun qoldi, 09:00–18:00, 10 savol × 40 soniya, faqat telefon, umumiyga qo'shilmaydi", all(x in rl for x in ["31 kun qoldi", "09:00", "18:00", "10 ta savol", "40 soniya", "telefonda", "qo'shilmaydi"]), rl)
+    check("qoidalar: necha kun qoldi, 09:00–18:00, 20 savol × 40 soniya, faqat telefon, umumiyga qo'shilmaydi", all(x in rl for x in ["31 kun qoldi", "09:00", "18:00", "20 ta savol", "40 soniya", "telefonda", "qo'shilmaydi"]), rl)
     check("telefonda, to'lov qilgan, soat 10:00 — to'siq yo'q", pg.locator("#px-gate").count() == 0)
     CALLS.clear(); go(pg, "pxGame", {"kind": "acc"}); pg.wait_for_timeout(600)
     st = calls("liga_px_start")
     check("o'yin boshida platforma yuboriladi (android/mobile_web)", bool(st) and st[-1].get("p_platform") in ("mobile_web", "android"), st[-1:])
-    check("har savol taymeri va «Savol 1/10» ko'rinadi", pg.locator("#px-qtimer").count() == 1 and "1/10" in pg.inner_text("#px-qn"))
+    check("har savol taymeri va «Savol 1/20» ko'rinadi", pg.locator("#px-qtimer").count() == 1 and "1/20" in pg.inner_text("#px-qn"))
     n0 = len(calls("liga_px_answer")); pg.clock.fast_forward(41000); pg.wait_for_timeout(600)
     a = calls("liga_px_answer")
     check("40 soniyada javob berilmasa — avtomatik «vaqt tugadi»", len(a) > n0 and a[n0]["p_ans"] == {"timeout": True}, a[n0:n0 + 1])
@@ -781,11 +781,30 @@ with sync_playwright() as p:
     check("boshlanmagan: «22-oktabr 09:00 da boshlanadi»", pg.locator("#px-gate").count() == 1 and "22-oktabr 09:00" in pg.inner_text("#px-gate"), pg.inner_text("#px-gate") if pg.locator("#px-gate").count() else "")
     EXTRA.pop("liga_px_me", None)
     # obunasi yo'q
-    EXTRA["liga_px_me"] = {**PX_ME, "eligible": False}
+    EXTRA["liga_px_me"] = {**PX_ME, "eligible": False, "pay": "none"}
+    pg, e = page(b, phone=True); ALLERR += e
+    pc = pg.inner_text("#px-card") if pg.locator("#px-card").count() else ""
+    check("bosh sahifa reklamasi: sovrinlar va «qatnashish 30 000», «Qo'shilish»", "42 500" in pc and "30 000" in pc and "Qo'shilish" in pc, pc)
+    go(pg, "px"); pg.wait_for_timeout(400)
+    check("to'lamaganga: «Sovrin faqat to'lov qilgan…» va «Qo'shilish»", pg.locator("#px-pay").count() == 1 and "to'lov qilgan" in pg.inner_text("#px-fund"))
+    pg.click("#px-pay"); pg.wait_for_timeout(500)
+    check("«Qo'shilish» — musobaqa to'lov sahifasi (liga obunasi emas)", pg.evaluate("()=>__liga.nav.current().name") == "pxPay")
+    pp = pg.inner_text("body")
+    check("to'lov sahifasi: sovrin, 30 000, karta, botga yuborish, 20 savol", pg.locator("#pxpay-fund").count() == 1 and "30 000" in pg.inner_text("#pxpay-card") and pg.locator("#pxpay-bot").count() == 1 and "20 ta savol" in pp, pp[:400])
+    import base64 as _b64
+    PNG = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    pg.set_input_files("#pxrf", files=[{"name": "chek.png", "mimeType": "image/png", "buffer": _b64.b64decode(PNG)}]); pg.wait_for_timeout(500)
+    check("chek rasmi ko'rinadi", pg.locator("#pxrprev").count() == 1)
+    CALLS.clear(); pg.click("#pxpay-go"); pg.wait_for_timeout(600)
+    rs = calls("liga_px_receipt_submit")
+    check("chek musobaqa to'loviga yuborildi (liga obunasiga emas)", len(rs) == 1 and rs[0]["p_image"].startswith("data:image/") and not calls("liga_receipt_submit"), rs[:1])
+    check("chekdan keyin: «Chek tekshiruvga yuborildi»", pg.locator("#pxpay-wait").count() == 1)
+    EXTRA["liga_px_me"] = {**PX_ME, "eligible": False, "pay": "check"}
     pg, e = page(b, phone=True); ALLERR += e; go(pg, "px"); pg.wait_for_timeout(400)
-    check("obunasizga: «Sovrin faqat obunasi faol…» va «Obuna bo'lish»", pg.locator("#px-pay").count() == 1 and "obunasi faol" in pg.inner_text("#px-fund"))
-    pg.click("#px-pay"); pg.wait_for_timeout(300)
-    check("«Obuna bo'lish» — to'lov sahifasi", pg.evaluate("()=>__liga.nav.current().name") == "pay")
+    check("chek tekshirilayotganda: o'yin yopiq, «tekshirilmoqda», to'lov tugmasi yo'q", "tekshirilmoqda" in pg.inner_text("#px-gate") and pg.locator("#px-gate-pay").count() == 0 and pg.locator("#px-pv").is_disabled())
+    EXTRA.pop("liga_px_me", None)
+    pg, e = page(b, phone=True, query="?go=px"); ALLERR += e; pg.wait_for_timeout(600)
+    check("bot havolasi ?go=px — to'g'ri musobaqa sahifasi ochiladi", pg.evaluate("()=>__liga.nav.current().name") == "px")
     EXTRA["liga_px_me"] = {**PX_ME, "on": False}
     pg, e = page(b, phone=True); ALLERR += e
     check("mashq zali o'chirilgan bo'lsa — karta yo'q", pg.locator("#px-card").count() == 0)

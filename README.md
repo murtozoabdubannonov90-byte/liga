@@ -44,6 +44,14 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-21h: Sovrinli musobaqa — alohida to'lov, 20 savol, takrorlanmaydigan savollar, takliflar
+- To'lov liga obunasidan alohida: `liga_px_pay` (30 000 so'm, `px_price`). Chek ilovada («Musobaqaga qo'shilish» sahifasi, `pxPay`) yoki botda (`/musobaqa`, `/start px`, «💳 Musobaqaga qo'shilish» tugmasi) yuboriladi; administratorga rasm + «✅ Pul tushdi / ❌ Soxta» (`rp:`) keladi, tasdiqlangach musobaqa ochiladi va o'yinchiga xabar boradi. `liga_px_paid` = shu oy tasdiqlangan to'lov (yoki free_phones).
+- O'yinda 20 ta savol (`px_q_n`), har savolga 40 soniya; 18:00 da o'yin yopiladi.
+- Savollar o'yinchiga takrorlanmaydi: `liga_px_seen` tarixi — avval ko'rmaganlari, hammasi tugasa eng eskisi. Provodka: 144 + o'tgan kunlik savollar; schyot: har biri 2 xil (raqam→nom, nom→raqam).
+- Qo'shilmaganlarga taklif 22.10 08:00 va 08:30 (`px_invite_a/b`, cron liga-musobaqa-taklif-1/2); 09:05 dagi «boshlandi» xabari faqat to'lov qilganlarga.
+- Bosh sahifa kartasida reklama: sovrinlar va «Qo'shilish». Bot havolasi `?go=px` musobaqani ochadi.
+- SQL: `db/2026-10-21h_musobaqa_tolov.sql`.
+
 ## 2026-10-21g: Sovrinli musobaqa — qoidalar
 - Ballar 22.10.2026 09:00 dan hisoblanadi (`px_start_at`); oldingi ballar reytingga kirmaydi. Ballar liga/umumiy ballga qo'shilmaydi.
 - Faqat to'lov qilganlar (`liga_px_paid`: paid_until ≥ bugun yoki free_phones) o'ynay oladi; ochiq vaqt 09:00–18:00 (`px_open_from/to`).

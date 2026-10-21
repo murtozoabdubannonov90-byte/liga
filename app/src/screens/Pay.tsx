@@ -12,7 +12,7 @@ import { sfx, burst } from "../lib/fx";
 
 export const price = () => S.payCfg?.price || S.me?.price || 30000;
 const cardFmt = (c: string) => String(c || "").replace(/\D/g, "").replace(/(\d{4})(?=\d)/g, "$1 ");
-function shrink(file: File): Promise<string> {
+export function shrink(file: File): Promise<string> {
   return new Promise((res, rej) => { const fr = new FileReader(); fr.onerror = () => rej(new Error("bad_image"));
     fr.onload = () => { const im = new Image(); im.onerror = () => rej(new Error("bad_image"));
       im.onload = () => { let w = im.naturalWidth, h = im.naturalHeight; const k = Math.min(1, 1200 / Math.max(w, h)); w = Math.round(w * k); h = Math.round(h * k);
