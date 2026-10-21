@@ -111,6 +111,8 @@ const RU: Record<string, string> = {
   "💬 <b>{n}, Hisobchi Liga ishtirokchilari guruhi ochildi!</b>\nSavollar, provodkalar va duellarni shu yerda muhokama qilamiz, raqibingiz bilan kelishib olasiz. Qo'shiling:": "💬 <b>{n}, открылась группа участников Hisobchi Liga!</b>\nЗдесь обсуждаем вопросы, проводки и дуэли, договариваемся с соперником. Присоединяйтесь:",
   "🕛 <b>{n}, bugungi {s}-bosqich hali bajarilmagan.</b>\nSoat {c} gacha vaqt bor — hozir 10–15 daqiqa ajrating, keyin unutib qo'yasiz.": "🕛 <b>{n}, сегодняшний этап {s} ещё не пройден.</b>\nВремя есть до {c} — уделите 10–15 минут сейчас, потом забудете.",
   "Jamoangizdan {p} kishi bugun bajarib bo'ldi.": "Из вашей команды сегодня уже прошли: {p}.",
+  "🏆 <b>{n}, «Sovrinli musobaqa» boshlandi!</b>\n\n💰 Sovrin jamg'armasi: <b>{f} so'm</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} so'm\n\n3 ta tezkor o'yin: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har biri 60 soniya. Qancha ko'p to'g'ri javob — shuncha ko'p ball.\n📅 G'oliblar 31-oktabr yakunida aniqlanadi (obunasi faol eng yaxshi 3 kishi).\nBallar liga va kubokka ta'sir qilmaydi.\n\n👉 Ilovada: Asosiy → «Sovrinli musobaqa»": "🏆 <b>{n}, стартовал «Призовой турнир»!</b>\n\n💰 Призовой фонд: <b>{f} сум</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} сум\n\n3 быстрые игры: Дебет ↔ Кредит, План счетов, Раздел баланса — по 60 секунд. Больше правильных ответов — больше баллов.\n📅 Победители определяются по итогам 31 октября (тройка лучших с активной подпиской).\nБаллы не влияют на лигу и кубок.\n\n👉 В приложении: Главная → «Призовой турнир»",
+  "Musobaqaga kirish": "Войти в турнир",
   "⚖️ Hamma o'ynaydi. G'oliblardan keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi, keyin har raundda juftsiz odam qolmaydi.": "⚖️ Играют все. Из победителей дальше проходят {k} с наибольшими очками, затем в каждом раунде без пары никто не остаётся.",
   "🏁 <b>{n}, siz duelda yutdingiz, lekin bugun keyingi bosqichga chiqa olmadingiz.</b>\nBu raundda {w} kishi yutdi — keyingi bosqichga ochkosi eng ko'p {k} kishi o'tadi (teng ochkoda — tezroq javob bergan). Sizning ochkongiz: {p}.\nErtaga yana kubok — omad!": "🏁 <b>{n}, вы выиграли дуэль, но сегодня не прошли дальше.</b>\nВ этом раунде победили {w} чел. — дальше проходят {k} с наибольшими очками (при равенстве — кто быстрее). Ваши очки: {p}.\nЗавтра снова кубок — удачи!",
   "➡️ Saralashsiz keyingi raundga o'tdi — {c} kishi (oxirgi 7 kundagi bosqich bali eng yuqorilar): {n}": "➡️ Без отбора в следующий раунд прошли {c} чел. (лучшие по баллам этапов за 7 дней): {n}",
@@ -1101,6 +1103,27 @@ function kindText(p: any, when: "morning" | "noon" | "remind", c: string): strin
   return null;
 }
 
+// Sovrinli musobaqa e'loni — Telegram'ga ulangan har bir ishtirokchiga shaxsan (o'z tilida)
+async function pxAnnounce(limit = 80) {
+  const { data: pb } = await db.rpc("liga_px_board_sys", { p_group: "ASOSIY" });
+  const b: any = pb ?? {}; const fund = Number(b.fund || 0);
+  const fmtS = (n: number) => Number(n || 0).toLocaleString("ru-RU").replace(/\s/g, " ");
+  const pr = ((b.split ?? [50, 30, 20]) as number[]).map((x) => fmtS(Math.floor(fund * x / 100)));
+  // navbat: tg_user_id bo'yicha tartib, oxirgi yuborilgani px_announce_last da saqlanadi (takror yubormaslik uchun)
+  const day = tzDate().toISOString().slice(0, 10), lk = "px_announce_last_" + day;
+  const last = Number((await cfgGet(lk)) || 0);
+  const { data: ppl } = await db.from("safari_players").select("tg_user_id,first_name,lang").not("tg_user_id", "is", null)
+    .gt("tg_user_id", last).order("tg_user_id").limit(limit);
+  if (!ppl?.length) return { ok: true, done: true };
+  await cfgSet(lk, String((ppl[ppl.length - 1] as any).tg_user_id));   // avval belgilaymiz — vaqt tugasa ham takrorlanmaydi
+  let sent = 0, fail = 0;
+  for (const p of (ppl ?? []) as any[]) {
+    const text = tr(p.lang, "🏆 <b>{n}, «Sovrinli musobaqa» boshlandi!</b>\n\n💰 Sovrin jamg'armasi: <b>{f} so'm</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} so'm\n\n3 ta tezkor o'yin: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har biri 60 soniya. Qancha ko'p to'g'ri javob — shuncha ko'p ball.\n📅 G'oliblar 31-oktabr yakunida aniqlanadi (obunasi faol eng yaxshi 3 kishi).\nBallar liga va kubokka ta'sir qilmaydi.\n\n👉 Ilovada: Asosiy → «Sovrinli musobaqa»",
+      { n: esc(p.first_name ?? ""), f: fmtS(fund), a: pr[0] ?? "", b: pr[1] ?? "", c: pr[2] ?? "" });
+    if (await dm(p.tg_user_id, text, appBtn(tr(p.lang, "Musobaqaga kirish")))) sent++; else fail++;
+  }
+  return { ok: true, sent, fail, fund };
+}
 // 1 soat qoldi: guruhga (nechta kishi o'ynagani bilan) va bajarmaganlarga shaxsan
 async function remindAll(w: number, groupText: string) {
   const cnt = await todayCounts();
@@ -1411,7 +1434,13 @@ async function onCron(action: string, body: any = {}) {
     const { data: dp } = await db.rpc("liga_cup_start_sys");
     return { ok: true, sent: await cupBroadcast((dp ?? []) as any[]) };
   }
-  // Mashq zali: ish kunlari 18:30 da guruh(lar) va kanalga oylik jamg'arma va top-5 (ligadan alohida reyting)
+  // Sovrinli musobaqa (ilgari «Mashq zali»): bir martalik shaxsiy e'lon — liga_bot_config.px_announce_day kuni 09:05 da (cron liga-musobaqa-elon)
+  if (action === "px_announce" || action === "px_announce_now") {
+    // cron 09:05–09:20 har daqiqa chaqiradi — faqat belgilangan kuni (px_announce_day), har safar navbatdagi 80 kishiga; hammaga yetgach to'xtaydi
+    if (action === "px_announce" && (await cfgGet("px_announce_day")) !== tzDate().toISOString().slice(0, 10)) return { skip: true };
+    return await pxAnnounce(Number(body.limit) || 80);
+  }
+  // Sovrinli musobaqa: ish kunlari 18:30 da guruh(lar) va kanalga oylik jamg'arma va top-5 (ligadan alohida reyting)
   if (action === "px_board" || action === "px_board_now") {
     if (action === "px_board" && (w < 1 || w > 5 || !(await once("px_board")))) return { skip: true };
     const { data: pb } = await db.rpc("liga_px_board_sys", { p_group: "ASOSIY" });
@@ -1419,8 +1448,8 @@ async function onCron(action: string, body: any = {}) {
     const fmtS = (n: number) => Number(n || 0).toLocaleString("ru-RU").replace(/\s/g, " ");
     const md = ["🥇", "🥈", "🥉", "4.", "5."];
     const prizes = ((b.split ?? []) as number[]).map((x) => Math.floor((b.fund || 0) * x / 100));
-    const text = `🏋️ <b>Mashq zali</b> — oylik reyting\n\n` +
-      (b.fund > 0 ? `💰 Sovrin jamg'armasi: <b>${fmtS(b.fund)} so'm</b>\n${prizes.slice(0, 3).map((p, i) => `${md[i]} ${fmtS(p)}`).join(" · ")}\nJamg'arma har bir yangi obunachi bilan o'sadi.\n\n` : "") +
+    const text = `🏆 <b>Sovrinli musobaqa</b> — oylik reyting\n\n` +
+      (b.fund > 0 ? `💰 Sovrin jamg'armasi: <b>${fmtS(b.fund)} so'm</b>\n${prizes.slice(0, 3).map((p, i) => `${md[i]} ${fmtS(p)}`).join(" · ")}\n\n` : "") +
       (top.length ? top.map((x, i) => `${md[i]} ${esc(x.name ?? "")} — ${fmtS(x.pts)} ball`).join("\n") : "Hali hech kim o'ynamagan — birinchi bo'ling!") +
       `\n\nBugun ${b.today_games ?? 0} ta o'yin o'ynaldi. 3 ta tezkor o'yin: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har biri 60 soniya.\n` +
       `Ballar liga baliga qo'shilmaydi. Sovrin — oy oxirida obunasi faol kuchli uchlikka.`;

@@ -44,6 +44,12 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-21e: «Mashq zali» → «Sovrinli musobaqa», jamg'arma 300 000 so'm
+- Nomi hamma joyda (ilova, bot, ruscha — «Призовой турнир») «Sovrinli musobaqa».
+- Oktabr jamg'armasi qat'iy **300 000 so'm** (`px_fund_base=300000`, `px_fund_per_pay=0`): 🥇 150 000 · 🥈 90 000 · 🥉 60 000; g'oliblar 31-oktabr yakunida (obunasi faol kuchli uchlik).
+- 22.10.2026 09:05–09:20 da Telegram'ga ulangan har bir ishtirokchiga shaxsiy e'lon (har daqiqa 80 tadan, takrorlanmaydi): cron `liga-musobaqa-elon`, kun — `liga_bot_config.px_announce_day`. Qo'lda: `select liga_bot_call2('px_announce_now','{}')`.
+- Baza: `db/2026-10-21e_sovrinli_musobaqa.sql`.
+
 ## 2026-10-21b: kubok — hamma o'ynaydi, g'oliblar ochko bo'yicha (saralashsiz o'tish bekor)
 - Saralashsiz o'tish yo'q: 1-raundda hamma o'ynaydi. Har raundda faqat g'oliblar o'tadi — yutqazgan hech qachon qaytmaydi.
 - G'oliblar soni 2 ning darajasi bo'lmasa (290 → 145), keyingi bosqichga ochkosi eng ko'p P ta g'olib o'tadi (145 → 128; teng ochkoda — tezroq). Qolganlar «ochko bo'yicha chiqib qoldi» (`liga_day_cut`): bot shaxsan va guruhdagi raund natijasida aytadi, ilovada ham ko'rinadi. Keyingi raundlarda soni doim juft: 128 → 64 → … → final 17:00.

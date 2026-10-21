@@ -1,4 +1,4 @@
-/* «Mashq zali»: 3 ta tezkor o'yin (60 soniya), kunlik vazifalar, yutuqlar, oylik reyting va sovrin jamg'armasi.
+/* «Sovrinli musobaqa» (avval «Mashq zali»): 3 ta tezkor o'yin (60 soniya), kunlik vazifalar, yutuqlar, oylik reyting va sovrin jamg'armasi.
    Liga bali, bosqichlar, duel va kubokka ta'sir qilmaydi (server: liga_px_*). */
 import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,7 +36,7 @@ export function PxCard() {
   return (
     <button className="card px-card" id="px-card" onClick={() => { sfx("tap"); go("px"); }}>
       <span className="ic"><Dumbbell size={22} /></span>
-      <span className="grow"><b>{t("Mashq zali")}</b>
+      <span className="grow"><b>{t("Sovrinli musobaqa")}</b>
         <span className="small">{fund > 0 ? t("Oylik sovrin jamg'armasi: {s} so'm", { s: fmtSum(fund) }) : t("3 ta tezkor o'yin, vazifalar va yutuqlar")}
           {rk ? " · " + t("siz {n}-o'rinda", { n: rk }) : ""}</span></span>
       <span className="chip gold"><Coins size={13} />{me?.month?.pts ? fmtSum(me.month.pts) : t("O'ynash")}</span>
@@ -52,7 +52,7 @@ function FundBanner({ me }: { me: PxMe }) {
       <div className="row"><Coins size={22} /><b className="grow">{t("Oylik sovrin jamg'armasi")}</b><span className="chip">{t("{d} kun qoldi", { d: daysLeftInMonth() })}</span></div>
       <div className="px-fund-sum num"><CountUp to={f.amount} id="pxfund" /> <small>{t("so'm")}</small></div>
       <div className="px-prizes">{f.prizes.map((p, i) => <span key={i}><i>{MEDAL[i] || i + 1 + "."}</i><b className="num">{fmtSum(p)}</b></span>)}</div>
-      <p className="small">{t("Jamg'arma har bir yangi obunachi bilan o'sadi. Oy oxirida Mashq zali reytingining kuchli uchligi sovrinni bo'lishadi.")}</p>
+      <p className="small">{t("Oy oxirida Sovrinli musobaqa reytingining kuchli uchligi sovrinni bo'lishadi (obunasi faol bo'lganlar).")}</p>
       {!me.eligible && <div className="px-elig"><Lock size={16} /><span className="grow">{t("Sovrin faqat obunasi faol ishtirokchilarga beriladi")}</span>
         <button className="btn sm gold" id="px-pay" onClick={() => go("pay")}>{t("Obuna bo'lish")}</button></div>}
     </section>);
@@ -64,7 +64,7 @@ export default function Px() {
   const [tb, setTb] = useState<"g" | "q" | "a" | "r">("g");
   return (
     <div className="shell bare">
-      <PageTitle title={t("Mashq zali")} />
+      <PageTitle title={t("Sovrinli musobaqa")} />
       {!me ? <Empty>{t("Yuklanmoqda...")}</Empty> : <div className="stack">
         <FundBanner me={me} />
         <div className="px-stats" id="px-stats">
@@ -73,7 +73,7 @@ export default function Px() {
           <div><b className="num">{fmtSum(me.today.pts)}</b><i>{t("bugun")}</i></div>
           <div><b className="num"><Flame size={15} color="#E8590C" />{me.streak}</b><i>{t("kun ketma-ket")}</i></div>
         </div>
-        <p className="small muted" style={{ fontWeight: 600 }}>{t("Mashq zali ballari liga baliga, kunlik bosqich va duellarga qo'shilmaydi — alohida reyting.")}</p>
+        <p className="small muted" style={{ fontWeight: 600 }}>{t("Sovrinli musobaqa ballari liga baliga, kunlik bosqich va duellarga qo'shilmaydi — alohida reyting.")}</p>
         <Seg id="px" value={tb} onChange={setTb} items={[["g", t("O'yinlar")], ["q", t("Vazifalar")], ["a", t("Yutuqlar")], ["r", t("Reyting")]]} />
         {tb === "g" && <Games me={me} />}{tb === "q" && <Quests me={me} />}{tb === "a" && <Achs me={me} />}{tb === "r" && <Board me={me} />}
       </div>}
@@ -266,10 +266,10 @@ function PxResult({ kind, r, again }: { kind: PxKind; r: any; again: () => void 
         {qn.length > 0 && <Card title={t("Vazifa bajarildi!")} right={<Sparkles size={18} color="var(--gold)" />}>
           <ul className="px-quests">{qn.map((q) => <li key={q.id} className="done"><span className="qi"><CircleCheck size={20} /></span><b className="grow">{t(QUEST_T[q.id] || q.id)}</b><span className="chip ok">+{q.pts}</span></li>)}</ul>
         </Card>}
-        {r.month_rank && <div className="note"><Trophy size={18} /><span>{t("Oylik Mashq zali reytingida {n}-o'rindasiz · {p} ball", { n: r.month_rank, p: fmtSum(r.month_pts || 0) })}</span></div>}
+        {r.month_rank && <div className="note"><Trophy size={18} /><span>{t("Sovrinli musobaqa oylik reytingida {n}-o'rindasiz · {p} ball", { n: r.month_rank, p: fmtSum(r.month_pts || 0) })}</span></div>}
       </div>
       <div className="dock"><div className="row" style={{ gap: 10 }}>
-        <button className="btn ghost" onClick={() => replace("px")}>{t("Mashq zali")}</button>
+        <button className="btn ghost" onClick={() => replace("px")}>{t("Sovrinli musobaqa")}</button>
         <button className="btn" id="px-again" onClick={again}><RotateCcw size={18} />{t("Yana o'ynash")}</button></div></div>
     </div>);
 }
@@ -286,7 +286,7 @@ export function PxSuper() {
   const on = (d.cfg?.px_on || "on") === "on";
   return (
     <div className="stack" id="px-super">
-      <Card title={t("Mashq zali — {m}", { m: monName(d.mon) })} right={<span className={"chip " + (on ? "ok" : "")}>{on ? t("yoqilgan") : t("o'chiq")}</span>}>
+      <Card title={t("Sovrinli musobaqa — {m}", { m: monName(d.mon) })} right={<span className={"chip " + (on ? "ok" : "")}>{on ? t("yoqilgan") : t("o'chiq")}</span>}>
         <p style={{ fontWeight: 800 }}>{t("Sovrin jamg'armasi")}: {fmtSum(d.fund)} {t("so'm")}</p>
         <p className="small muted">{t("{p} kishi · {g} o'yin", { p: d.players, g: d.games })}</p>
         <ol className="px-board" style={{ marginTop: 8 }}>{(d.top || []).map((x: any, i: number) => (
@@ -298,7 +298,7 @@ export function PxSuper() {
             <div className="field" key={k}><label htmlFor={k}>{t(l)}</label>
               <div className="row" style={{ gap: 8 }}><input id={k} className="inp mono grow" value={f[k] ?? ""} onChange={(e) => setF({ ...f, [k]: e.target.value })} />
                 <button className="btn sm" onClick={() => save(k, (f[k] || "").trim())}>{t("Saqlash")}</button></div></div>))}
-          <button className={"btn sm " + (on ? "bad" : "")} id="px-onoff" onClick={() => save("px_on", on ? "off" : "on")}>{on ? t("Mashq zalini o'chirish") : t("Mashq zalini yoqish")}</button>
+          <button className={"btn sm " + (on ? "bad" : "")} id="px-onoff" onClick={() => save("px_on", on ? "off" : "on")}>{on ? t("Sovrinli musobaqani o'chirish") : t("Sovrinli musobaqani yoqish")}</button>
           <p className="small">{st}</p>
         </div>
       </Card>

@@ -696,10 +696,10 @@ with sync_playwright() as p:
     check("profil: «Medallarim» javoni", pg.locator("#medal-shelf svg.medal-gold").count() == 1, txt(pg)[:300])
     EXTRA.pop("liga_grand_info", None)
 
-    print("10i. Mashq zali (ligadan alohida)")
+    print("10i. Sovrinli musobaqa (ligadan alohida)")
     pg, e = page(b); ALLERR += e
     pc = pg.inner_text("#px-card") if pg.locator("#px-card").count() else ""
-    check("bosh sahifada «Mashq zali» kartasi: jamg'arma va o'rin", "Mashq zali" in pc and "85 000" in pc and "2-o'rinda" in pc, pc)
+    check("bosh sahifada «Sovrinli musobaqa» kartasi: jamg'arma va o'rin", "Sovrinli musobaqa" in pc and "85 000" in pc and "2-o'rinda" in pc, pc)
     xp0 = S(pg, "S.xp"); wk0 = S(pg, "JSON.stringify(S.week)")
     pg.click("#px-card"); pg.wait_for_timeout(1400)
     check("mashq zali ochildi: jamg'arma va sovrinlar", "85 000" in pg.inner_text("#px-fund") and "42 500" in pg.inner_text("#px-fund") and "25 500" in pg.inner_text("#px-fund"), txt(pg)[:300])
@@ -768,7 +768,7 @@ with sync_playwright() as p:
     check("mashq zali o'chirilgan bo'lsa — karta yo'q", pg.locator("#px-card").count() == 0)
     EXTRA.pop("liga_px_me", None)
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
-    check("RU: «Тренировочный зал»", "Тренировочный зал" in pg.inner_text("#px-card") and "Призовой фонд" in pg.inner_text("#px-card"))
+    check("RU: «Призовой турнир»", "Призовой турнир" in pg.inner_text("#px-card") and "Призовой фонд" in pg.inner_text("#px-card"))
     pg, e = page(b, w=320, h=640); ALLERR += e; go(pg, "px"); pg.wait_for_timeout(400)
     check("320px: mashq zali sig'adi", pg.evaluate("()=>document.documentElement.scrollWidth<=320"))
     go(pg, "pxGame", {"kind": "pv"}); pg.wait_for_timeout(500)
