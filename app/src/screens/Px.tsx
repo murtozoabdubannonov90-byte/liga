@@ -16,8 +16,8 @@ import { watchAway, AWAY_MS } from "../lib/guard";
 import { shrink } from "./Pay";
 import { BOT_LINK, openTg } from "../lib/tg";
 import { copyText } from "../components/ui";
-import { KINDS, KIND_TITLE, KIND_SUB, SIDES, QUEST_T, ACH_T, fmtSum, daysLeftInMonth, pxMe, pxStart, pxAnswer, pxFinish, pxBoard, pxWinners, pxOnPhone, pxAutomated, pxReceipt,
-  type PxKind, type PxMe, type PxState, type PxRes, type PxRow } from "../engine/px";
+import { KINDS, KIND_TITLE, KIND_SUB, SIDES, QUEST_T, ACH_T, fmtSum, daysLeftInMonth, pxMe, pxStart, pxAnswer, pxFinish, pxBoard, pxWinners, pxOnPhone, pxAutomated, pxReceipt, pxOwner,
+  type PxKind, type PxMe, type PxState, type PxRes, type PxRow, type PxOwner } from "../engine/px";
 
 const KIND_IC: Record<PxKind, any> = { pv: ArrowLeftRight, acc: ListOrdered, side: Scale, mix: Target };
 const ACH_IC: Record<string, any> = { first: Footprints, games10: Dumbbell, games50: ShieldCheck, r100: Target, r1000: Gem, sniper: Crosshair, clean: Sparkles,
@@ -100,6 +100,21 @@ function FundBanner({ me }: { me: PxMe }) {
     </section>);
 }
 
+/* ---------- ishtirokchilar soni: faqat egasiga ko'rinadi (server liga_px_owner, boshqalarga null) ---------- */
+function OwnerStats() {
+  const [o, setO] = useState<PxOwner | null>(null);
+  useEffect(() => { if (!S.pid || !S.token) return; const load = () => pxOwner().then((x) => setO(x || null)).catch(() => {});
+    load(); const id = setInterval(load, 60000); return () => clearInterval(id); }, []);
+  if (!o) return null;
+  return (
+    <div className="px-stats" id="px-owner">
+      <div><b className="num">{o.paid}</b><i>{t("to'lagan")}</i></div>
+      <div><b className="num">{o.check}</b><i>{t("chek kutmoqda")}</i></div>
+      <div><b className="num">{o.today}</b><i>{t("bugun o'ynadi")}</i></div>
+      <div><b className="num">{o.month}</b><i>{t("oyda o'ynagan")}</i></div>
+    </div>);
+}
+
 /* ---------- Mashq zali ---------- */
 export default function Px() {
   const me = useMe(true);
@@ -108,6 +123,7 @@ export default function Px() {
     <div className="shell bare">
       <PageTitle title={t("Sovrinli musobaqa")} />
       {!me ? <Empty>{t("Yuklanmoqda...")}</Empty> : <div className="stack">
+        <OwnerStats />
         <FundBanner me={me} />
         <RulesCard me={me} />
         <div className="px-stats" id="px-stats">

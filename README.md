@@ -44,6 +44,10 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-22c: Sovrinli musobaqa — ishtirokchilar soni (faqat egasiga)
+- Musobaqa sahifasining yuqorisida faqat egasiga (`free_phones` dagi telefon) ko'rinadigan qator: to'lagan, chek kutmoqda, bugun o'ynadi, oyda o'ynagan (har daqiqada yangilanadi). Boshqalarga `liga_px_owner` null qaytaradi — hech narsa ko'rinmaydi.
+- SQL: `db/2026-10-22c_musobaqa_ishtirokchilar_soni.sql`.
+
 ## 2026-10-22: Sovrinli musobaqa — kuniga 1 marta, davom ettirish, qiyinroq savollar
 - Har bir ishtirokchiga kuniga 1 ta o'yin (`kind='mix'`): 20 ta aralash savol (12 provodka, 5 schyot, 3 balans bo'limi), har biriga 40 soniya. 20 ta savol tugagach — ertagacha yopiq (`px_done_today`).
 - Adashib chiqib ketsa qaytib kirib davom ettiradi (`liga_px_start` bugungi sessiyani qaytaradi); qayta kirilganda yoki ilovadan chiqilganda o'sha savol xato hisoblanadi (`liga_px_skip`, `{away:true}`) — AI'dan so'rab qaytishning oldini oladi. «Orqaga» o'yinni tugatmaydi.

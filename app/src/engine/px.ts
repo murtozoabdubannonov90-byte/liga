@@ -87,4 +87,7 @@ export async function pxFinish(sid: string) {
   return r;
 }
 export const pxBoard = (scope: "month" | "week" | "day") => rpc<PxRow[]>("liga_px_board", { p_id: S.pid || null, p_scope: scope });
+/* faqat egasiga (free_phones): ishtirokchilar soni; boshqalarga null */
+export interface PxOwner { paid: number; check: number; today: number; month: number }
+export const pxOwner = () => rpc<PxOwner | null>("liga_px_owner", auth());
 export const pxWinners = () => rpc<any[]>("liga_px_winners", { p_id: S.pid || null });
