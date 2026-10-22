@@ -1,4 +1,4 @@
--- Sovrinli musobaqa: har 2 soatda (10:00, 12:00, 14:00, 16:00) guruhga e'lon va shaxsiy xabar.
+-- Sovrinli musobaqa: guruhga 10:00, 12:00, 15:00; shaxsan 10:00 va 15:00.
 -- Shaxsiy: to'lov qilmaganlarga — taklif ('join'); to'lagan, lekin bugun o'yinni tugatmaganlarga — eslatma ('play').
 -- Chek tekshirilayotganlar va bugun o'ynab bo'lganlarga yuborilmaydi.
 create or replace function public.liga_px_promo_list_sys(p_after bigint, p_limit integer default 80)
@@ -16,5 +16,5 @@ $$;
 revoke all on function public.liga_px_promo_list_sys(bigint, integer) from public, anon, authenticated;
 grant execute on function public.liga_px_promo_list_sys(bigint, integer) to service_role;
 
--- cron: Toshkent 10:00, 12:00, 14:00, 16:00 (UTC 05, 07, 09, 11), har slotda 6 daqiqa × 80 kishi
-select cron.schedule('liga-musobaqa-2soat', '0-5 5,7,9,11 * * *', $c$select public.liga_bot_call('px_promo')$c$);
+-- cron: Toshkent 10:00, 12:00, 15:00 (UTC 05, 07, 10), har slotda 6 daqiqa × 80 kishi
+select cron.schedule('liga-musobaqa-2soat', '0-5 5,7,10 * * *', $c$select public.liga_bot_call('px_promo')$c$);
