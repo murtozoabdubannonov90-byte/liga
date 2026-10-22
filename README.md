@@ -44,6 +44,13 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-22: Sovrinli musobaqa — kuniga 1 marta, davom ettirish, qiyinroq savollar
+- Har bir ishtirokchiga kuniga 1 ta o'yin (`kind='mix'`): 20 ta aralash savol (12 provodka, 5 schyot, 3 balans bo'limi), har biriga 40 soniya. 20 ta savol tugagach — ertagacha yopiq (`px_done_today`).
+- Adashib chiqib ketsa qaytib kirib davom ettiradi (`liga_px_start` bugungi sessiyani qaytaradi); qayta kirilganda yoki ilovadan chiqilganda o'sha savol xato hisoblanadi (`liga_px_skip`, `{away:true}`) — AI'dan so'rab qaytishning oldini oladi. «Orqaga» o'yinni tugatmaydi.
+- Savollar: +78 ta qiyin provodka (`db/2026-10-22_px_bank_hard.sql`, `scripts/px_bank_hard.py`), provodkada 10 ta variant (chalg'ituvchilar to'g'ri javob guruhidan). O'yinchiga 7 kun ichida ko'rgan savoli chiqmaydi (provodka ~417, schyot 106, balans 48; haftada 84/35/21 kerak).
+- To'lov: faqat Murtozo bepul (free_phones), qolganlar 30 000 so'm to'lab chek yuboradi.
+- SQL: `db/2026-10-22b_musobaqa_kuniga_bir.sql`.
+
 ## 2026-10-21h: Sovrinli musobaqa — alohida to'lov, 20 savol, takrorlanmaydigan savollar, takliflar
 - To'lov liga obunasidan alohida: `liga_px_pay` (30 000 so'm, `px_price`). Chek ilovada («Musobaqaga qo'shilish» sahifasi, `pxPay`) yoki botda (`/musobaqa`, `/start px`, «💳 Musobaqaga qo'shilish» tugmasi) yuboriladi; administratorga rasm + «✅ Pul tushdi / ❌ Soxta» (`rp:`) keladi, tasdiqlangach musobaqa ochiladi va o'yinchiga xabar boradi. `liga_px_paid` = shu oy tasdiqlangan to'lov (yoki free_phones).
 - O'yinda 20 ta savol (`px_q_n`), har savolga 40 soniya; 18:00 da o'yin yopiladi.

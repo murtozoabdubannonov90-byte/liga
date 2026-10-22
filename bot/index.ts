@@ -579,8 +579,8 @@ async function pxInvite(slot: "a" | "b", limit = 80) {
       ? `🏆 <b>${n}, bugun soat 09:00 da «Sovrinli musobaqa» boshlanadi!</b>\n\n` +
         `💰 Sovrin jamg'armasi — <b>${fmtS(f.fund)} so'm</b>\n🥇 ${f.pr[0]} · 🥈 ${f.pr[1]} · 🥉 ${f.pr[2]} so'm\n\n` +
         `Buxgalteriya bilimingiz endi pulga aylanadi:\n` +
-        `✅ Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi\n⏱ Har o'yinda 20 ta savol, har savolga 40 soniya\n` +
-        `🔁 Kuniga xohlagancha o'ynang — har o'yin bali oylik hisobingizga qo'shiladi\n📱 Telefondan, har kuni 09:00–18:00, 31-oktabrgacha\n` +
+        `✅ Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi\n⏱ Kuniga 1 ta o'yin: 20 ta aralash savol, har savolga 40 soniya\n` +
+        `🔁 Har kungi ball oylik hisobingizga qo'shiladi — har kuni o'ynagan oldinda; savollar hafta davomida takrorlanmaydi\n📱 Telefondan, har kuni 09:00–18:00, 31-oktabrgacha\n` +
         `🛡 Halol o'yin: AI, nusxa olish va boshqa oynaga chiqish taqiqlangan — hamma uchun teng sharoit\n\n` +
         `🎟 Qatnashish — <b>${price} so'm</b>:\n1) «💳 Musobaqaga qo'shilish» tugmasini bosing\n2) Kartaga to'lang va chekni shu botga yuboring\n3) Tasdiqlangach musobaqa ochiladi\n\n` +
         `⏳ Qancha erta qo'shilsangiz — shuncha ko'p ball to'playsiz!`
@@ -602,7 +602,7 @@ async function onCallback(q: any) {
     const mark = x.status === "paid" ? "\n\n✅ <b>Pul tushdi — musobaqa ochildi.</b>" : "\n\n❌ <b>Soxta — rad etildi.</b>";
     await tg("editMessageCaption", { chat_id: chatId, message_id: q.message.message_id, parse_mode: "HTML", caption: esc(q.message.caption ?? "") + mark });
     if (x.player_chat) {
-      if (x.status === "paid") await dm(x.player_chat, tr(x.lang, "✅ <b>To'lovingiz tasdiqlandi — Sovrinli musobaqa ochildi!</b>\nO'yin vaqti — har kuni 09:00–18:00, faqat telefonda. Har o'yinda 20 ta savol, har savolga 40 soniya. Omad! 💪"), appBtn(tr(x.lang, "Musobaqaga kirish"), "?go=px"));
+      if (x.status === "paid") await dm(x.player_chat, tr(x.lang, "✅ <b>To'lovingiz tasdiqlandi — Sovrinli musobaqa ochildi!</b>\nO'yin vaqti — har kuni 09:00–18:00, faqat telefonda. Kuniga 1 ta o'yin: 20 ta savol, har savolga 40 soniya. Omad! 💪"), appBtn(tr(x.lang, "Musobaqaga kirish"), "?go=px"));
       else await dm(x.player_chat, tr(x.lang, "❌ <b>Musobaqa cheki tasdiqlanmadi</b> — pul kartaga tushmagan.\nHaqiqatan to'lagan bo'lsangiz, administratorga yozing: @murtozo_44"));
     }
     return ack(x.status === "paid" ? "Tasdiqlandi" : "Rad etildi");
@@ -1231,7 +1231,7 @@ async function pxAnnounce(limit = 80) {
   await cfgSet(lk, String((ppl[ppl.length - 1] as any).tg_user_id));   // avval belgilaymiz — vaqt tugasa ham takrorlanmaydi
   let sent = 0, fail = 0;
   for (const p of (ppl ?? []) as any[]) {
-    const text = tr("uz", "🏆 <b>{n}, «Sovrinli musobaqa» boshlandi!</b>\n\n💰 Sovrin jamg'armasi: <b>{f} so'm</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} so'm\n\n📌 <b>Qoidalar:</b>\n• Ballar <b>22-oktabr soat 09:00</b> dan hisoblanadi — 21-oktabrdagi sinov ballari hisobga olinmaydi.\n• O'yin vaqti: har kuni <b>09:00 — 18:00</b>.\n• Har o'yinda <b>20 ta savol</b>, har savolga <b>40 soniya</b>. Vaqt o'tsa — xato.\n• Faqat <b>telefonda</b> ishlaydi (kompyuterda ochilmaydi).\n• Boshqa oynaga chiqilsa yoki nusxa olinsa o'yin to'xtaydi.\n• Musobaqa ballari liga va umumiy ballarga <b>qo'shilmaydi</b>.\n\n❓ Savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi.\n✅ To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xato — 0 ball.\n📅 G'oliblar 31-oktabr yakunida aniqlanadi — eng yaxshi 3 kishi.\n\n👉 Ilovada: Asosiy → «Sovrinli musobaqa»",
+    const text = tr("uz", "🏆 <b>{n}, «Sovrinli musobaqa» boshlandi!</b>\n\n💰 Sovrin jamg'armasi: <b>{f} so'm</b>\n🥇 {a} · 🥈 {b} · 🥉 {c} so'm\n\n📌 <b>Qoidalar:</b>\n• Ballar <b>22-oktabr soat 09:00</b> dan hisoblanadi — 21-oktabrdagi sinov ballari hisobga olinmaydi.\n• O'yin vaqti: har kuni <b>09:00 — 18:00</b>.\n• Kuniga <b>1 ta o'yin</b>: <b>20 ta aralash savol</b>, har savolga <b>40 soniya</b>. Adashib chiqib ketsangiz — qaytib davom ettirasiz (o'sha savol xato).\n• Savollar hafta davomida takrorlanmaydi. Vaqt o'tsa — xato.\n• Faqat <b>telefonda</b> ishlaydi (kompyuterda ochilmaydi).\n• Boshqa oynaga chiqilsa — o'sha savol xato hisoblanadi; nusxa olish yopiq.\n• Musobaqa ballari liga va umumiy ballarga <b>qo'shilmaydi</b>.\n\n❓ Savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi.\n✅ To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xato — 0 ball.\n📅 G'oliblar 31-oktabr yakunida aniqlanadi — eng yaxshi 3 kishi.\n\n👉 Ilovada: Asosiy → «Sovrinli musobaqa»",
       { n: esc(p.first_name ?? ""), f: fmtS(fund), a: pr[0] ?? "", b: pr[1] ?? "", c: pr[2] ?? "" });
     if (await dm(p.tg_user_id, text, appBtn("Musobaqaga kirish", "?go=px"))) sent++; else fail++;
   }
@@ -1565,7 +1565,7 @@ async function onCron(action: string, body: any = {}) {
     const text = `🏆 <b>Sovrinli musobaqa</b> — oylik reyting\n\n` +
       (b.fund > 0 ? `💰 Sovrin jamg'armasi: <b>${fmtS(b.fund)} so'm</b>\n${prizes.slice(0, 3).map((p, i) => `${md[i]} ${fmtS(p)}`).join(" · ")}\n\n` : "") +
       (top.length ? top.map((x, i) => `${md[i]} ${esc(x.name ?? "")} — ${fmtS(x.pts)} ball`).join("\n") : "Hali hech kim o'ynamagan — birinchi bo'ling!") +
-      `\n\nBugun ${b.today_games ?? 0} ta o'yin o'ynaldi. Savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — har o'yinda 20 ta savol, har savolga 40 soniya.\n` +
+      `\n\nBugun ${b.today_games ?? 0} ta o'yin o'ynaldi. Savollar: Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi — kuniga 1 ta o'yin, 20 ta savol, har savolga 40 soniya.\n` +
       `O'yin vaqti 09:00 — 18:00, faqat telefonda. To'g'ri javob — 10 ball (+2…+10 seriya bonusi). Ballar liga va umumiy ballarga qo'shilmaydi. Qatnashish — 30 000 so'm (/musobaqa). Sovrin — oy oxirida kuchli uchlikka.`;
     let n = 0;
     for (const c of await chatsOf("ASOSIY")) { const r = await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: openBot("ASOSIY") }); if (r?.ok) n++; await pause(60); }

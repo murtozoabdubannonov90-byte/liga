@@ -1,4 +1,4 @@
-/* «Sovrinli musobaqa» (avval «Mashq zali»): 3 ta tezkor o'yin (20 ta savol, har savolga 40 soniya), oylik reyting va sovrin jamg'armasi.
+/* «Sovrinli musobaqa» (avval «Mashq zali»): kuniga 1 ta o'yin (20 ta aralash savol, har savolga 40 soniya; chiqib ketsa davom etadi), oylik reyting va sovrin jamg'armasi.
    Faqat telefonda, faqat to'lov qilganlar, har kuni 09:00–18:00, ballar 22.10.2026 09:00 dan.
    Liga bali, bosqichlar, duel va kubokka ta'sir qilmaydi (server: liga_px_*). */
 import { useEffect, useRef, useState } from "react";
@@ -19,7 +19,7 @@ import { copyText } from "../components/ui";
 import { KINDS, KIND_TITLE, KIND_SUB, SIDES, QUEST_T, ACH_T, fmtSum, daysLeftInMonth, pxMe, pxStart, pxAnswer, pxFinish, pxBoard, pxWinners, pxOnPhone, pxAutomated, pxReceipt,
   type PxKind, type PxMe, type PxState, type PxRes, type PxRow } from "../engine/px";
 
-const KIND_IC: Record<PxKind, any> = { pv: ArrowLeftRight, acc: ListOrdered, side: Scale };
+const KIND_IC: Record<PxKind, any> = { pv: ArrowLeftRight, acc: ListOrdered, side: Scale, mix: Target };
 const ACH_IC: Record<string, any> = { first: Footprints, games10: Dumbbell, games50: ShieldCheck, r100: Target, r1000: Gem, sniper: Crosshair, clean: Sparkles,
   combo10: Flame, streak3: CalendarCheck, streak7: Repeat, master: BookMarked, top3: Crown };
 const MEDAL = ["🥇", "🥈", "🥉"];
@@ -35,6 +35,7 @@ export function pxGate(me: PxMe | null): string {
   if (!me) return "";
   if (!me.eligible && me.pay === "check") return t("Chekingiz tekshirilmoqda — administrator tasdiqlagach musobaqa ochiladi");
   if (!me.eligible) return t("Sovrinli musobaqada faqat to'lov qilganlar qatnashadi — qatnashish {p} so'm", { p: fmtSum(me.price || 30000) });
+  if (me.day?.state === "done") return t("Bugungi o'yinni tugatdingiz — ertaga soat {a} da yana o'ynaysiz", { a: me.open_from || "09:00" });
   if (me.started === false) return t("Musobaqa {d} da boshlanadi", { d: fmtDay(me.start_at) });
   const hm = tzNowHM(), from = me.open_from || "09:00", to = me.open_to || "18:00";
   if (hm < from || hm >= to) return t("Musobaqa har kuni {a} dan {b} gacha ochiq", { a: from, b: to });
@@ -50,7 +51,8 @@ function RulesCard({ me }: { me: PxMe }) {
         <li>{t("Har kuni {a} dan {b} gacha ochiq", { a: me.open_from || "09:00", b: me.open_to || "18:00" })}</li>
         {me.start_at && <li>{t("Ballar {d} dan hisoblanadi", { d: fmtDay(me.start_at) })}</li>}
         <li>{t("Har o'yin {n} ta savol, har savolga {q} soniya", { n: me.qn || 20, q: me.qs || 40 })}</li>
-        <li>{t("Faqat telefonda. Ilovadan chiqilsa — o'yin yakunlanadi")}</li>
+        <li>{t("Kuniga 1 marta. Adashib chiqib ketsangiz — qaytib kirib davom ettirasiz (o'sha savol xato hisoblanadi)")}</li>
+        <li>{t("Faqat telefonda")}</li>
         <li>{t("Ballar liga baliga va umumiy ballga qo'shilmaydi")}</li>
       </ul>
     </section>);
@@ -128,13 +130,15 @@ function Games({ me }: { me: PxMe }) {
     <div className="stack" style={{ gap: 10 }}>
       {gate && <div className="note" id="px-gate" style={{ background: "var(--red-soft)" }}><Lock size={18} /><span className="grow">{gate}</span>
         {!me.eligible && me.pay !== "check" && <button className="btn sm gold" id="px-gate-pay" onClick={() => go("pxPay")}>{t("To'lov qilish")}</button>}</div>}
-      {KINDS.map((k) => { const Ic = KIND_IC[k]; return (
-        <button key={k} className="card px-game" id={"px-" + k} disabled={!!gate} style={gate ? { opacity: 0.55 } : undefined} onClick={() => { if (gate) { toast(gate); return; } sfx("tap"); go("pxGame", { kind: k }); }}>
-          <span className="ic"><Ic size={24} /></span>
-          <span className="grow"><b>{t(KIND_TITLE[k])}</b><span className="small">{t(KIND_SUB[k])}</span>
-            <span className="small muted">{t("{n} savol × {q} soniya", { n: me.qn || 20, q: me.qs || 40 })} · {t("rekord {n}", { n: me.total.best[k] || 0 })}</span></span>
-          <ChevronRight size={20} />
-        </button>); })}
+      {(() => { const d = me.day?.state || "none", qn = me.qn || 20; return (
+        <button className="card px-game" id="px-day" disabled={!!gate} style={gate ? { opacity: 0.55 } : undefined} onClick={() => { if (gate) { toast(gate); return; } sfx("tap"); go("pxGame", { kind: "mix" }); }}>
+          <span className="ic"><Target size={24} /></span>
+          <span className="grow"><b>{t("Bugungi o'yin")}</b><span className="small">{t(KIND_SUB.mix)}</span>
+            <span className="small muted">{d === "done" ? t("Bugun: {s} ball · {r}/{n} to'g'ri", { s: me.day?.score || 0, r: me.day?.right_n || 0, n: qn })
+              : d === "active" ? t("Davom ettirish: {k}/{n} savol", { k: me.day?.k || 0, n: qn })
+              : t("{n} savol × {q} soniya · kuniga 1 marta", { n: qn, q: me.qs || 40 })}</span></span>
+          {d === "done" ? <CircleCheck size={22} color="var(--green)" /> : <ChevronRight size={20} />}
+        </button>); })()}
       <div className="note"><Zap size={18} /><span>{t("To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xatoda bonus yo'qoladi.")}</span></div>
     </div>);
 }
@@ -175,6 +179,7 @@ export function PxGame({ kind }: { kind: PxKind }) {
   const end = useRef(0), stRef = useRef<PxState | null>(null), finRef = useRef(false), away = useRef({ at: 0 });
   const now = useNow(250);
   stRef.current = st;
+  const sendRef = useRef<(a: Record<string, unknown>) => void>(() => {});
   const finish = async (why?: string) => {
     if (finRef.current || !stRef.current) return; finRef.current = true;
     if (why) toast(why);
@@ -183,14 +188,14 @@ export function PxGame({ kind }: { kind: PxKind }) {
   };
   const begin = async () => {
     setErr(""); setFin(null); setFb(null); setPick({}); finRef.current = false;
-    try { const s = await pxStart(kind); end.current = Date.now() + s.left_ms; setSt(s); sfx("tap"); }
+    try { const s = await pxStart(kind); end.current = Date.now() + s.left_ms; setSt(s); sfx("tap"); if (s.resumed) toast(t("O'yin davom etmoqda — {k}/{n} savol", { k: s.k, n: s.qn || 20 })); }
     catch (e) { setErr(errMsg(e)); }
   };
   useEffect(() => { const g = pxGate((S.px as PxMe) || null); if (g) { setErr(g); return; } begin(); }, [kind]);
   /* chiqishni tasdiqlash: o'yin yakunlanadi, to'plangan ball saqlanadi */
-  useEffect(() => { setBackGuard(() => { if (fin || !st) return true; if (confirm(t("O'yin yakunlansinmi? To'plangan ballar saqlanadi."))) { finish(); return true; } return false; }); return () => setBackGuard(null); }, [fin, st]);
+  useEffect(() => { setBackGuard(() => { if (fin || !st) return true; return confirm(t("Chiqasizmi? Keyin qaytib davom ettirasiz, lekin hozirgi savol xato hisoblanadi.")); }); return () => setBackGuard(null); }, [fin, st]);
   /* halol o'yin: 3 soniyadan ko'p boshqa ilova/oynaga chiqilsa — o'yin yakunlanadi */
-  useEffect(() => watchAway(() => !!stRef.current && !finRef.current, (ms) => { if (ms > PX_AWAY_MS) finish(t("Ilovadan chiqildi — o'yin yakunlandi")); }, away.current), []);
+  useEffect(() => watchAway(() => !!stRef.current && !finRef.current, (ms) => { if (ms > PX_AWAY_MS) { toast(t("Ilovadan chiqildi — bu savol xato hisoblandi")); sendRef.current({ away: true }); } }, away.current), []);
   /* AI'ga qarshi: nusxalash, belgilash, kontekst menyu taqiqlangan */
   useEffect(() => {
     const block = (e: Event) => e.preventDefault();
@@ -218,6 +223,7 @@ export function PxGame({ kind }: { kind: PxKind }) {
       }, r.ok ? 450 : 1400);
     } catch (e) { toast(errMsg(e)); } finally { setBusy(false); }
   };
+  sendRef.current = send;
 
   if (err) return (<div className="shell bare"><PageTitle title={t(KIND_TITLE[kind])} />
     <div className="stack"><div className="note" style={{ background: "var(--red-soft)" }}><span>{err}</span></div>
@@ -295,7 +301,8 @@ function PxResult({ kind, r, again }: { kind: PxKind; r: any; again: () => void 
       </div>
       <div className="dock"><div className="row" style={{ gap: 10 }}>
         <button className="btn ghost" onClick={() => replace("px")}>{t("Sovrinli musobaqa")}</button>
-        <button className="btn" id="px-again" onClick={again}><RotateCcw size={18} />{t("Yana o'ynash")}</button></div></div>
+        {r.done === false ? <button className="btn" id="px-again" onClick={again}><RotateCcw size={18} />{t("Davom ettirish")}</button>
+          : <span className="chip" id="px-tomorrow" style={{ alignSelf: "center" }}>{t("Keyingi o'yin — ertaga 09:00")}</span>}</div></div>
     </div>);
 }
 
@@ -369,7 +376,7 @@ export function PxPay() {
         </section>}
         <ul className="small" id="pxpay-why" style={{ margin: 0, paddingLeft: 18, lineHeight: 1.6, fontWeight: 600 }}>
           <li>{t("Har o'yinda {n} ta savol, har savolga {q} soniya", { n: me.qn || 20, q: me.qs || 40 })}</li>
-          <li>{t("Kuniga xohlagancha o'ynang — har o'yin bali oylik hisobga qo'shiladi")}</li>
+          <li>{t("Har kuni 1 ta o'yin — ballar 31-oktabrgacha yig'iladi, savollar hafta davomida takrorlanmaydi")}</li>
           <li>{t("Har kuni {a} dan {b} gacha, faqat telefonda", { a: me.open_from || "09:00", b: me.open_to || "18:00" })}</li>
           <li>{t("Halol o'yin: AI va nusxa olish taqiqlangan — hamma uchun teng sharoit")}</li>
         </ul>

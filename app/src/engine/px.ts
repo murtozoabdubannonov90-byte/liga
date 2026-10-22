@@ -3,9 +3,9 @@
 import { rpc } from "./server";
 import { S, persist, bump } from "./state";
 
-export type PxKind = "pv" | "acc" | "side";
-export interface PxQ { t: PxKind; q?: string; o: string[]; mode?: "c2n" | "n2c"; ask?: string; code?: string }
-export interface PxState { sid: string; kind: PxKind; k: number; score: number; right_n: number; done_n: number; combo: number; left_ms: number; q: PxQ | null; secs?: number; qs?: number; qn?: number }
+export type PxKind = "pv" | "acc" | "side" | "mix";
+export interface PxQ { t: Exclude<PxKind, "mix">; q?: string; o: string[]; mode?: "c2n" | "n2c"; ask?: string; code?: string }
+export interface PxState { sid: string; kind: PxKind; k: number; score: number; right_n: number; done_n: number; combo: number; left_ms: number; q: PxQ | null; secs?: number; qs?: number; qn?: number; resumed?: boolean }
 export interface PxRes extends Partial<PxState> { ok?: boolean; why?: string; ans?: { dt?: string; kt?: string; a?: number; code?: string }; e?: string; got?: number; over?: boolean; stale?: boolean }
 export interface PxQuest { id: string; pts: number; need: number; prog: number; done: boolean; got: boolean }
 export interface PxAch { id: string; prog: number; need: number }
@@ -16,15 +16,17 @@ export interface PxMe {
   total: { games: number; rights: number; answers: number; best: Record<PxKind, number> };
   quests: PxQuest[]; ach: PxAch[]; fund: { amount: number; split: number[]; prizes: number[] };
   pay?: "none" | "check" | "paid" | "cancelled"; price?: number; paid_n?: number;
+  day?: { state: "none" | "active" | "done"; k?: number; score?: number; right_n?: number };
 }
 export interface PxRow { pos: number; name: string; pts: number; games: number; me: boolean; ok: boolean }
 
 export const KINDS: PxKind[] = ["pv", "acc", "side"];
-export const KIND_TITLE: Record<PxKind, string> = { pv: "Debet ↔ Kredit", acc: "Schyotlar rejasi", side: "Balans bo'limi" };
+export const KIND_TITLE: Record<PxKind, string> = { pv: "Debet ↔ Kredit", acc: "Schyotlar rejasi", side: "Balans bo'limi", mix: "Bugungi o'yin" };
 export const KIND_SUB: Record<PxKind, string> = {
   pv: "Muomalaga Dt va Kt hisobvarag'ini toping",
   acc: "Raqamdan nomni, nomdan raqamni toping",
   side: "Hisobvaraq qaysi bo'limga tegishli?",
+  mix: "Provodka, schyotlar rejasi va balans bo'limi — aralash",
 };
 export const SIDES: Record<string, string> = { a: "Aktiv", l: "Majburiyat", e: "Kapital", r: "Daromad", x: "Xarajat" };
 export const QUEST_T: Record<string, string> = {

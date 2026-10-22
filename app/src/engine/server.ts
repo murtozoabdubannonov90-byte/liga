@@ -25,6 +25,7 @@ export const ERR: Record<string, string> = {
   px_unpaid: "Sovrinli musobaqada faqat to'lov qilganlar qatnashadi — qatnashish 30 000 so'm",
   px_receipt_paid: "To'lovingiz allaqachon tasdiqlangan — musobaqa ochiq",
   px_not_started: "Sovrinli musobaqa 22-oktabr soat 09:00 da boshlanadi",
+  px_done_today: "Bugungi o'yinni tugatdingiz — ertaga soat 09:00 da yana o'ynaysiz",
   px_hours: "Sovrinli musobaqa har kuni 09:00 dan 18:00 gacha ochiq",
   receipt_dup: "Bu chek avval yuborilgan. Bitta chek faqat bir marta qabul qilinadi",
   receipt_pending: "Oldingi chekingiz hali tekshirilmoqda — administrator javobini kuting",
