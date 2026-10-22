@@ -590,6 +590,44 @@ async function pxInvite(slot: "a" | "b", limit = 80) {
   }
   return { ok: true, sent, fail };
 }
+// Sovrinli musobaqa: har 2 soatda (10, 12, 14, 16) — guruhga e'lon (slotda 1 marta) va shaxsan: to'lamaganlarga taklif, to'lab o'ynamaganlarga eslatma
+// cron liga-musobaqa-2soat slot boshida 6 daqiqa har daqiqa chaqiradi; har safar navbatdagi 80 kishi (px_promo_last_<kun>_<soat>)
+async function pxPromo(limit = 80, force = false) {
+  const now = new Date(Date.now() + 5 * 3600e3), h = now.getUTCHours();
+  if (!force && (h < 9 || h >= 18)) return { skip: "hours" };
+  const day = tzDate().toISOString().slice(0, 10), slot = String(h).padStart(2, "0"), left = Math.max(0, 18 - h);
+  const f = await pxFundLine(), price = fmt(await pxPrice());
+  let groups = 0;
+  if (await once(`px_promo_g_${slot}`)) {
+    const { data: pb } = await db.rpc("liga_px_board_sys", { p_group: "ASOSIY" });
+    const top = (((pb as any)?.top ?? []) as any[]).slice(0, 3), md = ["🥇", "🥈", "🥉"];
+    const text = `🏆 <b>Sovrinli musobaqa davom etmoqda!</b>\n\n💰 Sovrin jamg'armasi — <b>${fmtS(f.fund)} so'm</b>\n🥇 ${f.pr[0]} · 🥈 ${f.pr[1]} · 🥉 ${f.pr[2]} so'm\n\n` +
+      (top.length ? `📊 Hozirgi peshqadamlar:\n${top.map((x, i) => `${md[i]} ${esc(x.name ?? "")} — ${fmtS(x.pts)} ball`).join("\n")}\n\n` : "") +
+      `⏱ Kuniga 1 ta o'yin: 20 ta savol (Debet ↔ Kredit, Schyotlar rejasi, Balans bo'limi), har savolga 40 soniya\n📱 Telefondan, har kuni 09:00–18:00 · bugun yana <b>${left} soat</b> ochiq\n\n` +
+      `🎟 Qatnashish — <b>${price} so'm</b>. Pastdagi tugmani bosing → botda «💳 Musobaqaga qo'shilish» → chekni yuboring.`;
+    const kb = { inline_keyboard: [[{ text: "🏆 Musobaqaga qo'shilish", url: `https://t.me/${BOT}?start=px` }]] };
+    for (const c of await chatsOf("ASOSIY")) { const r = await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: kb }); if (r?.ok) groups++; await pause(60); }
+  }
+  const lk = `px_promo_last_${day}_${slot}`, last = Number((await cfgGet(lk)) || 0);
+  const { data: ppl } = await db.rpc("liga_px_promo_list_sys", { p_after: last, p_limit: limit });
+  if (!ppl?.length) return { ok: true, groups, done: true };
+  await cfgSet(lk, String((ppl[ppl.length - 1] as any).tg_user_id));   // avval belgilaymiz — takror ketmasin
+  let join = 0, play = 0, fail = 0;
+  for (const p of ppl as any[]) {
+    if (!p.kind) continue;
+    const n = esc(p.first_name ?? "");
+    if (p.kind === "join") {
+      const text = `🏆 <b>${n}, «Sovrinli musobaqa» ketmoqda!</b>\n\n💰 Jamg'arma — <b>${fmtS(f.fund)} so'm</b>: 🥇 ${f.pr[0]} · 🥈 ${f.pr[1]} · 🥉 ${f.pr[2]}\n` +
+        `Bugun yana <b>${left} soat</b> o'ynash mumkin (18:00 gacha). Har kungi ball oylik hisobga qo'shiladi — qancha erta qo'shilsangiz, shuncha oldinda bo'lasiz.\n\n` +
+        `🎟 Qatnashish — <b>${price} so'm</b>: «💳 Musobaqaga qo'shilish» → kartaga to'lang → chekni shu botga yuboring.`;
+      if (await dm(p.tg_user_id, text, pxJoinKb(p.lang))) join++; else fail++;
+    } else {
+      const text = `⏰ <b>${n}, bugungi musobaqa o'yiningiz hali tugamagan!</b>\n\n20 ta savol, har biriga 40 soniya. O'yin soat <b>18:00</b> da yopiladi — yana ${left} soat bor. Har kuni o'ynagan oldinda!`;
+      if (await dm(p.tg_user_id, text, appBtn("Musobaqaga kirish", "?go=px"))) play++; else fail++;
+    }
+  }
+  return { ok: true, groups, join, play, fail };
+}
 async function onCallback(q: any) {
   const data = String(q.data ?? ""), chatId = q.message?.chat?.id;
   const ack = (text?: string) => tg("answerCallbackQuery", { callback_query_id: q.id, text });
@@ -1678,6 +1716,7 @@ async function onCron(action: string, body: any = {}) {
   }
   if (action.startsWith("receipt:")) return await notifyAdmins(Number(action.slice(8)));
   if (action.startsWith("pxreceipt:")) return await pxNotifyAdmins(Number(action.slice(10)));
+  if (action === "px_promo" || action === "px_promo_now") return await pxPromo(Number(body.limit) || 80, action === "px_promo_now");
   if (action === "px_invite_a" || action === "px_invite_b" || action === "px_invite_now") {
     if (action !== "px_invite_now" && (await cfgGet("px_invite_day")) !== tzDate().toISOString().slice(0, 10)) return { skip: true };
     return await pxInvite(action === "px_invite_b" ? "b" : "a", Number(body.limit) || 80);

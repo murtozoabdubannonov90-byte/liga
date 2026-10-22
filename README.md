@@ -44,6 +44,11 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-22d: Sovrinli musobaqa — har 2 soatda e'lon
+- Har kuni 10:00, 12:00, 14:00, 16:00 (cron `liga-musobaqa-2soat`, bot `px_promo`): ASOSIY guruh(lar)ga e'lon — jamg'arma, peshqadamlar, «Musobaqaga qo'shilish» tugmasi (`?start=px`); slotda 1 marta.
+- Shaxsan (`liga_px_promo_list_sys`): to'lov qilmaganlarga taklif, to'lab bugun o'ynab bo'lmaganlarga eslatma; chek tekshirilayotgan va bugun o'ynab bo'lganlarga yuborilmaydi. Har daqiqada 80 tadan, takrorlanmaydi (`px_promo_last_<kun>_<soat>`). Qo'lda: `select liga_bot_call('px_promo_now')`.
+- SQL: `db/2026-10-22d_musobaqa_har_2_soat.sql`.
+
 ## 2026-10-22c: Sovrinli musobaqa — ishtirokchilar soni (faqat egasiga)
 - Musobaqa sahifasining yuqorisida faqat egasiga (`free_phones` dagi telefon) ko'rinadigan qator: to'lagan, chek kutmoqda, bugun o'ynadi, oyda o'ynagan (har daqiqada yangilanadi). Boshqalarga `liga_px_owner` null qaytaradi — hech narsa ko'rinmaydi.
 - SQL: `db/2026-10-22c_musobaqa_ishtirokchilar_soni.sql`.
