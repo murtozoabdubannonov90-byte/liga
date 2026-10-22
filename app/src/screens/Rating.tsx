@@ -20,11 +20,11 @@ function WeekTab() {
     <div className="stack">
       <DayTopCard />
       <MatchCard />
-      <Card title={t("O'tgan hafta natijalari")} right={L ? <span className="chip">{t("juma 17:00")}</span> : undefined}>
+      <Card title={t("O'tgan hafta natijalari")} right={L ? <span className="chip">{t("juma 18:00")}</span> : undefined}>
         {L && L.rows.length ? <div className="board">{L.rows.map((x: any, k: number) => (
           <div key={k} className={"r" + (k < 3 ? " top" + (k + 1) : "") + (x.me ? " me" : "")}><span className="p">{medal(k)}</span>
             <span className="n">{x.n}</span><span className="x">{x.x}</span></div>))}</div>
-          : <Empty>{t("Birinchi jadval juma soat 17:00 da ochiladi.")}</Empty>}
+          : <Empty>{t("Birinchi jadval juma soat 18:00 da ochiladi.")}</Empty>}
       </Card>
       <Card title={t("Jamoa a'zolari")} right={<span className="chip">{M.length}</span>}>
         {M.length ? <div className="board">{M.map((x, k) => (
@@ -69,7 +69,7 @@ function RegionTab() {
         {rows.length ? <div className="board">{rows.map((x: any, k: number) => (
           <div key={k} className={"r" + (x.rnk <= 3 ? " top" + x.rnk : "") + (x.is_mine ? " me" : "")}><span className="p">{x.rnk}</span>
             <span className="n">{x.name}<small>{x.top3}</small></span><span className="x">{x.team_xp}</span></div>))}</div>
-          : <Empty>{t("Jadval juma 17:00 da shakllanadi.")}</Empty>}
+          : <Empty>{t("Jadval juma 18:00 da shakllanadi.")}</Empty>}
       </Card>
       {others.length > 0 && <Card title={t("Boshqa viloyatlar")}>
         <div className="board">{others.map((r) => { const top = L.find((x: any) => x.region === r && x.rnk === 1); return (
@@ -87,7 +87,7 @@ function ChampsTab() {
           {C.filter((x: any) => x.week_id === w).map((x: any) => (
             <div key={x.pos} className="row" style={{ marginTop: 4, fontWeight: 800 }}><Medal place={x.pos} size={18} label={t("{n}-o'rin", { n: x.pos })} />
               <span className="grow" style={{ color: x.is_me ? "var(--stamp)" : undefined }}>{x.name}</span><span className="num">{x.week_xp}</span></div>))}
-        </div>))}</div> : <Empty>{t("Birinchi chempion juma soat 17:00 da aniqlanadi.")}</Empty>}
+        </div>))}</div> : <Empty>{t("Birinchi chempion juma soat 18:00 da aniqlanadi.")}</Empty>}
     </Card>
   );
 }

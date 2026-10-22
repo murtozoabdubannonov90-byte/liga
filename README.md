@@ -44,6 +44,12 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-23: Liga — har ish kuni 09:00–18:00
+- Bosqich har ish kuni 09:00–18:00 (avval 17:00), liga juma **18:00** da yakunlanadi (natijalar, darajalar 18:01/18:10). Kubok finali 17:00 da qoladi.
+- Server: `liga_close_hour` = 18; `liga_cur_week_id`/`liga_last_week_id` — almashish 13:00 UTC, identifikator yozuvi o'zgarmagan ("juma T07:00"). Ilova: `CLOSE_H`/`FRI_CLOSE_H` = 18, `weekId` = weekEnd − 6 soat.
+- Cron (UTC): liga-eslatma 12:00, liga-kun-oxiri 13:00, liga-juma-11 12:00 (juma), liga-tugadi 13:01, liga-darajalar 13:10. SMS eslatma 16:00–17:30.
+- SQL: `db/2026-10-22e_liga_18_00.sql` (22.10 soat 17:00 dan keyin qo'llandi, bugungi bosqich 17:00 da yopildi).
+
 ## 2026-10-22d: Sovrinli musobaqa — guruhga 3 marta, shaxsan 2 marta e'lon
 - Guruhga kuniga 3 marta — 10:00 («💥 BOOM YANGILIK»), 12:00 («🔥 Diqqat, buxgalterlar»), 15:00 («⏰ Oxirgi N soat»): jamg'arma, peshqadamlar, «🚀 Musobaqaga qo'shilish» tugmasi (`?start=px`); slotda 1 marta (cron `liga-musobaqa-2soat`, bot `px_promo`).
 - Shaxsan kuniga 2 marta — 10:00 va 15:00 (`PX_DM_SLOTS`, `liga_px_promo_list_sys`): to'lov qilmaganlarga taklif, to'lab bugun o'ynab bo'lmaganlarga eslatma; chek tekshirilayotgan va bugun o'ynab bo'lganlarga yuborilmaydi. Har daqiqada 80 tadan, takrorlanmaydi (`px_promo_last_<kun>_<soat>`). Qo'lda: `select liga_bot_call('px_promo_now')`.

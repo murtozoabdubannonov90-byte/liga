@@ -88,7 +88,7 @@ export const giftDone = () => S.gift === today();
 export const giftCorrect = () => (S.daily.d === today() ? S.daily.n : 0);
 export const giftReady = () => !giftDone() && giftCorrect() >= GIFT_NEED;
 
-/* hafta almashuvi: juma 17:00 */
+/* hafta almashuvi: juma 18:00 */
 export function checkWeek(): boolean {
   const id = weekId();
   if (!S.week.id) { S.week.id = id; persist(); return false; }

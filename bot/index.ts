@@ -51,8 +51,8 @@ const RU: Record<string, string> = {
   "✅ <b>{s}-bosqich yakunlandi!</b>\n🎯 {r}/{t} to'g'ri {st}\n💰 Bosqich bali: <b>{x}</b>\n📊 Shu hafta jami: <b>{w} ball</b>\n\n{next}": "✅ <b>Этап {s} пройден!</b>\n🎯 Верно: {r}/{t} {st}\n💰 Баллы за этап: <b>{x}</b>\n📊 Всего за неделю: <b>{w} баллов</b>\n\n{next}",
   "Ertaga 09:00 da yangi bosqich ochiladi.": "Завтра в 09:00 откроется новый этап.",
   "Dushanba 09:00 da yangi bosqich ochiladi.": "В понедельник в 09:00 откроется новый этап.",
-  "Liga bugun 17:00 da yakunlanadi — natijalar shu yerga keladi.": "Лига завершится сегодня в 17:00 — результаты придут сюда.",
-  "Natijalar juma 17:00 da shu yerga keladi.": "Результаты придут сюда в пятницу в 17:00.",
+  "Liga bugun 18:00 da yakunlanadi — natijalar shu yerga keladi.": "Лига завершится сегодня в 18:00 — результаты придут сюда.",
+  "Natijalar juma 18:00 da shu yerga keladi.": "Результаты придут сюда в пятницу в 18:00.",
   "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.": "☀️ <b>Доброе утро, {n}!</b>\nСегодня открыт <b>этап {s}</b> — 20 вопросов.\n⏰ Открыт до {c}.",
   "Bosqichni boshlash": "Начать этап",
   "📢 <b>Hisobchi Liga — muhim yangiliklar!</b>\n\n1️⃣ <b>Ertadan (14-oktabr) yangi kunlik reja:</b> har kuni o'z mavzusi — 15 provodka + 5 qonun savoli (Soliq kodeksi, Prezident farmon va qarorlari). Oy oxirigacha osondan qiyinga.\n\n2️⃣ <b>Oktabr reytingi 12-oktabr (dushanba)dan hisoblanmoqda</b> — undan oldingi ballar kirmaydi. Har bir bosqich bali muhim!\n\n3️⃣ 🏆 <b>Katta final — 28-dekabr:</b> oktabr va noyabrning kuchli uchligi (6 kishi) bellashadi.\n\n4️⃣ ⚔️ <b>Kunlik duel kubogi</b> 09:00 dan boshlanadi, final — 17:00 da (13:00–14:00 — tanaffus).\n\n5️⃣ 🥇🥈🥉 Haftalik kuchli uchlikka o'ringa qarab <b>medal va QR kodli sertifikat</b> — juma kuni avtomatik beriladi.\n\n6️⃣ Endi «XP» o'rniga <b>ball</b> deymiz — har bir to'g'ri javob uchun beriladigan ochko. Reyting shu ball bo'yicha.\n\nErtaga soat 09:00 da — 1-kun: «Kassa va bank». Omad! 💪": "📢 <b>Hisobchi Liga — важные новости!</b>\n\n1️⃣ <b>С завтрашнего дня (14 октября) — новый план:</b> у каждого дня своя тема — 15 проводок + 5 вопросов по законодательству (Налоговый кодекс, указы и постановления Президента). До конца месяца — от простого к сложному.\n\n2️⃣ <b>Рейтинг октября считается с 12 октября (понедельник)</b> — более ранние баллы не учитываются. Важен балл каждого этапа!\n\n3️⃣ 🏆 <b>Большой финал — 28 декабря:</b> сразятся тройки октября и ноября (6 человек).\n\n4️⃣ ⚔️ <b>Кубок дуэлей дня</b> начинается в 09:00, финал — в 17:00 (13:00–14:00 — перерыв).\n\n5️⃣ 🥇🥈🥉 Тройке недели — <b>медаль по месту и сертификат с QR-кодом</b>, выдаются автоматически в пятницу.\n\n6️⃣ Вместо «XP» теперь говорим <b>баллы</b> — очки за каждый верный ответ. Рейтинг считается по баллам.\n\nЗавтра в 09:00 — день 1: «Касса и банк». Удачи! 💪",
@@ -150,8 +150,8 @@ async function checkInit(initData: string): Promise<any | null> {
 }
 const appBtn = (text: string, q = "") => ({ inline_keyboard: [[{ text, web_app: { url: APP + q } }]] });
 const pause = (ms: number) => new Promise((r) => setTimeout(r, ms));
-// har ish kuni (juma ham) — bosqich 17:00 gacha; liga juma 17:00 da tugaydi
-const closeStr = (_w: number) => "17:00";
+// har ish kuni (juma ham) — bosqich 18:00 gacha; liga juma 18:00 da tugaydi
+const closeStr = (_w: number) => "18:00";   // 2026-10-23 dan (avval 17:00)
 const stars = (n: number) => (n > 0 ? "⭐".repeat(Math.min(3, n)) : "");
 // bugun jamoada nechta kishi bosqichni o'ynadi
 async function todayCounts(): Promise<Record<string, { played: number; total: number }>> {
@@ -982,7 +982,7 @@ async function onUpdate0(u: any) {
       await db.from("liga_bot_chats").upsert({ chat_id: cm.chat.id, title: cm.chat.title, active: true });
       if (was) return;   // allaqachon jamoaga ulangan guruh (masalan, bot qayta qo'shildi) — salom xabari va /ulash ko'rsatmasi kerak emas
       await tg("sendMessage", { chat_id: cm.chat.id, parse_mode: "HTML", reply_markup: openBot(await chatGroup(cm.chat.id)),
-        text: "👋 Salom, buxgalterlar!\n\n<b>Hisobchi Liga</b> — haftalik musobaqa:\n• har ish kuni 09:00–17:00 da yangi bosqich (20 savol);\n• liga dushanbadan <b>juma 17:00</b> gacha;\n• hafta davomida natijangizni faqat o'zingiz ko'rasiz;\n• yakuniy jadval juma 17:00 da shu guruhga chiqadi.\n\n🔗 Jamoa administratori: guruhda <b>/ulash KOD</b> deb yozing (kod admin panelda).\nBoshlash uchun pastdagi tugmani bosing." });
+        text: "👋 Salom, buxgalterlar!\n\n<b>Hisobchi Liga</b> — haftalik musobaqa:\n• har ish kuni 09:00–18:00 da yangi bosqich (20 savol);\n• liga dushanbadan <b>juma 18:00</b> gacha;\n• hafta davomida natijangizni faqat o'zingiz ko'rasiz;\n• yakuniy jadval juma 18:00 da shu guruhga chiqadi.\n\n🔗 Jamoa administratori: guruhda <b>/ulash KOD</b> deb yozing (kod admin panelda).\nBoshlash uchun pastdagi tugmani bosing." });
     } else if (st === "left" || st === "kicked") {
       await db.from("liga_bot_chats").update({ active: false }).eq("chat_id", cm.chat.id);
       // muhokama guruhidan bot chiqarilsa — havola ishlamay qoladi; adminni darhol ogohlantirish
@@ -1078,7 +1078,7 @@ async function onUpdate0(u: any) {
     const { data: freeN } = priv && (!code || code === "ASOSIY") ? await db.rpc("liga_free_days") : { data: 0 };
     const freeLine = Number(freeN) > 0 ? `🎁 <b>Yangi a'zolarga birinchi ${Number(freeN)} kun bepul!</b> Ro'yxatdan o'ting va darhol o'ynang.\n\n` : "";
     await reply(priv
-      ? `🏆 <b>Hisobchi Liga</b>${gname ? ` — «${esc(gname)}»` : ""}\n\nProvodka, QQS, ish haqi, soliq va hisobotlar bo'yicha har kuni yangi bosqich. Har ish kuni (juma ham) 09:00–17:00.\n\n${freeLine}${code ? `Jamoa kodi: <b>${esc(code)}</b> — ro'yxatdan o'tishda avtomatik qo'yiladi.\n\n` : ""}Ilovani ochish uchun tugmani bosing:`
+      ? `🏆 <b>Hisobchi Liga</b>${gname ? ` — «${esc(gname)}»` : ""}\n\nProvodka, QQS, ish haqi, soliq va hisobotlar bo'yicha har kuni yangi bosqich. Har ish kuni (juma ham) 09:00–18:00.\n\n${freeLine}${code ? `Jamoa kodi: <b>${esc(code)}</b> — ro'yxatdan o'tishda avtomatik qo'yiladi.\n\n` : ""}Ilovani ochish uchun tugmani bosing:`
       : "🏆 Ligani ochish uchun tugmani bosing:", priv ? openApp(code) : openBot(code));
   } else if (cmd === "/ulash") {
     if (priv) return reply("Bu buyruq Telegram guruhda ishlaydi: botni guruhga qo'shing va guruhda <b>/ulash KOD</b> deb yozing.");
@@ -1137,7 +1137,7 @@ async function onUpdate0(u: any) {
     const code = priv ? "ASOSIY" : await chatGroup(m.chat.id);
     await reply(await resultsText(code), priv ? openApp(code) : openBot(code));
   } else if (cmd === "/qoida") {
-    await reply("📋 <b>Qoidalar</b>\n• Har ish kuni 09:00–17:00 da (juma ham) yangi bosqich: 15 ta provodka + 5 ta qonun, kodeks va qarorlar savoli (oyning boshidan oxirigacha — osondan qiyinga).\n• Har savolga 2 daqiqa — hamma uchun teng; har savolga faqat bir marta javob. Xatoning sababi darhol ko'rsatiladi.\n• Ligaga to'lov: kartaga o'tkazib, chekni yuborasiz; administrator pul tushganini tasdiqlagach bosqichlar ochiladi.\n• Liga bali faqat bosqichlardan; kunlik mashq va blits — alohida.\n• Liga — dushanbadan juma 17:00 gacha. Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Juma 17:00 da jadval e'lon qilinadi; kuchli uchlik nishon va sertifikat oladi.");
+    await reply("📋 <b>Qoidalar</b>\n• Har ish kuni 09:00–18:00 da (juma ham) yangi bosqich: 15 ta provodka + 5 ta qonun, kodeks va qarorlar savoli (oyning boshidan oxirigacha — osondan qiyinga).\n• Har savolga 2 daqiqa — hamma uchun teng; har savolga faqat bir marta javob. Xatoning sababi darhol ko'rsatiladi.\n• Ligaga to'lov: kartaga o'tkazib, chekni yuborasiz; administrator pul tushganini tasdiqlagach bosqichlar ochiladi.\n• Liga bali faqat bosqichlardan; kunlik mashq va blits — alohida.\n• Liga — dushanbadan juma 18:00 gacha. Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Juma 18:00 da jadval e'lon qilinadi; kuchli uchlik nishon va sertifikat oladi.");
   }
 }
 
@@ -1337,7 +1337,7 @@ async function discussPin() {
   const share = "https://t.me/share/url?url=" + encodeURIComponent(cfg.link) + "&text=" + encodeURIComponent("Hisobchi Liga — buxgalterlar guruhi. Qo'shiling:");
   const text = "📌 <b>Hisobchi Liga — ishtirokchilar guruhi</b>\n\n" +
     "🔗 Guruh havolasi — hamkasbingizga yuboring:\n" + cfg.link + "\n\n" +
-    "• Har ish kuni 09:00–17:00 — yangi bosqich (juma ham 17:00 gacha).\n" +
+    "• Har ish kuni 09:00–18:00 — yangi bosqich (juma ham 18:00 gacha).\n" +
     "• Duelga chaqirish: guruhda /duel yozing — birinchi qabul qilgan o'ynaydi, natija shu yerga chiqadi.\n" +
     "• Savol, provodka, qonun — bemalol muhokama qiling. Reklama mumkin emas, bot o'chiradi.";
   const kb = { inline_keyboard: [[{ text: "📤 Havolani yuborish", url: share }], [{ text: "🏆 Ligani ochish", url: deep("ASOSIY") }]] };
@@ -1372,8 +1372,8 @@ async function fetchRates() {
 // Matnlar o'zgarmas — Eskiz kabinetida shablon sifatida tasdiqlatiladi (o'zgaruvchisiz, shuning uchun moderatsiya oson).
 const ESKIZ = "https://notify.eskiz.uz/api";
 const SMS_TEXT: Record<string, Record<string, string>> = {
-  stage: { uz: "Hisobchi Liga: bugungi bosqich hali bajarilmagan. Soat 17:00 gacha vaqt bor. Kirish: t.me/Buxgalterlar_Ligasi_bot",
-           ru: "Hisobchi Liga: этап сегодня не пройден. Успейте до 17:00: t.me/Buxgalterlar_Ligasi_bot" },
+  stage: { uz: "Hisobchi Liga: bugungi bosqich hali bajarilmagan. Soat 18:00 gacha vaqt bor. Kirish: t.me/Buxgalterlar_Ligasi_bot",
+           ru: "Hisobchi Liga: этап сегодня не пройден. Успейте до 18:00: t.me/Buxgalterlar_Ligasi_bot" },
   duel: { uz: "Hisobchi Liga: kubok duelingiz ochildi, raqibingiz kutmoqda. Vaqtida kirmasangiz yutqazasiz. Kirish: t.me/Buxgalterlar_Ligasi_bot",
           ru: "Hisobchi Liga: дуэль кубка открыта, соперник ждёт: t.me/Buxgalterlar_Ligasi_bot" },
 };
@@ -1464,7 +1464,7 @@ async function onCron(action: string, body: any = {}) {
       const si = todayStage(g.start_date);
       if (si === null) return null;                       // jamoa hali boshlanmagan
       const head = w === 1
-        ? "🚀 <b>Yangi liga haftasi boshlandi!</b>\n\nLiga bugundan <b>juma soat 17:00</b> gacha davom etadi."
+        ? "🚀 <b>Yangi liga haftasi boshlandi!</b>\n\nLiga bugundan <b>juma soat 18:00</b> gacha davom etadi."
         : "☀️ <b>Bugungi o'yin boshlandi!</b>";
       const topic = plan ? `${plan.icon ? plan.icon + " " : ""}${esc(plan.title?.uz ?? "")}` : TITLES[si];
       const what = plan ? "15 provodka + 5 qonun savoli, " + plan.level + "-daraja qiyinlik" : "20 savol";
@@ -1513,7 +1513,7 @@ async function onCron(action: string, body: any = {}) {
         const o = gm2[op]; if (!o) continue;
         for (const c of await chatsOf(me)) {
           await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(me),
-            text: `⚔️ <b>Jamoalar bellashuvi!</b>\n\nBu hafta raqibingiz: <b>«${esc(o.name)}»</b>.\nJamoa bali — eng yaxshi 3 kishining haftalik bali yig'indisi.\nG'olib juma 17:00 da e'lon qilinadi. Har kuni bosqichni bajaring — jamoangizni yutqazib qo'ymang! 💪` });
+            text: `⚔️ <b>Jamoalar bellashuvi!</b>\n\nBu hafta raqibingiz: <b>«${esc(o.name)}»</b>.\nJamoa bali — eng yaxshi 3 kishining haftalik bali yig'indisi.\nG'olib juma 18:00 da e'lon qilinadi. Har kuni bosqichni bajaring — jamoangizni yutqazib qo'ymang! 💪` });
           pairs++;
         }
       }
@@ -1629,7 +1629,7 @@ async function onCron(action: string, body: any = {}) {
   if (action === "remind") {
     // juma kuni eslatma friday_warn (16:00) da ketadi — u liga yakunini ham eslatadi
     if (w < 1 || w > 4 || !(await once("remind"))) return { skip: true };
-    return await remindAll(w, "⏰ <b>Eslatma:</b> bugungi bosqich yopilishiga <b>1 soat</b> qoldi — soat 17:00 gacha bajaring!");
+    return await remindAll(w, "⏰ <b>Eslatma:</b> bugungi bosqich yopilishiga <b>1 soat</b> qoldi — soat 18:00 gacha bajaring!");
   }
   if (action === "tiers") {
     if (!(await once("tiers"))) return { skip: "already" };
@@ -1648,10 +1648,10 @@ async function onCron(action: string, body: any = {}) {
     return { ok: true, players: n, notified: msg };
   }
   if (action === "day_end") {
-    // juma: bosqich 17:00 da yopiladi, o'sha paytda haftalik natijalar chiqadi (league_end) — alohida xabar kerak emas
+    // juma: bosqich 18:00 da yopiladi, o'sha paytda haftalik natijalar chiqadi (league_end) — alohida xabar kerak emas
     if (w < 1 || w > 4 || !(await once("day_end"))) return { skip: true };
-    const tail = w === 4 ? "Ertaga — haftaning oxirgi kuni: bosqich <b>09:00–17:00</b>, liga <b>juma 17:00</b> da yakunlanadi va natijalar shu guruhga chiqadi." :
-      "Ertaga soat 09:00 da yangi bosqich ochiladi. Liga natijalari <b>juma 17:00</b> da e'lon qilinadi.";
+    const tail = w === 4 ? "Ertaga — haftaning oxirgi kuni: bosqich <b>09:00–18:00</b>, liga <b>juma 18:00</b> da yakunlanadi va natijalar shu guruhga chiqadi." :
+      "Ertaga soat 09:00 da yangi bosqich ochiladi. Liga natijalari <b>juma 18:00</b> da e'lon qilinadi.";
     const cnt = await todayCounts(); let winners = 0;
     const sent = await toChats(async (g) => {
       if (todayStage(g.start_date) === null) return null;
@@ -1665,7 +1665,7 @@ async function onCron(action: string, body: any = {}) {
   }
   if (action === "friday_warn") {
     if (w !== 5 || !(await once("friday_warn"))) return { skip: true };
-    return await remindAll(5, "⏳ <b>Liga tugashiga 1 soat qoldi!</b>\n\nSoat 17:00 da bugungi bosqich yopiladi va haftalik liga yakunlanadi. Oxirgi imkoniyat — ballaringizni oshiring! 🔥");
+    return await remindAll(5, "⏳ <b>Liga tugashiga 1 soat qoldi!</b>\n\nSoat 18:00 da bugungi bosqich yopiladi va haftalik liga yakunlanadi. Oxirgi imkoniyat — ballaringizni oshiring! 🔥");
   }
   if (action === "results" || action === "league_end") {
     if (!(await once("league_end"))) return { skip: true };
@@ -1777,7 +1777,7 @@ async function onApp(req: Request) {
     if (!(await once(`sd_${b.p_id}_${si}`))) return jres({ ok: true, dup: true });
     const ws = (p.week_stages ?? {}) as Record<string, number>, x = Number(ws[String(si)] ?? 0);
     const week = Object.values(ws).reduce((a, v) => a + (Number(v) || 0), 0), w = tzDate().getUTCDay();
-    const next = w === 5 ? tr(p.lang, "Liga bugun 17:00 da yakunlanadi — natijalar shu yerga keladi.") : w === 4 ? tr(p.lang, "Ertaga 09:00 da yangi bosqich ochiladi.") + " " + tr(p.lang, "Natijalar juma 17:00 da shu yerga keladi.")
+    const next = w === 5 ? tr(p.lang, "Liga bugun 18:00 da yakunlanadi — natijalar shu yerga keladi.") : w === 4 ? tr(p.lang, "Ertaga 09:00 da yangi bosqich ochiladi.") + " " + tr(p.lang, "Natijalar juma 18:00 da shu yerga keladi.")
       : tr(p.lang, "Ertaga 09:00 da yangi bosqich ochiladi.");
     const total = Math.max(1, Math.min(20, Number(b.total) || 20)), right = Math.max(0, Math.min(total, Number(b.right) || 0));
     const ok = await dm(p.tg_user_id, tr(p.lang, "✅ <b>{s}-bosqich yakunlandi!</b>\n🎯 {r}/{t} to'g'ri {st}\n💰 Bosqich bali: <b>{x}</b>\n📊 Shu hafta jami: <b>{w} ball</b>\n\n{next}",

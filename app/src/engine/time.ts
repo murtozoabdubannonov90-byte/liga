@@ -1,6 +1,6 @@
 /* Vaqt — Toshkent (UTC+5), telefon soat mintaqasidan qat'i nazar.
-   Bosqichlar ish kunlari bo'yicha, o'z kunida 09:00–17:00 (juma ham); liga juma 17:00 da tugaydi. */
-export const OPEN_H = 9, CLOSE_H = 17, FRI_CLOSE_H = 17, STAGE_N = 12;
+   Bosqichlar ish kunlari bo'yicha, o'z kunida 09:00–18:00 (juma ham); liga juma 18:00 da tugaydi (2026-10-23 dan; avval 17:00). */
+export const OPEN_H = 9, CLOSE_H = 18, FRI_CLOSE_H = 18, STAGE_N = 12;
 /* shu hafta kunida bosqich yopiladigan soat (wd: 0 yakshanba … 5 juma) */
 export const closeH = (wd: number) => (wd === 5 ? FRI_CLOSE_H : CLOSE_H);
 export const closeStr = (wd?: number) => closeH(wd ?? tzNow().wd) + ":00";
@@ -30,16 +30,16 @@ export const unlocked = (i: number) => stageState(i) !== "future";
 export function todayStage(): number | null { const d = tzNow().day; for (let i = 0; i < STAGE_N; i++) if (dkey(stageDate(i)) === d) return i; return null; }
 export const isWeekend = () => { const d = tzNow().wd; return d === 0 || d === 6; };
 
-/* hafta: juma 17:00 (Toshkent) = 12:00 UTC da tugaydi; telefon soat mintaqasiga bog'liq emas */
+/* hafta: juma 18:00 (Toshkent) = 13:00 UTC da tugaydi; telefon soat mintaqasiga bog'liq emas */
 export function weekEnd(d?: Date) {
   const now = d ? d.getTime() : Date.now(), t = new Date(now + 5 * 3600e3);
-  const f = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), 17));
+  const f = new Date(Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate(), FRI_CLOSE_H));
   f.setUTCDate(f.getUTCDate() + ((5 - t.getUTCDay() + 7) % 7)); if (f.getTime() <= t.getTime()) f.setUTCDate(f.getUTCDate() + 7);
   return new Date(f.getTime() - 5 * 3600e3);
 }
-/* hafta identifikatori serverdagi bilan bir xil: juma sanasi + "T07:00" (yozuv o'zgarmagan, almashish payti 17:00) */
-export const weekId = (d?: Date) => new Date(weekEnd(d).getTime() - 5 * 3600e3).toISOString().slice(0, 16);
-export function weekendNow() { const n = tzNow(); return n.wd === 6 || n.wd === 0 || (n.wd === 5 && n.h >= 17); }
+/* hafta identifikatori serverdagi bilan bir xil: juma sanasi + "T07:00" (yozuv o'zgarmagan, almashish payti endi 18:00 — shuning uchun -6 soat) */
+export const weekId = (d?: Date) => new Date(weekEnd(d).getTime() - (5 + FRI_CLOSE_H - 17) * 3600e3).toISOString().slice(0, 16);
+export function weekendNow() { const n = tzNow(); return n.wd === 6 || n.wd === 0 || (n.wd === 5 && n.h >= FRI_CLOSE_H); }
 /* joriy hafta kunlari (Du..Ju) — sanalar */
 export function weekDays(): Date[] { const n = ymd(tzNow().day), wd = n.getDay(); const mon = new Date(n); mon.setDate(n.getDate() - ((wd + 6) % 7)); if (wd === 6 || wd === 0) mon.setDate(mon.getDate() + 7); return [0, 1, 2, 3, 4].map((k) => { const d = new Date(mon); d.setDate(mon.getDate() + k); return d; }); }
 export function stageOfDate(d: Date): number | null { const st = ligaStart(); if (!isWd(d) || d < st) return null; return workdaysBefore(st, d) % STAGE_N; }

@@ -7,7 +7,7 @@ import { CountUp } from "../components/ui";
 import { burst, sfx } from "../lib/fx";
 import { pull } from "../engine/server";
 
-/* juma 17:00 dan keyin birinchi ochilganda — hafta yakuni */
+/* juma 18:00 dan keyin birinchi ochilganda — hafta yakuni */
 export default function WeekEnd() {
   const d = S.pending || { my: S.lastWeekXp, xp: 0 };
   useEffect(() => { pull(true); if (d.my > 0) { burst(true); sfx("win"); } S.pending = null; persist(); }, []);

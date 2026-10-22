@@ -133,9 +133,9 @@ export function FirstStepCard() {
     <section className="card" id="first-step" style={{ borderColor: "var(--green)" }}>
       <div className="card-h"><Rocket size={20} color="var(--green)" /><h3>{t("Birinchi bosqichingiz")}</h3></div>
       <ol className="small" style={{ margin: "6px 0 10px", paddingLeft: 18, fontWeight: 600, lineHeight: 1.5 }}>
-        <li>{t("Har ish kuni 09:00–17:00 da yangi bosqich ochiladi: 20 savol, taxminan 15 daqiqa.")}</li>
+        <li>{t("Har ish kuni 09:00–18:00 da yangi bosqich ochiladi: 20 savol, taxminan 15 daqiqa.")}</li>
         <li>{t("Xato qilsangiz — to'g'ri javob va tushuntirish ko'rsatiladi.")}</li>
-        <li>{t("Natijangizni hafta davomida faqat siz ko'rasiz. Jadval juma 17:00 da ochiladi.")}</li>
+        <li>{t("Natijangizni hafta davomida faqat siz ko'rasiz. Jadval juma 18:00 da ochiladi.")}</li>
       </ol>
       {open
         ? <button className="btn" id="first-go" onClick={() => go("intro", { si })}>{t("Birinchi bosqichni boshlash")}</button>
@@ -161,7 +161,7 @@ function WeekLedger() {
       <div className="total-line"><span className="big num"><CountUp to={my} id="week" /></span><span className="muted" style={{ fontWeight: 700 }}>{t("ball bu hafta")}</span>
         <span className="grow" /><span className="chip gold"><Trophy size={13} />{t("maqsad")} {WEEK_GOAL}</span></div>
       <div className="meter" style={{ marginTop: 10 }}><motion.i initial={{ width: 0 }} animate={{ width: Math.min(100, (my / WEEK_GOAL) * 100) + "%" }} transition={{ duration: 0.9, ease: "easeOut" }} /></div>
-      <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Hafta davomida natijangizni faqat siz ko'rasiz. Jadval juma 17:00 da ochiladi.")}</p>
+      <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Hafta davomida natijangizni faqat siz ko'rasiz. Jadval juma 18:00 da ochiladi.")}</p>
     </section>
   );
 }
