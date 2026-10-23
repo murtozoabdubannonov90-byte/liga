@@ -1713,6 +1713,17 @@ async function onCron(action: string, body: any = {}) {
     if (action === "daily_report" && !(await once("daily_report"))) return { skip: "already" };
     return await dailyReport();
   }
+  if (action === "announce_18") {
+    // 23.10.2026: liga endi 09:00–18:00 — guruhlar va kanallarga bir marta (cron liga-elon-18, 08:30)
+    if (!(await once("announce_18"))) return { skip: "already" };
+    const text = "📢 <b>Hisobchi Liga — yangilik: endi 1 soat ko'proq vaqt!</b>\n\n" +
+      "⏰ Bugundan boshlab kunlik bosqich har ish kuni <b>09:00 dan 18:00 gacha</b> ochiq (avval 17:00 edi).\n" +
+      "🏁 Haftalik liga <b>juma soat 18:00</b> da yakunlanadi — natijalar, medal va sertifikatlar shu payt chiqadi.\n" +
+      "⚔️ Duel kubogi finali avvalgidek <b>17:00</b> da.\n\n" +
+      "Ish kuni tugaguncha bemalol ulgurasiz — bugun juma, haftaning oxirgi bosqichi. Omad! 💪";
+    const sent = await toChats(() => text);
+    return { ok: true, groups: sent, channels: await toChannels(text, openBot("ASOSIY")) };
+  }
   if (action === "announce_oct") {
     // 13.10.2026: oktyabr yangiliklari — hammaga bir marta (guruhlar + har o'yinchiga shaxsan)
     if (!(await once("announce_oct"))) return { skip: "already" };

@@ -49,6 +49,7 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Server: `liga_close_hour` = 18; `liga_cur_week_id`/`liga_last_week_id` — almashish 13:00 UTC, identifikator yozuvi o'zgarmagan ("juma T07:00"). Ilova: `CLOSE_H`/`FRI_CLOSE_H` = 18, `weekId` = weekEnd − 6 soat.
 - Cron (UTC): liga-eslatma 12:00, liga-kun-oxiri 13:00, liga-juma-11 12:00 (juma), liga-tugadi 13:01, liga-darajalar 13:10. SMS eslatma 16:00–17:30.
 - SQL: `db/2026-10-22e_liga_18_00.sql` (22.10 soat 17:00 dan keyin qo'llandi, bugungi bosqich 17:00 da yopildi).
+- E'lon: 23.10 08:30 da guruh va kanallarga bir marta (bot `announce_18`, cron `liga-elon-18` o'zini o'chiradi).
 
 ## 2026-10-22d: Sovrinli musobaqa — guruhga 3 marta, shaxsan 2 marta e'lon
 - Guruhga kuniga 3 marta — 10:00 («💥 BOOM YANGILIK»), 12:00 («🔥 Diqqat, buxgalterlar»), 15:00 («⏰ Oxirgi N soat»): jamg'arma, peshqadamlar, «🚀 Musobaqaga qo'shilish» tugmasi (`?start=px`); slotda 1 marta (cron `liga-musobaqa-2soat`, bot `px_promo`).
