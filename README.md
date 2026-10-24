@@ -44,6 +44,13 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-24: Botda savol-javob (AI internetdan qidiradi)
+- Shaxsiy chatda savolni shunchaki yozish yoki istalgan joyda `/savol matn` — bot AI (Anthropic Claude + web search) orqali lex.uz, soliq.uz va boshqa manbalardan eng so'nggi ma'lumotni qidirib, manbalari bilan javob beradi (uz/ўз/ru).
+- O'yin vaqtida yopiq: ochiq bosqich, bugungi tugallanmagan musobaqa sessiyasi yoki jonli duel bo'lsa — javob yo'q (`liga_ai_busy_sys`). 09:00–18:00 da liga/musobaqa savoliga o'xshash savolga ham javob yo'q (liga_bank bilan so'z o'xshashligi ≥60%).
+- Limit: kishiga kuniga 5 ta (`ai_user_day`), hammaga 300 ta (`ai_day_cap`); liga adminlari cheklanmaydi. Jurnal: `liga_ai_log`.
+- Kalit: Supabase Secrets → `ANTHROPIC_API_KEY` yoki admin botda `/ai_kalit KALIT`. Boshqaruv: `/ai` (holat, bugungi xarajat), `/ai on|off`, `/ai limit N`, `/ai cap N`, `/ai model NOM` (standart `claude-sonnet-4-5`).
+- SQL: `db/2026-10-24_bot_savol_javob.sql`. Shu kuni guruhlarga bir martalik e'lon ham ketdi: AI taqiqi qoidasi + shanba duellari (`announce_ai_rule`).
+
 ## 2026-10-23: Liga — har ish kuni 09:00–18:00
 - Bosqich har ish kuni 09:00–18:00 (avval 17:00), liga juma **18:00** da yakunlanadi (natijalar, darajalar 18:01/18:10). Kubok finali 17:00 da qoladi.
 - Server: `liga_close_hour` = 18; `liga_cur_week_id`/`liga_last_week_id` — almashish 13:00 UTC, identifikator yozuvi o'zgarmagan ("juma T07:00"). Ilova: `CLOSE_H`/`FRI_CLOSE_H` = 18, `weekId` = weekEnd − 6 soat.

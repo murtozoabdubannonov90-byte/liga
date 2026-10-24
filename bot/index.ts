@@ -126,6 +126,17 @@ const RU: Record<string, string> = {
   "⏰ <b>{n}, bugungi bosqich yopilishiga 1 soat qoldi.</b>\nHali birorta bosqich o'ynamadingiz — hoziroq birinchisini boshlang, 15 daqiqa yetadi.": "⏰ <b>{n}, до закрытия этапа остался 1 час.</b>\nВы ещё не прошли ни одного этапа — начните первый сейчас, хватит 15 минут.",
   "☀️ <b>{n}, sizni sog'indik!</b>\nBir necha kundan beri bosqich o'ynamadingiz. Bugun <b>{s}-bosqich</b> ochiq — haftalik ligaga qayting.\n⏰ Soat {c} gacha.": "☀️ <b>{n}, мы скучали!</b>\nВы несколько дней не проходили этапы. Сегодня открыт <b>этап {s}</b> — возвращайтесь в недельную лигу.\n⏰ До {c}.",
   "🕛 <b>{n}, bugun qaytasizmi?</b>\n{s}-bosqich soat {c} gacha ochiq. Har kuni bitta bosqich — haftalik ligada o'rningizni saqlaysiz.": "🕛 <b>{n}, вернётесь сегодня?</b>\nЭтап {s} открыт до {c}. Один этап в день — и вы сохраните место в недельной лиге.",
+  "ℹ️ Savol-javob vaqtincha o'chirilgan.": "ℹ️ Вопрос-ответ временно отключён.",
+  "✍️ Savolingizni to'liqroq yozing. Masalan: <i>2026-yilda QQS stavkasi qancha?</i>": "✍️ Напишите вопрос подробнее. Например: <i>Какая ставка НДС в 2026 году?</i>",
+  "⏳ Siz hozir o'yindasiz — o'yin paytida savol-javob yopiq. O'yinni tugatgach, savolingizni qayta yuboring.": "⏳ Вы сейчас в игре — во время игры вопрос-ответ закрыт. Завершите игру и отправьте вопрос снова.",
+  "🚫 Bu savol liga yoki musobaqa savoliga juda o'xshaydi. Bunday savollarga 18:00 dan keyin javob beraman.": "🚫 Этот вопрос очень похож на вопрос лиги или конкурса. На такие вопросы отвечаю после 18:00.",
+  "📵 Bugungi savollar limiti tugadi ({n} ta). Ertaga yana so'rang!": "📵 Лимит вопросов на сегодня исчерпан ({n}). Спросите завтра!",
+  "📵 Bugun savollar juda ko'p bo'ldi — ertaga yana so'rang!": "📵 Сегодня было слишком много вопросов — спросите завтра!",
+  "🔎 Qidiryapman, eng so'nggi ma'lumotni tekshiryapman...": "🔎 Ищу, проверяю самую свежую информацию...",
+  "😔 Hozir javob bera olmadim. Birozdan keyin qayta urinib ko'ring.": "😔 Сейчас не удалось ответить. Попробуйте чуть позже.",
+  "Manbalar": "Источники",
+  "🤖 Javobni AI internetdan qidirib tayyorladi. Muhim qarordan oldin manbani tekshiring.": "🤖 Ответ подготовлен ИИ по данным из интернета. Перед важным решением проверьте источник.",
+  "❓ <b>Buxgalteriya savolingiz bormi?</b>\nYozing: <code>/savol savolingiz</code>\nMasalan: <code>/savol 2026-yilda QQS stavkasi qancha?</code>\nShaxsiy chatda esa savolni shunchaki yozib yuboring.": "❓ <b>Есть вопрос по бухгалтерии?</b>\nНапишите: <code>/savol ваш вопрос</code>\nНапример: <code>/savol Какая ставка НДС в 2026 году?</code>\nВ личном чате просто отправьте вопрос.",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
 function tr(lang: string | null | undefined, uz: string, v: Record<string, string | number> = {}) {
@@ -1133,12 +1144,167 @@ async function onUpdate0(u: any) {
     const task = (async () => { await discussPin().catch(() => {}); const r: any = await inviteAll(1000); await reply(`📨 Taklif yuborildi: <b>${r.sent ?? 0}</b> kishiga\n✅ Guruhda allaqachon bor: ${r.in ?? 0}\n⚠️ Yetib bormadi (botni bloklagan): ${r.fail ?? 0}\n\nTelegram'i ulanmagan ishtirokchilar havolani ilovaning bosh sahifasida ko'radi. Yangi qo'shilganlarga bot har kuni ertalab yuboradi.\n\nHavola: ${link}`); })().catch((e) => console.error(e));
     const ER = (globalThis as any).EdgeRuntime; if (ER?.waitUntil) ER.waitUntil(task); else await task;
     return;
+  } else if (cmd === "/ai_kalit" || cmd === "/ai") {
+    // faqat liga administratori: AI kalitini qo'yish, yoqish/o'chirish, limitlar, holat
+    if (!priv) { await tg("deleteMessage", { chat_id: m.chat.id, message_id: m.message_id }); return; }
+    if (!(await isLigaAdmin(m.from?.id ?? 0))) return reply("⛔ Bu buyruq faqat liga administratori uchun.");
+    const args = text.split(/\s+/).slice(1);
+    if (cmd === "/ai_kalit") {
+      await tg("deleteMessage", { chat_id: m.chat.id, message_id: m.message_id });   // kalit chatda qolmasin
+      if (!args[0]) return reply("Yozing: <code>/ai_kalit sk-ant-...</code> (console.anthropic.com → API Keys). Xabaringiz darhol o'chiriladi.");
+      await cfgSet("ai_key", args[0]);
+      return reply("✅ AI kaliti saqlandi. Sinab ko'ring: shu yerga buxgalteriya savolini yozing.");
+    }
+    if (args[0] === "on" || args[0] === "off") await cfgSet("ai_on", args[0]);
+    else if (args[0] === "limit" && Number(args[1]) > 0) await cfgSet("ai_user_day", String(Math.floor(Number(args[1]))));
+    else if (args[0] === "cap" && Number(args[1]) > 0) await cfgSet("ai_day_cap", String(Math.floor(Number(args[1]))));
+    else if (args[0] === "model" && args[1]) await cfgSet("ai_model", args[1]);
+    const day0 = new Date(tzDate().getTime() - 5 * 3600e3).toISOString();
+    const { data: lg } = await db.from("liga_ai_log").select("status,in_tok,out_tok,searches,tg").gte("created_at", day0);
+    const L = (lg ?? []) as any[], ok = L.filter((x) => x.status === "ok");
+    const usd = ok.reduce((s, x) => s + (x.in_tok ?? 0) * 3e-6 + (x.out_tok ?? 0) * 15e-6 + (x.searches ?? 0) * 0.01, 0);
+    return reply(`🤖 <b>Savol-javob</b>: ${(await cfgGet("ai_on")) === "off" ? "o'chiq" : "yoqiq"} · kalit: ${Deno.env.get("ANTHROPIC_API_KEY") || (await cfgGet("ai_key")) ? "bor" : "<b>yo'q</b>"}\nModel: ${esc((await cfgGet("ai_model")) || "claude-sonnet-4-5")}\nLimit: kishiga ${Number(await cfgGet("ai_user_day")) || 5} ta, hammaga ${Number(await cfgGet("ai_day_cap")) || 300} ta / kun\n\nBugun: javob ${ok.length} ta (${new Set(ok.map((x) => x.tg)).size} kishi), o'yinda bo'lgani uchun rad ${L.filter((x) => x.status === "busy").length}, o'xshash savol ${L.filter((x) => x.status === "similar").length}, limit ${L.filter((x) => x.status === "limit").length}, xato ${L.filter((x) => x.status === "err").length}\nTaxminiy xarajat: ~$${usd.toFixed(2)}\n\n<code>/ai on</code> · <code>/ai off</code> · <code>/ai limit 5</code> · <code>/ai cap 300</code> · <code>/ai model NOM</code> · <code>/ai_kalit KALIT</code>`);
+  } else if (cmd === "/savol") {
+    const q = text.replace(/^\/savol(@\w+)?/i, "").trim();
+    if (!q) return reply(tr(await playerLang(m.from?.id), "❓ <b>Buxgalteriya savolingiz bormi?</b>\nYozing: <code>/savol savolingiz</code>\nMasalan: <code>/savol 2026-yilda QQS stavkasi qancha?</code>\nShaxsiy chatda esa savolni shunchaki yozib yuboring."));
+    return askAI(m, q);
+  } else if (priv && text && !text.startsWith("/")) {
+    return askAI(m, text);
   } else if (cmd === "/natija") {
     const code = priv ? "ASOSIY" : await chatGroup(m.chat.id);
     await reply(await resultsText(code), priv ? openApp(code) : openBot(code));
   } else if (cmd === "/qoida") {
     await reply("📋 <b>Qoidalar</b>\n• Har ish kuni 09:00–18:00 da (juma ham) yangi bosqich: 15 ta provodka + 5 ta qonun, kodeks va qarorlar savoli (oyning boshidan oxirigacha — osondan qiyinga).\n• Har savolga 2 daqiqa — hamma uchun teng; har savolga faqat bir marta javob. Xatoning sababi darhol ko'rsatiladi.\n• Ligaga to'lov: kartaga o'tkazib, chekni yuborasiz; administrator pul tushganini tasdiqlagach bosqichlar ochiladi.\n• Liga bali faqat bosqichlardan; kunlik mashq va blits — alohida.\n• Liga — dushanbadan juma 18:00 gacha. Hafta davomida natijangizni faqat o'zingiz ko'rasiz.\n• Juma 18:00 da jadval e'lon qilinadi; kuchli uchlik nishon va sertifikat oladi.");
   }
+}
+
+// ---------------- savol-javob: buxgalteriya savoliga AI internetdan qidirib javob beradi ----------------
+// Kalit: Supabase Secrets → ANTHROPIC_API_KEY (yoki admin botda: /ai_kalit KALIT — config ai_key).
+// Sozlamalar (liga_bot_config): ai_on (on/off), ai_model, ai_user_day (kishiga kuniga), ai_day_cap (hammaga kuniga), ai_max_search.
+// O'yin vaqtida (bosqich, musobaqa, jonli duel ochiq bo'lsa) javob berilmaydi; 09:00–18:00 da o'yin savoliga o'xshash savolga ham javob yo'q.
+const AI_SYS = `Siz — «Hisobchi Liga» botidagi O'zbekiston buxgalteriya va soliq bo'yicha maslahatchisiz.
+Qoidalar:
+- Har doim avval web_search bilan ENG SO'NGGI ma'lumotni qidiring: lex.uz (qonunlar, Soliq kodeksi, BHMS/NSBU, qarorlar), soliq.uz, my.soliq.uz, mf.uz, gov.uz, buxgalter.uz, norma.uz. Bugungi sana: {DATE}. Eskirgan stavka yoki tahrirni yozmang — o'zgargan bo'lsa, qachondan o'zgarganini ayting.
+- Javob qisqa va amaliy bo'lsin (8–15 qator): aniq javob, kerak bo'lsa provodka (Dt/Kt, O'zbekiston hisobvaraqlar rejasi — BHMS 21), stavka, muddat, modda raqami.
+- Savol qaysi tilda bo'lsa, o'sha tilda javob bering (o'zbek lotin, o'zbek kirill yoki rus).
+- Oddiy matn yozing: sarlavha belgisi (#), jadval ishlatmang; muhim so'zni **qalin** qilishingiz mumkin.
+- Ishonchingiz komil bo'lmasa yoki manbalar qarama-qarshi bo'lsa — buni ochiq ayting.
+- Buxgalteriya, soliq, ish haqi, kadr, hisobot va moliyaga aloqasi yo'q savollarga: «Men faqat buxgalteriya va soliq savollariga javob beraman» deb qisqa javob bering.`;
+
+let BANK_Q: { at: number; sets: Set<string>[] } | null = null;
+const words = (s: string) => new Set(s.toLowerCase().replace(/[ʻʼ‘’`']/g, "").split(/[^a-zа-яёўқғҳ0-9]+/i).filter((w) => w.length > 2));
+async function bankSets() {
+  if (BANK_Q && Date.now() - BANK_Q.at < 15 * 60e3) return BANK_Q.sets;
+  const sets: Set<string>[] = [];
+  for (let from = 0; from < 20000; from += 1000) {
+    const { data } = await db.from("liga_bank").select("uz,ru").eq("active", true).range(from, from + 999);
+    for (const r of (data ?? []) as any[]) for (const q of [r.uz?.q, r.ru?.q]) if (q && String(q).length > 20) sets.push(words(String(q)));
+    if (!data || data.length < 1000) break;
+  }
+  BANK_Q = { at: Date.now(), sets };
+  return sets;
+}
+// o'yin savoliga o'xshashmi (so'zlarning 60%+ i bir xil)
+async function likeGameQ(q: string) {
+  const a = words(q); if (a.size < 4) return false;
+  for (const b of await bankSets()) {
+    let n = 0; for (const w of a) if (b.has(w)) n++;
+    if (n / Math.min(a.size, b.size) >= 0.6 && n >= 4) return true;
+  }
+  return false;
+}
+function aiHtml(s: string) {
+  return esc(s.replace(/^#+\s*/gm, "")).replace(/\*\*([^*\n]+)\*\*/g, "<b>$1</b>").replace(/(^|\s)\*([^*\n]+)\*(?=\s|$)/g, "$1<i>$2</i>").trim();
+}
+async function isLigaAdmin(tgId: number) {
+  const { data } = await db.from("liga_admin_chats").select("chat_id").eq("chat_id", tgId).maybeSingle();
+  if (data) return true;
+  const own = String((await cfgGet("free_phones")) ?? "").split(/[\s,]+/).filter(Boolean);
+  if (!own.length) return false;
+  const { data: p } = await db.from("safari_players").select("phone").eq("tg_user_id", tgId).maybeSingle();
+  return !!p?.phone && own.includes(p.phone);
+}
+async function aiCall(q: string) {
+  const key = Deno.env.get("ANTHROPIC_API_KEY") || (await cfgGet("ai_key")) || "";
+  if (!key) return { err: "no_key" as const };
+  const model = (await cfgGet("ai_model")) || "claude-sonnet-4-5";
+  const maxSearch = Number(await cfgGet("ai_max_search")) || 3;
+  const date = tzDate().toISOString().slice(0, 10);
+  const messages: any[] = [{ role: "user", content: q }];
+  let inTok = 0, outTok = 0, searches = 0; const parts: string[] = []; const src = new Map<string, string>();
+  for (let step = 0; step < 3; step++) {
+    const r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
+      body: JSON.stringify({ model, max_tokens: 1500, system: AI_SYS.replace("{DATE}", date), messages,
+        tools: [{ type: "web_search_20250305", name: "web_search", max_uses: maxSearch,
+          user_location: { type: "approximate", country: "UZ", city: "Tashkent", timezone: "Asia/Tashkent" } }] }),
+    });
+    const j: any = await r.json().catch(() => ({}));
+    if (!r.ok) return { err: "api" as const, detail: String(j?.error?.message ?? r.status) };
+    inTok += j.usage?.input_tokens ?? 0; outTok += j.usage?.output_tokens ?? 0;
+    searches += j.usage?.server_tool_use?.web_search_requests ?? 0;
+    for (const b of (j.content ?? []) as any[]) {
+      if (b.type === "text") {
+        parts.push(b.text);
+        for (const c of (b.citations ?? []) as any[]) if (c.url && !src.has(c.url)) src.set(c.url, c.title ?? c.url);
+      }
+    }
+    if (j.stop_reason !== "pause_turn") break;   // uzoq qidiruv — davom ettiramiz
+    messages.push({ role: "assistant", content: j.content });
+  }
+  const text = parts.join("").trim();
+  if (!text) return { err: "empty" as const };
+  return { text, src: [...src.entries()].slice(0, 4), inTok, outTok, searches };
+}
+async function askAI(m: any, q: string) {
+  const from = m.from; if (!from?.id) return;
+  const lang = await playerLang(from.id);
+  const say = (t: string) => tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML", text: t, reply_to_message_id: m.message_id, allow_sending_without_reply: true, disable_web_page_preview: true });
+  if ((await cfgGet("ai_on")) === "off") return say(tr(lang, "ℹ️ Savol-javob vaqtincha o'chirilgan."));
+  q = q.trim().slice(0, 1500);
+  if (q.length < 8) return say(tr(lang, "✍️ Savolingizni to'liqroq yozing. Masalan: <i>2026-yilda QQS stavkasi qancha?</i>"));
+  const { data: pl } = await db.from("safari_players").select("id").eq("tg_user_id", from.id).maybeSingle();
+  const log = (status: string, extra: Record<string, unknown> = {}) =>
+    db.from("liga_ai_log").insert({ tg: from.id, player_id: pl?.id ?? null, chat_id: m.chat.id, q, status, ...extra });
+  const { data: busy } = await db.rpc("liga_ai_busy_sys", { p_tg: from.id });
+  if (busy) { await log("busy"); return say(tr(lang, "⏳ Siz hozir o'yindasiz — o'yin paytida savol-javob yopiq. O'yinni tugatgach, savolingizni qayta yuboring.")); }
+  const h = new Date(Date.now() + 5 * 3600e3).getUTCHours();
+  if (h >= 9 && h < 18 && (await likeGameQ(q))) { await log("similar"); return say(tr(lang, "🚫 Bu savol liga yoki musobaqa savoliga juda o'xshaydi. Bunday savollarga 18:00 dan keyin javob beraman.")); }
+  const admin = await isLigaAdmin(from.id);
+  if (!admin) {
+    const day0 = new Date(tzDate().getTime() - 5 * 3600e3).toISOString();
+    const per = Number(await cfgGet("ai_user_day")) || 5, cap = Number(await cfgGet("ai_day_cap")) || 300;
+    const { count: mine } = await db.from("liga_ai_log").select("id", { count: "exact", head: true }).eq("tg", from.id).eq("status", "ok").gte("created_at", day0);
+    if ((mine ?? 0) >= per) { await log("limit"); return say(tr(lang, "📵 Bugungi savollar limiti tugadi ({n} ta). Ertaga yana so'rang!", { n: per })); }
+    const { count: all } = await db.from("liga_ai_log").select("id", { count: "exact", head: true }).eq("status", "ok").gte("created_at", day0);
+    if ((all ?? 0) >= cap) { await log("limit"); return say(tr(lang, "📵 Bugun savollar juda ko'p bo'ldi — ertaga yana so'rang!")); }
+  }
+  const wait = await say(tr(lang, "🔎 Qidiryapman, eng so'nggi ma'lumotni tekshiryapman..."));
+  const task = (async () => {
+    await tg("sendChatAction", { chat_id: m.chat.id, action: "typing" });
+    const t0 = Date.now();
+    const r: any = await aiCall(q);
+    const wid = wait?.result?.message_id;
+    if (r.err) {
+      await log("err", { a: r.err + (r.detail ? ": " + r.detail : ""), ms: Date.now() - t0 });
+      if (r.err === "no_key" || r.err === "api") {
+        const { data: adm } = await db.from("liga_admin_chats").select("chat_id");
+        if (await once("ai_err_" + r.err)) for (const a of (adm ?? []) as any[]) await dm(a.chat_id, `⚠️ <b>Savol-javob ishlamayapti</b>: ${r.err === "no_key" ? "AI kaliti qo'yilmagan (/ai_kalit KALIT)" : esc(r.detail ?? "")}`);
+      }
+      const t = tr(lang, "😔 Hozir javob bera olmadim. Birozdan keyin qayta urinib ko'ring.");
+      return wid ? tg("editMessageText", { chat_id: m.chat.id, message_id: wid, parse_mode: "HTML", text: t }) : say(t);
+    }
+    let body = aiHtml(r.text);
+    if (r.src.length) body += "\n\n📚 <b>" + tr(lang, "Manbalar") + ":</b>\n" + r.src.map(([u, ti]: [string, string]) => `• <a href="${esc(u)}">${esc(String(ti).slice(0, 70))}</a>`).join("\n");
+    body += "\n\n<i>" + tr(lang, "🤖 Javobni AI internetdan qidirib tayyorladi. Muhim qarordan oldin manbani tekshiring.") + "</i>";
+    const parts = chunks(body);
+    if (wid) await tg("editMessageText", { chat_id: m.chat.id, message_id: wid, parse_mode: "HTML", text: parts[0], disable_web_page_preview: true });
+    else await say(parts[0]);
+    for (const p of parts.slice(1)) await tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML", text: p, disable_web_page_preview: true });
+    await log("ok", { a: r.text.slice(0, 8000), in_tok: r.inTok, out_tok: r.outTok, searches: r.searches, ms: Date.now() - t0 });
+  })().catch((e) => console.error("askAI", e));
+  const ER = (globalThis as any).EdgeRuntime; if (ER?.waitUntil) ER.waitUntil(task); else await task;
 }
 
 const TITLES = ["Birinchi ish kuni","Firma tug'iladi","Tovar keldi","Birinchi savdo","Ish haqi kuni","Yangi uskuna",
@@ -1433,16 +1599,19 @@ async function onCron(action: string, body: any = {}) {
         tg("deleteMyCommands", {}),
         tg("setMyCommands", { scope: { type: "all_private_chats" }, commands: [
           { command: "liga", description: "Ilovani ochish" },
+          { command: "savol", description: "Buxgalteriya savoliga javob (internetdan)" },
           { command: "natija", description: "Oxirgi hafta natijalari" },
           { command: "tolov", description: "Obuna to'lovi (karta va chek)" },
           { command: "musobaqa", description: "Sovrinli musobaqaga qo'shilish (30 000 so'm)" },
           { command: "qoida", description: "Liga qoidalari" }] }),
         tg("setMyCommands", { scope: { type: "all_group_chats" }, commands: [
           { command: "duel", description: "Jonli duelga chaqirish" },
+          { command: "savol", description: "Buxgalteriya savoliga javob (internetdan)" },
           { command: "natija", description: "Oxirgi hafta natijalari" },
           { command: "qoida", description: "Liga qoidalari" }] }),
         tg("setMyCommands", { scope: { type: "all_chat_administrators" }, commands: [
           { command: "duel", description: "Jonli duelga chaqirish" },
+          { command: "savol", description: "Buxgalteriya savoliga javob (internetdan)" },
           { command: "natija", description: "Oxirgi hafta natijalari" },
           { command: "qoida", description: "Liga qoidalari" },
           { command: "ulash", description: "Guruhni jamoaga ulash (admin)" },
