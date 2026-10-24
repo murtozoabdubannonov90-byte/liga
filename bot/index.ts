@@ -1169,7 +1169,7 @@ async function onUpdate0(u: any) {
     if (!q) return reply(tr(await playerLang(m.from?.id), "❓ <b>Buxgalteriya savolingiz bormi?</b>\nYozing: <code>/savol savolingiz</code>\nMasalan: <code>/savol 2026-yilda QQS stavkasi qancha?</code>\nShaxsiy chatda esa savolni shunchaki yozib yuboring."));
     return askAI(m, q);
   } else if (priv && text && !text.startsWith("/")) {
-    return askAI(m, text);
+    return askAI(m, text, false);
   } else if (cmd === "/natija") {
     const code = priv ? "ASOSIY" : await chatGroup(m.chat.id);
     await reply(await resultsText(code), priv ? openApp(code) : openBot(code));
@@ -1257,11 +1257,14 @@ async function aiCall(q: string) {
   if (!text) return { err: "empty" as const };
   return { text, src: [...src.entries()].slice(0, 4), inTok, outTok, searches };
 }
-async function askAI(m: any, q: string) {
+async function askAI(m: any, q: string, explicit = true) {
   const from = m.from; if (!from?.id) return;
+  // kalit qo'yilmagan yoki o'chirilgan bo'lsa: shaxsiy chatdagi oddiy matnga jim turamiz (avvalgidek), /savol ga qisqa javob
+  const ready = (await cfgGet("ai_on")) !== "off" && !!(Deno.env.get("ANTHROPIC_API_KEY") || (await cfgGet("ai_key")));
+  if (!ready && !explicit) return;
   const lang = await playerLang(from.id);
   const say = (t: string) => tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML", text: t, reply_to_message_id: m.message_id, allow_sending_without_reply: true, disable_web_page_preview: true });
-  if ((await cfgGet("ai_on")) === "off") return say(tr(lang, "ℹ️ Savol-javob vaqtincha o'chirilgan."));
+  if (!ready) return say(tr(lang, "ℹ️ Savol-javob vaqtincha o'chirilgan."));
   q = q.trim().slice(0, 1500);
   if (q.length < 8) return say(tr(lang, "✍️ Savolingizni to'liqroq yozing. Masalan: <i>2026-yilda QQS stavkasi qancha?</i>"));
   const { data: pl } = await db.from("safari_players").select("id").eq("tg_user_id", from.id).maybeSingle();
