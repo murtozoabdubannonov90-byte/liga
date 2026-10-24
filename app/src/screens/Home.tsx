@@ -170,7 +170,7 @@ export default function Home() {
   useEffect(() => { if (entry.d) { const code = entry.d; entry.d = undefined; go("duel", { code }); } }, []);
   const L = lessonOfDay(), errs = Object.keys(S.errs).length;
   const tiles: [any, string, string, () => void, boolean?][] = [
-    [Target, "Kunlik mashq", isWeekend() ? t("10 savol · ballsiz") : t("10 savol · +8 ball"), () => runOrToast(isWeekend() ? startPractice() : startDaily())],
+    [Target, "Kunlik mashq", t("10 savol · +8 ball"), () => runOrToast(startDaily())],   // 2026-10-24: har kuni (shanba-yakshanba ham) ballik
     [Zap, "Blits", t("20 provodka · rekord {n}", { n: S.blitz || 0 }), () => runOrToast(startBlitz())],
     [Swords, "Duel", t("Hamkasbingizni chaqiring"), () => go("duel"), true],
     [Scale, "Balans o'yini", t("Aktiv va passivni joylang"), () => go("balance")],
