@@ -1724,6 +1724,17 @@ async function onCron(action: string, body: any = {}) {
     const sent = await toChats(() => text);
     return { ok: true, groups: sent, channels: await toChannels(text, openBot("ASOSIY")) };
   }
+  if (action === "announce_ai_rule") {
+    // 24.10.2026: AI taqiqi haqida umumiy qoida (ism aytilmaydi) + shanba duellari — guruhlarga bir marta
+    if (!(await once("announce_ai_rule"))) return { skip: "already" };
+    const text = "📢 <b>Hisobchi Liga — muhim qoida</b>\n\n" +
+      "🚫 Liga va sovrinli musobaqada savollarga <b>AI (ChatGPT va boshqalar) yordamida javob berish taqiqlanadi</b>.\n" +
+      "AI ishlatgani aniqlangan ishtirokchi <b>guruhdan ham, ligadan ham chetlatiladi</b>.\n" +
+      "Halol o'ynaylik — sovrin bilimli buxgalterga nasib qilsin! 💪\n\n" +
+      "⚔️ <b>Bugungi duellar ochiq!</b> Bosh sahifa → Duel → «Duel yaratish va yuborish» — hamkasbingizni chaqirib, bilimingizni sinang.\n" +
+      "🏆 Duel kubogi dushanba kuni qaytadi: juftlar 09:00 da, duellar 10:00 dan.";
+    return { ok: true, groups: await toChats(() => text) };
+  }
   if (action === "announce_oct") {
     // 13.10.2026: oktyabr yangiliklari — hammaga bir marta (guruhlar + har o'yinchiga shaxsan)
     if (!(await once("announce_oct"))) return { skip: "already" };
