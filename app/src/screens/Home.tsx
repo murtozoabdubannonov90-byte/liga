@@ -140,7 +140,7 @@ export function FirstStepCard() {
       {open
         ? <button className="btn" id="first-go" onClick={() => go("intro", { si })}>{t("Birinchi bosqichni boshlash")}</button>
         : <><p className="small muted" style={{ marginBottom: 8 }}>{t("Bosqich hozir yopiq — keyingi bosqich ish kuni 09:00 da. Hozircha mashq qilib turing:")}</p>
-          <button className="btn ghost" id="first-practice" onClick={() => runOrToast(isWeekend() ? startPractice() : startDaily())}>{t("Mashq qilish")}</button></>}
+          <button className="btn ghost" id="first-practice" onClick={() => runOrToast(startDaily())}>{t("Mashq qilish")}</button></>}
     </section>);
 }
 
@@ -170,7 +170,7 @@ export default function Home() {
   useEffect(() => { if (entry.d) { const code = entry.d; entry.d = undefined; go("duel", { code }); } }, []);
   const L = lessonOfDay(), errs = Object.keys(S.errs).length;
   const tiles: [any, string, string, () => void, boolean?][] = [
-    [Target, "Kunlik mashq", isWeekend() ? t("10 savol · ballsiz") : t("10 savol · +8 ball"), () => runOrToast(isWeekend() ? startPractice() : startDaily())],
+    [Target, "Kunlik mashq", t("10 savol · +8 ball"), () => runOrToast(startDaily())],
     [Zap, "Blits", t("20 provodka · rekord {n}", { n: S.blitz || 0 }), () => runOrToast(startBlitz())],
     [Swords, "Duel", t("Hamkasbingizni chaqiring"), () => go("duel"), true],
     [Scale, "Balans o'yini", t("Aktiv va passivni joylang"), () => go("balance")],

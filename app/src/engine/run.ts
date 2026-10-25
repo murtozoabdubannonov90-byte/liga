@@ -40,7 +40,7 @@ function mk(mode: Mode, queue: Q[], o: Partial<Run> = {}): Run {
 export function startDaily(): Run {
   const c = C(); let st: Task[] = []; openIdx().forEach((i) => st.push(...c.STAGES[i].tasks));
   const pool = shuffle(freshFirst(st).slice(0, 5).concat(freshFirst(allTopicTasks(c).concat(customTasks())).slice(0, 5)));
-  return mk("daily", q(pool), { noXP: isWeekend(), title: "Kunlik mashq" });
+  return mk("daily", q(pool), { title: "Kunlik mashq" });  // kunlik mashq har kuni (shanba-yakshanba ham) ballik
 }
 export function startBlitz(): Run {
   const c = C(); let pool: Task[] = []; openIdx().forEach((i) => c.STAGES[i].tasks.forEach((t) => t.t === "pv" && pool.push(t)));

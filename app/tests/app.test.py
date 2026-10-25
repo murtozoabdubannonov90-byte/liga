@@ -168,6 +168,7 @@ with sync_playwright() as p:
     check("juma 17:00 dan keyin (shanba): hafta yakuni ekrani", "Haftalik liga yakunlandi" in txt(pg))
     pg.evaluate("()=>__liga.nav.tab('home')"); pg.wait_for_timeout(400)
     check("shanba: dam olish kuni", pg.evaluate("()=>__liga.time.isWeekend()") and "Dam olish" in txt(pg))
+    check("shanba: kunlik mashq ballik (+8 ball)", pg.evaluate("()=>__liga.run.startDaily().noXP") is False and "10 savol · +8 ball" in txt(pg))
     pg, e = page(b, when="2026-10-01T12:30:00Z"); ALLERR += e
     check("17:00 dan keyin bosqich yopiq", pg.evaluate("()=>__liga.time.stageOpen(3)") is False)
 
