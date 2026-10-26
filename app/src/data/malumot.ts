@@ -1,7 +1,7 @@
 /* Buxgalter ma'lumotnomasi: tashkiliy-huquqiy shakllar va 2026 soliq qoidalari (bosh sahifada, yig'ilgan holda).
    Bu — zaxira nusxa: ilova avval bazadagi liga_info() ni o'qiydi (har dushanba yangilanadi), ochilmasa shu ro'yxat ko'rinadi.
-   Holat: 19.10.2026. Bazani yangilaganda shu faylni ham yangilang (scripts/info-seed.mjs). */
-export const UPDATED = "19.10.2026";
+   Holat: 26.10.2026. Bazani yangilaganda shu faylni ham yangilang (scripts/info-seed.mjs). */
+export const UPDATED = "26.10.2026";
 type L = { uz: string; ru: string };
 export type Info = { id: string; short: L; title: L; sub: L; rows: [L, L][]; plus?: L[]; note?: L };
 
@@ -102,6 +102,7 @@ export const INFO: Info[] = [
       [{ uz: "Xizmat sohalari", ru: "Сфера услуг" }, { uz: "1% — 30 yoshgacha, oylik ish haqi kamida 2,5 MHTEKM bo'lgan xodimlar uchun; 10 soha: chakana savdo, umumiy ovqatlanish, mehmonxona, avtotransportda yo'lovchi va yuk tashish, avtomobil ta'miri, kompyuter xizmatlari, maishiy texnika ta'miri, qishloq xo'jaligi va veterinariya xizmatlari, ko'ngilochar markazlar. 1.01.2028 gacha (PQ-78, 27.02.2025)", ru: "1% — для работников до 30 лет с зарплатой не менее 2,5 МРОТ; 10 сфер: розница, общепит, гостиницы, автоперевозки пассажиров и грузов, ремонт авто, компьютерные услуги, ремонт бытовой техники, сельхоз- и ветеринарные услуги, развлекательные центры. До 01.01.2028 (ПП-78 от 27.02.2025)" }],
       [{ uz: "Nogironligi bor xodim", ru: "Работник с инвалидностью" }, { uz: "I va II guruh nogironligi bo'lgan xodim uchun nodavlat yuridik shaxs — 1% (ish haqi eng kam miqdordan kam bo'lmasa); YaTT bunday xodim uchun ijtimoiy soliq to'lamaydi", ru: "За работника с инвалидностью I и II группы негосударственное юрлицо платит 1% (если зарплата не ниже минимальной); ИП за такого работника соцналог не платит" }],
       [{ uz: "To'qimachilik, poyabzal, charm", ru: "Текстиль, обувь, кожа" }, { uz: "I–II guruh nogironligi bo'lganlarni ishga olsa: foyda solig'i 2%, ijtimoiy soliq 1% — 1.01.2025–1.01.2028 (PF-229)", ru: "При найме лиц с инвалидностью I–II группы: налог на прибыль 2%, соцналог 1% — 01.01.2025–01.01.2028 (УП-229)" }],
+      [{ uz: "Issiqxona xo'jaliklari", ru: "Тепличные хозяйства" }, { uz: "1% — daromadning kamida 60% issiqxonadan bo'lsa, 1.01.2026–1.01.2029 (PQ-371, 13.10.2026)", ru: "1% — при доле дохода от теплиц не менее 60%, 01.01.2026–01.01.2029 (ПП-371 от 13.10.2026)" }],
       [{ uz: "YaTT o'zi uchun", ru: "ИП за себя" }, { uz: "Oyiga 1 BHM (1.09.2026 dan 440 000 so'm)", ru: "1 БРВ в месяц (с 01.09.2026 — 440 000 сумов)" }],
     ],
     note: { uz: "Imtiyozli stavka faqat shartga mos keladigan xodimlarga qo'llanadi, qolganlar uchun — 12%. Diqqat: Iqtisodiyot va moliya vazirligi ijtimoiy soliq imtiyozlarini bosqichma-bosqich qisqartirib, 2030 yildan to'liq bekor qilishni taklif qildi (22.09.2026) — hozircha taklif, amaldagi imtiyozlar saqlanadi.", ru: "Льготная ставка применяется только к работникам, подходящим под условия, по остальным — 12%. Внимание: Минэкономфин предложил поэтапно сократить льготы по соцналогу и полностью отменить их с 2030 года (22.09.2026) — пока это предложение, действующие льготы сохраняются." },
@@ -127,7 +128,7 @@ export const INFO: Info[] = [
       [{ uz: "Kasbiy va oliy ta'lim", ru: "Профессиональное и высшее образование" }, { uz: "O'zi, 26 yoshgacha farzandi yoki turmush o'rtog'i uchun kontrakt to'lovi va ta'lim krediti (foizlari bilan) soliqdan ozod", ru: "Контракт за себя, детей до 26 лет или супруга, а также образовательный кредит (с процентами) освобождаются от налога" }],
       [{ uz: "Qanday olinadi", ru: "Как получить" }, { uz: "1) Ish beruvchiga ariza — buxgalteriya ish haqining shu qismini to'g'ridan-to'g'ri ta'lim muassasasiga o'tkazadi; 2) yoki yil oxirida daromad deklaratsiyasi va to'lov hujjatlari bilan soliq organidan qaytarib olinadi", ru: "1) Заявление работодателю — бухгалтерия перечисляет эту часть зарплаты прямо в учебное заведение; 2) или в конце года через декларацию о доходах с платёжными документами" }],
     ],
-    note: { uz: "30.09.2026 da Prezident xususiy maktab uchun chegarani 6 mln so'mga oshirishni e'lon qildi. 19.10.2026 holatiga normativ hujjat chiqmagan — hozircha 3 mln so'm amal qiladi.", ru: "30.09.2026 Президент объявил о повышении лимита для частных школ до 6 млн сумов. На 19.10.2026 нормативный акт не вышел — пока действует 3 млн сумов." },
+    note: { uz: "30.09.2026 da Prezident xususiy maktab uchun chegarani 6 mln so'mga oshirishni e'lon qildi. 26.10.2026 holatiga normativ hujjat chiqmagan — hozircha 3 mln so'm amal qiladi.", ru: "30.09.2026 Президент объявил о повышении лимита для частных школ до 6 млн сумов. На 26.10.2026 нормативный акт не вышел — пока действует 3 млн сумов." },
   },
   {
     id: "mulk", short: { uz: "Yer", ru: "Земля" },
@@ -141,6 +142,7 @@ export const INFO: Info[] = [
     ],
     plus: [
       { uz: "Yangi (12.10.2026, PQ-368): transport-logistika markazlari yer va mol-mulk solig'idan 2040 yilgacha to'liq ozod. Shart: ESKATO quruqlik portlari bitimi ro'yxatida bo'lish, TOS va WMS tizimlari, «E-logistika» platformasida «BB» va undan yuqori reyting", ru: "Новое (12.10.2026, ПП-368): транспортно-логистические центры полностью освобождены от земельного налога и налога на имущество до 2040 года. Условия: включение в соглашение ЭСКАТО о сухих портах, системы TOS и WMS, рейтинг «BB» и выше на платформе «E-logistika»" },
+      { uz: "Yangi (13.10.2026, PQ-371): issiqxona xo'jaliklari — daromadning kamida 60% issiqxonadan bo'lsa, 1.01.2027–1.01.2030 yuridik shaxslardan yer solig'i va mol-mulk solig'i stavkalari 50% kamaytiriladi, aylanmadan olinadigan soliqdan to'liq ozod", ru: "Новое (13.10.2026, ПП-371): тепличные хозяйства — при доле дохода от теплиц не менее 60% с 01.01.2027 по 01.01.2030 ставки земельного налога с юрлиц и налога на имущество снижаются на 50%, полное освобождение от налога с оборота" },
     ],
   },
 ];

@@ -624,10 +624,11 @@ with sync_playwright() as p:
 
     print("10g4. Ma'lumotnoma bazadan, «Yangilandi» sanasi")
     pg, e = page(b); ALLERR += e
-    check("bazadan kelmasa — ilovadagi zaxira (9 mavzu) va uning sanasi", pg.locator("#info .info-it").count() == 9 and "Yangilandi: 19.10.2026" in pg.inner_text("#info-updated"), pg.inner_text("#info")[:200])
+    check("bazadan kelmasa — ilovadagi zaxira (9 mavzu) va uning sanasi", pg.locator("#info .info-it").count() == 9 and "Yangilandi: 26.10.2026" in pg.inner_text("#info-updated"), pg.inner_text("#info")[:200])
     check("ma'lumotnoma bazadan so'raladi (liga_info)", bool(calls("liga_info")))
     pg.click("#info-mulk .info-h"); pg.wait_for_timeout(150)
     check("yangi imtiyoz: logistika markazlari 2040 gacha (PQ-368)", all(w in pg.inner_text("#info-mulk") for w in ["PQ-368", "2040", "logistika"]))
+    check("yangi imtiyoz: issiqxona yer/mol-mulk 50% (PQ-371)", all(w in pg.inner_text("#info-mulk") for w in ["PQ-371", "50%", "issiqxona"]))
     pg.click("#info-ijtimoiy .info-h"); pg.wait_for_timeout(150)
     check("ijtimoiy soliq: 2030 dan bekor qilish taklifi eslatmasi", "2030" in pg.inner_text("#info-ijtimoiy") and "taklif" in pg.inner_text("#info-ijtimoiy"))
     it = lambda i, n: {"id": i, "short": {"uz": n, "ru": n}, "title": {"uz": n + " sarlavha", "ru": n + " заголовок"}, "sub": {"uz": "izoh", "ru": "пояснение"}, "rows": [[{"uz": "Stavka", "ru": "Ставка"}, {"uz": "7%", "ru": "7%"}]]}
