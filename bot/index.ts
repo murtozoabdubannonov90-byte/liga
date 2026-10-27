@@ -1452,6 +1452,24 @@ async function pxAnnounce(limit = 80) {
   }
   return { ok: true, sent, fail, fund };
 }
+// bugungi bosqichni boshlab, oxiriga yetkazmaganlar (tg → ro'yxat) — ularga alohida matn
+async function halfMap(): Promise<Record<string, any>> {
+  const { data } = await db.rpc("liga_half_list_sys"); const m: Record<string, any> = {};
+  for (const p of (data ?? []) as any[]) m[String(p.tg)] = p;
+  return m;
+}
+function halfText(p: any, when: "noon" | "half" | "remind", c: string): string {
+  const v = { n: esc(p.first_name ?? ""), s: (Number(p.stage) || 0) + 1, d: p.done_n ?? 0, t: p.total ?? 20, q: Math.max(0, (p.total ?? 20) - (p.done_n ?? 0)), c };
+  if (when === "remind") return tr(p.lang, "⏰ <b>{n}, bosqichingiz yarimda qoldi — 1 soat qoldi!</b>\n{s}-bosqichda {d}/{t} savolga javob berdingiz, yana <b>{q} ta</b> qoldi. Soat {c} da bosqich yopiladi — qolgan savollar ballari yo'qolmasin.", v);
+  if (when === "noon") return tr(p.lang, "🕛 <b>{n}, bugungi bosqichni boshlagan edingiz.</b>\n{d}/{t} savol bajarildi, yana <b>{q} ta</b> qoldi. Ilovani ochsangiz, to'xtagan joyingizdan davom etasiz. Soat {c} gacha.", v);
+  return tr(p.lang, "📝 <b>{n}, bosqichingiz tugallanmadi!</b>\n\nBugungi {s}-bosqichda {d}/{t} savolga javob berdingiz — yana <b>{q} ta</b> savol qoldi.\nIlovani oching — to'xtagan joyingizdan davom etasiz, oldingi javoblaringiz saqlangan.\n⏰ Bosqich soat {c} da yopiladi.", v);
+}
+// 15:00 — faqat bosqichni boshlab tugatmaganlarga shaxsan
+async function remindHalf(w: number) {
+  const hm = await halfMap(); let personal = 0;
+  for (const p of Object.values(hm)) if (await dm(Number(p.tg), halfText(p, "half", closeStr(w)), appBtn(tr(p.lang, "Davom ettirish")))) personal++;
+  return { ok: true, total: Object.keys(hm).length, personal };
+}
 // 1 soat qoldi: guruhga (nechta kishi o'ynagani bilan) va bajarmaganlarga shaxsan
 async function remindAll(w: number, groupText: string) {
   const cnt = await todayCounts();
@@ -1459,10 +1477,12 @@ async function remindAll(w: number, groupText: string) {
     if (todayStage(g.start_date) === null) return null;
     const c = cnt[g.code]; return groupText + (c && c.played > 0 ? `\n\n👥 Jamoangizdan <b>${c.played}</b> kishi bugungi bosqichni bajarib bo'ldi. Siz-chi?` : "");
   });
-  const { data: list } = await db.rpc("liga_remind_list3"); let personal = 0;
+  const { data: list } = await db.rpc("liga_remind_list3"); let personal = 0; const hm = await halfMap();
   for (const p of (list ?? []) as any[]) {
     const c = cnt[p.group_code ?? ""];
     const extra = c && c.played > 0 ? "\n" + tr(p.lang, "Jamoangizdan {p} kishi bugungi bosqichni bajarib bo'ldi.", { p: c.played }) : "";
+    const hp = hm[String(p.tg)];
+    if (hp) { if (await dm(p.tg, halfText({ ...hp, lang: p.lang }, "remind", closeStr(w)) + extra, appBtn(tr(p.lang, "Davom ettirish")))) personal++; continue; }
     const kt = kindText(p, "remind", closeStr(w));
     if (kt) { if (await dm(p.tg, kt + extra, appBtn(tr(p.lang, "Bosqichni ochish")))) personal++; continue; }
     if (await dm(p.tg, tr(p.lang, "⏰ <b>{n}, bugungi bosqich hali bajarilmagan!</b>\n{s}-bosqich soat {c} da yopiladi — 1 soat qoldi.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w) }) + extra,
@@ -1474,11 +1494,13 @@ async function remindAll(w: number, groupText: string) {
 // 12:00 — bugungi bosqichni hali bajarmaganlarga shaxsan (guruhga emas)
 async function remindNoon(w: number) {
   const cnt = await todayCounts();
-  const { data: list } = await db.rpc("liga_remind_list3"); let personal = 0, total = 0;
+  const { data: list } = await db.rpc("liga_remind_list3"); let personal = 0, total = 0; const hm = await halfMap();
   for (const p of (list ?? []) as any[]) {
     total++;
     const c = cnt[p.group_code ?? ""];
     const extra = c && c.played > 0 ? "\n" + tr(p.lang, "Jamoangizdan {p} kishi bugun bajarib bo'ldi.", { p: c.played }) : "";
+    const hp = hm[String(p.tg)];
+    if (hp) { if (await dm(p.tg, halfText({ ...hp, lang: p.lang }, "noon", closeStr(w)) + extra, appBtn(tr(p.lang, "Davom ettirish")))) personal++; continue; }
     const kt = kindText(p, "noon", closeStr(w));
     if (kt) { if (await dm(p.tg, kt + extra, appBtn(tr(p.lang, "Bosqichni ochish")))) personal++; continue; }
     if (await dm(p.tg, tr(p.lang, "🕛 <b>{n}, bugungi {s}-bosqich hali bajarilmagan.</b>\nSoat {c} gacha vaqt bor — hozir 10–15 daqiqa ajrating, keyin unutib qo'yasiz.",
@@ -1520,20 +1542,83 @@ async function discussPin() {
   return { ok: !!pin?.ok, pinned: !!pin?.ok, pin_err: pin?.ok ? undefined : pin?.description, desc: !!desc?.ok, desc_err: desc?.ok ? undefined : desc?.description, mid };
 }
 
-// Markaziy bank kurslari (cbu.uz) — bosh sahifadagi kurs kartasi uchun
-async function fetchRates() {
-  const r = await fetch("https://cbu.uz/uz/arkhiv-kursov-valyut/json/", { headers: { "user-agent": "Mozilla/5.0 HisobchiLiga" } });
-  if (!r.ok) return { ok: false, status: r.status };
-  const list = (await r.json()) as any[];
-  const want = new Set(["USD", "EUR", "RUB", "CNY", "KZT"]); const rows: any[] = [];
+// Markaziy bank kurslari — bosh sahifadagi kurs kartasi uchun. Ish kunlari 09:00 va 11:00 (cron liga-kurs).
+// 23.10.2026 dan cbu.uz Supabase serverlaridan ochilmayapti (TCP timeout), shuning uchun navbat bilan:
+//   1) cbu.uz JSON (rasmiy; ochilsa — eng yaxshisi), 8 soniya kutadi;
+//   2) gazeta.uz bosh sahifasidagi «Курсы валют (ЦБ)» bloki — MB kursi: USD, EUR, RUB (o'zgarishi bilan);
+//      CNY va KZT — MB dollar kursi × xalqaro kross-kurs (open.er-api.com);
+//   3) faqat open.er-api.com (bozor kursi, oxirgi chora).
+const RATE_CCY = ["USD", "EUR", "RUB", "CNY", "KZT"];
+const RU_MON: Record<string, number> = { "января": 1, "февраля": 2, "марта": 3, "апреля": 4, "мая": 5, "июня": 6, "июля": 7, "августа": 8, "сентября": 9, "октября": 10, "ноября": 11, "декабря": 12 };
+const numUz = (s: string) => Number(String(s).replace(/[\s  ]/g, "").replace(",", "."));
+async function getT(url: string, ms: number) {
+  const r = await fetch(url, { headers: { "user-agent": "Mozilla/5.0 HisobchiLiga" }, signal: AbortSignal.timeout(ms) });
+  if (!r.ok) throw new Error(url.split("/")[2] + " " + r.status);
+  return r;
+}
+async function ratesCbu() {
+  const list = (await (await getT("https://cbu.uz/uz/arkhiv-kursov-valyut/json/", 8000)).json()) as any[];
+  const out: Record<string, { rate: number; diff: number; date: string }> = {};
   for (const x of list ?? []) {
-    if (!want.has(x.Ccy)) continue;
+    if (!RATE_CCY.includes(x.Ccy)) continue;
     const [d, m, y] = String(x.Date).split(".");
-    rows.push({ ccy: x.Ccy, rate: Number(x.Rate), diff: Number(x.Diff), rate_date: `${y}-${m}-${d}`, updated_at: new Date().toISOString() });
+    out[x.Ccy] = { rate: Number(x.Rate), diff: Number(x.Diff), date: `${y}-${m}-${d}` };
   }
-  if (!rows.length) return { ok: false, why: "empty" };
+  return out;
+}
+async function ratesGazeta() {
+  const html = await (await getT("https://www.gazeta.uz/ru/", 12000)).text();
+  const h = html.match(/Курсы валют \(ЦБ\)\s*(\d{1,2})\s+([а-я]+)/);
+  if (!h || !RU_MON[h[2]]) throw new Error("gazeta: sana topilmadi");
+  const today = tzDate(); let y = today.getUTCFullYear();
+  const date = new Date(Date.UTC(y, RU_MON[h[2]] - 1, Number(h[1])));
+  if (date.getTime() - today.getTime() > 3 * 86400000) date.setUTCFullYear(--y);   // yanvar boshida dekabr kursi
+  const ds = date.toISOString().slice(0, 10);
+  const out: Record<string, { rate: number; diff: number; date: string }> = {};
+  const re = /&nbsp;(USD|EUR|RUB)<\/td>\s*<td class="v">([\d\s ,]+)\s*сум<\/td>\s*<td class="([^"]*)">([\s\S]*?)<\/td>/g;
+  for (const m of html.matchAll(re)) {
+    const neg = /down|minus/i.test(m[3] + m[4]);
+    const dv = numUz((m[4].match(/([\d\s ]+,?\d*)\s*$/) ?? ["", "0"])[1]);
+    out[m[1]] = { rate: numUz(m[2]), diff: neg ? -dv : dv, date: ds };
+  }
+  return out;
+}
+async function ratesErApi() {
+  const j = await (await getT("https://open.er-api.com/v6/latest/USD", 10000)).json();
+  if (j?.result !== "success" || !j.rates?.UZS) throw new Error("er-api: javob yo'q");
+  return j.rates as Record<string, number>;   // 1 USD = X valyuta
+}
+async function fetchRates() {
+  const src: string[] = [], errs: string[] = [];
+  let got: Record<string, { rate: number; diff: number; date: string }> = {};
+  try { got = await ratesCbu(); if (got.USD) src.push("cbu.uz"); } catch (e) { errs.push("cbu: " + String((e as Error)?.message ?? e).slice(0, 80)); }
+  if (!got.USD) {
+    try { got = await ratesGazeta(); if (got.USD) src.push("gazeta.uz (MB)"); } catch (e) { errs.push("gazeta: " + String((e as Error)?.message ?? e).slice(0, 80)); }
+  }
+  // yetishmagan valyutalar (CNY, KZT yoki hammasi) — xalqaro kross-kurs bilan
+  const miss = RATE_CCY.filter((c) => !got[c]);
+  if (miss.length) {
+    try {
+      const fx = await ratesErApi();
+      const usd = got.USD?.rate ?? fx.UZS, ds = got.USD?.date ?? tzDate().toISOString().slice(0, 10);
+      for (const c of miss) if (c === "USD" ? fx.UZS : fx[c]) got[c] = { rate: c === "USD" ? usd : Math.round((usd / fx[c]) * 100) / 100, diff: NaN, date: ds };
+      src.push("open.er-api.com (" + miss.join(",") + ")");
+    } catch (e) { errs.push("er-api: " + String((e as Error)?.message ?? e).slice(0, 80)); }
+  }
+  const usd = got.USD?.rate ?? 0;
+  if (!(usd > 5000 && usd < 40000)) return { ok: false, why: "no_source", errs };
+  // o'zgarish (diff) noma'lum bo'lsa — oldingi kunning saqlangan kursidan hisoblanadi
+  const { data: prev } = await db.from("liga_rates").select("ccy,rate,diff,rate_date");
+  const pm: Record<string, any> = {}; for (const p of (prev ?? []) as any[]) pm[p.ccy] = p;
+  const now = new Date().toISOString(), rows: any[] = [];
+  for (const c of RATE_CCY) {
+    const g = got[c]; if (!g || !(g.rate > 0)) continue;
+    let diff = g.diff; const p = pm[c];
+    if (!Number.isFinite(diff)) diff = p ? (p.rate_date === g.date ? Number(p.diff) || 0 : Math.round((g.rate - Number(p.rate)) * 100) / 100) : 0;
+    rows.push({ ccy: c, rate: g.rate, diff, rate_date: g.date, updated_at: now });
+  }
   const { error } = await db.from("liga_rates").upsert(rows);
-  return { ok: !error, n: rows.length, date: rows[0]?.rate_date, err: error?.message };
+  return { ok: !error, n: rows.length, date: rows[0]?.rate_date, src, errs, err: error?.message };
 }
 
 // ---------------- SMS (Eskiz.uz): bosqichni bajarmaganlar va kubok dueliga kirmaganlar ----------------
@@ -1796,6 +1881,10 @@ async function onCron(action: string, body: any = {}) {
     if (w < 1 || w > 5 || !(await once("remind_noon"))) return { skip: true };
     return await remindNoon(w);
   }
+  if (action === "remind_half" || action === "remind_half_now") {
+    if (action === "remind_half" && (w < 1 || w > 5 || !(await once("remind_half")))) return { skip: true };
+    return await remindHalf(w);
+  }
   if (action === "discuss_pin") return await discussPin();
   if (action === "discuss_perms") return await discussPerms();
   if (action === "remind") {
@@ -1895,6 +1984,21 @@ async function onCron(action: string, body: any = {}) {
       "Ish kuni tugaguncha bemalol ulgurasiz — bugun juma, haftaning oxirgi bosqichi. Omad! 💪";
     const sent = await toChats(() => text);
     return { ok: true, groups: sent, channels: await toChannels(text, openBot("ASOSIY")) };
+  }
+  if (action === "warn_ai_player") {
+    // 27.10.2026: AI taqiqi ogohlantirishi (24.10 dagi announce_ai_rule matni) — muhokama guruhida aniq o'yinchiga murojaat bilan
+    const tgId = Number(body.tg); if (!tgId) return { ok: false, why: "no_tg" };
+    const cfg = await discussCfg(); if (!cfg) return { ok: false, why: "no_group" };
+    const { data: p } = await db.from("safari_players").select("first_name,last_name").eq("tg_user_id", tgId).maybeSingle();
+    if (!p) return { ok: false, why: "no_player" };
+    const name = esc(`${p.first_name ?? ""} ${p.last_name ?? ""}`.trim());
+    const text = `⚠️ <a href="tg://user?id=${tgId}">${name}</a>, sizga eslatib o'tamiz:\n\n` +
+      "📢 <b>Hisobchi Liga — muhim qoida</b>\n\n" +
+      "🚫 Liga va sovrinli musobaqada savollarga <b>AI (ChatGPT va boshqalar) yordamida javob berish taqiqlanadi</b>.\n" +
+      "AI ishlatgani aniqlangan ishtirokchi <b>guruhdan ham, ligadan ham chetlatiladi</b>.\n" +
+      "Halol o'ynaylik — sovrin bilimli buxgalterga nasib qilsin! 💪";
+    const r = await tg("sendMessage", { chat_id: cfg.chat, parse_mode: "HTML", text });
+    return { ok: !!r?.ok, mid: r?.result?.message_id, err: r?.ok ? undefined : r?.description };
   }
   if (action === "announce_ai_rule") {
     // 24.10.2026: AI taqiqi haqida umumiy qoida (ism aytilmaydi) + shanba duellari — guruhlarga bir marta

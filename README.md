@@ -51,6 +51,13 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Kalit: Supabase Secrets → `ANTHROPIC_API_KEY` yoki admin botda `/ai_kalit KALIT`. Boshqaruv: `/ai` (holat, bugungi xarajat), `/ai on|off`, `/ai limit N`, `/ai cap N`, `/ai model NOM` (standart `claude-sonnet-4-5`).
 - SQL: `db/2026-10-24_bot_savol_javob.sql`. Shu kuni guruhlarga bir martalik e'lon ham ketdi: AI taqiqi qoidasi + shanba duellari (`announce_ai_rule`).
 
+## 2026-10-27: Tugatmaganlarga eslatma, valyuta kursi, SMS o'chirildi
+- **Bosqichni boshlab tugatmaganlar** (`liga_half_list_sys`): 15:00 da alohida shaxsiy xabar (bot `remind_half`, cron `liga-tugatmaganlar`) — «{d}/{t} savol bajarildi, yana N ta qoldi, to'xtagan joydan davom etasiz». 12:00 va 17:00 eslatmalarida ham ularga shu mazmundagi alohida matn ketadi. Qo'lda: `remind_half_now`.
+- **Valyuta kursi**: 23.10 dan cbu.uz Supabase serverlaridan ochilmayapti (TCP timeout). `fetchRates` endi navbat bilan: cbu.uz (8 s) → gazeta.uz «Курсы валют (ЦБ)» (MB kursi: USD, EUR, RUB) → CNY/KZT uchun MB dollar kursi × open.er-api.com kross-kursi; hammasi ishlamasa — faqat open.er-api.com. Cron `liga-kurs`: ish kunlari **09:00 va 11:00** (UTC 04:00, 06:00), to'g'ridan-to'g'ri `liga_bot_call('rates')`.
+- **SMS**: `liga-sms` cron o'chirildi (sms_mode=off edi, bitta ham SMS ketmagan).
+- Bot `warn_ai_player` (`{tg}`): 24.10 dagi AI taqiqi ogohlantirishini muhokama guruhida aniq o'yinchiga murojaat bilan yuboradi.
+- SQL: `db/2026-10-27_tugatmaganlar_kurs_sms.sql`. Bot `bot/ai-qoida-elon` tarmog'i main ga qo'shildi.
+
 ## 2026-10-23: Liga — har ish kuni 09:00–18:00
 - Bosqich har ish kuni 09:00–18:00 (avval 17:00), liga juma **18:00** da yakunlanadi (natijalar, darajalar 18:01/18:10). Kubok finali 17:00 da qoladi.
 - Server: `liga_close_hour` = 18; `liga_cur_week_id`/`liga_last_week_id` — almashish 13:00 UTC, identifikator yozuvi o'zgarmagan ("juma T07:00"). Ilova: `CLOSE_H`/`FRI_CLOSE_H` = 18, `weekId` = weekEnd − 6 soat.
