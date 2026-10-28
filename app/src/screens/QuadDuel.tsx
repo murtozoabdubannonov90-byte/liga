@@ -1,4 +1,4 @@
-/* 4 kishilik jonli duel (2–4 o'yinchi). Bir kishi xona ochib havolani yuboradi, qolganlar havola orqali kiradi.
+/* Guruh dueli — jonli duel 2 tadan 10 kishigacha (2026-10-28: 4 → 10). Bir kishi xona ochib havolani yuboradi, qolganlar havola orqali kiradi.
    20 ta savol: 15 ta provodka + 5 ta savol — o'tgan mavzulardan. Kim birinchi to'g'ri javob bersa — +1 ochko, hammaga keyingi savol.
    Savollar serverdan javobsiz keladi, javob va vaqt serverda tekshiriladi (liga_quad_*). Liga baliga qo'shilmaydi. */
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -20,10 +20,11 @@ export const isQuad = (code?: string) => !!code && code.length === 7 && code[0] 
 export const quadLink = (code: string) => BOT_LINK + "?start=d_" + code;
 const blocked = () => !S.trial && !!(S.me && S.me.personal && S.me.ok === false);
 const mmss = (ms: number) => { const s = Math.max(0, Math.floor((ms || 0) / 1000)); return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"); };
-const MEDAL = ["🥇", "🥈", "🥉", "4"];
+const MEDAL = ["🥇", "🥈", "🥉"];
+export const QMAX = 10;   // serverdagi liga_quad_max() bilan bir xil
 
 export function shareQuad(code: string) {
-  const text = t("4 kishilik duelga chaqiraman! 20 ta savol (15 provodka + 5 savol), kim birinchi to'g'ri topsa — ochko o'shaniki. Havolani bosing va kiring ⚡");
+  const text = t("Guruh dueliga chaqiraman! 2 dan 10 kishigacha bir vaqtda: 20 ta savol (15 provodka + 5 savol), kim birinchi to'g'ri topsa — ochko o'shaniki. Havolani bosing va kiring ⚡");
   openTg("https://t.me/share/url?url=" + encodeURIComponent(quadLink(code)) + "&text=" + encodeURIComponent(text));
 }
 export async function createQuad(): Promise<string | null> {
@@ -47,12 +48,12 @@ export function QuadCard() {
   return (
     <section className="ticket quad-ticket" id="quad-card">
       <div className="t-top"><Users size={40} /><div className="grow">
-        <div className="t-title">{t("4 kishilik duel")}</div>
-        <div className="t-meta">{t("Xona oching va havolani hamkasblaringizga yuboring — 2 tadan 4 kishigacha bir vaqtda o'ynaysiz. 20 ta savol: 15 ta provodka + 5 ta savol, o'tgan mavzulardan. Kim birinchi to'g'ri topsa — ochko o'shaniki.")}</div>
+        <div className="t-title">{t("Guruh dueli")}</div>
+        <div className="t-meta">{t("Xona oching va havolani hamkasblaringizga yuboring — 2 tadan 10 kishigacha bir vaqtda o'ynaysiz. 20 ta savol: 15 ta provodka + 5 ta savol, o'tgan mavzulardan. Kim birinchi to'g'ri topsa — ochko o'shaniki.")}</div>
       </div></div>
       {open.length > 0 && <div className="quad-mini">{open.slice(0, 2).map((x) => (
         <button key={x.code} className="quad-mini-r" onClick={() => go("duel", { code: x.code })}>
-          <span className="grow"><b>{x.status === "play" ? t("O'yin davom etmoqda") : t("Xona ochiq · {n}/4", { n: x.n })}</b>
+          <span className="grow"><b>{x.status === "play" ? t("O'yin davom etmoqda") : t("Xona ochiq · {n}/{m}", { n: x.n, m: QMAX })}</b>
             <small>{x.others || t("Hali hech kim kirmadi")}</small></span><ChevronRight size={18} /></button>))}</div>}
       <div className="t-bottom">
         <button className="btn gold" id="quad-create" disabled={busy} onClick={async () => { setBusy(true); await openQuad(); setBusy(false); }}><UserPlus size={18} />{t("Xona ochish va chaqirish")}</button>
@@ -163,16 +164,18 @@ export default function QuadDuel({ code }: { code: string }) {
       <div className="stack" id="quad-lobby">
         <section className="card live-lobby">
           <Users size={34} color="var(--stamp)" />
-          <h3>{t("4 kishilik duel — kutish zali")}</h3>
-          <p className="small muted">{me ? (v.is_host ? t("Havolani hamkasblaringizga yuboring. 4 kishi to'lsa o'yin o'zi boshlanadi, kamroq bo'lsa — «Boshlash»ni bosing.") : t("Siz xonadasiz. Xona egasi o'yinni boshlashini kuting — bu ekranni yopmang."))
+          <h3>{t("Guruh dueli — kutish zali")}</h3>
+          <p className="small muted">{me ? (v.is_host ? t("Havolani hamkasblaringizga yuboring. {m} kishi to'lsa o'yin o'zi boshlanadi, kamroq bo'lsa — «Boshlash»ni bosing.", { m: v.max || QMAX }) : t("Siz xonadasiz. Xona egasi o'yinni boshlashini kuting — bu ekranni yopmang."))
             : t("Xona to'lgan — siz tomoshabinsiz.")}</p>
-          <div className="quad-seats" id="quad-seats">
-            {Array.from({ length: v.max || 4 }, (_, k) => { const p = byS(k + 1); return (
-              <div key={k} className={"seat" + (p ? " on" : "") + (p?.me ? " me" : "") + (p && !p.here ? " away" : "")}>
-                <span className="av">{p ? (p.host ? <Crown size={16} /> : (p.name || "?").slice(0, 1)) : "+"}</span>
-                <b>{p ? nm(p) : t("Bo'sh joy")}</b>
-                <small>{p ? (p.here ? t("ilovada") : t("chiqib ketgan")) : t("havola orqali kiradi")}</small>
-              </div>); })}
+          <div className={"quad-seats" + (P.length > 4 ? " many" : "")} id="quad-seats">
+            {P.map((p) => (
+              <div key={p.s} className={"seat on" + (p.me ? " me" : "") + (!p.here ? " away" : "")}>
+                <span className="av">{p.host ? <Crown size={16} /> : (p.name || "?").slice(0, 1)}</span>
+                <b>{nm(p)}</b>
+                <small>{p.here ? t("ilovada") : t("chiqib ketgan")}</small>
+              </div>))}
+            {P.length < (v.max || QMAX) && <div className="seat" id="quad-free">
+              <span className="av">+</span><b>{t("{n} ta bo'sh joy", { n: (v.max || QMAX) - P.length })}</b><small>{t("havola orqali kiradi")}</small></div>}
           </div>
           <p className="mono" style={{ fontSize: 20, fontWeight: 700, letterSpacing: ".08em" }}>{code}</p>
           {left > 0 && <p className="tiny muted">{t("Xona yana {m} daqiqa ochiq", { m: Math.max(1, Math.ceil(left / 60000)) })}</p>}
@@ -200,7 +203,7 @@ export default function QuadDuel({ code }: { code: string }) {
           <h2 className="disp" style={{ fontSize: 24 }}>{title}</h2>
           {ranked.length > 0 && <div className="board" id="quad-rank" style={{ textAlign: "left" }}>{ranked.map((p, k) => (
             <div key={p.s} className={"r" + (p.me ? " me" : "") + (k < 3 ? " top" + (k + 1) : "")}>
-              <span className="p">{MEDAL[k]}</span><span className="n">{p.me ? t("Siz") : p.name}<small>{t("{n} ta to'g'ri", { n: p.pts })}{p.pts ? " · " + mmss(p.ms) : ""}</small></span>
+              <span className="p">{MEDAL[k] || k + 1}</span><span className="n">{p.me ? t("Siz") : p.name}<small>{t("{n} ta to'g'ri", { n: p.pts })}{p.pts ? " · " + mmss(p.ms) : ""}</small></span>
               <span className="x">{p.pts}</span></div>))}</div>}
           <p className="small muted" id="quad-note">{v.note === "expired" ? t("30 daqiqa ichida o'yin boshlanmadi — xona yopildi.") : v.note === "cancel" ? t("Xona egasi xonani yopdi.")
             : v.note === "idle" ? t("7 daqiqa davomida hech kim javob bermadi — duel to'xtatildi.") : t("Teng ochkoda to'g'ri javoblarga kam vaqt sarflagan yuqori turadi.")}</p>
@@ -217,7 +220,7 @@ export default function QuadDuel({ code }: { code: string }) {
   const left = Math.max(0, Math.ceil((endAt.current - now) / 1000)), qsec = v.qsec || 90;
   const L = v.last, lw = byS(L?.w);
   const Board = () => (
-    <div className={"quad-score n" + P.length} id="quad-score">
+    <div className={"quad-score n" + Math.min(P.length, 4) + (P.length > 4 ? " many" : "")} id="quad-score">
       {P.map((p) => <div key={p.s} className={"qs" + (p.me ? " me" : "") + (p.locked ? " lk" : "") + (!p.here ? " away" : "")}>
         <b className="num">{p.pts}</b><span>{nm(p)}</span>{p.locked && <i>{t("xato")}</i>}</div>)}
       <div className="qs-mid"><small className="num">{Math.min(v.cur + 1, v.n)}/{v.n}</small><small>{v.cur < 15 ? t("Provodka") : t("Savol")}</small></div>
@@ -243,7 +246,7 @@ export default function QuadDuel({ code }: { code: string }) {
           <motion.article key={"q" + v.cur} className={"qcard" + (me ? "" : " watch")} id={me ? "quad-q" : "quad-watch-q"} initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
             {me && <div className="wm" aria-hidden="true">{wm}</div>}
             <div className="row" style={{ marginBottom: 8 }}>
-              <span className="qkind grow">{me ? t("4 kishilik duel") : t("Tomosha")} · {t(item.t === "pv" ? "Provodka tuzing" : item.t === "mc" ? "Test" : "Hisoblang")}</span>
+              <span className="qkind grow">{me ? t("Guruh dueli") : t("Tomosha")} · {t(item.t === "pv" ? "Provodka tuzing" : item.t === "mc" ? "Test" : "Hisoblang")}</span>
               <Ring pct={left / qsec} size={40} stroke={4} color={left <= 8 ? "var(--red)" : "var(--stamp)"}><b className="num" style={{ fontSize: 13 }}>{left}</b></Ring>
             </div>
             <p className="qtext">{tx(item.q)}</p>

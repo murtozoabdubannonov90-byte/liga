@@ -79,12 +79,12 @@ const RU: Record<string, string> = {
   "Duelni ochish": "Открыть дуэль",
   "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i.": "⚔️ <b>Вас вызвали на дуэль!</b>\n10 вопросов: побеждает тот, кто ответит правильно на большее число, при равенстве — кто быстрее.",
   "Duelga kirish": "Принять дуэль",
-  "👥 <b>Sizni 4 kishilik duelga chaqirishdi!</b>\n20 ta savol (15 provodka + 5 savol), 2–4 kishi bir vaqtda o'ynaydi: kim birinchi to'g'ri topsa — ochko o'shaniki.\nXona 30 daqiqa ochiq, joy 4 ta.": "👥 <b>Вас позвали на дуэль на четверых!</b>\n20 вопросов (15 проводок + 5 вопросов), играют 2–4 человека одновременно: кто первым ответит верно — тому очко.\nКомната открыта 30 минут, мест — 4.",
+  "👥 <b>Sizni guruh dueliga chaqirishdi!</b>\n20 ta savol (15 provodka + 5 savol), 2 dan 10 kishigacha bir vaqtda o'ynaydi: kim birinchi to'g'ri topsa — ochko o'shaniki.\nXona 30 daqiqa ochiq, joy 10 ta.": "👥 <b>Вас позвали на групповую дуэль!</b>\n20 вопросов (15 проводок + 5 вопросов), играют от 2 до 10 человек одновременно: кто первым ответит верно — тому очко.\nКомната открыта 30 минут, мест — 10.",
   "Xonaga kirish": "Войти в комнату",
   " (siz)": " (вы)",
   "🤝 <b>Durang!</b> Siz birinchi o'rinni bo'lishdingiz.": "🤝 <b>Ничья!</b> Вы разделили первое место.",
-  "🏆 <b>Siz yutdingiz!</b> 4 kishilik duelda birinchi o'rin.": "🏆 <b>Вы победили!</b> Первое место в дуэли на четверых.",
-  "👥 <b>4 kishilik duel yakunlandi.</b> Siz {p}-o'rindasiz.": "👥 <b>Дуэль на четверых завершена.</b> Вы на {p}-м месте.",
+  "🏆 <b>Siz yutdingiz!</b> Guruh duelida birinchi o'rin.": "🏆 <b>Вы победили!</b> Первое место в групповой дуэли.",
+  "👥 <b>Guruh dueli yakunlandi.</b> Siz {p}-o'rindasiz ({n} kishidan).": "👥 <b>Групповая дуэль завершена.</b> Вы на {p}-м месте (из {n}).",
   "⏸ 7 daqiqa hech kim javob bermagani uchun duel to'xtatildi.": "⏸ Дуэль остановлена: никто не отвечал 7 минут.",
   "Sizda {k} ta to'g'ri javob ({n} ta savoldan).": "У вас {k} верных ответов (из {n}).",
   "Natijani ko'rish": "Посмотреть результат",
@@ -1089,7 +1089,7 @@ async function onUpdate0(u: any) {
   if (priv && cmd === "/start" && /^d_[A-Za-z0-9]+$/i.test(arg)) {
     const lang = await playerLang(m.from?.id);
     const live = /^L[A-Z0-9]{6}$/i.test(arg.slice(2)), quad = /^Q[A-Z0-9]{6}$/i.test(arg.slice(2));
-    if (quad) return reply(tr(lang, "👥 <b>Sizni 4 kishilik duelga chaqirishdi!</b>\n20 ta savol (15 provodka + 5 savol), 2–4 kishi bir vaqtda o'ynaydi: kim birinchi to'g'ri topsa — ochko o'shaniki.\nXona 30 daqiqa ochiq, joy 4 ta."), appBtn(tr(lang, "Xonaga kirish"), "?d=" + arg.slice(2).toUpperCase()));
+    if (quad) return reply(tr(lang, "👥 <b>Sizni guruh dueliga chaqirishdi!</b>\n20 ta savol (15 provodka + 5 savol), 2 dan 10 kishigacha bir vaqtda o'ynaydi: kim birinchi to'g'ri topsa — ochko o'shaniki.\nXona 30 daqiqa ochiq, joy 10 ta."), appBtn(tr(lang, "Xonaga kirish"), "?d=" + arg.slice(2).toUpperCase()));
     return reply(tr(lang, live ? "⚡ <b>Sizni jonli duelga chaqirishdi!</b>\n10 ta savol, ikkalangiz bir vaqtda o'ynaysiz: kim birinchi to'g'ri topsa — ochko o'shaniki." : "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i."), appBtn(tr(lang, "Duelga kirish"), "?d=" + arg.slice(2).toUpperCase()));
   }
   if (cmd === "/start" || cmd === "/liga") {
@@ -1687,13 +1687,13 @@ async function smsStatusText() {
     `Buyruqlar: /sms on · /sms off · /sms test 998901234567 · /sms cap 400`;
 }
 
-// ---------------- 4 kishilik duel: natija har bir o'yinchiga shaxsan (guruhga yuborilmaydi) ----------------
-const QMEDAL = ["🥇", "🥈", "🥉", "4."];
+// ---------------- guruh dueli (2–10 kishi): natija har bir o'yinchiga shaxsan (guruhga yuborilmaydi) ----------------
+const QMEDAL = ["🥇", "🥈", "🥉"];
 function quadText(r: any, me: any, lang: string | null): string {
   const lines = (r.players ?? []).map((p: any) => `${QMEDAL[p.place - 1] ?? p.place + "."} ${esc(String(p.name ?? ""))} — <b>${p.pts}</b>${p === me ? tr(lang, " (siz)") : ""}`).join("\n");
   const head = r.tie && me.place === 1 ? tr(lang, "🤝 <b>Durang!</b> Siz birinchi o'rinni bo'lishdingiz.")
-    : me.place === 1 ? tr(lang, "🏆 <b>Siz yutdingiz!</b> 4 kishilik duelda birinchi o'rin.")
-    : tr(lang, "👥 <b>4 kishilik duel yakunlandi.</b> Siz {p}-o'rindasiz.", { p: me.place });
+    : me.place === 1 ? tr(lang, "🏆 <b>Siz yutdingiz!</b> Guruh duelida birinchi o'rin.")
+    : tr(lang, "👥 <b>Guruh dueli yakunlandi.</b> Siz {p}-o'rindasiz ({n} kishidan).", { p: me.place, n: (r.players ?? []).length });
   const idle = r.note === "idle" ? "\n" + tr(lang, "⏸ 7 daqiqa hech kim javob bermagani uchun duel to'xtatildi.") : "";
   return `${head}\n\n${lines}\n\n${tr(lang, "Sizda {k} ta to'g'ri javob ({n} ta savoldan).", { k: me.pts, n: r.n })}${idle}`;
 }

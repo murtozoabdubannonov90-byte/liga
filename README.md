@@ -44,6 +44,10 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-28c: Guruh dueli — 10 kishigacha
+- «4 kishilik duel» endi **«Guruh dueli»** (nomda son yo'q): bir xonada 2 tadan **10 kishigacha**. 10 kishi to'lib, hammasi ilovada bo'lsa o'yin o'zi boshlanadi; kamroq bo'lsa egasi «Boshlash»ni bosadi. Kutish zalida kirganlar va «N ta bo'sh joy», 4 dan ko'p kishida tablo va joylar ixcham ko'rinadi; yakunda 1–10 o'rinlar. Botdagi shaxsiy natija: «Siz N-o'rindasiz (M kishidan)».
+- SQL: `db/2026-10-28c_guruh_dueli_10_kishi.sql` (`liga_quad_max()` = 10, joy tekshiruvi 1–10). Testlar: 318 ta.
+
 ## 2026-10-28: 4 kishilik duel (Asosiy ekranda)
 - **Qayerda:** Asosiy → «4 kishilik duel» kartasi → «Xona ochish va chaqirish» (Duel sahifasida ham bor). Xona kodi `Q` + 6 belgi, havola `t.me/Buxgalterlar_Ligasi_bot?start=d_QXXXXXX` — bot «Xonaga kirish» tugmasi bilan ilovani ochadi.
 - **Kim o'ynaydi:** xonani ochgan kishi havolani yuboradi, qolganlar shu havola orqali kiradi — 2 tadan 4 kishigacha. 4 kishi to'lib, hammasi ilovada bo'lsa o'yin o'zi boshlanadi; kamroq bo'lsa xona egasi «Boshlash»ni bosadi (kamida 2 kishi ilovada). Joy to'lgach kirganlar — tomoshabin. Xona 30 daqiqa ochiq, keyin yopiladi. Egasi «Xonani yopish», boshqalar «Xonadan chiqish» (o'yin boshlanmasdan).

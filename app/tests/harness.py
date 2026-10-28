@@ -76,11 +76,11 @@ CERTS = {
                "week": {"id": "2026-09-25T07:00", "no": 39, "from": "2026-09-21", "to": "2026-09-25"}, "issued_at": "2026-10-01T10:00:00Z", "checked_at": "2026-10-01T05:00:00Z",
                "sig": "BE84-983E-0F75-FF79", "signer": "Hisobchi Liga Kengashi", "serial": "HL-2026-39-2-EFGH6789", "peers": [dict(p, me=p["pos"] == 2) for p in _PEERS]},
 }
-# ---- 4 kishilik duel taqlidi ----
+# ---- guruh dueli (2–10 kishi) taqlidi ----
 QUAD = {}
 def quad_reset(**kw):
     items, ans = mk_items(20)
-    QUAD.clear(); QUAD.update({"code": "QWERTY7", "status": "wait", "me": 1, "is_host": True, "max": 4, "n": 20, "cur": 0, "qsec": 90, "q_in": 0, "left": 25000,
+    QUAD.clear(); QUAD.update({"code": "QWERTY7", "status": "wait", "me": 1, "is_host": True, "max": 10, "n": 20, "cur": 0, "qsec": 90, "q_in": 0, "left": 25000,
         "closes_in": 1500000, "locked": False, "last": None, "winner": None, "items": items, "ans": ans,
         "players": [{"s": 1, "name": "Dilnoza K.", "pts": 0, "ms": 0, "here": True, "host": True, "me": True, "locked": False}]})
     QUAD.update(kw)

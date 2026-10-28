@@ -841,18 +841,18 @@ with sync_playwright() as p:
     st = calls("liga_px_admin_set")
     check("superadmin: jamg'arma ulushi saqlanadi", bool(st) and st[-1] == {"p_pin": "9999", "p_key": "px_fund_per_pay", "p_val": "7000"}, st)
 
-    print("10q. 4 kishilik duel")
+    print("10q. Guruh dueli (2–10 kishi)")
     pg, e = page(b); ALLERR += e
     qc = pg.inner_text("#quad-card") if pg.locator("#quad-card").count() else ""
-    check("asosiy ekranda «4 kishilik duel» bo'limi", "4 kishilik duel" in qc and "15 ta provodka + 5 ta savol" in qc and "o'tgan mavzulardan" in qc, qc[:200])
+    check("asosiy ekranda «Guruh dueli» bo'limi (2–10 kishi)", "Guruh dueli" in qc and "2 tadan 10 kishigacha" in qc and "15 ta provodka + 5 ta savol" in qc and "o'tgan mavzulardan" in qc, qc[:200])
     CALLS.clear(); pg.click("#quad-create"); pg.wait_for_timeout(1500)
-    check("xona ochildi: kutish zali, kod, 3 ta bo'sh joy", pg.locator("#quad-lobby").count() == 1 and "QWERTY7" in txt(pg) and pg.locator("#quad-seats .seat:not(.on)").count() == 3)
+    check("xona ochildi: kutish zali, kod, 9 ta bo'sh joy", pg.locator("#quad-lobby").count() == 1 and "QWERTY7" in txt(pg) and "9 ta bo'sh joy" in pg.inner_text("#quad-free") and "10 kishi to'lsa" in txt(pg))
     check("xona ochilganda havola yuborish oynasi", bool(calls("liga_quad_create")) and calls("liga_quad_create")[0].get("p_token") == "tok1")
     check("yolg'iz — «Boshlash» yopiq", pg.locator("#quad-start").is_disabled() and "Kamida 2 kishi kerak" in pg.inner_text("#quad-start"))
     QUAD["players"] += [{"s": 2, "name": "Aziz R.", "pts": 0, "ms": 0, "here": True, "host": False, "me": False, "locked": False},
                         {"s": 3, "name": "Malika S.", "pts": 0, "ms": 0, "here": True, "host": False, "me": False, "locked": False}]
     pg.wait_for_timeout(1500)
-    check("hamkasblar havola orqali kirdi — ismlari joylarda", "Aziz R." in pg.inner_text("#quad-seats") and "Malika S." in pg.inner_text("#quad-seats") and pg.locator("#quad-seats .seat.on").count() == 3)
+    check("hamkasblar havola orqali kirdi — ismlari joylarda", "Aziz R." in pg.inner_text("#quad-seats") and "Malika S." in pg.inner_text("#quad-seats") and pg.locator("#quad-seats .seat.on").count() == 3 and "7 ta bo'sh joy" in pg.inner_text("#quad-free"))
     check("«Boshlash (3 kishi)» ochiq", not pg.locator("#quad-start").is_disabled() and "3" in pg.inner_text("#quad-start"))
     pg.click("#quad-start"); pg.wait_for_timeout(1500)
     sc = pg.inner_text("#quad-score") if pg.locator("#quad-score").count() else ""
@@ -893,14 +893,27 @@ with sync_playwright() as p:
     pg, e = page(b, query="?d=QWERTY7"); ALLERR += e; pg.wait_for_timeout(800)
     check("havola orqali kirish: kutish zali, «Boshlash» faqat egasida", pg.locator("#quad-lobby").count() == 1 and pg.locator("#quad-start").count() == 0 and "boshlashini kuting" in txt(pg))
     check("havola orqali: «Xonadan chiqish»", "Xonadan chiqish" in pg.inner_text("#quad-leave"))
-    QUAD.update({"status": "play", "me": None, "q_in": 0}); pg.wait_for_timeout(1500)
+    QUAD["players"] = [{"s": i, "name": f"O'yinchi{i} X.", "pts": 10 - i, "ms": 0, "here": True, "host": i == 1, "me": i == 2, "locked": i == 5} for i in range(1, 11)]
+    pg.wait_for_timeout(1500)
+    check("10 kishi to'ldi: bo'sh joy qolmadi", pg.locator("#quad-seats .seat.on").count() == 10 and pg.locator("#quad-free").count() == 0)
+    QUAD.update({"status": "play", "q_in": 0}); pg.wait_for_timeout(1500)
+    sc = pg.inner_text("#quad-score") if pg.locator("#quad-score").count() else ""
+    check("10 kishilik tablo: hammasi ko'rinadi, ixcham", pg.locator("#quad-score .qs").count() == 10 and pg.locator("#quad-score.many").count() == 1 and "O'yinchi10 X." in sc)
+    check("10 kishida ekran sig'adi (390px)", pg.evaluate("()=>document.documentElement.scrollWidth<=390"))
+    QUAD.update({"status": "done", "rank": list(range(1, 11)), "winner": 1}); pg.wait_for_timeout(1500)
+    rk = pg.inner_text("#quad-rank") if pg.locator("#quad-rank").count() else ""
+    check("10 kishilik yakun: o'rinlar 1–10, siz 2-o'rinda", pg.locator("#quad-rank .r").count() == 10 and "Siz 2-o'rindasiz" in txt(pg) and "10" in rk)
+    quad_reset(me=2, is_host=False, players=[{"s": 1, "name": "Aziz R.", "pts": 0, "ms": 0, "here": True, "host": True, "me": False, "locked": False},
+                                             {"s": 2, "name": "Dilnoza K.", "pts": 0, "ms": 0, "here": True, "host": False, "me": True, "locked": False}])
+    QUAD.update({"status": "play", "me": None, "q_in": 0})
+    pg, e = page(b, query="?d=QWERTY7"); ALLERR += e; pg.wait_for_timeout(1500)
     check("tomoshabin: javob tugmasi yo'q", pg.locator("#quad-spectator").count() == 1 and pg.locator("#quad-send").count() == 0 and pg.locator("#quad-watch-q").count() == 1)
     pg, e = page(b, w=320, h=640, query="?d=QWERTY7"); ALLERR += e; pg.wait_for_timeout(600)
-    check("320px: 4 kishilik duel sig'adi", pg.evaluate("()=>document.documentElement.scrollWidth<=320"))
+    check("320px: guruh dueli sig'adi", pg.evaluate("()=>document.documentElement.scrollWidth<=320"))
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
-    check("RU: «Дуэль на четверых»", "Дуэль на четверых" in (pg.inner_text("#quad-card") if pg.locator("#quad-card").count() else ""))
+    check("RU: «Групповая дуэль»", "Групповая дуэль" in (pg.inner_text("#quad-card") if pg.locator("#quad-card").count() else ""))
     pg, e = page(b); ALLERR += e; go(pg, "duel")
-    check("Duel sahifasida ham 4 kishilik duel", pg.locator("#create-quad").count() == 1)
+    check("Duel sahifasida ham guruh dueli", pg.locator("#create-quad").count() == 1)
 
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e

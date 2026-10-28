@@ -703,7 +703,13 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .px-big{font-family:var(--display);font-size:56px;font-weight:700;line-height:1;color:var(--stamp)}
 .px-play .timer b{font-family:var(--display);font-size:13px}
 .px-qtimer i{transition:width .25s linear}
-/* 4 kishilik duel */
+/* Guruh dueli (2–10 kishi) */
+.quad-seats.many .seat{grid-template-columns:auto 1fr;justify-items:start;align-items:center;column-gap:8px;row-gap:0;padding:7px 9px;text-align:left}
+.quad-seats.many .av{grid-row:span 2;width:28px;height:28px;font-size:13px}
+.quad-score.many{gap:4px 6px;padding:8px 10px}
+.quad-score.many .qs{padding:4px 7px}
+.quad-score.many .qs b{font-size:19px}
+.quad-score.many .qs span{font-size:12px}
 .quad-ticket{background:linear-gradient(135deg,var(--board),#5a2d82)}
 .quad-ticket::after{bottom:58px}
 .quad-mini{display:grid;gap:6px;margin-top:12px;position:relative;z-index:1}
