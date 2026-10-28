@@ -2034,6 +2034,22 @@ async function onCron(action: string, body: any = {}) {
     const r = await tg("sendMessage", { chat_id: cfg.chat, parse_mode: "HTML", text });
     return { ok: !!r?.ok, mid: r?.result?.message_id, err: r?.ok ? undefined : r?.description };
   }
+  if (action === "warn_dup_acc") {
+    // 28.10.2026: ikki akkaunt bo'yicha ogohlantirish — muhokama guruhida aniq o'yinchiga murojaat bilan (bir marta)
+    const tgId = Number(body.tg); const name = esc(String(body.name ?? "").trim());
+    if (!tgId || !name) return { ok: false, why: "no_tg" };
+    const cfg = await discussCfg(); if (!cfg) return { ok: false, why: "no_group" };
+    if (!(await once("warn_dup_acc:" + tgId))) return { skip: "already" };
+    const first = esc(String(body.name).trim().split(/\s+/)[0]);
+    const text = "⚠️ <b>Halol o'yin bo'yicha ogohlantirish</b>\n\n" +
+      `Ligada <a href="tg://user?id=${tgId}">${name}</a> nomidan <b>2 ta akkaunt</b> ro'yxatdan o'tgani aniqlandi (ikkalasi ham 14-oktabrda, 50 daqiqa farq bilan ochilgan).\n\n` +
+      "Tekshiruvda shu holat ko'rindi: har kuni avval bitta akkauntda bosqich o'ynaladi, oradan biroz vaqt o'tib ikkinchi akkauntda o'sha savollar <b>20/20 — 450 ball</b> bilan yechiladi. Dushanba, seshanba va chorshanba — uch kun ketma-ket shunday bo'lgan.\n\n" +
+      "📌 Liga qoidasi: <b>bir kishi — bitta akkaunt.</b> Ikkinchi akkaunt orqali savollarni oldindan ko'rib olish boshqa ishtirokchilarga nisbatan adolatsizlik.\n\n" +
+      `${first}, iltimos, qaysi akkauntingiz asosiy ekanini shu yerda yoki @murtozo_44 ga yozing. Masala hal bo'lguncha ikkinchi akkaunt natijalari reytingda hisobga olinmaydi.\n\n` +
+      "Boshqa ishtirokchilarga ham: kimda ikkinchi akkaunt bo'lsa, adminga yozing — natijalaringiz bitta akkauntga birlashtiriladi.";
+    const r = await tg("sendMessage", { chat_id: cfg.chat, parse_mode: "HTML", text });
+    return { ok: !!r?.ok, mid: r?.result?.message_id, err: r?.ok ? undefined : r?.description };
+  }
   if (action === "announce_ai_rule") {
     // 24.10.2026: AI taqiqi haqida umumiy qoida (ism aytilmaydi) + shanba duellari — guruhlarga bir marta
     if (!(await once("announce_ai_rule"))) return { skip: "already" };
