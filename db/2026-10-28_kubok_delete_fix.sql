@@ -4,7 +4,7 @@
 -- liga_cup_list / liga_day_duel_me / liga_cup_due_sys avval liga_cup_try_advance ni chaqiradi,
 -- shuning uchun raund tugagach (ayniqsa 17:00 finaldan keyin) ilovadan kelgan har so'rov 400 qaytardi
 -- (27.10 da ~1000 marta). Cron (pg_cron) yo'lida safeupdate yo'q — kubok o'zi oxiriga yetgan.
--- Tuzatish: 1) `where true`; 2) chempion aniqlangan bo'lsa darhol chiqish (ortiqcha ish yo'q).
+-- Tuzatish: `delete from _cup_w where true;` (28.10 08:55 da bazaga qo'llandi).
 
 CREATE OR REPLACE FUNCTION public.liga_cup_advance(p_group text)
  RETURNS void
@@ -15,7 +15,6 @@ AS $function$
 declare td date := public.liga_today(); r int; d record; l public.liga_live; w uuid; arr uuid[]; k int; m int; p int; base time; nowt time;
 begin
   perform pg_advisory_xact_lock(hashtext('liga_cup|' || p_group));
-  if exists (select 1 from public.liga_day_cups c where c.day = td and c.group_code = p_group and c.champion is not null) then return; end if;
   select max(x.round) into r from public.liga_day_duels x where x.day = td and x.group_code = p_group;
   if r is null then return; end if;
   for d in select * from public.liga_day_duels x where x.day = td and x.group_code = p_group and x.round = r loop
