@@ -79,6 +79,8 @@ const RU: Record<string, string> = {
   "Duelni ochish": "Открыть дуэль",
   "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i.": "⚔️ <b>Вас вызвали на дуэль!</b>\n10 вопросов: побеждает тот, кто ответит правильно на большее число, при равенстве — кто быстрее.",
   "Duelga kirish": "Принять дуэль",
+  "👥 <b>Sizni 4 kishilik duelga chaqirishdi!</b>\n20 ta savol (15 provodka + 5 savol), 2–4 kishi bir vaqtda o'ynaydi: kim birinchi to'g'ri topsa — ochko o'shaniki.\nXona 30 daqiqa ochiq, joy 4 ta.": "👥 <b>Вас позвали на дуэль на четверых!</b>\n20 вопросов (15 проводок + 5 вопросов), играют 2–4 человека одновременно: кто первым ответит верно — тому очко.\nКомната открыта 30 минут, мест — 4.",
+  "Xonaga kirish": "Войти в комнату",
   "⚡ <b>Sizni jonli duelga chaqirishdi!</b>\n10 ta savol, ikkalangiz bir vaqtda o'ynaysiz: kim birinchi to'g'ri topsa — ochko o'shaniki.": "⚡ <b>Вас вызвали на живую дуэль!</b>\n10 вопросов, вы играете одновременно: очко получает тот, кто первым ответит верно.",
   "👋 <b>Hisobchi Liga</b>ga xush kelibsiz!\nDo'stingiz sizni taklif qildi. Ro'yxatdan o'ting — haftalik ligada bellashamiz.": "👋 Добро пожаловать в <b>Hisobchi Liga</b>!\nВас пригласил друг. Зарегистрируйтесь — и соревнуйтесь в еженедельной лиге.",
   "Ro'yxatdan o'tish": "Зарегистрироваться",
@@ -1079,7 +1081,8 @@ async function onUpdate0(u: any) {
   }
   if (priv && cmd === "/start" && /^d_[A-Za-z0-9]+$/i.test(arg)) {
     const lang = await playerLang(m.from?.id);
-    const live = /^L[A-Z0-9]{6}$/i.test(arg.slice(2));
+    const live = /^L[A-Z0-9]{6}$/i.test(arg.slice(2)), quad = /^Q[A-Z0-9]{6}$/i.test(arg.slice(2));
+    if (quad) return reply(tr(lang, "👥 <b>Sizni 4 kishilik duelga chaqirishdi!</b>\n20 ta savol (15 provodka + 5 savol), 2–4 kishi bir vaqtda o'ynaydi: kim birinchi to'g'ri topsa — ochko o'shaniki.\nXona 30 daqiqa ochiq, joy 4 ta."), appBtn(tr(lang, "Xonaga kirish"), "?d=" + arg.slice(2).toUpperCase()));
     return reply(tr(lang, live ? "⚡ <b>Sizni jonli duelga chaqirishdi!</b>\n10 ta savol, ikkalangiz bir vaqtda o'ynaysiz: kim birinchi to'g'ri topsa — ochko o'shaniki." : "⚔️ <b>Sizni duelga chaqirishdi!</b>\n10 ta savol: kim ko'proq to'g'ri topsa — g'olib, teng bo'lsa tezrog'i."), appBtn(tr(lang, "Duelga kirish"), "?d=" + arg.slice(2).toUpperCase()));
   }
   if (cmd === "/start" || cmd === "/liga") {

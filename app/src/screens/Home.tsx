@@ -18,6 +18,7 @@ import { finalCanPlay } from "./FinalLive";
 import { sfx } from "../lib/fx";
 import { DeadlineCard, NewsCard } from "./Tools";
 import { PerksCard, TeamLiveCard, DayDuelCard } from "./Perks";
+import { QuadCard } from "./QuadDuel";
 import { GrandCard } from "./Grand";
 import { InfoCard } from "../components/Malumot";
 import { RatesCard } from "../components/Rates";
@@ -194,6 +195,7 @@ export default function Home() {
         <FirstStepCard />
         <Ticket />
         <DayDuelCard />
+        <QuadCard />
         <PxCard />
         <GrandCard />
         <PerksCard />

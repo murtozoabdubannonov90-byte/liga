@@ -44,6 +44,15 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-28: 4 kishilik duel (Asosiy ekranda)
+- **Qayerda:** Asosiy → «4 kishilik duel» kartasi → «Xona ochish va chaqirish» (Duel sahifasida ham bor). Xona kodi `Q` + 6 belgi, havola `t.me/Buxgalterlar_Ligasi_bot?start=d_QXXXXXX` — bot «Xonaga kirish» tugmasi bilan ilovani ochadi.
+- **Kim o'ynaydi:** xonani ochgan kishi havolani yuboradi, qolganlar shu havola orqali kiradi — 2 tadan 4 kishigacha. 4 kishi to'lib, hammasi ilovada bo'lsa o'yin o'zi boshlanadi; kamroq bo'lsa xona egasi «Boshlash»ni bosadi (kamida 2 kishi ilovada). Joy to'lgach kirganlar — tomoshabin. Xona 30 daqiqa ochiq, keyin yopiladi. Egasi «Xonani yopish», boshqalar «Xonadan chiqish» (o'yin boshlanmasdan).
+- **Savollar:** 20 ta — avval 15 ta provodka, keyin 5 ta savol (test/hisob). Faqat o'tgan mavzulardan: eski bosqichlar `s0–s11` va **bugundan oldingi** kunlik bosqichlar `dYYYYMMDD` (bugungi va ertangi bosqich savollari chiqmaydi). Shu hafta o'yinchilar ko'rmagan savollar birinchi.
+- **Qoida:** jonli dueldagidek — kim birinchi to'g'ri javob bersa +1 ochko va hammaga keyingi savol; xato javob bergan shu savolda qulflanadi; ilovadagilarning hammasi xato qilsa yoki 90 soniya o'tsa — keyingi savol (javobi ko'rsatiladi). Teng ochkoda to'g'ri javoblarga kam vaqt sarflagan yuqori. 7 daqiqa hech kim javob bermasa — duel to'xtaydi. Halol o'yin: 3 soniyadan ko'p boshqa ilovaga chiqqan shu savolda qulflanadi (`liga_away`, kind `quad`), nusxalash yopiq, ekranda ism suv belgisi.
+- Liga baliga qo'shilmaydi; g'olibga «Duelchi» yutug'i. Obunasi faol bo'lmagan kishi xona ocha olmaydi va kira olmaydi.
+- **Server:** `db/2026-10-28_tortlik_duel.sql` — jadvallar `liga_quad`, `liga_quad_p`; funksiyalar `liga_quad_create/state/start/leave/answer/away/list`. Sinov: `db/tests/2026-10-28_tortlik_duel_test.sql` (25 ta tekshiruv, oxirida o'zini bekor qiladi — bazada iz qolmaydi).
+- Ilova: `app/src/screens/QuadDuel.tsx`. Testlar: 23 ta yangi (`10q`).
+
 ## 2026-10-24: Botda savol-javob (AI internetdan qidiradi)
 - Shaxsiy chatda savolni shunchaki yozish yoki istalgan joyda `/savol matn` — bot AI (Anthropic Claude + web search) orqali lex.uz, soliq.uz va boshqa manbalardan eng so'nggi ma'lumotni qidirib, manbalari bilan javob beradi (uz/ўз/ru).
 - O'yin vaqtida yopiq: ochiq bosqich, bugungi tugallanmagan musobaqa sessiyasi yoki jonli duel bo'lsa — javob yo'q (`liga_ai_busy_sys`). 09:00–18:00 da liga/musobaqa savoliga o'xshash savolga ham javob yo'q (liga_bank bilan so'z o'xshashligi ≥60%).

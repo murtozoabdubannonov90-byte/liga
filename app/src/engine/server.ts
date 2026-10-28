@@ -18,6 +18,7 @@ export const ERR: Record<string, string> = {
   bad_input: "Ma'lumotlarni tekshiring", too_many: "Juda ko'p urinish — birozdan keyin qayta urinib ko'ring",
   final_closed: "Final yopiq — faqat final kuni soat 10:00–13:00", not_qualified: "Siz bu oy finalga saralanmagansiz",
   not_winner: "Taklif faqat o'tgan hafta g'olibi uchun", bad_image: "Chek rasmini qayta tanlang (JPG yoki PNG)",
+  not_host: "O'yinni faqat xona egasi boshlaydi", quad_few: "Boshlash uchun kamida 2 kishi xonada (ilovada) bo'lishi kerak",
   bad_token: "Hisobingiz bu telefonga ulanmagan — «Qayta ulanish» tugmasini bosing", duel_taken: "Bu duelni boshqa odam qabul qilgan",
   already_done: "Siz buni allaqachon bajargansiz", duel_expired: "Duel muddati tugagan", not_found: "Topilmadi",
   test_closed: "Test yopilgan", not_eligible: "Sertifikat uchun shart bajarilmagan", not_admin: "PIN noto'g'ri", unpaid: "Ligaga qo'shilish uchun obuna kerak", stage_closed: "Bosqich hozir yopiq",

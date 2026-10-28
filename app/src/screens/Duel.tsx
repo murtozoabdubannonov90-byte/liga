@@ -12,7 +12,8 @@ import { entry } from "../boot";
 import { sfx, burst } from "../lib/fx";
 import { playerBlocked } from "./Home";
 import LiveDuel, { isLive, createLive, shareLive } from "./LiveDuel";
-import { Zap } from "lucide-react";
+import { Zap, Users } from "lucide-react";
+import QuadDuel, { isQuad, openQuad } from "./QuadDuel";
 
 export const duelLink = (code: string) => BOT_LINK + "?start=d_" + code;
 export function botNotify(code: string, _x?: any) { botApp("duel_done", { code }).catch(() => {}); }
@@ -79,7 +80,10 @@ export default function Duel({ code }: { code?: string }) {
   return (
     <div className="shell bare">
       <PageTitle title={t("Duel")} />
-      {c ? (isLive(c) ? <LiveDuel code={c} /> : <DuelView code={c} />) : <div className="stack">
+      {c ? (isQuad(c) ? <QuadDuel code={c} /> : isLive(c) ? <LiveDuel code={c} /> : <DuelView code={c} />) : <div className="stack">
+        <section className="ticket quad-ticket"><div className="t-top"><Users size={42} /><div className="grow"><div className="t-title">{t("4 kishilik duel")}</div>
+          <div className="t-meta">{t("2–4 kishi bir vaqtda: 15 ta provodka + 5 ta savol. Kim birinchi to'g'ri topsa — ochko o'shaniki.")}</div></div></div>
+          <div className="t-bottom"><button className="btn gold" id="create-quad" disabled={busy} onClick={async () => { setBusy(true); await openQuad(true); setBusy(false); }}><Users size={18} />{t("Xona ochish va chaqirish")}</button></div></section>
         <section className="ticket live-ticket"><div className="t-top"><Zap size={42} /><div className="grow"><div className="t-title">{t("Jonli duel — kim tezroq")}</div>
           <div className="t-meta">{t("Ikkalangiz bir vaqtda o'ynaysiz. Kim birinchi to'g'ri javob bersa — ochko o'shaniki va keyingi savolga o'tiladi.")}</div></div></div>
           <div className="t-bottom"><button className="btn gold" id="create-live" disabled={busy} onClick={createL}><Zap size={18} />{t("Jonli duel yaratish")}</button></div></section>

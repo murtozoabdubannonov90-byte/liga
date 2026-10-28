@@ -76,7 +76,36 @@ CERTS = {
                "week": {"id": "2026-09-25T07:00", "no": 39, "from": "2026-09-21", "to": "2026-09-25"}, "issued_at": "2026-10-01T10:00:00Z", "checked_at": "2026-10-01T05:00:00Z",
                "sig": "BE84-983E-0F75-FF79", "signer": "Hisobchi Liga Kengashi", "serial": "HL-2026-39-2-EFGH6789", "peers": [dict(p, me=p["pos"] == 2) for p in _PEERS]},
 }
+# ---- 4 kishilik duel taqlidi ----
+QUAD = {}
+def quad_reset(**kw):
+    items, ans = mk_items(20)
+    QUAD.clear(); QUAD.update({"code": "QWERTY7", "status": "wait", "me": 1, "is_host": True, "max": 4, "n": 20, "cur": 0, "qsec": 90, "q_in": 0, "left": 25000,
+        "closes_in": 1500000, "locked": False, "last": None, "winner": None, "items": items, "ans": ans,
+        "players": [{"s": 1, "name": "Dilnoza K.", "pts": 0, "ms": 0, "here": True, "host": True, "me": True, "locked": False}]})
+    QUAD.update(kw)
+def quad_view():
+    v = {k: x for k, x in QUAD.items() if k not in ("items", "ans") and x is not None}
+    if QUAD["status"] == "play" and QUAD["q_in"] == 0: v["item"] = QUAD["items"][QUAD["cur"]]
+    return v
+def quad_answer(a):
+    k, p = a["p_k"], a.get("p_ans") or {}; x = QUAD["ans"][k]; t = QUAD["items"][k]["t"]
+    if p.get("left"): QUAD["locked"] = True; return dict(quad_view(), ok=False, why="left")
+    ok = (p.get("dt") == x.get("dt") and p.get("kt") == x.get("kt")) if t == "pv" else (p.get("pick") == x.get("a")) if t == "mc" else (str(p.get("val")) == str(x.get("a")))
+    if ok:
+        me = next(pl for pl in QUAD["players"] if pl["me"]); me["pts"] += 1; me["ms"] += 4000
+        QUAD["last"] = dict(k=k, w=me["s"], w_name=me["name"], q=QUAD["items"][k]["q"], t=t, **x); QUAD["cur"] += 1; QUAD["q_in"] = 2500; QUAD["locked"] = False
+    else: QUAD["locked"] = True
+    return dict(quad_view(), ok=ok, why="" if ok else "wrong")
 def body_for0(fn, args):
+    if fn == "liga_quad_create": quad_reset(); return "QWERTY7"
+    if fn == "liga_quad_state": return quad_view()
+    if fn == "liga_quad_start":
+        if sum(1 for p in QUAD["players"] if p["here"]) < 2: return {"__error": "quad_few"}
+        QUAD.update({"status": "play", "q_in": 0}); return quad_view()
+    if fn == "liga_quad_answer": return quad_answer(args)
+    if fn == "liga_quad_list": return EXTRA.get("_quad_list", [])
+    if fn in ("liga_quad_leave", "liga_quad_away"): return None
     if fn == "liga_live_create": live_reset(); return "LQWERTY"
     if fn == "liga_live_state":
         if LIVE.get("_stale"):
