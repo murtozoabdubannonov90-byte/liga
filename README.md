@@ -52,6 +52,8 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Liga baliga qo'shilmaydi; g'olibga «Duelchi» yutug'i. Obunasi faol bo'lmagan kishi xona ocha olmaydi va kira olmaydi.
 - **Server:** `db/2026-10-28_tortlik_duel.sql` — jadvallar `liga_quad`, `liga_quad_p`; funksiyalar `liga_quad_create/state/start/leave/answer/away/list`. Sinov: `db/tests/2026-10-28_tortlik_duel_test.sql` (25 ta tekshiruv, oxirida o'zini bekor qiladi — bazada iz qolmaydi).
 - Ilova: `app/src/screens/QuadDuel.tsx`. Testlar: 23 ta yangi (`10q`).
+- **Natija — shaxsan bot orqali (guruhga emas):** duel tugashi bilan har bir o'yinchiga (Telegram ulangan bo'lsa) bot yozadi: o'rni, hammaning ochkosi, to'g'ri javoblari soni va «Natijani ko'rish» tugmasi. Faqat boshlangan duellar uchun, bir marta (`liga_quad.notified_at`). Ishlashi: trigger `liga_quad_done` → `liga_bot_call2('quad_done')` → bot `quadDone` → `liga_quad_result_sys`. SQL: `db/2026-10-28b_tortlik_duel_natija_shaxsan.sql`.
+- Eski testlar 18:00 ga moslandi (liga 23.10 dan 18:00 da yopiladi) — hammasi o'tadi: 314 ta.
 
 ## 2026-10-24: Botda savol-javob (AI internetdan qidiradi)
 - Shaxsiy chatda savolni shunchaki yozish yoki istalgan joyda `/savol matn` — bot AI (Anthropic Claude + web search) orqali lex.uz, soliq.uz va boshqa manbalardan eng so'nggi ma'lumotni qidirib, manbalari bilan javob beradi (uz/ўз/ru).

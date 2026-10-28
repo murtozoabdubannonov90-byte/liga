@@ -81,6 +81,13 @@ const RU: Record<string, string> = {
   "Duelga kirish": "Принять дуэль",
   "👥 <b>Sizni 4 kishilik duelga chaqirishdi!</b>\n20 ta savol (15 provodka + 5 savol), 2–4 kishi bir vaqtda o'ynaydi: kim birinchi to'g'ri topsa — ochko o'shaniki.\nXona 30 daqiqa ochiq, joy 4 ta.": "👥 <b>Вас позвали на дуэль на четверых!</b>\n20 вопросов (15 проводок + 5 вопросов), играют 2–4 человека одновременно: кто первым ответит верно — тому очко.\nКомната открыта 30 минут, мест — 4.",
   "Xonaga kirish": "Войти в комнату",
+  " (siz)": " (вы)",
+  "🤝 <b>Durang!</b> Siz birinchi o'rinni bo'lishdingiz.": "🤝 <b>Ничья!</b> Вы разделили первое место.",
+  "🏆 <b>Siz yutdingiz!</b> 4 kishilik duelda birinchi o'rin.": "🏆 <b>Вы победили!</b> Первое место в дуэли на четверых.",
+  "👥 <b>4 kishilik duel yakunlandi.</b> Siz {p}-o'rindasiz.": "👥 <b>Дуэль на четверых завершена.</b> Вы на {p}-м месте.",
+  "⏸ 7 daqiqa hech kim javob bermagani uchun duel to'xtatildi.": "⏸ Дуэль остановлена: никто не отвечал 7 минут.",
+  "Sizda {k} ta to'g'ri javob ({n} ta savoldan).": "У вас {k} верных ответов (из {n}).",
+  "Natijani ko'rish": "Посмотреть результат",
   "⚡ <b>Sizni jonli duelga chaqirishdi!</b>\n10 ta savol, ikkalangiz bir vaqtda o'ynaysiz: kim birinchi to'g'ri topsa — ochko o'shaniki.": "⚡ <b>Вас вызвали на живую дуэль!</b>\n10 вопросов, вы играете одновременно: очко получает тот, кто первым ответит верно.",
   "👋 <b>Hisobchi Liga</b>ga xush kelibsiz!\nDo'stingiz sizni taklif qildi. Ro'yxatdan o'ting — haftalik ligada bellashamiz.": "👋 Добро пожаловать в <b>Hisobchi Liga</b>!\nВас пригласил друг. Зарегистрируйтесь — и соревнуйтесь в еженедельной лиге.",
   "Ro'yxatdan o'tish": "Зарегистрироваться",
@@ -1680,6 +1687,29 @@ async function smsStatusText() {
     `Buyruqlar: /sms on · /sms off · /sms test 998901234567 · /sms cap 400`;
 }
 
+// ---------------- 4 kishilik duel: natija har bir o'yinchiga shaxsan (guruhga yuborilmaydi) ----------------
+const QMEDAL = ["🥇", "🥈", "🥉", "4."];
+function quadText(r: any, me: any, lang: string | null): string {
+  const lines = (r.players ?? []).map((p: any) => `${QMEDAL[p.place - 1] ?? p.place + "."} ${esc(String(p.name ?? ""))} — <b>${p.pts}</b>${p === me ? tr(lang, " (siz)") : ""}`).join("\n");
+  const head = r.tie && me.place === 1 ? tr(lang, "🤝 <b>Durang!</b> Siz birinchi o'rinni bo'lishdingiz.")
+    : me.place === 1 ? tr(lang, "🏆 <b>Siz yutdingiz!</b> 4 kishilik duelda birinchi o'rin.")
+    : tr(lang, "👥 <b>4 kishilik duel yakunlandi.</b> Siz {p}-o'rindasiz.", { p: me.place });
+  const idle = r.note === "idle" ? "\n" + tr(lang, "⏸ 7 daqiqa hech kim javob bermagani uchun duel to'xtatildi.") : "";
+  return `${head}\n\n${lines}\n\n${tr(lang, "Sizda {k} ta to'g'ri javob ({n} ta savoldan).", { k: me.pts, n: r.n })}${idle}`;
+}
+async function quadDone(code: string) {
+  if (!/^Q[A-Z0-9]{6}$/i.test(code)) return { skip: "bad_code" };
+  const { data, error } = await db.rpc("liga_quad_result_sys", { p_code: code });
+  if (error) return { error: error.message };
+  const r = data as any; if (!r) return { skip: "done_before" };
+  let sent = 0;
+  for (const p of r.players ?? []) {
+    if (!p.tg) continue;
+    const lang = p.lang || "uz";
+    if (await dm(p.tg, quadText(r, p, lang), appBtn(tr(lang, "Natijani ko'rish"), "?d=" + r.code))) sent++;
+  }
+  return { ok: true, sent };
+}
 async function onCron(action: string, body: any = {}) {
   if (action === "setup") {
     const url = `${SB_URL}/functions/v1/liga-bot`;
@@ -1879,6 +1909,7 @@ async function onCron(action: string, body: any = {}) {
     return { ok: true, sent: n };
   }
   if (action === "rates") return await fetchRates();
+  if (action === "quad_done") return await quadDone(String(body.code ?? ""));
   if (action === "sms_tick") return await smsTick();
   if (action === "remind_noon") {
     if (w < 1 || w > 5 || !(await once("remind_noon"))) return { skip: true };
