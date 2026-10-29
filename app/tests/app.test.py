@@ -142,7 +142,7 @@ with sync_playwright() as p:
     check("legacy to'plam ES5 (const/=>/class yo'q)", bool(leg) and es5.returncode == 0, (es5.stderr[:300] if es5 else "yo'q"))
     check("ilova yuklangach yuklanish ekrani yo'qoladi", pg.locator("#boot").count() == 0 and pg.evaluate("()=>window.__ligaMounted===true"))
     sw = open(os.path.join(ROOT, "dist", "sw.js"), encoding="utf-8").read()
-    check("service worker: sahifa 5 s da kelmasa — keshdagisi", "netFirst(r, 5000)" in sw and "hisobchi-liga-v3" in sw)
+    check("service worker: sahifa 5 s da kelmasa — keshdagisi", "netFirst(r, 5000)" in sw and "hisobchi-liga-v4" in sw)
     crash = b.new_context().new_page(); cerr = []
     crash.on("pageerror", lambda x: cerr.append(str(x)))
     crash.route("**supabase.co/**", handler); crash.route("**telegram.org/**", lambda r: r.fulfill(status=200, body=""))
@@ -665,7 +665,7 @@ with sync_playwright() as p:
     EXTRA["liga_discuss_link"] = "https://t.me/+AbCdEf123"
     pg, e = page(b); ALLERR += e
     dc = pg.inner_text("#discuss") if pg.locator("#discuss").count() else ""
-    ca = calls("liga_discuss_link")
+    ca = [a for a in calls("liga_discuss_link") if a.get("p_id") == "p1"]   # boshqa ochiq sahifalarning so'rovlari hisobga olinmaydi
     check("bosh sahifada «Ishtirokchilar guruhi» kartasi", "Ishtirokchilar guruhi" in dc and "Qo'shilish" in dc, dc)
     check("guruh havolasi token bilan so'raladi", bool(ca) and ca[-1].get("p_token") == "tok1")
     EXTRA.pop("liga_discuss_link", None)
@@ -845,6 +845,9 @@ with sync_playwright() as p:
     pg, e = page(b); ALLERR += e
     qc = pg.inner_text("#quad-card") if pg.locator("#quad-card").count() else ""
     check("asosiy ekranda «Guruh dueli» bo'limi (2–10 kishi)", "Guruh dueli" in qc and "2 tadan 10 kishigacha" in qc and "15 ta provodka + 5 ta savol" in qc and "o'tgan mavzulardan" in qc, qc[:200])
+    order = pg.evaluate("()=>[...document.querySelectorAll('.shell .stack > *')].map(x=>x.id)")
+    check("guruh dueli yuqorida: kunlik kubokdan oldin", "quad-card" in order and order.index("quad-card") < order.index("day-duel"), order)
+    check("pastki plitkalarda ham «Guruh dueli»", pg.locator(".tiles .tile", has_text="Guruh dueli").count() == 1)
     CALLS.clear(); pg.click("#quad-create"); pg.wait_for_timeout(1500)
     check("xona ochildi: kutish zali, kod, 9 ta bo'sh joy", pg.locator("#quad-lobby").count() == 1 and "QWERTY7" in txt(pg) and "9 ta bo'sh joy" in pg.inner_text("#quad-free") and "10 kishi to'lsa" in txt(pg))
     check("xona ochilganda havola yuborish oynasi", bool(calls("liga_quad_create")) and calls("liga_quad_create")[0].get("p_token") == "tok1")
@@ -912,6 +915,9 @@ with sync_playwright() as p:
     check("320px: guruh dueli sig'adi", pg.evaluate("()=>document.documentElement.scrollWidth<=320"))
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
     check("RU: «Групповая дуэль»", "Групповая дуэль" in (pg.inner_text("#quad-card") if pg.locator("#quad-card").count() else ""))
+    pg, e = page(b); ALLERR += e; go(pg, "duel")
+    pg, e = page(b, seed={**SEED, "pid": "", "token": ""}); ALLERR += e
+    check("ro'yxatdan o'tmagan/ulanmagan bo'lsa ham bo'lim ko'rinadi", pg.locator("#quad-card").count() == 1)
     pg, e = page(b); ALLERR += e; go(pg, "duel")
     check("Duel sahifasida ham guruh dueli", pg.locator("#create-quad").count() == 1)
 

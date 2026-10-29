@@ -44,6 +44,11 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-29: Guruh dueli — har doim ko'rinadi, yuqorida
+- Asosiy oynada «Guruh dueli» endi bugungi bosqichdan keyin darhol (kunlik kubokdan oldin) turadi va pastki plitkalarda ham bor («Guruh dueli · 2–10 kishi bir vaqtda»). Karta hech qachon yashirinmaydi (ro'yxat/ulanish holatidan qat'i nazar; tugma kerak bo'lsa sababini aytadi).
+- Telefonlardagi eski kesh majburan yangilanadi: service worker keshi `hisobchi-liga-v4-20261029`, `__ligaVer` = 2026-10-29.
+- Testlar: 321 ta (bitta beqaror test — boshqa ochiq sahifalar so'rovlari hisobga olinmaydigan qilindi).
+
 ## 2026-10-28c: Guruh dueli — 10 kishigacha
 - «4 kishilik duel» endi **«Guruh dueli»** (nomda son yo'q): bir xonada 2 tadan **10 kishigacha**. 10 kishi to'lib, hammasi ilovada bo'lsa o'yin o'zi boshlanadi; kamroq bo'lsa egasi «Boshlash»ni bosadi. Kutish zalida kirganlar va «N ta bo'sh joy», 4 dan ko'p kishida tablo va joylar ixcham ko'rinadi; yakunda 1–10 o'rinlar. Botdagi shaxsiy natija: «Siz N-o'rindasiz (M kishidan)».
 - SQL: `db/2026-10-28c_guruh_dueli_10_kishi.sql` (`liga_quad_max()` = 10, joy tekshiruvi 1–10). Testlar: 318 ta.

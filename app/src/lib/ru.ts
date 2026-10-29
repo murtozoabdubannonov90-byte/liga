@@ -1206,4 +1206,5 @@ export const RU: Record<string, string> = {
   "havola orqali kiradi": "зайдёт по ссылке",
   "ilovada": "в приложении",
   "{n} ta to'g'ri": "{n} верных",
+  "2–10 kishi bir vaqtda": "2–10 человек одновременно",
 };

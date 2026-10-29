@@ -1,7 +1,7 @@
 /* Hisobchi Liga — oflayn kesh.
    Sahifa: tarmoqdan, lekin 5 soniyada javob bo'lmasa — keshdagisi (sekin internetda oq ekran bo'lib turmasin).
    Fayllar (assets/*, nomi xeshli): keshdan, bo'lmasa tarmoqdan. Eski versiya fayllari serverda bir necha versiya saqlanadi. */
-const CACHE = "hisobchi-liga-v3-20261020";
+const CACHE = "hisobchi-liga-v4-20261029";
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(["./", "./index.html", "./manifest.json", "./icon-192.png"])).catch(() => {}).then(() => self.skipWaiting())); });
 self.addEventListener("activate", (e) => { e.waitUntil(caches.keys().then((k) => Promise.all(k.filter((x) => x !== CACHE).map((x) => caches.delete(x)))).then(() => self.clients.claim())); });
 function netFirst(req, ms) {

@@ -43,7 +43,6 @@ export async function openQuad(rep = false) {
 export function QuadCard() {
   const [busy, setBusy] = useState(false), [list, setList] = useState<any[]>([]);
   useEffect(() => { if (S.pid && S.token) rpc<any[]>("liga_quad_list", { p_id: S.pid, p_token: S.token }).then((r) => setList(Array.isArray(r) ? r : [])).catch(() => {}); }, []);
-  if (!S.pid) return null;
   const open = list.filter((x) => x.status !== "done");
   return (
     <section className="ticket quad-ticket" id="quad-card">
