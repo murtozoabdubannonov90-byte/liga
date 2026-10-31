@@ -307,7 +307,10 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
         {big && <div className="hero-n">{big}</div>}
         {!["gift"].includes(r.mode) && <div className="stat3">
           <div><b className="num">{okN}</b><i>{t("to'g'ri")}</i></div><div><b className="num">{badN}</b><i>{t("xato")}</i></div>
-          <div><b className="num">{r.mode === "stage" ? S.week.stages[r.si!] || 0 : extra?.ms ? mmss(extra.ms) : S.week.my}</b><i>{r.mode === "stage" ? t("bosqich bali") : extra?.ms ? t("vaqt") : t("hafta bali")}</i></div></div>}
+          {r.mode === "daily" || r.mode === "topic"
+            ? <div id="res-daily"><b className="num">{S.week.part.daily || 0}</b><i>{t("kunlik mashq bali (hafta)")}</i></div>
+            : <div><b className="num">{r.mode === "stage" ? S.week.stages[r.si!] || 0 : extra?.ms ? mmss(extra.ms) : S.week.my}</b><i>{r.mode === "stage" ? t("bosqich bali") : extra?.ms ? t("vaqt") : t("hafta bali")}</i></div>}</div>}
+        {(r.mode === "daily" || r.mode === "topic") && f.passed && <p className="small muted">{t("Kunlik mashq bali har kuni (ish kunlari ham) yoziladi va alohida ko'rinadi — liga jamiga faqat bosqich ballari qo'shiladi.")}</p>}
         {f.dayBonus > 0 && <p className="small muted">{t("Kunlik seriya bonusi: +{n} ball", { n: f.dayBonus })}</p>}
         {r.mode === "final" && <p className="small muted">{extra?.sent ? t("Natijangiz yuborildi. G'olib 13:00 da aniqlanadi.") : extra?.err || t("Yuborilmoqda...")}</p>}
         {r.mode === "duel" && <p className="small muted">{extra?.sent ? t("Natija yuborildi. Raqibingiz o'ynagach g'olib ko'rinadi.") : extra?.err || ""}</p>}

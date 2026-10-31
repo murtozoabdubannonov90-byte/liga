@@ -142,7 +142,7 @@ with sync_playwright() as p:
     check("legacy to'plam ES5 (const/=>/class yo'q)", bool(leg) and es5.returncode == 0, (es5.stderr[:300] if es5 else "yo'q"))
     check("ilova yuklangach yuklanish ekrani yo'qoladi", pg.locator("#boot").count() == 0 and pg.evaluate("()=>window.__ligaMounted===true"))
     sw = open(os.path.join(ROOT, "dist", "sw.js"), encoding="utf-8").read()
-    check("service worker: sahifa 5 s da kelmasa — keshdagisi", "netFirst(r, 5000)" in sw and "hisobchi-liga-v4" in sw)
+    check("service worker: sahifa 5 s da kelmasa — keshdagisi", "netFirst(r, 5000)" in sw and "hisobchi-liga-v5" in sw)
     crash = b.new_context().new_page(); cerr = []
     crash.on("pageerror", lambda x: cerr.append(str(x)))
     crash.route("**supabase.co/**", handler); crash.route("**telegram.org/**", lambda r: r.fulfill(status=200, body=""))
@@ -841,13 +841,13 @@ with sync_playwright() as p:
     st = calls("liga_px_admin_set")
     check("superadmin: jamg'arma ulushi saqlanadi", bool(st) and st[-1] == {"p_pin": "9999", "p_key": "px_fund_per_pay", "p_val": "7000"}, st)
 
-    print("10q. Guruh dueli (2–10 kishi)")
+    print("10q. Provodka poygasi (2–10 kishi)")
     pg, e = page(b); ALLERR += e
     qc = pg.inner_text("#quad-card") if pg.locator("#quad-card").count() else ""
-    check("asosiy ekranda «Guruh dueli» bo'limi (2–10 kishi)", "Guruh dueli" in qc and "2 tadan 10 kishigacha" in qc and "15 ta provodka + 5 ta savol" in qc and "o'tgan mavzulardan" in qc, qc[:200])
+    check("asosiy ekranda «Provodka poygasi» bo'limi (2–10 kishi)", "Provodka poygasi" in qc and "2 tadan 10 kishigacha" in qc and "15 ta provodka + 5 ta savol" in qc and "o'tgan mavzulardan" in qc, qc[:200])
     order = pg.evaluate("()=>[...document.querySelectorAll('.shell .stack > *')].map(x=>x.id)")
     check("guruh dueli yuqorida: kunlik kubokdan oldin", "quad-card" in order and order.index("quad-card") < order.index("day-duel"), order)
-    check("pastki plitkalarda ham «Guruh dueli»", pg.locator(".tiles .tile", has_text="Guruh dueli").count() == 1)
+    check("pastki plitkalarda ham «Provodka poygasi»", pg.locator(".tiles .tile", has_text="Provodka poygasi").count() == 1)
     CALLS.clear(); pg.click("#quad-create"); pg.wait_for_timeout(1500)
     check("xona ochildi: kutish zali, kod, 9 ta bo'sh joy", pg.locator("#quad-lobby").count() == 1 and "QWERTY7" in txt(pg) and "9 ta bo'sh joy" in pg.inner_text("#quad-free") and "10 kishi to'lsa" in txt(pg))
     check("xona ochilganda havola yuborish oynasi", bool(calls("liga_quad_create")) and calls("liga_quad_create")[0].get("p_token") == "tok1")
@@ -914,7 +914,7 @@ with sync_playwright() as p:
     pg, e = page(b, w=320, h=640, query="?d=QWERTY7"); ALLERR += e; pg.wait_for_timeout(600)
     check("320px: guruh dueli sig'adi", pg.evaluate("()=>document.documentElement.scrollWidth<=320"))
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
-    check("RU: «Групповая дуэль»", "Групповая дуэль" in (pg.inner_text("#quad-card") if pg.locator("#quad-card").count() else ""))
+    check("RU: «Гонка проводок»", "Гонка проводок" in (pg.inner_text("#quad-card") if pg.locator("#quad-card").count() else ""))
     pg, e = page(b); ALLERR += e; go(pg, "duel")
     pg, e = page(b, seed={**SEED, "pid": "", "token": ""}); ALLERR += e
     check("ro'yxatdan o'tmagan/ulanmagan bo'lsa ham bo'lim ko'rinadi", pg.locator("#quad-card").count() == 1)
@@ -933,6 +933,18 @@ with sync_playwright() as p:
     pg, e = page(b, phone=True, seed={**SEED, "lang": "ru"}); ALLERR += e
     check("RU: «Пауза»", "Пауза" in (pg.inner_text("#px-card") if pg.locator("#px-card").count() else ""))
     PX_ME["on"] = True
+
+    print("10s. Kunlik mashq — ish kunida ham ball, alohida ko'rinadi")
+    pg, e = page(b); ALLERR += e   # 2026-10-01, payshanba
+    r = pg.evaluate("""()=>{const L=__liga,S=L.st.S; const x0=S.xp,d0=S.week.part.daily,m0=S.week.my;
+      const r=L.run.startDaily(); r.queue.forEach(q=>L.run.apply(r,q,true)); const f=L.run.finish(r,true);
+      return {noXP:r.noXP, dx:S.xp-x0, dd:S.week.part.daily-d0, dm:S.week.my-m0, total:f.total}}""")
+    check("ish kuni: kunlik mashq ballik (umumiy va haftalik kunlik bal oshadi, liga jami o'zgarmaydi)", r["noXP"] is False and r["dx"] > 0 and r["dd"] > 0 and r["dm"] == 0, r)
+    go(pg, "home"); pg.evaluate("()=>__liga.st.persist()"); pg.reload(); pg.wait_for_timeout(1200)
+    we = pg.inner_text("#week-extra") if pg.locator("#week-extra").count() else ""
+    check("Asosiy: «Kunlik mashq: N ball» va «Blits» alohida ko'rinadi", "Kunlik mashq:" in we and "Blits:" in we and str(S(pg, "S.week.part.daily")) in we, we)
+    pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
+    check("RU: «Ежедневная практика: N баллов»", "Ежедневная практика" in (pg.inner_text("#week-extra") if pg.locator("#week-extra").count() else ""))
 
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e

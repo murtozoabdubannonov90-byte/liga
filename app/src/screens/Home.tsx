@@ -161,6 +161,10 @@ function WeekLedger() {
       </div>
       <div className="total-line"><span className="big num"><CountUp to={my} id="week" /></span><span className="muted" style={{ fontWeight: 700 }}>{t("ball bu hafta")}</span>
         <span className="grow" /><span className="chip gold"><Trophy size={13} />{t("maqsad")} {WEEK_GOAL}</span></div>
+      <div className="row small" id="week-extra" style={{ marginTop: 8, gap: 8, flexWrap: "wrap", fontWeight: 700 }}>
+        <span className="chip"><Target size={13} />{t("Kunlik mashq: {n} ball", { n: S.week.part.daily || 0 })}</span>
+        <span className="chip"><Zap size={13} />{t("Blits: {n} ball", { n: S.week.part.blitz || 0 })}</span>
+      </div>
       <div className="meter" style={{ marginTop: 10 }}><motion.i initial={{ width: 0 }} animate={{ width: Math.min(100, (my / WEEK_GOAL) * 100) + "%" }} transition={{ duration: 0.9, ease: "easeOut" }} /></div>
       <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Hafta davomida natijangizni faqat siz ko'rasiz. Jadval juma 18:00 da ochiladi.")}</p>
     </section>
@@ -174,7 +178,7 @@ export default function Home() {
     [Target, "Kunlik mashq", t("10 savol · +8 ball"), () => runOrToast(startDaily())],
     [Zap, "Blits", t("20 provodka · rekord {n}", { n: S.blitz || 0 }), () => runOrToast(startBlitz())],
     [Swords, "Duel", t("Hamkasbingizni chaqiring"), () => go("duel"), true],
-    [Users, "Guruh dueli", t("2–10 kishi bir vaqtda"), () => openQuad(), true],
+    [Users, "Provodka poygasi", t("2–10 kishi bir vaqtda"), () => openQuad(), true],
     [Scale, "Balans o'yini", t("Aktiv va passivni joylang"), () => go("balance")],
     [NotebookPen, "Xato daftari", errs ? t("{n} ta · misol bilan", { n: errs }) : t("{n} ta savol", { n: 0 }), () => go("review"), errs > 0],
     [Gift, "Kunlik sovg'a", giftDone() ? t("ertaga yana") : giftReady() ? t("ochishga tayyor") : t("{a}/{b} to'g'ri javob", { a: giftCorrect(), b: GIFT_NEED }), () => runOrToast(startGift()), giftReady()],

@@ -1,4 +1,4 @@
-/* Guruh dueli — jonli duel 2 tadan 10 kishigacha (2026-10-28: 4 → 10). Bir kishi xona ochib havolani yuboradi, qolganlar havola orqali kiradi.
+/* Provodka poygasi — jonli duel 2 tadan 10 kishigacha (2026-10-28: 4 → 10). Bir kishi xona ochib havolani yuboradi, qolganlar havola orqali kiradi.
    20 ta savol: 15 ta provodka + 5 ta savol — o'tgan mavzulardan. Kim birinchi to'g'ri javob bersa — +1 ochko, hammaga keyingi savol.
    Savollar serverdan javobsiz keladi, javob va vaqt serverda tekshiriladi (liga_quad_*). Liga baliga qo'shilmaydi. */
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -24,7 +24,7 @@ const MEDAL = ["🥇", "🥈", "🥉"];
 export const QMAX = 10;   // serverdagi liga_quad_max() bilan bir xil
 
 export function shareQuad(code: string) {
-  const text = t("Guruh dueliga chaqiraman! 2 dan 10 kishigacha bir vaqtda: 20 ta savol (15 provodka + 5 savol), kim birinchi to'g'ri topsa — ochko o'shaniki. Havolani bosing va kiring ⚡");
+  const text = t("Provodka poygasiga chaqiraman! 2 dan 10 kishigacha bir vaqtda: 20 ta savol (15 provodka + 5 savol), kim birinchi to'g'ri topsa — ochko o'shaniki. Havolani bosing va kiring ⚡");
   openTg("https://t.me/share/url?url=" + encodeURIComponent(quadLink(code)) + "&text=" + encodeURIComponent(text));
 }
 export async function createQuad(): Promise<string | null> {
@@ -47,7 +47,7 @@ export function QuadCard() {
   return (
     <section className="ticket quad-ticket" id="quad-card">
       <div className="t-top"><Users size={40} /><div className="grow">
-        <div className="t-title">{t("Guruh dueli")}</div>
+        <div className="t-title">{t("Provodka poygasi")}</div>
         <div className="t-meta">{t("Xona oching va havolani hamkasblaringizga yuboring — 2 tadan 10 kishigacha bir vaqtda o'ynaysiz. 20 ta savol: 15 ta provodka + 5 ta savol, o'tgan mavzulardan. Kim birinchi to'g'ri topsa — ochko o'shaniki.")}</div>
       </div></div>
       {open.length > 0 && <div className="quad-mini">{open.slice(0, 2).map((x) => (
@@ -163,7 +163,7 @@ export default function QuadDuel({ code }: { code: string }) {
       <div className="stack" id="quad-lobby">
         <section className="card live-lobby">
           <Users size={34} color="var(--stamp)" />
-          <h3>{t("Guruh dueli — kutish zali")}</h3>
+          <h3>{t("Provodka poygasi — kutish zali")}</h3>
           <p className="small muted">{me ? (v.is_host ? t("Havolani hamkasblaringizga yuboring. {m} kishi to'lsa o'yin o'zi boshlanadi, kamroq bo'lsa — «Boshlash»ni bosing.", { m: v.max || QMAX }) : t("Siz xonadasiz. Xona egasi o'yinni boshlashini kuting — bu ekranni yopmang."))
             : t("Xona to'lgan — siz tomoshabinsiz.")}</p>
           <div className={"quad-seats" + (P.length > 4 ? " many" : "")} id="quad-seats">
@@ -245,7 +245,7 @@ export default function QuadDuel({ code }: { code: string }) {
           <motion.article key={"q" + v.cur} className={"qcard" + (me ? "" : " watch")} id={me ? "quad-q" : "quad-watch-q"} initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
             {me && <div className="wm" aria-hidden="true">{wm}</div>}
             <div className="row" style={{ marginBottom: 8 }}>
-              <span className="qkind grow">{me ? t("Guruh dueli") : t("Tomosha")} · {t(item.t === "pv" ? "Provodka tuzing" : item.t === "mc" ? "Test" : "Hisoblang")}</span>
+              <span className="qkind grow">{me ? t("Provodka poygasi") : t("Tomosha")} · {t(item.t === "pv" ? "Provodka tuzing" : item.t === "mc" ? "Test" : "Hisoblang")}</span>
               <Ring pct={left / qsec} size={40} stroke={4} color={left <= 8 ? "var(--red)" : "var(--stamp)"}><b className="num" style={{ fontSize: 13 }}>{left}</b></Ring>
             </div>
             <p className="qtext">{tx(item.q)}</p>

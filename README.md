@@ -44,6 +44,11 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-31b: Kunlik mashq bali ko'rinadi; «Guruh dueli» → «Provodka poygasi»
+- Kunlik mashq ish kunlari ham ballik edi, lekin bali hech qayerda alohida ko'rinmasdi (yakunda «hafta bali» — faqat bosqichlar). Endi: Asosiy → Haftalik liga ostida «Kunlik mashq: N ball» va «Blits: N ball»; mashq yakunida «kunlik mashq bali (hafta)». Liga jami avvalgidek faqat bosqich ballari.
+- «Guruh dueli» nomi hamma joyda (ilova, bot, ruscha — «Гонка проводок») **«Provodka poygasi»**.
+- Kesh: `hisobchi-liga-v5-20261031b`. Testlar: 329 ta.
+
 ## 2026-10-31: Noyabr bosqichi va Sovrinli musobaqa tanaffusi
 - **Noyabr kunlik rejasi (02–30.11.2026, 21 ish kuni):** har kuni boshqa mavzu, qiyinlik oy bo'yi 1 → 13-daraja, kun ichida ham osondan qiyinga. Jami 420 savol (303 provodka, 79 hisob, 38 test), o'zbekcha va ruscha.
   - 02 Ulgurji savdo · 03 Xarajatlar qayerga · 04 Yoqilg'i, ehtiyot qism, inventar · 05 Inkassatsiya va yo'ldagi pullar · 06 Qaytarish, chegirma, da'vo
