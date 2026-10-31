@@ -21,7 +21,7 @@
   #boot .m{max-width:340px;opacity:.85;font-weight:500}
   @keyframes bs{to{transform:rotate(360deg)}}
 </style>
-  <script type="module" crossorigin src="./assets/index-BrXZL169.js"></script>
+  <script type="module" crossorigin src="./assets/index-BwIAEy-W.js"></script>
   <link rel="stylesheet" crossorigin href="./assets/index-Z8B1w0Hz.css">
   <script type="module">import.meta.url;import("_").catch(()=>1);(async function*(){})().next();if(location.protocol!="file:"){window.__vite_is_modern_browser=true}</script>
   <script type="module">!function(){if(window.__vite_is_modern_browser)return;console.warn("vite: loading legacy chunks, syntax error above and the same error below should be ignored");var e=document.getElementById("vite-legacy-polyfill"),n=document.createElement("script");n.src=e.src,n.onload=function(){System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))},document.body.appendChild(n)}();</script>
@@ -32,7 +32,7 @@
 /* ES5 — eng eski telefonda ham ishlaydi. Ilova 15 soniyada ochilmasa: sababini ko'rsatadi va qayta yuklash tugmasini beradi. */
 (function () {
   var t0 = Date.now(), errs = [];
-  window.__ligaVer = "2026-10-31c";
+  window.__ligaVer = "2026-10-31d";
   function send(m, s) {
     try {
       if (errs.length > 4 || errs.indexOf(m) >= 0) return; errs.push(m);
@@ -48,6 +48,20 @@
     try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }); } catch (e) {}
     setTimeout(function () { location.reload(); }, 400);
   }
+  window.__ligaReload = reload;
+  /* 2026-10-31: yangi versiya chiqqan bo'lsa (ver.txt) — kesh tozalanib bir marta qayta yuklanadi */
+  setTimeout(function () {
+    try {
+      var x = new XMLHttpRequest(); x.open("GET", "./ver.txt?t=" + Date.now(), true);
+      x.onload = function () {
+        var v = String(x.responseText || "").replace(/\s/g, "");
+        if (x.status !== 200 || !v || v.length > 20 || v === window.__ligaVer) return;
+        var k = "ligaUpd"; try { if (sessionStorage.getItem(k) === v) return; sessionStorage.setItem(k, v); } catch (e) {}
+        reload();
+      };
+      x.send();
+    } catch (e) {}
+  }, 2500);
   window.__ligaFail = function (why) {
     var b = document.getElementById("boot"); if (!b) return;
     b.innerHTML = "<b>Hisobchi Liga</b><span class='m'>Ilova ochilmadi. Internetni tekshirib, «Qayta yuklash» tugmasini bosing.</span>" +
@@ -61,6 +75,6 @@
 </script>
   <script nomodule>!function(){var e=document,t=e.createElement("script");if(!("noModule"in t)&&"onbeforeload"in t){var n=!1;e.addEventListener("beforeload",(function(e){if(e.target===t)n=!0;else if(!e.target.hasAttribute("nomodule")||!n)return;e.preventDefault()}),!0),t.type="module",t.src=".",e.head.appendChild(t),t.remove()}}();</script>
   <script nomodule crossorigin id="vite-legacy-polyfill" src="./assets/polyfills-legacy-CjB5Ao4A.js"></script>
-  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-Bo73g04k.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
+  <script nomodule crossorigin id="vite-legacy-entry" data-src="./assets/index-legacy-BmAGt8lM.js">System.import(document.getElementById('vite-legacy-entry').getAttribute('data-src'))</script>
 </body>
 </html>

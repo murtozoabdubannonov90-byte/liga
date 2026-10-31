@@ -26,7 +26,7 @@
 /* ES5 — eng eski telefonda ham ishlaydi. Ilova 15 soniyada ochilmasa: sababini ko'rsatadi va qayta yuklash tugmasini beradi. */
 (function () {
   var t0 = Date.now(), errs = [];
-  window.__ligaVer = "2026-10-31c";
+  window.__ligaVer = "2026-10-31d";
   function send(m, s) {
     try {
       if (errs.length > 4 || errs.indexOf(m) >= 0) return; errs.push(m);
@@ -42,6 +42,20 @@
     try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }); } catch (e) {}
     setTimeout(function () { location.reload(); }, 400);
   }
+  window.__ligaReload = reload;
+  /* 2026-10-31: yangi versiya chiqqan bo'lsa (ver.txt) — kesh tozalanib bir marta qayta yuklanadi */
+  setTimeout(function () {
+    try {
+      var x = new XMLHttpRequest(); x.open("GET", "./ver.txt?t=" + Date.now(), true);
+      x.onload = function () {
+        var v = String(x.responseText || "").replace(/\s/g, "");
+        if (x.status !== 200 || !v || v.length > 20 || v === window.__ligaVer) return;
+        var k = "ligaUpd"; try { if (sessionStorage.getItem(k) === v) return; sessionStorage.setItem(k, v); } catch (e) {}
+        reload();
+      };
+      x.send();
+    } catch (e) {}
+  }, 2500);
   window.__ligaFail = function (why) {
     var b = document.getElementById("boot"); if (!b) return;
     b.innerHTML = "<b>Hisobchi Liga</b><span class='m'>Ilova ochilmadi. Internetni tekshirib, «Qayta yuklash» tugmasini bosing.</span>" +

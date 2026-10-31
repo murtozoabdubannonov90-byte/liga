@@ -960,6 +960,11 @@ with sync_playwright() as p:
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
     check("RU: «Ежедневная практика: N баллов»", "Ежедневная практика" in (pg.inner_text("#week-extra") if pg.locator("#week-extra").count() else ""))
 
+    print("10t. Versiya va yangilash")
+    pg, e = page(b); ALLERR += e; go(pg, "settings")
+    check("Sozlamalar: «Ilovani yangilash» tugmasi va versiya", pg.locator("#app-update").count() == 1 and "2026-10-31d" in pg.inner_text("#app-ver"), txt(pg)[-200:])
+    check("index.html: ver.txt bilan versiya tekshiruvi", "ver.txt" in open(os.path.join(ROOT, "dist", "index.html"), encoding="utf-8").read())
+
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e
     check("tungi mavzu", pg.evaluate("()=>document.documentElement.dataset.theme") == "dark")

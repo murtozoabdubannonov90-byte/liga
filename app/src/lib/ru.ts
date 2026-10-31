@@ -1226,4 +1226,7 @@ export const RU: Record<string, string> = {
   "Ro'yxatdan o'tmasdan sinab ko'ring: test bir marta ishlanadi, natija faqat sizga ko'rsatiladi. Savol paytida ilovadan chiqsangiz, savol xato hisoblanadi.": "Попробуйте без регистрации: тест проходится один раз, результат видите только вы. Если выйти из приложения во время вопроса, он засчитывается как ошибка.",
   "Hisobchi Ligada har ish kuni shunday bosqich: 20 savol, xatolar tushuntirish bilan, haftalik reyting va sertifikat. 30-noyabrgacha hammaga bepul!": "В Лиге бухгалтеров каждый рабочий день такой этап: 20 вопросов, разбор ошибок, недельный рейтинг и сертификат. До 30 ноября — бесплатно для всех!",
   "Ligaga qo'shilish — bepul": "Вступить в лигу — бесплатно",
+  "Yangilanmoqda...": "Обновляется...",
+  "Ilovani yangilash": "Обновить приложение",
+  "versiya": "версия",
 };

@@ -26,6 +26,9 @@ const keep = new Set(builds.flat());
 fs.cpSync(dist, root, { recursive: true });
 for (const f of fs.readdirSync(adir)) if (f !== "builds.json" && !keep.has(f)) fs.rmSync(path.join(adir, f), { force: true });
 fs.writeFileSync(bj, JSON.stringify(builds));
+// ver.txt — telefondagi eski sahifa yangi versiya chiqqanini bilib, keshni tozalab qayta yuklanadi (index.html dagi __ligaVer)
+const ver = (fs.readFileSync(path.join(root, "index.html"), "utf8").match(/__ligaVer = "([^"]+)"/) || [])[1];
+if (ver) fs.writeFileSync(path.join(root, "ver.txt"), ver + "\n");
 // GitHub Pages: Jekyll'siz (assets/_ fayllar uchun)
 fs.writeFileSync(path.join(root, ".nojekyll"), "");
 console.log("tayyor:", fs.readdirSync(dist).join(", "));

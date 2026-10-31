@@ -44,6 +44,10 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-31d: Telefonlarda avtomatik yangilanish
+- `ver.txt` (deploy paytida `publish.mjs` yozadi): sahifa 2,5 soniyadan keyin tekshiradi — telefondagi versiya eski bo'lsa keshni tozalab bir marta qayta yuklanadi.
+- Profil → Sozlamalar: «Ilovani yangilash» tugmasi va joriy versiya. Testlar: 334 ta.
+
 ## 2026-10-31c: Hammaga bepul, kubokda hamma, jalb qilish
 - **30.11.2026 gacha hammaga bepul:** `liga_bot_config.free_until = 2026-11-30` (`liga_eff_until` ga qo'shildi). 530/530 o'yinchi faol.
 - **Kunlik kubok — ro'yxatdagi hamma:** endi faqat «oxirgi 7 kunda faol» emas, obunasi/bepul davri faol hamma qatnashadi. Toq son chiqsa: liga egasi (free_phones) ro'yxatda bo'lsa o'sha kuni chetda turadi, bo'lmasa juftlash uchun qo'shiladi — oddiy ishtirokchilardan hech kim chetda qolmaydi. 530 kishi: 265 duel → 265 g'olib → ochko bo'yicha 256 → 128 → 64 → 32 → 16 → 8 → 4 → final 17:00 (9 raund). `db/2026-10-31b_kubok_hamma_bepul.sql`. 1/64, 1/128, 1/256 final nomlari qo'shildi.

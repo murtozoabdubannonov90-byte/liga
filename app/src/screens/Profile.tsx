@@ -1,4 +1,4 @@
-import { Award, ChevronRight, CreditCard, Globe2, Moon, ShieldCheck, Volume2, Users, Settings as SetI, Medal, Maximize, Smartphone, RotateCcw, Swords, Lock, BellRing } from "lucide-react";
+import { Award, ChevronRight, CreditCard, Globe2, Moon, ShieldCheck, Volume2, Users, Settings as SetI, Medal, Maximize, Smartphone, RotateCcw, RotateCw, Swords, Lock, BellRing } from "lucide-react";
 import { S, persist, resetAll } from "../engine/state";
 import { t, LANGS, setLang, type Lang } from "../lib/i18n";
 import { go, toast, refresh } from "../lib/nav";
@@ -92,7 +92,8 @@ export function Settings() {
           {canHomeScreen() && <Row icon={Smartphone} title={t("Telefon ekraniga qo'shish")} onClick={addToHomeScreen} />}
         </section>}
         <button className="btn ghost" onClick={() => { if (confirm(t("Barcha natijalar shu telefondan o'chiriladi. Davom etasizmi?"))) { resetAll(); toast(t("Tozalandi")); location.reload(); } }}><RotateCcw size={18} />{t("Shu telefondagi ma'lumotni tozalash")}</button>
-        <p className="tiny muted" style={{ textAlign: "center" }}>Hisobchi Liga 2.0</p>
+        <button className="btn ghost" id="app-update" onClick={() => { const w = window as any; toast(t("Yangilanmoqda...")); if (w.__ligaReload) w.__ligaReload(); else location.reload(); }}><RotateCw size={18} />{t("Ilovani yangilash")}</button>
+        <p className="tiny muted" id="app-ver" style={{ textAlign: "center" }}>Hisobchi Liga · {t("versiya")} {String((window as any).__ligaVer || "")}</p>
       </div>
     </div>);
 }
