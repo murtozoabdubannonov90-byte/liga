@@ -1963,8 +1963,11 @@ async function onCron(action: string, body: any = {}) {
       win.map((x) => `${md[x.pos - 1] ?? x.pos + "."} <b>${esc(x.name ?? "")}</b> — ${fmtS(x.pts)} ball — <b>${fmtS(x.amount)} so'm</b>`).join("\n") +
       `\n\n🎉 G'oliblarni tabriklaymiz! Sovrinni olish uchun <b>admin bilan bog'laning: @murtozo_44</b>\n` +
       `🙏 Qatnashgan hammaga rahmat!\n\n⏸ <b>Keyingi bosqich tez orada</b> — boshlanish sanasi va sovrinlar shu yerda e'lon qilinadi.\n` +
-      `Shu orada har ish kuni 09:00–18:00 da liga bosqichi ochiq — noyabrda har kuni yangi mavzu, 30-noyabrgacha bepul.`;
-    const kb = { inline_keyboard: [[{ text: "✉️ Admin bilan bog'lanish", url: "https://t.me/murtozo_44" }], [{ text: "🚀 Ligani ochish", url: `https://t.me/${BOT}` }]] };
+      `Shu orada har ish kuni 09:00–18:00 da liga bosqichi ochiq — noyabrda har kuni yangi mavzu.\n\n` +
+      `🤝 <b>Buxgalter tanishlaringizni ham taklif qiling!</b> Keyingi bosqichda raqobat qizg'inroq bo'lsin — pastdagi «Do'stlarga ulashish» tugmasini bosing.`;
+    const share = "https://t.me/share/url?url=" + encodeURIComponent(`https://t.me/${BOT}`) + "&text=" +
+      encodeURIComponent("Buxgalterlar uchun «Hisobchi Liga»: har kuni provodka, QQS, ish haqi va Soliq kodeksi bo'yicha bosqich, haftalik reyting va sertifikat. Qo'shiling, birga bellashamiz!");
+    const kb = { inline_keyboard: [[{ text: "✉️ Admin bilan bog'lanish", url: "https://t.me/murtozo_44" }], [{ text: "🤝 Do'stlarga ulashish", url: share }], [{ text: "🚀 Ligani ochish", url: `https://t.me/${BOT}` }]] };
     let groups = 0, dms = 0;
     for (const c of await chatsOf("ASOSIY")) { const r = await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: kb }); if (r?.ok) groups++; await pause(60); }
     const dc = await discussCfg().catch(() => null);
