@@ -44,6 +44,17 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-31: Noyabr bosqichi va Sovrinli musobaqa tanaffusi
+- **Noyabr kunlik rejasi (02–30.11.2026, 21 ish kuni):** har kuni boshqa mavzu, qiyinlik oy bo'yi 1 → 13-daraja, kun ichida ham osondan qiyinga. Jami 420 savol (303 provodka, 79 hisob, 38 test), o'zbekcha va ruscha.
+  - 02 Ulgurji savdo · 03 Xarajatlar qayerga · 04 Yoqilg'i, ehtiyot qism, inventar · 05 Inkassatsiya va yo'ldagi pullar · 06 Qaytarish, chegirma, da'vo
+  - 09 Chakana savdo va ustama · 10 Nomoddiy aktivlar · 11 Kapital qurilish va ta'mir · 12 Operativ ijara, kelgusi davr xarajatlari · 13 Ta'til rezervi va deponent
+  - 16 Yordamchi ishlab chiqarish va brak · 17 Transport va AV chiqib ketishi · 18 Investitsiyalar va berilgan qarzlar · **19 TMZ baholash (10 provodka + 10 hisob)** · 20 Shubhali qarzlar va o'zaro hisob
+  - 23 Qayta baholash va kapital · 24 QQS: bo'nak, import, eksport · 25 Xatolarni tuzatish · **26 Moliyaviy hisobot (8 provodka + 12 hisob)** · 27 Aralash takrorlash · 30 Yil yakuniga tayyorgarlik
+- Manba: `content/nov.asc` (shifrlangan). Yuklash: `select net.http_get('<raw url>/content/nov.asc')`, so'ng `select liga_plan_load_sys(content) from net._http_response where id = …`. Rejada `n_pv`/`n_other` endi manbadan olinadi (`db/2026-10-31_noyabr_reja.sql`). Intro: «N provodka + M qonun va hisob savoli».
+- 39 ta yangi schyot ilovaga qo'shildi (0120, 0150, 0160, 0220, 0250, 0260, 0410, 0430, 0510, 0530, 0610, 0620, 0810, 0830, 1030, 1040, 1080, 2310, 2610, 2920, 2980, 3110, 4830, 4840, 4910, 5710, 5810, 5830, 6720, 6820, 8510, 8610, 8910, 9220, 9320, 9350, 9360, 9510, 9520). 2980 — kontr-aktiv.
+- **Sovrinli musobaqa — tanaffus:** `px_on = off`. Asosiy oynadagi karta qoladi: «Keyingi bosqich tayyorlanmoqda — tez orada e'lon qilamiz» (bosilsa sabab va o'tgan oy g'oliblari). Bot: `/musobaqa`, `?start=px` — tanaffus xabari; e'lon/taklif/reyting xabarlari to'xtaydi (cronlar o'chirilgan). Oktabr g'oliblari 01.11 00:10 da odatdagidek yoziladi. Qayta yoqish: Superadmin → Sovrinli musobaqa → «yoqish» + cronlarni `active := true`.
+- Kesh: `hisobchi-liga-v5-20261031`. Testlar: 326 ta.
+
 ## 2026-10-29: Guruh dueli — har doim ko'rinadi, yuqorida
 - Asosiy oynada «Guruh dueli» endi bugungi bosqichdan keyin darhol (kunlik kubokdan oldin) turadi va pastki plitkalarda ham bor («Guruh dueli · 2–10 kishi bir vaqtda»). Karta hech qachon yashirinmaydi (ro'yxat/ulanish holatidan qat'i nazar; tugma kerak bo'lsa sababini aytadi).
 - Telefonlardagi eski kesh majburan yangilanadi: service worker keshi `hisobchi-liga-v4-20261029`, `__ligaVer` = 2026-10-29.

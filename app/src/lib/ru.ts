@@ -1207,4 +1207,13 @@ export const RU: Record<string, string> = {
   "ilovada": "в приложении",
   "{n} ta to'g'ri": "{n} верных",
   "2–10 kishi bir vaqtda": "2–10 человек одновременно",
+  "Sovrinli musobaqa tanaffusda — keyingi bosqich tayyorlanmoqda. Boshlanishi bot va ilovada e'lon qilinadi.": "Призовой турнир на паузе — готовим следующий этап. О старте объявим в боте и приложении.",
+  "Keyingi bosqich tayyorlanmoqda — tez orada e'lon qilamiz": "Готовим следующий этап — скоро объявим",
+  "Tanaffus": "Пауза",
+  "Musobaqa tanaffusda": "Турнир на паузе",
+  "Tez orada": "Скоро",
+  "Keyingi bosqichni tayyorlayapmiz. Boshlanish sanasi va sovrinlari bot va ilovada e'lon qilinadi.": "Готовим следующий этап. Дату старта и призы объявим в боте и приложении.",
+  "Shu orada har ish kuni 09:00–18:00 da liga bosqichi ochiq.": "А пока каждый рабочий день 09:00–18:00 открыт этап лиги.",
+  "Liga bosqichiga": "К этапу лиги",
+  "{p} provodka + {o} qonun va hisob savoli": "{p} проводок + {o} вопросов по закону и расчётам",
 };

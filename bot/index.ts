@@ -522,6 +522,9 @@ async function pxFundLine() {
   return { fund, pr, players: Number(b.players || 0) };
 }
 async function pxPrice() { return Number((await cfgGet("px_price")) || 30000); }
+/* 2026-10-31: Sovrinli musobaqa tanaffusda (px_on = off) — e'lon, taklif va qo'shilish to'xtaydi; oktabr g'oliblari hisoblanadi */
+async function pxPaused() { return ((await cfgGet("px_on")) || "on") === "off"; }
+const PX_PAUSE_TEXT = "⏸ <b>Sovrinli musobaqa — tanaffusda</b>\n\nHozir keyingi bosqichni tayyorlayapmiz. Boshlanishi shu bot va ilovada e'lon qilinadi.\n\nShu orada har ish kuni 09:00–18:00 da <b>liga bosqichi</b> ochiq — noyabrda har kuni yangi mavzu, osondan qiyinga.";
 const pxJoinKb = (lang?: string | null) => ({ inline_keyboard: [[{ text: tr(lang, "💳 Musobaqaga qo'shilish"), callback_data: "pxj" }], [{ text: tr(lang, "🏆 Musobaqani ko'rish"), web_app: { url: APP + "?go=px" } }]] });
 async function pxCard(chatId: number, name?: string) {
   const c = await payCfg(), price = await pxPrice(), f = await pxFundLine();
@@ -535,6 +538,7 @@ async function pxCard(chatId: number, name?: string) {
 }
 // /start px, /musobaqa yoki «Qo'shilish» tugmasi
 async function pxJoin(chatId: number, tgId: number | undefined) {
+  if (await pxPaused()) return dm(chatId, PX_PAUSE_TEXT, appBtn("Ligaga kirish", ""));
   const { data: x } = await db.rpc("liga_px_by_tg_sys", { p_tg: tgId ?? 0 });
   if (!x?.id) { await cfgSet("px_want_" + chatId, "1"); return askContact(chatId); }
   if (x.state === "paid") return dm(chatId, tr(x.lang, "✅ <b>Siz Sovrinli musobaqa qatnashchisisiz!</b>\nO'yin vaqti — har kuni 09:00–18:00. Omad! 💪"), appBtn(tr(x.lang, "Musobaqaga kirish"), "?go=px"));
@@ -586,6 +590,7 @@ async function pxNotifyAdmins(id: number) {
 }
 // qo'shilmaganlarga taklif: px_invite_day kuni 08:00 (a) va 08:30 (b), har daqiqada 80 tadan
 async function pxInvite(slot: "a" | "b", limit = 80) {
+  if (await pxPaused()) return { skip: "paused" };
   const day = tzDate().toISOString().slice(0, 10), lk = `px_invite_last_${day}_${slot}`;
   const last = Number((await cfgGet(lk)) || 0);
   const { data: ppl } = await db.rpc("liga_px_invite_list_sys", { p_after: last, p_limit: limit });
@@ -614,6 +619,7 @@ async function pxInvite(slot: "a" | "b", limit = 80) {
 // shaxsan: to'lamaganlarga taklif, to'lab bugun o'ynamaganlarga eslatma. cron liga-musobaqa-2soat slot boshida 6 daqiqa har daqiqa chaqiradi; har safar 80 kishi
 const PX_DM_SLOTS = ["10", "15"];
 async function pxPromo(limit = 80, force = false) {
+  if (await pxPaused()) return { skip: "paused" };
   const now = new Date(Date.now() + 5 * 3600e3), h = now.getUTCHours();
   if (!force && (h < 9 || h >= 18)) return { skip: "hours" };
   const day = tzDate().toISOString().slice(0, 10), slot = String(h).padStart(2, "0"), left = Math.max(0, 18 - h);
@@ -1443,6 +1449,7 @@ function kindText(p: any, when: "morning" | "noon" | "remind", c: string): strin
 
 // Sovrinli musobaqa e'loni — Telegram'ga ulangan har bir ishtirokchiga shaxsan (o'z tilida)
 async function pxAnnounce(limit = 80) {
+  if (await pxPaused()) return { skip: "paused" };
   const { data: pb } = await db.rpc("liga_px_board_sys", { p_group: "ASOSIY" });
   const b: any = pb ?? {}; const fund = Number(b.fund || 0);
   const fmtS = (n: number) => Number(n || 0).toLocaleString("ru-RU").replace(/\s/g, " ");
@@ -1892,6 +1899,7 @@ async function onCron(action: string, body: any = {}) {
   }
   // Sovrinli musobaqa: ish kunlari 18:30 da guruh(lar) va kanalga oylik jamg'arma va top-5 (ligadan alohida reyting)
   if (action === "px_board" || action === "px_board_now") {
+    if (await pxPaused()) return { skip: "paused" };
     if (action === "px_board" && (w < 1 || w > 5 || !(await once("px_board")))) return { skip: true };
     const { data: pb } = await db.rpc("liga_px_board_sys", { p_group: "ASOSIY" });
     const b: any = pb ?? {}; const top = (b.top ?? []) as any[];

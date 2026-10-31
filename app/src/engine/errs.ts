@@ -34,6 +34,7 @@ export type AccKind = "aktiv" | "kontr" | "majburiyat" | "kapital" | "daromad" |
 export function accKind(code: string): AccKind {
   const n = Number(String(code).slice(0, 4)), g = Math.floor(n / 100);
   if (g === 2 || g === 5) return "kontr";               // 0200, 0500 — eskirish, amortizatsiya
+  if (n === 2980) return "kontr";                        // savdo ustamasi — 2920 ni kamaytiradi
   if (n < 6000) return n >= 4900 && n < 5000 ? "kontr" : "aktiv";
   if (n < 8000) return "majburiyat";
   if (n < 9000) return g === 86 ? "kontr" : "kapital";

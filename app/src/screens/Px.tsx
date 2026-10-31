@@ -33,6 +33,7 @@ export function pxGate(me: PxMe | null): string {
   if (pxAutomated()) return t("Avtomatlashtirilgan brauzerda o'ynab bo'lmaydi");
   if (!pxOnPhone()) return t("Sovrinli musobaqa faqat telefonda ishlaydi — Telegram'da telefoningizdan oching");
   if (!me) return "";
+  if (!me.on) return t(PX_PAUSE_MSG);
   if (!me.eligible && me.pay === "check") return t("Chekingiz tekshirilmoqda — administrator tasdiqlagach musobaqa ochiladi");
   if (!me.eligible) return t("Sovrinli musobaqada faqat to'lov qilganlar qatnashadi — qatnashish {p} so'm", { p: fmtSum(me.price || 30000) });
   if (me.day?.state === "done") return t("Bugungi o'yinni tugatdingiz — ertaga soat {a} da yana o'ynaysiz", { a: me.open_from || "09:00" });
@@ -67,9 +68,18 @@ function useMe(force = false) {
 }
 
 /* ---------- bosh sahifa kartasi ---------- */
+/* 2026-10-31: musobaqa tanaffusda (px_on = off) — karta Asosiy oynada qoladi, «keyingi bosqich tayyorlanmoqda» deb turadi */
+export const PX_PAUSE_MSG = "Sovrinli musobaqa tanaffusda — keyingi bosqich tayyorlanmoqda. Boshlanishi bot va ilovada e'lon qilinadi.";
 export function PxCard() {
   const me = useMe();
-  if (!S.pid || !S.token || (me && !me.on)) return null;
+  if (!S.pid || !S.token) return null;
+  if (me && !me.on) return (
+    <button className="card px-card" id="px-card" data-paused="1" onClick={() => { sfx("tap"); toast(t(PX_PAUSE_MSG)); go("px"); }}>
+      <span className="ic"><Hourglass size={22} /></span>
+      <span className="grow"><b>{t("Sovrinli musobaqa")}</b>
+        <span className="small" id="px-card-pause">{t("Keyingi bosqich tayyorlanmoqda — tez orada e'lon qilamiz")}</span></span>
+      <span className="chip">{t("Tanaffus")}</span>
+    </button>);
   const fund = me?.fund?.amount || 0, rk = me?.month?.rank;
   return (
     <button className="card px-card" id="px-card" onClick={() => { sfx("tap"); go("px"); }}>
@@ -122,7 +132,16 @@ export default function Px() {
   return (
     <div className="shell bare">
       <PageTitle title={t("Sovrinli musobaqa")} />
-      {!me ? <Empty>{t("Yuklanmoqda...")}</Empty> : <div className="stack">
+      {!me ? <Empty>{t("Yuklanmoqda...")}</Empty> : !me.on ? <div className="stack">
+        <OwnerStats />
+        <section className="card" id="px-paused" style={{ borderColor: "var(--gold)" }}>
+          <div className="card-h"><Hourglass size={20} color="var(--gold)" /><h3>{t("Musobaqa tanaffusda")}</h3><span className="chip">{t("Tez orada")}</span></div>
+          <p className="small" style={{ fontWeight: 600, lineHeight: 1.5 }}>{t("Keyingi bosqichni tayyorlayapmiz. Boshlanish sanasi va sovrinlari bot va ilovada e'lon qilinadi.")}</p>
+          <p className="small muted" style={{ marginTop: 6, fontWeight: 600 }}>{t("Shu orada har ish kuni 09:00–18:00 da liga bosqichi ochiq.")}</p>
+          <button className="btn ghost sm" style={{ marginTop: 10 }} onClick={() => go("home")}>{t("Liga bosqichiga")}</button>
+        </section>
+        <Board me={me} winnersOnly />
+      </div> : <div className="stack">
         <OwnerStats />
         <FundBanner me={me} />
         <RulesCard me={me} />
@@ -158,7 +177,7 @@ function Games({ me }: { me: PxMe }) {
       <div className="note"><Zap size={18} /><span>{t("To'g'ri javob — 10 ball, ketma-ket to'g'ri javoblar uchun +2 dan +10 gacha bonus. Xatoda bonus yo'qoladi.")}</span></div>
     </div>);
 }
-function Board({ me }: { me: PxMe }) {
+function Board({ me, winnersOnly }: { me: PxMe; winnersOnly?: boolean }) {
   const [sc, setSc] = useState<"month" | "week" | "day">("month");
   const [rows, setRows] = useState<PxRow[] | null>(null), [wins, setWins] = useState<any[]>([]);
   useEffect(() => { setRows(null); pxBoard(sc).then((r) => setRows(r || [])).catch(() => setRows([])); }, [sc]);
@@ -166,7 +185,7 @@ function Board({ me }: { me: PxMe }) {
   const prizes = me.fund?.prizes || [];
   return (
     <div className="stack" style={{ gap: 10 }}>
-      <Seg id="pxsc" value={sc} onChange={setSc} items={[["month", t("Oy")], ["week", t("Hafta")], ["day", t("Bugun")]]} />
+      {!winnersOnly && <><Seg id="pxsc" value={sc} onChange={setSc} items={[["month", t("Oy")], ["week", t("Hafta")], ["day", t("Bugun")]]} />
       <Card>
         {!rows ? <Empty>{t("Yuklanmoqda...")}</Empty> : !rows.length ? <Empty>{t("Hali hech kim o'ynamagan — birinchi bo'ling!")}</Empty> :
           <ol className="px-board" id="px-board">{rows.map((r) => (
@@ -176,7 +195,7 @@ function Board({ me }: { me: PxMe }) {
                 <i>{t("{n} o'yin", { n: r.games })}{!r.ok ? " · " + t("to'lovsiz") : ""}{sc === "month" && r.pos <= 3 && prizes[r.pos - 1] && r.ok ? " · " + fmtSum(prizes[r.pos - 1]) + " " + t("so'm") : ""}</i></span>
               <b className="num">{fmtSum(r.pts)}</b>
             </li>))}</ol>}
-      </Card>
+      </Card></>}
       {wins.length > 0 && <Card title={t("O'tgan oylar g'oliblari")} right={<Trophy size={18} color="var(--gold)" />}>
         <ul className="px-board" id="px-wins">{wins.map((w) => (
           <li key={w.mon + w.pos} className={w.me ? "me" : ""}><span className="pos">{MEDAL[w.pos - 1] || w.pos}</span>

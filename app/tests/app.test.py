@@ -676,7 +676,7 @@ with sync_playwright() as p:
     pg, e = page(b); ALLERR += e
     go(pg, "intro", {"si": 3}); pg.wait_for_timeout(400)
     check("kun rejasi: mavzu, nazariya va qiyinlik darajasi", "Kassa va bank" in txt(pg) and "5010" in txt(pg) and pg.locator("#plan-chip").count() == 1 and "Qiyinlik darajasi: 5" in txt(pg), txt(pg)[:300])
-    check("kun rejasi: «15 provodka + 5 qonun savoli»", "15 provodka + 5 qonun savoli" in txt(pg))
+    check("kun rejasi: «15 provodka + 5 qonun va hisob savoli»", "15 provodka + 5 qonun va hisob savoli" in txt(pg))
     pg.evaluate("()=>__liga.nav.tab('home')"); pg.wait_for_timeout(400)
     check("bosh sahifa: bugungi bosqich nomi rejadan", "Kassa va bank" in txt(pg))
     EXTRA.pop("liga_day_plans", None)
@@ -824,7 +824,7 @@ with sync_playwright() as p:
     check("bot havolasi ?go=px — to'g'ri musobaqa sahifasi ochiladi", pg.evaluate("()=>__liga.nav.current().name") == "px")
     EXTRA["liga_px_me"] = {**PX_ME, "on": False}
     pg, e = page(b, phone=True); ALLERR += e
-    check("mashq zali o'chirilgan bo'lsa — karta yo'q", pg.locator("#px-card").count() == 0)
+    check("musobaqa o'chirilgan bo'lsa — karta «tanaffus» bilan qoladi (2026-10-31)", pg.locator("#px-card[data-paused]").count() == 1)
     EXTRA.pop("liga_px_me", None)
     pg, e = page(b, seed={**SEED, "lang": "ru"}, phone=True); ALLERR += e
     check("RU: «Призовой турнир»", "Призовой турнир" in pg.inner_text("#px-card") and "Призовой фонд" in pg.inner_text("#px-card"))
@@ -920,6 +920,19 @@ with sync_playwright() as p:
     check("ro'yxatdan o'tmagan/ulanmagan bo'lsa ham bo'lim ko'rinadi", pg.locator("#quad-card").count() == 1)
     pg, e = page(b); ALLERR += e; go(pg, "duel")
     check("Duel sahifasida ham guruh dueli", pg.locator("#create-quad").count() == 1)
+
+    print("10r. Sovrinli musobaqa — tanaffus (px_on = off)")
+    PX_ME["on"] = False
+    pg, e = page(b, phone=True); ALLERR += e
+    pc = pg.inner_text("#px-card") if pg.locator("#px-card").count() else ""
+    check("tanaffus: karta Asosiy oynada qoladi va «keyingi bosqich tayyorlanmoqda» deydi", "Sovrinli musobaqa" in pc and "tayyorlanmoqda" in pc and "Tanaffus" in pc and "85 000" not in pc, pc)
+    pg.click("#px-card"); pg.wait_for_timeout(1200)
+    check("tanaffus: bosilganda sabab aytiladi va sahifada «Musobaqa tanaffusda»", pg.locator("#px-paused").count() == 1 and "tanaffusda" in txt(pg), txt(pg)[:300])
+    check("tanaffus: o'yin tugmasi, jamg'arma va to'lov yo'q", pg.locator("#px-day").count() == 0 and pg.locator("#px-fund").count() == 0 and pg.locator("#px-pay").count() == 0)
+    check("tanaffus: o'tgan oy g'oliblari ko'rinadi", pg.locator("#px-wins").count() == 1)
+    pg, e = page(b, phone=True, seed={**SEED, "lang": "ru"}); ALLERR += e
+    check("RU: «Пауза»", "Пауза" in (pg.inner_text("#px-card") if pg.locator("#px-card").count() else ""))
+    PX_ME["on"] = True
 
     print("11. Ko'rinish")
     pg, e = page(b, seed={**SEED, "theme": "dark"}); ALLERR += e
