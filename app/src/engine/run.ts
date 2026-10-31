@@ -11,7 +11,7 @@ export interface Q extends Task { k: number }
 export interface Run {
   mode: Mode; si: number | null; tp?: string; title: string; queue: Q[]; i: number; lives: number; maxLives: number;
   combo: number; mistakes: number; marks: ("" | "ok" | "bad")[]; earned: number; right: number; noXP: boolean; timed: boolean;
-  startedAt: number; duel?: string; testRun?: string; testMinutes?: number; month?: string; fair: boolean; answers: { id: string; ok: boolean }[];
+  startedAt: number; duel?: string; testRun?: string; promo?: boolean; testMinutes?: number; month?: string; fair: boolean; answers: { id: string; ok: boolean }[];
   /* server o'yini (bosqich, final, duel, test): javoblar serverda tekshiriladi */
   remote?: { id: string; secret?: string }; state?: any;
   /* server o'yinida savol vaqti (g'olibga qo'shimcha soniya bilan); xatolar mashqi natijasi */

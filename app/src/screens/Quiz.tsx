@@ -314,7 +314,8 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
         {f.dayBonus > 0 && <p className="small muted">{t("Kunlik seriya bonusi: +{n} ball", { n: f.dayBonus })}</p>}
         {r.mode === "final" && <p className="small muted">{extra?.sent ? t("Natijangiz yuborildi. G'olib 13:00 da aniqlanadi.") : extra?.err || t("Yuborilmoqda...")}</p>}
         {r.mode === "duel" && <p className="small muted">{extra?.sent ? t("Natija yuborildi. Raqibingiz o'ynagach g'olib ko'rinadi.") : extra?.err || ""}</p>}
-        {r.mode === "test" && <p className="small muted">{extra?.sent ? t("Natijangiz kompaniyaga yuborildi. Rahmat!") : extra?.err || ""}</p>}
+        {r.mode === "test" && !r.promo && <p className="small muted">{extra?.sent ? t("Natijangiz kompaniyaga yuborildi. Rahmat!") : extra?.err || ""}</p>}
+        {r.mode === "test" && r.promo && <p className="small" id="promo-note" style={{ fontWeight: 700 }}>{t("Hisobchi Ligada har ish kuni shunday bosqich: 20 savol, xatolar tushuntirish bilan, haftalik reyting va sertifikat. 30-noyabrgacha hammaga bepul!")}</p>}
         {r.mode === "blitz" && <p className="small muted">{t("Blits bali alohida — haftalik jamiga qo'shilmaydi.")}</p>}
         {r.mode === "review" && <p className="small muted">{(r.mastered || 0) > 0 ? t("Asl savolni ham, teskarisini ham to'g'ri topgan xatolar daftardan o'chirildi.") : t("Xato o'chishi uchun asl savolni ham, teskarisini ham to'g'ri toping.")} {t("Daftarda qoldi: {n} ta", { n: Object.keys(S.errs).length })}</p>}
         {!f.passed && r.mode === "stage" && <p className="small muted">{t("Topgan ballaringiz saqlandi. Javob berilgan savollar qaytmaydi — «Davom etish» bilan qolganlarini ishlaysiz.")}</p>}
@@ -324,6 +325,7 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
         {badN > 0 && !["test", "review", "gift"].includes(r.mode) && errList().length > 0 && <button className="btn ghost" id="toreview" onClick={() => replace("review")}><NotebookPen size={18} />{t("Xatolarni tahlil qilish ({n})", { n: Math.min(5, errList().length) })}</button>}
         {r.mode === "stage" && f.passed && <button className="btn gold" onClick={() => replace("share", { kind: "stage", si: r.si, stars: f.stars })}><Share2 size={18} />{t("Natijani ulashish")}</button>}
         {r.mode === "duel" && <button className="btn" onClick={() => replace("duel", { code: r.duel })}>{t("Duel holati")}</button>}
+        {r.mode === "test" && r.promo && <button className="btn gold" id="promo-join" onClick={() => { location.href = location.origin + location.pathname; }}>{t("Ligaga qo'shilish — bepul")}</button>}
         {r.mode === "test" ? null : <div className="btn-row">
           {again ? <button className="btn ghost" onClick={() => { const x = (again as any)(); if (x === null) return; if (typeof x === "string") toast(t(x)); else replace("quiz", { run: x }); }}><RotateCcw size={18} />{t("Yana")}</button>
             : r.mode === "stage" && !f.passed && !extra?.closed ? <button className="btn ghost" onClick={() => replace("intro", { si: r.si })}>{t("Davom etish")}</button> : <span />}

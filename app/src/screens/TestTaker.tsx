@@ -9,7 +9,9 @@ import { Empty } from "../components/ui";
 import { Mark } from "./Onboard";
 import Quiz from "./Quiz";
 
-/* ?t=KOD — xodim tanlash testi: ro'yxatdan o'tmasdan */
+/* ?t=KOD — xodim tanlash testi: ro'yxatdan o'tmasdan.
+   2026-10-31: SINOV… kodli testlar — ligaga jalb qiluvchi ochiq sinov (kanal postidagi havola), oxirida «Ligaga qo'shilish». */
+export const isPromoTest = (code: string) => /^SINOV/i.test(String(code || "").trim());
 export default function TestTaker({ code }: { code: string }) {
   const [info, setInfo] = useState<any>(undefined), [name, setName] = useState(""), [phone, setPhone] = useState(""), [err, setErr] = useState(""), [run, setRun] = useState<Run | null>(null);
   useEffect(() => { rpc<any[]>("liga_test_open", { p_code: code }).then((r) => { const x = r && r[0]; if (x && !S.lang) { setLang(x.lang === "ru" ? "ru" : "uz"); S.lang = getLang(); } setInfo(x || null); }).catch(() => setInfo(null)); }, [code]);
@@ -20,6 +22,7 @@ export default function TestTaker({ code }: { code: string }) {
     setErr(""); const r = await beginTestR(code, name.trim(), p);
     if (typeof r === "string") return setErr(t(r));
     if (!r.queue.length) return setErr(t("Siz bu testni allaqachon topshirgansiz"));
+    r.promo = isPromoTest(code);
     setRun(r);
   };
   if (run) return <Quiz run={run} />;
@@ -34,7 +37,9 @@ export default function TestTaker({ code }: { code: string }) {
           <div className="tile"><span className="ic"><ListChecks size={20} /></span><b>{t("{n} ta savol", { n: info.n })}</b><i>{t("provodka, hisob, test")}</i></div>
           <div className="tile"><span className="ic"><Clock3 size={20} /></span><b>{t("{m} daqiqa", { m: info.minutes })}</b><i>{t("har savolga 1 daqiqa")}</i></div>
         </div>
-        <div className="note"><ShieldAlert size={18} /><span>{t("Test bir marta ishlanadi. Savol paytida ilovadan chiqsangiz, savol xato hisoblanadi. Natija kompaniyaga yuboriladi.")}</span></div>
+        <div className="note"><ShieldAlert size={18} /><span>{isPromoTest(code)
+          ? t("Ro'yxatdan o'tmasdan sinab ko'ring: test bir marta ishlanadi, natija faqat sizga ko'rsatiladi. Savol paytida ilovadan chiqsangiz, savol xato hisoblanadi.")
+          : t("Test bir marta ishlanadi. Savol paytida ilovadan chiqsangiz, savol xato hisoblanadi. Natija kompaniyaga yuboriladi.")}</span></div>
         <div className="field"><label htmlFor="cn">{t("Ism va familiya")}</label><input id="cn" className="inp" value={name} onChange={(e) => setName(e.target.value)} /></div>
         <div className="field"><label htmlFor="cp">{t("Telefon raqam")}</label><input id="cp" className="inp" type="tel" placeholder="+998 90 123 45 67" value={phone} onChange={(e) => setPhone(e.target.value)} /></div>
         <p className="err">{err}</p>

@@ -324,6 +324,20 @@ with sync_playwright() as p:
     a = [x for x in calls("liga_run_answer") if not str(x.get("p_run", "")).startswith("stage")]   # oldingi sahifalarning kech javoblari hisobga olinmaydi
     check("nomzod javobi maxfiy kalit bilan tekshirildi", a and a[-1].get("p_secret") == "sek" and pg.locator(".stamp.ok").count() == 1, a[-1:] if a else a)
 
+    print("10a2. Ochiq sinov (SINOV10) — ro'yxatsiz, oxirida «Ligaga qo'shilish»")
+    EXTRA["liga_test_open"] = [{"code": "SINOV10", "title": "Hisobchi Liga — 10 savollik sinov", "n": 10, "minutes": 10, "lang": "uz", "active": True, "company": "Hisobchi Liga"}]
+    pg, e = page(b, seed=None, query="?t=SINOV10"); ALLERR += e
+    check("sinov sahifasi: «natija faqat sizga» (kompaniyaga emas)", "faqat sizga" in txt(pg) and "kompaniyaga yuboriladi" not in txt(pg), txt(pg)[:300])
+    pg.fill("#cn", "Sinov Odam"); pg.fill("#cp", "+998901234588"); pg.click("#go"); pg.wait_for_timeout(700)
+    check("sinov boshlandi va run «promo» belgili", pg.locator(".qtext").count() == 1 and pg.evaluate("()=>__liga.nav.current().p&&__liga.nav.current().p.run?__liga.nav.current().p.run.promo:null") in (True, None))
+    for _ in range(10):
+        if pg.locator(".qtext").count() == 0: break
+        answer(pg, True)
+        if pg.locator("#nx").count(): pg.click("#nx"); pg.wait_for_timeout(350)
+    pg.wait_for_timeout(800)
+    check("sinov yakuni: «30-noyabrgacha bepul» va «Ligaga qo'shilish — bepul» tugmasi", pg.locator("#promo-join").count() == 1 and "bepul" in pg.inner_text("#promo-note"), txt(pg)[:300])
+    del EXTRA["liga_test_open"]
+
     print("10b. Telegram orqali kirish")
     EXTRA["bot:tg_login"] = {"found": True, "id": "p9", "token": "tok-tg", "first": "Ali", "last": "Valiyev", "phone": "+998901110000", "region": "Toshkent shahri", "group": "ASOSIY", "lang": "uz", "xp": 500, "ref_code": "ALI123"}
     pg, e = page(b, seed={}, tg=True); pg.wait_for_timeout(900); ALLERR += e

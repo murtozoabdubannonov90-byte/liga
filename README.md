@@ -44,6 +44,15 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-10-31c: Hammaga bepul, kubokda hamma, jalb qilish
+- **30.11.2026 gacha hammaga bepul:** `liga_bot_config.free_until = 2026-11-30` (`liga_eff_until` ga qo'shildi). 530/530 o'yinchi faol.
+- **Kunlik kubok — ro'yxatdagi hamma:** endi faqat «oxirgi 7 kunda faol» emas, obunasi/bepul davri faol hamma qatnashadi. Toq son chiqsa: liga egasi (free_phones) ro'yxatda bo'lsa o'sha kuni chetda turadi, bo'lmasa juftlash uchun qo'shiladi — oddiy ishtirokchilardan hech kim chetda qolmaydi. 530 kishi: 265 duel → 265 g'olib → ochko bo'yicha 256 → 128 → 64 → 32 → 16 → 8 → 4 → final 17:00 (9 raund). `db/2026-10-31b_kubok_hamma_bepul.sql`. 1/64, 1/128, 1/256 final nomlari qo'shildi.
+- **«Kechagi xatoingiz»** — ish kunlari 09:20 da bot oldingi bosqich kunidagi bitta (eng qiyin) xato savolni to'g'ri javob va tushuntirish bilan shaxsan yuboradi; tugatmaganlarga «oxirigacha bajaring». Cron `liga-xato-tahlili`, `liga_err_review_sys`. `db/2026-10-31c_xato_tahlili.sql`.
+- **Ro'yxatsiz sinov:** `…/liga/?t=SINOV10` — 10 savol, ism va telefon bilan (lidlar admin panel → Testlar), oxirida «Ligaga qo'shilish — bepul».
+- **Haftaning kuchli uchligi kanal(lar)ga:** juma 18:00 da ismlar, QR sertifikat havolalari, «Ligaga qo'shilish» va «10 savollik sinov» tugmalari bilan.
+- Ertalabki xabarlarda savollar soni rejadan (`liga_plan_counts_sys`: 19.11 — 10+10, 26.11 — 8+12); hech o'ynamaganlarga noyabr va bepul haqida.
+- Kesh: `hisobchi-liga-v5-20261031c`. Testlar: 332 ta.
+
 ## 2026-10-31b: Kunlik mashq bali ko'rinadi; «Guruh dueli» → «Provodka poygasi»
 - Kunlik mashq ish kunlari ham ballik edi, lekin bali hech qayerda alohida ko'rinmasdi (yakunda «hafta bali» — faqat bosqichlar). Endi: Asosiy → Haftalik liga ostida «Kunlik mashq: N ball» va «Blits: N ball»; mashq yakunida «kunlik mashq bali (hafta)». Liga jami avvalgidek faqat bosqich ballari.
 - «Guruh dueli» nomi hamma joyda (ilova, bot, ruscha — «Гонка проводок») **«Provodka poygasi»**.

@@ -64,6 +64,11 @@ const RU: Record<string, string> = {
   "Natijalarni ko'rish": "Посмотреть результаты",
   "✅ <b>Ulandi!</b>\nEndi har bosqichdan keyin natijangiz, ertalab bosqich eslatmasi va juma kuni o'rningiz shu yerga keladi.": "✅ <b>Подключено!</b>\nТеперь после каждого этапа сюда придёт ваш результат, утром — напоминание об этапе, а в пятницу — ваше место.",
   "Ligani ochish": "Открыть лигу",
+  "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich: «{t}»</b> ochildi — {p} provodka + {o} qonun va hisob savoli.\n⏰ Soat {c} gacha ochiq.": "☀️ <b>Доброе утро, {n}!</b>\nСегодня открыт <b>{s}-й этап: «{t}»</b> — {p} проводок + {o} вопросов по закону и расчётам.\n⏰ Открыт до {c}.",
+  "🔎 <b>{n}, kechagi xatoingiz</b> ({d})\n\n❓ {q}\n\n✅ <b>To'g'ri javob:</b> {a}\n💡 {e}": "🔎 <b>{n}, ваша вчерашняя ошибка</b> ({d})\n\n❓ {q}\n\n✅ <b>Правильный ответ:</b> {a}\n💡 {e}",
+  "\n\n📌 Kecha bosqichni oxirigacha yetkazmadingiz ({k}/{m} savol) — bugungisini to'liq bajaring, har savol ball.": "\n\n📌 Вчера вы не прошли этап до конца ({k}/{m} вопросов) — сегодняшний пройдите полностью, каждый вопрос — это баллы.",
+  "\n\n💪 Kecha {k}/{m} to'g'ri. Bugun bundan ham yaxshi bo'ladi!": "\n\n💪 Вчера {k}/{m} верно. Сегодня будет ещё лучше!",
+  "Bugungi bosqich": "Сегодняшний этап",
   "📅 <b>Soliq taqvimi</b>": "📅 <b>Налоговый календарь</b>",
   "{d} ({n} kun qoldi)": "{d} (осталось дней: {n})",
   "{d} (ertaga)": "{d} (завтра)",
@@ -130,7 +135,7 @@ const RU: Record<string, string> = {
   "Nik hali ko'rinmayapti. Sozlamalar → Foydalanuvchi nomi bo'limida nik yozib, ✓ ni bosing, keyin qayta tekshiring.": "Ник пока не виден. Настройки → Имя пользователя: введите ник, нажмите ✓ и проверьте снова.",
   "✅ <b>Rahmat! Nikingiz saqlandi: @{u}</b>\nEndi duel raqibingiz sizga Telegram'da yoza oladi.": "✅ <b>Спасибо! Ник сохранён: @{u}</b>\nТеперь соперник по дуэли сможет вам написать.",
   "Saqlandi": "Сохранено",
-  "👋 <b>{n}, ligaga xush kelibsiz!</b>\nSiz ro'yxatdan o'tgansiz, lekin hali birorta bosqich o'ynamadingiz.\n\nBugun <b>{s}-bosqich</b> ochiq: 20 savol, taxminan 15 daqiqa. Natijangiz faqat sizga ko'rinadi — bemalol sinab ko'ring.\n⏰ Soat {c} gacha.": "👋 <b>{n}, добро пожаловать в лигу!</b>\nВы зарегистрированы, но ещё не прошли ни одного этапа.\n\nСегодня открыт <b>этап {s}</b>: 20 вопросов, примерно 15 минут. Результат видите только вы — смело пробуйте.\n⏰ До {c}.",
+  "👋 <b>{n}, ligaga xush kelibsiz!</b>\nSiz ro'yxatdan o'tgansiz, lekin hali birorta bosqich o'ynamadingiz.\n\nNoyabr bosqichi: har kuni yangi mavzu, <b>osondan qiyinga</b> — boshlash uchun eng qulay payt. 30-noyabrgacha hammaga <b>bepul</b>.\nBugun <b>{s}-bosqich</b> ochiq: 20 savol, taxminan 15 daqiqa. Natijangiz faqat sizga ko'rinadi — bemalol sinab ko'ring.\n⏰ Soat {c} gacha.": "👋 <b>{n}, добро пожаловать в лигу!</b>\nВы зарегистрированы, но ещё не прошли ни одного этапа.\n\nНоябрьский этап: каждый день новая тема, <b>от простого к сложному</b> — лучшее время начать. До 30 ноября для всех <b>бесплатно</b>.\nСегодня открыт <b>этап {s}</b>: 20 вопросов, примерно 15 минут. Результат видите только вы — смело пробуйте.\n⏰ До {c}.",
   "👋 <b>{n}, birinchi bosqichingizni boshlang!</b>\nBugungi {s}-bosqich soat {c} gacha ochiq. 15 daqiqa ajrating — xato qilsangiz, to'g'ri javob va tushuntirish ko'rsatiladi.": "👋 <b>{n}, начните свой первый этап!</b>\nСегодняшний этап {s} открыт до {c}. Уделите 15 минут — при ошибке покажем правильный ответ и объяснение.",
   "⏰ <b>{n}, bugungi bosqich yopilishiga 1 soat qoldi.</b>\nHali birorta bosqich o'ynamadingiz — hoziroq birinchisini boshlang, 15 daqiqa yetadi.": "⏰ <b>{n}, до закрытия этапа остался 1 час.</b>\nВы ещё не прошли ни одного этапа — начните первый сейчас, хватит 15 минут.",
   "☀️ <b>{n}, sizni sog'indik!</b>\nBir necha kundan beri bosqich o'ynamadingiz. Bugun <b>{s}-bosqich</b> ochiq — haftalik ligaga qayting.\n⏰ Soat {c} gacha.": "☀️ <b>{n}, мы скучали!</b>\nВы несколько дней не проходили этапы. Сегодня открыт <b>этап {s}</b> — возвращайтесь в недельную лигу.\n⏰ До {c}.",
@@ -239,8 +244,8 @@ async function dayTopDm(top: any[], w: number) {
   return n;
 }
 // duel kubogi: bosqich nomlari va jadval matni
-const STAGE_UZ: Record<string, string> = { qual: "1-raund", r256: "1/128 final", r128: "1/64 final", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
-const STAGE_RU: Record<string, string> = { qual: "1-й раунд", r256: "1/128 финала", r128: "1/64 финала", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "Четвертьфинал", semi: "Полуфинал", final: "Финал" };
+const STAGE_UZ: Record<string, string> = { qual: "1-raund", r512: "1/256 final", r256: "1/128 final", r128: "1/64 final", r64: "1/32 final", r32: "1/16 final", r16: "1/8 final", quarter: "Chorak final", semi: "Yarim final", final: "Final" };
+const STAGE_RU: Record<string, string> = { qual: "1-й раунд", r512: "1/256 финала", r256: "1/128 финала", r128: "1/64 финала", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "Четвертьфинал", semi: "Полуфинал", final: "Финал" };
 const STAGE_RU_ACC: Record<string, string> = { qual: "1-й раунд", r64: "1/32 финала", r32: "1/16 финала", r16: "1/8 финала", quarter: "четвертьфинал", semi: "полуфинал", final: "финал" };
 const stageName = (st: string, lang?: string | null) => {
   const ru = lang === "ru", m = (ru ? STAGE_RU : STAGE_UZ)[st]; if (m) return m;
@@ -1435,7 +1440,7 @@ async function once(tag: string) {
 function kindText(p: any, when: "morning" | "noon" | "remind", c: string): string | null {
   const n = esc(p.first_name ?? ""), s = (p.stage ?? 0) + 1;
   if (p.kind === "never") return {
-    morning: tr(p.lang, "👋 <b>{n}, ligaga xush kelibsiz!</b>\nSiz ro'yxatdan o'tgansiz, lekin hali birorta bosqich o'ynamadingiz.\n\nBugun <b>{s}-bosqich</b> ochiq: 20 savol, taxminan 15 daqiqa. Natijangiz faqat sizga ko'rinadi — bemalol sinab ko'ring.\n⏰ Soat {c} gacha.", { n, s, c }),
+    morning: tr(p.lang, "👋 <b>{n}, ligaga xush kelibsiz!</b>\nSiz ro'yxatdan o'tgansiz, lekin hali birorta bosqich o'ynamadingiz.\n\nNoyabr bosqichi: har kuni yangi mavzu, <b>osondan qiyinga</b> — boshlash uchun eng qulay payt. 30-noyabrgacha hammaga <b>bepul</b>.\nBugun <b>{s}-bosqich</b> ochiq: 20 savol, taxminan 15 daqiqa. Natijangiz faqat sizga ko'rinadi — bemalol sinab ko'ring.\n⏰ Soat {c} gacha.", { n, s, c }),
     noon: tr(p.lang, "👋 <b>{n}, birinchi bosqichingizni boshlang!</b>\nBugungi {s}-bosqich soat {c} gacha ochiq. 15 daqiqa ajrating — xato qilsangiz, to'g'ri javob va tushuntirish ko'rsatiladi.", { n, s, c }),
     remind: tr(p.lang, "⏰ <b>{n}, bugungi bosqich yopilishiga 1 soat qoldi.</b>\nHali birorta bosqich o'ynamadingiz — hoziroq birinchisini boshlang, 15 daqiqa yetadi.", { n }),
   }[when];
@@ -1445,6 +1450,27 @@ function kindText(p: any, when: "morning" | "noon" | "remind", c: string): strin
     remind: null,
   }[when];
   return null;
+}
+
+// 2026-10-31: ertalabki «kechagi xatoingiz» — oldingi bosqich kunidagi bitta (eng qiyin) xato, to'g'ri javob va tushuntirish bilan.
+// cron liga-xato-tahlili ish kunlari 09:20–09:25 har daqiqa; har safar navbatdagi 80 kishi (err_review_last_<sana>)
+async function errReview(limit = 80) {
+  const day = tzDate().toISOString().slice(0, 10), lk = `err_review_last_${day}`, last = Number((await cfgGet(lk)) || 0);
+  const { data: ppl } = await db.rpc("liga_err_review_sys", { p_after: last, p_limit: limit });
+  if (!ppl?.length) return { ok: true, done: true };
+  await cfgSet(lk, String((ppl[ppl.length - 1] as any).tg));   // avval belgilaymiz — takror ketmasin
+  let sent = 0, fail = 0;
+  const cut = (x: string, m: number) => (x.length > m ? x.slice(0, m - 1) + "…" : x);
+  for (const p of ppl as any[]) {
+    const d = String(p.day ?? "").slice(5).split("-").reverse().join(".");
+    let text = tr(p.lang, "🔎 <b>{n}, kechagi xatoingiz</b> ({d})\n\n❓ {q}\n\n✅ <b>To'g'ri javob:</b> {a}\n💡 {e}",
+      { n: esc(p.first_name ?? ""), d, q: esc(cut(p.q ?? "", 600)), a: esc(p.ans ?? ""), e: esc(cut(p.e ?? "", 700)) });
+    text += Number(p.done_n) < Number(p.n)
+      ? tr(p.lang, "\n\n📌 Kecha bosqichni oxirigacha yetkazmadingiz ({k}/{m} savol) — bugungisini to'liq bajaring, har savol ball.", { k: p.done_n, m: p.n })
+      : tr(p.lang, "\n\n💪 Kecha {k}/{m} to'g'ri. Bugun bundan ham yaxshi bo'ladi!", { k: p.right_n, m: p.n });
+    if (await dm(p.tg, text, appBtn(tr(p.lang, "Bugungi bosqich")))) sent++; else fail++;
+  }
+  return { ok: true, sent, fail };
 }
 
 // Sovrinli musobaqa e'loni — Telegram'ga ulangan har bir ishtirokchiga shaxsan (o'z tilida)
@@ -1757,6 +1783,7 @@ async function onCron(action: string, body: any = {}) {
     if (!(await once("day_start"))) return { skip: "already" };
     const lesson = await lessonOfDay();
     const { data: ptd } = await db.rpc("liga_plan_today_sys"); const plan = (ptd ?? [])[0] as any;   // sanaga bog'langan kunlik reja
+    const { data: pcn } = await db.rpc("liga_plan_counts_sys"); const cnt0 = { p: Number((pcn ?? [])[0]?.n_pv ?? 15), o: Number((pcn ?? [])[0]?.n_other ?? 5) };
     const n = await toChats((g) => {
       const si = todayStage(g.start_date);
       if (si === null) return null;                       // jamoa hali boshlanmagan
@@ -1764,7 +1791,7 @@ async function onCron(action: string, body: any = {}) {
         ? "🚀 <b>Yangi liga haftasi boshlandi!</b>\n\nLiga bugundan <b>juma soat 18:00</b> gacha davom etadi."
         : "☀️ <b>Bugungi o'yin boshlandi!</b>";
       const topic = plan ? `${plan.icon ? plan.icon + " " : ""}${esc(plan.title?.uz ?? "")}` : TITLES[si];
-      const what = plan ? "15 provodka + 5 qonun savoli, " + plan.level + "-daraja qiyinlik" : "20 savol";
+      const what = plan ? `${cnt0.p} provodka + ${cnt0.o} qonun va hisob savoli, ${plan.level}-daraja qiyinlik` : "20 savol";
       return `${head}\n📚 Bugun <b>${si + 1}-bosqich: ${topic}</b> ochildi (${what}).\n⏰ Bosqich <b>${closeStr(w)}</b> gacha ochiq, keyin yopiladi.\n⏱ Har savolga 2 daqiqa.${lesson ? `\n\n📘 <b>Bugungi dars:</b> ${esc(lesson.uz.title)}\n${esc(lesson.uz.body)}` : ""}\n\nOmad, buxgalterlar! 💪`;
     });
     // guruhlarga kunning savoli (so'rovnoma)
@@ -1774,7 +1801,7 @@ async function onCron(action: string, body: any = {}) {
     const { data: list } = await db.rpc("liga_morning_list3"); let personal = 0;
     for (const p of (list ?? []) as any[]) {
       const msg = kindText(p, "morning", closeStr(w)) ?? (plan
-        ? tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich: «{t}»</b> ochildi — 15 provodka + 5 qonun savoli.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w), t: esc((p.lang === "ru" ? plan.title?.ru : plan.title?.uz) ?? "") })
+        ? tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich: «{t}»</b> ochildi — {p} provodka + {o} qonun va hisob savoli.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w), p: cnt0.p, o: cnt0.o, t: esc((p.lang === "ru" ? plan.title?.ru : plan.title?.uz) ?? "") })
         : tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w) }));
       if (await dm(p.tg, msg,
         appBtn(tr(p.lang, "Bosqichni boshlash")))) personal++;
@@ -1923,6 +1950,10 @@ async function onCron(action: string, body: any = {}) {
     if (w < 1 || w > 5 || !(await once("remind_noon"))) return { skip: true };
     return await remindNoon(w);
   }
+  if (action === "err_review" || action === "err_review_now") {
+    if (action === "err_review" && (w < 1 || w > 5)) return { skip: "weekend" };
+    return await errReview(Number(body.limit) || 80);
+  }
   if (action === "remind_half" || action === "remind_half_now") {
     if (action === "remind_half" && (w < 1 || w > 5 || !(await once("remind_half")))) return { skip: true };
     return await remindHalf(w);
@@ -1991,6 +2022,15 @@ async function onCron(action: string, body: any = {}) {
       if (!c.tg) continue;
       if (await dm(c.tg, tr(c.lang, "{m} <b>Tabriklaymiz, {n}! Siz haftalik ligada {p}-o'rinni egalladingiz.</b>\nMedalingiz va QR kodli sertifikatingiz tayyor — uni ish beruvchingizga ham ko'rsatishingiz mumkin.", { m: ["🥇", "🥈", "🥉"][c.pos - 1] ?? "🏅", n: esc(c.name ?? ""), p: c.pos }),
         appBtn(tr(c.lang, "Sertifikatni ochish"), "?v=" + c.cert))) certs++;
+    }
+    // 2026-10-31: haftaning kuchli uchligi — kanal(lar)ga ismlari va QR sertifikat havolasi bilan (jalb qilish uchun)
+    const top3 = ((cl ?? []) as any[]).filter((c) => c.pos >= 1 && c.pos <= 3).sort((a, b) => a.pos - b.pos);
+    if (top3.length) {
+      const md = ["🥇", "🥈", "🥉"];
+      await toChannels(`🏆 <b>Haftaning eng kuchli buxgalterlari</b>\n\n` +
+        top3.map((c) => `${md[c.pos - 1]} <b>${esc(c.name ?? "")}</b> — <a href="${APP}?v=${encodeURIComponent(c.cert)}">sertifikat</a>`).join("\n") +
+        `\n\nHar ish kuni 09:00–18:00 — yangi bosqich: provodka, QQS, ish haqi, Soliq kodeksi. <b>30-noyabrgacha bepul.</b>\n👇 Siz ham qo'shiling!`,
+        { inline_keyboard: [[{ text: "🚀 Ligaga qo'shilish", url: `https://t.me/${BOT}` }], [{ text: "📝 10 savollik sinov (ro'yxatsiz)", url: `${APP}?t=SINOV10` }]] });
     }
     // juma bosqichining kuchli uchligi (mukofot — dushanba)
     let winners = 0;

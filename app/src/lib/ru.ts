@@ -1220,4 +1220,10 @@ export const RU: Record<string, string> = {
   "Kunlik mashq bali har kuni (ish kunlari ham) yoziladi va alohida ko'rinadi — liga jamiga faqat bosqich ballari qo'shiladi.": "Баллы ежедневной практики начисляются каждый день (и в будни) и показываются отдельно — в итог лиги идут только баллы этапов.",
   "Kunlik mashq: {n} ball": "Ежедневная практика: {n} баллов",
   "Blits: {n} ball": "Блиц: {n} баллов",
+  "1/64 final": "1/64 финала",
+  "1/128 final": "1/128 финала",
+  "1/256 final": "1/256 финала",
+  "Ro'yxatdan o'tmasdan sinab ko'ring: test bir marta ishlanadi, natija faqat sizga ko'rsatiladi. Savol paytida ilovadan chiqsangiz, savol xato hisoblanadi.": "Попробуйте без регистрации: тест проходится один раз, результат видите только вы. Если выйти из приложения во время вопроса, он засчитывается как ошибка.",
+  "Hisobchi Ligada har ish kuni shunday bosqich: 20 savol, xatolar tushuntirish bilan, haftalik reyting va sertifikat. 30-noyabrgacha hammaga bepul!": "В Лиге бухгалтеров каждый рабочий день такой этап: 20 вопросов, разбор ошибок, недельный рейтинг и сертификат. До 30 ноября — бесплатно для всех!",
+  "Ligaga qo'shilish — bepul": "Вступить в лигу — бесплатно",
 };
