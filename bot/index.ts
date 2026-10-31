@@ -1950,6 +1950,33 @@ async function onCron(action: string, body: any = {}) {
     if (w < 1 || w > 5 || !(await once("remind_noon"))) return { skip: true };
     return await remindNoon(w);
   }
+  // 2026-10-31: Sovrinli musobaqa oy yakuni — g'oliblar guruh(lar), muhokama guruhi va kanalga; g'oliblarga shaxsan.
+  // «admin bilan bog'laning» + «keyingi bosqich tez orada». Bir marta (once), cron liga-px-yakun (31.10 20:00).
+  if (action === "px_final" || action === "px_final_now") {
+    const mon = String(body.mon || "2026-10");
+    if (action === "px_final" && !(await once("px_final_" + mon))) return { skip: "already" };
+    const { data: wl } = await db.rpc("liga_px_final_sys", { p_mon: mon });
+    const win = (wl ?? []) as any[]; if (!win.length) return { skip: "no_winners" };
+    const md = ["🥇", "🥈", "🥉"], MN = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
+    const mName = MN[Number(mon.slice(5, 7)) - 1] ?? mon;
+    const text = `🏆 <b>«Sovrinli musobaqa» — ${mName} yakunlari!</b>\n\n` +
+      win.map((x) => `${md[x.pos - 1] ?? x.pos + "."} <b>${esc(x.name ?? "")}</b> — ${fmtS(x.pts)} ball — <b>${fmtS(x.amount)} so'm</b>`).join("\n") +
+      `\n\n🎉 G'oliblarni tabriklaymiz! Sovrinni olish uchun <b>admin bilan bog'laning: @murtozo_44</b>\n` +
+      `🙏 Qatnashgan hammaga rahmat!\n\n⏸ <b>Keyingi bosqich tez orada</b> — boshlanish sanasi va sovrinlar shu yerda e'lon qilinadi.\n` +
+      `Shu orada har ish kuni 09:00–18:00 da liga bosqichi ochiq — noyabrda har kuni yangi mavzu, 30-noyabrgacha bepul.`;
+    const kb = { inline_keyboard: [[{ text: "✉️ Admin bilan bog'lanish", url: "https://t.me/murtozo_44" }], [{ text: "🚀 Ligani ochish", url: `https://t.me/${BOT}` }]] };
+    let groups = 0, dms = 0;
+    for (const c of await chatsOf("ASOSIY")) { const r = await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", text, reply_markup: kb }); if (r?.ok) groups++; await pause(60); }
+    const dc = await discussCfg().catch(() => null);
+    if (dc?.chat && !(await chatsOf("ASOSIY")).some((c) => c.chat_id === dc.chat)) { const r = await tg("sendMessage", { chat_id: dc.chat, parse_mode: "HTML", text, reply_markup: kb }); if (r?.ok) groups++; }
+    const ch = await toChannels(text, kb);
+    for (const x of win) {
+      if (!x.tg) continue;
+      if (await dm(x.tg, `${md[x.pos - 1] ?? "🏅"} <b>Tabriklaymiz, ${esc(x.name ?? "")}!</b>\n\nSiz «Sovrinli musobaqa»da (${mName}) <b>${x.pos}-o'rin</b>ni egalladingiz — ${fmtS(x.pts)} ball.\n💰 Sovriningiz: <b>${fmtS(x.amount)} so'm</b>.\n\nSovrinni olish uchun admin bilan bog'laning: <b>@murtozo_44</b> (karta raqamingizni yozib yuboring).`,
+        { inline_keyboard: [[{ text: "✉️ Admin bilan bog'lanish", url: "https://t.me/murtozo_44" }]] })) dms++;
+    }
+    return { ok: true, groups, channels: ch, dms, winners: win.length };
+  }
   if (action === "err_review" || action === "err_review_now") {
     if (action === "err_review" && (w < 1 || w > 5)) return { skip: "weekend" };
     return await errReview(Number(body.limit) || 80);
