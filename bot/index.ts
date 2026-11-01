@@ -1988,6 +1988,23 @@ async function onCron(action: string, body: any = {}) {
     const kb = body.share ? { inline_keyboard: [[{ text: "🤝 Do'stlarga ulashish", url: "https://t.me/share/url?url=" + encodeURIComponent(`https://t.me/${BOT}`) + "&text=" +
       encodeURIComponent("Buxgalterlar uchun «Hisobchi Liga»: har kuni provodka, QQS, ish haqi va Soliq kodeksi bo'yicha bosqich, haftalik reyting va sertifikat. Qo'shiling, birga bellashamiz!") }],
       [{ text: "🚀 Ligani ochish", url: `https://t.me/${BOT}` }]] } : undefined;
+    // albom: body.photos = [{ url } | { cfg: "<liga_bot_config kaliti, base64 jpeg>" }], matn birinchi rasmda
+    if (Array.isArray(body.photos) && body.photos.length > 1) {
+      const fd = new FormData(); fd.append("chat_id", String(dc.chat)); const media: any[] = [];
+      let i = 0;
+      for (const ph of body.photos as any[]) {
+        let src = ""; i++;
+        if (ph.cfg) { const v = String((await cfgGet(String(ph.cfg))) || ""); if (!v) return { error: "no_cfg_" + ph.cfg };
+          fd.append("p" + i, new Blob([Uint8Array.from(atob(v), (ch) => ch.charCodeAt(0))], { type: "image/jpeg" }), `chek${i}.jpg`); src = "attach://p" + i; }
+        else if (/^https:\/\/raw\.githubusercontent\.com\/murtozoabdubannonov90-byte\/liga\//.test(String(ph.url || ""))) src = String(ph.url);
+        else return { error: "bad_photo" };
+        media.push(i === 1 && caption ? { type: "photo", media: src, caption, parse_mode: "HTML" } : { type: "photo", media: src });
+      }
+      fd.append("media", JSON.stringify(media));
+      const r = await (await fetch(`https://api.telegram.org/bot${TOKEN}/sendMediaGroup`, { method: "POST", body: fd })).json().catch(() => null);
+      for (const ph of body.photos as any[]) if (ph.cfg) await db.from("liga_bot_config").delete().eq("key", String(ph.cfg));   // vaqtinchalik rasm o'chiriladi
+      return { ok: !!r?.ok, desc: r?.description };
+    }
     if (b64) {   // rasm repoga joylanmaydi — to'g'ridan-to'g'ri yuboriladi (masalan, sovrin cheki)
       const fd = new FormData(); fd.append("chat_id", String(dc.chat)); if (caption) fd.append("caption", caption); fd.append("parse_mode", "HTML");
       if (kb) fd.append("reply_markup", JSON.stringify(kb));
