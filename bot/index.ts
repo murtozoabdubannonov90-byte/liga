@@ -1980,6 +1980,17 @@ async function onCron(action: string, body: any = {}) {
     }
     return { ok: true, groups, channels: ch, dms, winners: win.length };
   }
+  // 2026-11-01: muhokama guruhiga rasm + matn (masalan, sovrin cheki, shaxsiy ma'lumotlar yashirilgan). body.url — rasm, body.caption — HTML matn
+  if (action === "discuss_photo") {
+    const dc = await discussCfg(); if (!dc) return { skip: "no_group" };
+    const url = String(body.url || ""), caption = String(body.caption || "").slice(0, 1020);
+    if (!/^https:\/\/(raw\.githubusercontent\.com\/murtozoabdubannonov90-byte\/liga\/|murtozoabdubannonov90-byte\.github\.io\/liga\/)/.test(url)) return { error: "bad_url" };
+    const kb = body.share ? { inline_keyboard: [[{ text: "🤝 Do'stlarga ulashish", url: "https://t.me/share/url?url=" + encodeURIComponent(`https://t.me/${BOT}`) + "&text=" +
+      encodeURIComponent("Buxgalterlar uchun «Hisobchi Liga»: har kuni provodka, QQS, ish haqi va Soliq kodeksi bo'yicha bosqich, haftalik reyting va sertifikat. Qo'shiling, birga bellashamiz!") }],
+      [{ text: "🚀 Ligani ochish", url: `https://t.me/${BOT}` }]] } : undefined;
+    const r = await tg("sendPhoto", { chat_id: dc.chat, photo: url, caption, parse_mode: "HTML", reply_markup: kb });
+    return { ok: !!r?.ok, desc: r?.description };
+  }
   if (action === "err_review" || action === "err_review_now") {
     if (action === "err_review" && (w < 1 || w > 5)) return { skip: "weekend" };
     return await errReview(Number(body.limit) || 80);
