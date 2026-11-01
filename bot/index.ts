@@ -1983,11 +1983,18 @@ async function onCron(action: string, body: any = {}) {
   // 2026-11-01: muhokama guruhiga rasm + matn (masalan, sovrin cheki, shaxsiy ma'lumotlar yashirilgan). body.url — rasm, body.caption — HTML matn
   if (action === "discuss_photo") {
     const dc = await discussCfg(); if (!dc) return { skip: "no_group" };
-    const url = String(body.url || ""), caption = String(body.caption || "").slice(0, 1020);
-    if (!/^https:\/\/(raw\.githubusercontent\.com\/murtozoabdubannonov90-byte\/liga\/|murtozoabdubannonov90-byte\.github\.io\/liga\/)/.test(url)) return { error: "bad_url" };
+    const url = String(body.url || ""), caption = String(body.caption || "").slice(0, 1020), b64 = String(body.b64 || "");
+    if (!b64 && !/^https:\/\/(raw\.githubusercontent\.com\/murtozoabdubannonov90-byte\/liga\/|murtozoabdubannonov90-byte\.github\.io\/liga\/)/.test(url)) return { error: "bad_url" };
     const kb = body.share ? { inline_keyboard: [[{ text: "🤝 Do'stlarga ulashish", url: "https://t.me/share/url?url=" + encodeURIComponent(`https://t.me/${BOT}`) + "&text=" +
       encodeURIComponent("Buxgalterlar uchun «Hisobchi Liga»: har kuni provodka, QQS, ish haqi va Soliq kodeksi bo'yicha bosqich, haftalik reyting va sertifikat. Qo'shiling, birga bellashamiz!") }],
       [{ text: "🚀 Ligani ochish", url: `https://t.me/${BOT}` }]] } : undefined;
+    if (b64) {   // rasm repoga joylanmaydi — to'g'ridan-to'g'ri yuboriladi (masalan, sovrin cheki)
+      const fd = new FormData(); fd.append("chat_id", String(dc.chat)); if (caption) fd.append("caption", caption); fd.append("parse_mode", "HTML");
+      if (kb) fd.append("reply_markup", JSON.stringify(kb));
+      fd.append("photo", new Blob([Uint8Array.from(atob(b64), (ch) => ch.charCodeAt(0))], { type: "image/jpeg" }), "chek.jpg");
+      const r = await (await fetch(`https://api.telegram.org/bot${TOKEN}/sendPhoto`, { method: "POST", body: fd })).json().catch(() => null);
+      return { ok: !!r?.ok, desc: r?.description };
+    }
     const r = await tg("sendPhoto", { chat_id: dc.chat, photo: url, caption, parse_mode: "HTML", reply_markup: kb });
     return { ok: !!r?.ok, desc: r?.description };
   }
