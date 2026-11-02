@@ -961,6 +961,7 @@ with sync_playwright() as p:
     check("RU: «Ежедневная практика: N баллов»", "Ежедневная практика" in (pg.inner_text("#week-extra") if pg.locator("#week-extra").count() else ""))
 
     print("10u. Faktura detektivi (2026-11-02)")
+    pg.context.close() if 'pg' in dir() else None
     pg, e = page(b); ALLERR += e
     dc = pg.inner_text("#doc-card") if pg.locator("#doc-card").count() else ""
     check("Asosiy: «Faktura detektivi» kartasi va «Bugun: 5 ta yangi hujjat»", "Faktura detektivi" in dc and "5 ta yangi hujjat" in dc, dc)
@@ -1006,25 +1007,30 @@ with sync_playwright() as p:
     check("yakundan keyin detektiv statistikasi yangilanadi", bool(calls("liga_doc_me")))
     del EXTRA["liga_doc_start"]
     DOC_ME["today"] = {"n": 5, "done_n": 5, "right_n": 4, "finished": True}
+    pg.context.close() if 'pg' in dir() else None
     pg, e = page(b); ALLERR += e
     check("bajarilgan kun: kartada «✅ Bugun 4/5 to'g'ri»", "4/5" in (pg.inner_text("#doc-card") if pg.locator("#doc-card").count() else ""))
     go(pg, "detective")
     check("bajarilgan kun: tugma yopiq «ertaga yangilari»", pg.locator("#doc-go").is_disabled() and "ertaga yangilari" in pg.inner_text("#doc-go"))
+    pg.context.close() if 'pg' in dir() else None
     pg, e = page(b, seed={**SEED, "lang": "ru"}); ALLERR += e
     check("RU: «Детектив фактур»", "Детектив фактур" in (pg.inner_text("#doc-card") if pg.locator("#doc-card").count() else ""))
     DOC_ME["today"] = None
+    pg.context.close() if 'pg' in dir() else None
     pg, e = page(b, w=320, h=640); ALLERR += e; go(pg, "detective"); pg.click("#doc-go"); pg.wait_for_timeout(700)
     over = pg.evaluate("()=>document.documentElement.scrollWidth - innerWidth")
     check("320px: hujjat ekranda gorizontal siljish yo'q", over <= 0 and pg.locator("#doc").count() == 1, over)
 
     print("10v. Qonun yangiligi testi va simulyator")
     EXTRA["liga_law_me"] = {"runs": {"7": {"n": 1, "right_n": 1, "done_n": 1, "finished": True}}, "month_right": 1}
+    pg.context.close() if 'pg' in dir() else None
     pg, e = page(b); ALLERR += e
     nc = pg.inner_text(".news-card") if pg.locator(".news-card").count() else ""
     check("bajarilgan qonun testi: kartada «✅ Test: 1/1»", "Test: 1/1" in nc, nc)
     go(pg, "newsView", {"id": 7})
     check("bajarilgan test: tugma yopiq", pg.locator("#go").is_disabled())
     del EXTRA["liga_law_me"]
+    pg.context.close() if 'pg' in dir() else None
     pg, e = page(b); ALLERR += e
     check("bajarilmagan: kartada «1 savollik test»", "1 savollik test" in (pg.inner_text(".news-card") if pg.locator(".news-card").count() else ""))
     go(pg, "newsView", {"id": 7}); pg.click("#go"); pg.wait_for_timeout(600)
@@ -1034,6 +1040,7 @@ with sync_playwright() as p:
     check("qonun testi yakuni", "Qonun testi yakunlandi" in txt(pg), txt(pg)[:200])
     # simulyator: faqat egasiga
     DOC_ME["owner"] = True
+    pg.context.close() if 'pg' in dir() else None
     pg, e = page(b); ALLERR += e
     check("egasiga: simulyator kartasi ko'rinadi", pg.locator("#sim-card").count() == 1)
     r = pg.evaluate("""()=>{const s=__liga.sim; const ok=s.report(s.SIM_DOCS.map(d=>d.ok));
