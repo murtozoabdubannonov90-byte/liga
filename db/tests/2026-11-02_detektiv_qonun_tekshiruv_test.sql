@@ -3,7 +3,7 @@
 -- hamma o'zgarishni bekor qiladi (bazada iz qolmaydi). Natija xato xabarida: "DQT_TEST {...}" — hammasi true bo'lishi kerak.
 do $t$
 declare pid uuid := gen_random_uuid(); tok text := 'dqt-' || md5(random()::text); v jsonb; v2 jsonb; r jsonb := '{}'; b public.liga_bank; rid uuid;
-  nid bigint; did bigint; adm bigint; x jsonb; c text; trid uuid; sec text; k int; n int; ok_n int := 0; items jsonb; bad_cnt int;
+  nid bigint; did bigint; adm bigint; x jsonb; c text; trid uuid; sec text; j int; n int; ok_n int := 0; items jsonb; bad_cnt int;
 begin
   insert into public.safari_players(id, first_name, last_name, phone, token_hash, paid_until, lang)
     values (pid, 'Sinov', 'DQT', '+998900009911', public.liga_hash(tok), public.liga_today() + 5, 'uz');
@@ -40,7 +40,7 @@ begin
   select * into b from public.liga_bank where pool = 'doc' and dt like '%,%' limit 1;
   r := r || jsonb_build_object('order_free', public.liga_q_ok(b, jsonb_build_object('pick', (select jsonb_agg(u.z order by u.z desc) from unnest(string_to_array(b.dt, ',') || string_to_array(b.dt, ',')) u(z)))));
   -- qolganlarini tugatish
-  for k in 3..4 loop v := public.liga_run_answer(pid, tok, rid, k, '{"pick":[]}', null); end loop;
+  for j in 3..4 loop v := public.liga_run_answer(pid, tok, rid, j, '{"pick":[]}', null); end loop;
   r := r || jsonb_build_object('doc_finished', (v->>'finished')::boolean and (v->>'done_n')::int = 5);
   begin perform public.liga_doc_start(pid, tok, 'uz'); r := r || '{"doc_once": false}';
   exception when others then r := r || jsonb_build_object('doc_once', sqlerrm = 'already_done'); end;
@@ -97,7 +97,7 @@ begin
 
   -- ===== 3) Rahbar tekshiruvi =====
   delete from public.liga_tests where owner_tg = 777000111;
-  for k in 1..3 loop v := public.liga_chk_create_sys(777000111, 'Rahbar', 'Sinov MChJ', 'uz'); end loop;
+  for j in 1..3 loop v := public.liga_chk_create_sys(777000111, 'Rahbar', 'Sinov MChJ', 'uz'); end loop;
   c := v->>'code';
   r := r || jsonb_build_object('chk_create', c ~ '^[A-Z0-9]{7}$' and (v->>'used')::int = 3);
   v := public.liga_chk_create_sys(777000111, 'Rahbar', 'Sinov MChJ', 'uz');
@@ -112,10 +112,10 @@ begin
   rid := (v->>'run')::uuid; sec := v->>'secret'; n := jsonb_array_length(v->'items');
   select id into trid from public.liga_test_runs where code = c;
   perform public.liga_run_away(rid, null, null, sec, 0, 4000);
-  for k in 0..n - 1 loop
-    select bk.* into b from public.liga_run_ans a join public.liga_bank bk on bk.id = a.qid where a.run_id = rid and a.k = k;
-    x := case when k % 3 = 0 then '{"left":true}'::jsonb when b.t = 'pv' then jsonb_build_object('dt', b.dt, 'kt', b.kt) when b.t = 'mc' then jsonb_build_object('pick', b.a) else jsonb_build_object('val', b.a::text) end;
-    v := public.liga_run_answer(null, null, rid, k, x, sec);
+  for j in 0..n - 1 loop
+    select bk.* into b from public.liga_run_ans a join public.liga_bank bk on bk.id = a.qid where a.run_id = rid and a.k = j;
+    x := case when j % 3 = 0 then '{"left":true}'::jsonb when b.t = 'pv' then jsonb_build_object('dt', b.dt, 'kt', b.kt) when b.t = 'mc' then jsonb_build_object('pick', b.a) else jsonb_build_object('val', b.a::text) end;
+    v := public.liga_run_answer(null, null, rid, j, x, sec);
     if (v->>'ok')::boolean then ok_n := ok_n + 1; end if;
   end loop;
   v := public.liga_chk_report_sys(trid);
