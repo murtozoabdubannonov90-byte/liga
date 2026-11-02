@@ -38,7 +38,7 @@ begin
     'clean_reveal_none', (public.liga_q_reveal(b, 'uz')->>'none')::boolean);
   -- tartib ahamiyatsiz, takror ahamiyatsiz
   select * into b from public.liga_bank where pool = 'doc' and dt like '%,%' limit 1;
-  r := r || jsonb_build_object('order_free', public.liga_q_ok(b, jsonb_build_object('pick', (select jsonb_agg(x order by x desc) from unnest(string_to_array(b.dt, ',') || string_to_array(b.dt, ',')) x))));
+  r := r || jsonb_build_object('order_free', public.liga_q_ok(b, jsonb_build_object('pick', (select jsonb_agg(u.z order by u.z desc) from unnest(string_to_array(b.dt, ',') || string_to_array(b.dt, ',')) u(z)))));
   -- qolganlarini tugatish
   for k in 3..4 loop v := public.liga_run_answer(pid, tok, rid, k, '{"pick":[]}', null); end loop;
   r := r || jsonb_build_object('doc_finished', (v->>'finished')::boolean and (v->>'done_n')::int = 5);
@@ -60,7 +60,7 @@ begin
   r := r || jsonb_build_object('law_bank3', (select count(*) from public.liga_bank where pool = 'law' and active and id like 'law' || nid || '\_%') = 3);
   select to_jsonb(l) into x from public.liga_news_list() l where l.id = nid;
   r := r || jsonb_build_object('law_list', x is not null and jsonb_array_length(x->'qs') = 3,
-    'law_list_no_answer', not exists (select 1 from jsonb_array_elements(x->'qs') q where q ? 'a' or q ? 'e'));
+    'law_list_no_answer', not exists (select 1 from jsonb_array_elements(x->'qs') qq where qq ? 'a' or qq ? 'e'));
   v := public.liga_law_start(pid, tok, nid, 'ru'); rid := (v->>'run')::uuid;
   r := r || jsonb_build_object('law_run', jsonb_array_length(v->'items') = 3 and (v->>'qsec')::int = 90 and v->'items'->0->>'q' = 'Первый вопрос?');
   v := public.liga_run_answer(pid, tok, rid, 0, '{"pick":1}', null);
