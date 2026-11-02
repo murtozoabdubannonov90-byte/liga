@@ -638,7 +638,7 @@ with sync_playwright() as p:
 
     print("10g4. Ma'lumotnoma bazadan, «Yangilandi» sanasi")
     pg, e = page(b); ALLERR += e
-    check("bazadan kelmasa — ilovadagi zaxira (9 mavzu) va uning sanasi", pg.locator("#info .info-it").count() == 9 and "Yangilandi: 26.10.2026" in pg.inner_text("#info-updated"), pg.inner_text("#info")[:200])
+    check("bazadan kelmasa — ilovadagi zaxira (9 mavzu) va uning sanasi", pg.locator("#info .info-it").count() == 9 and "Yangilandi: 02.11.2026" in pg.inner_text("#info-updated"), pg.inner_text("#info")[:200])
     check("ma'lumotnoma bazadan so'raladi (liga_info)", bool(calls("liga_info")))
     pg.click("#info-mulk .info-h"); pg.wait_for_timeout(150)
     check("yangi imtiyoz: logistika markazlari 2040 gacha (PQ-368)", all(w in pg.inner_text("#info-mulk") for w in ["PQ-368", "2040", "logistika"]))
