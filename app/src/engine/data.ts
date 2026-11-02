@@ -11,8 +11,13 @@ import { cyr, type Lang } from "../lib/i18n";
 import { S } from "./state";
 import { stageDate, dkey, STAGE_N, tzNow } from "./time";
 
-export type TaskType = "pv" | "mc" | "calc";
-export interface Task { t: TaskType; q: string; o?: string[]; a?: number; dt?: string; kt?: string; e: string; unit?: string; id: string; tp?: string; k?: number; author?: string; rv?: { of: string; kind: "orig" | "dist" | "rev" } }
+export type TaskType = "pv" | "mc" | "calc" | "doc";
+/* «Faktura detektivi» hujjati: qatorlar (kalit, nom, qiymat) */
+export interface DocRow { k: string; l: string; v: string }
+export interface Doc { title: string; rows: DocRow[] }
+export interface Task { t: TaskType; q: string; o?: string[]; a?: number; dt?: string; kt?: string; e: string; unit?: string; id: string; tp?: string; k?: number; author?: string; rv?: { of: string; kind: "orig" | "dist" | "rev" };
+  /* hujjat savoli: hujjat; javobdan keyin — xato qatorlar, tushuntirishlar; qonun savoli — manba */
+  doc?: Doc; bad?: string[]; fix?: Record<string, string>; none?: boolean; src?: string }
 export interface Stage { title: string; icon: string; story: string; theory: string; example: null | { t: string; dt: string; kt: string }; tasks: Task[] }
 export interface Topic { id: string; icon: string; title: string; tasks: Task[] }
 export interface Lesson { id: string; topic: string; title: string; body: string; tip: string; dt: string | null; kt: string | null }

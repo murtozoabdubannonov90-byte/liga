@@ -6,7 +6,7 @@ import { addXP, addStageXP, award, dailyTick, saRec, saSettle, saBad, saLeft, ma
 import { buildReview, settleReview, clearErr } from "./errs";
 import { unlocked, isWeekend, stageOpen, today, STAGE_N } from "./time";
 
-export type Mode = "stage" | "daily" | "blitz" | "errs" | "gift" | "practice" | "topic" | "final" | "duel" | "test" | "review";
+export type Mode = "stage" | "daily" | "blitz" | "errs" | "gift" | "practice" | "topic" | "final" | "duel" | "test" | "review" | "doc" | "law";
 export interface Q extends Task { k: number }
 export interface Run {
   mode: Mode; si: number | null; tp?: string; title: string; queue: Q[]; i: number; lives: number; maxLives: number;
@@ -16,6 +16,8 @@ export interface Run {
   remote?: { id: string; secret?: string }; state?: any;
   /* server o'yinida savol vaqti (g'olibga qo'shimcha soniya bilan); xatolar mashqi natijasi */
   qsec?: number; extraSec?: number; mastered?: number;
+  /* qonun yangiligi testi: qaysi yangilik */
+  newsId?: number;
 }
 export const QSEC = 60;
 export const lang = () => S.lang || "uz";
@@ -77,7 +79,7 @@ export function startNews(n: any): Run | string {
   return mk("topic", q(tasks), { noXP: isWeekend(), title: "Qonun yangiligi" });
 }
 /* ---------- javob ---------- */
-export interface Ans { dt?: string | null; kt?: string | null; pick?: number | null; opts?: { x: string; c: boolean }[]; val?: string }
+export interface Ans { dt?: string | null; kt?: string | null; pick?: number | null; opts?: { x: string; c: boolean }[]; val?: string; keys?: string[]; none?: boolean }
 export function grade(t: Task, a: Ans): boolean {
   if (t.t === "pv") return a.dt === t.dt && a.kt === t.kt;
   if (t.t === "mc") return a.pick != null && !!a.opts && !!a.opts[a.pick]?.c;

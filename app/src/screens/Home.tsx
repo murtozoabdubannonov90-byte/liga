@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { entry } from "../boot";
-import { Rocket, Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing, MessagesSquare, Coffee, Users } from "lucide-react";
+import { SearchCheck, Rocket, Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing, MessagesSquare, Coffee, Users } from "lucide-react";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, toast } from "../lib/nav";
@@ -23,6 +23,7 @@ import { GrandCard } from "./Grand";
 import { InfoCard } from "../components/Malumot";
 import { RatesCard } from "../components/Rates";
 import { PxCard } from "./Px";
+import { DocCard, SimCard } from "./Detective";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -179,6 +180,7 @@ export default function Home() {
     [Zap, "Blits", t("20 provodka · rekord {n}", { n: S.blitz || 0 }), () => runOrToast(startBlitz())],
     [Swords, "Duel", t("Hamkasbingizni chaqiring"), () => go("duel"), true],
     [Users, "Provodka poygasi", t("2–10 kishi bir vaqtda"), () => openQuad(), true],
+    [SearchCheck, "Faktura detektivi", t("Hujjatdagi xatoni toping"), () => go("detective")],
     [Scale, "Balans o'yini", t("Aktiv va passivni joylang"), () => go("balance")],
     [NotebookPen, "Xato daftari", errs ? t("{n} ta · misol bilan", { n: errs }) : t("{n} ta savol", { n: 0 }), () => go("review"), errs > 0],
     [Gift, "Kunlik sovg'a", giftDone() ? t("ertaga yana") : giftReady() ? t("ochishga tayyor") : t("{a}/{b} to'g'ri javob", { a: giftCorrect(), b: GIFT_NEED }), () => runOrToast(startGift()), giftReady()],
@@ -201,6 +203,8 @@ export default function Home() {
         <Ticket />
         <QuadCard />
         <DayDuelCard />
+        <DocCard />
+        <SimCard />
         <PxCard />
         <GrandCard />
         <PerksCard />

@@ -101,6 +101,8 @@ begin
   select jsonb_build_object('n', array_length(r.qids, 1), 'done_n', r.done_n, 'right_n', r.right_n, 'finished', r.finished_at is not null) into t
     from public.liga_runs r where r.kind = 'doc' and r.player_id = p_id and r.ref = public.liga_today()::text;
   return jsonb_build_object('on', public.liga_doc_cfg('doc_on', 'on') = 'on', 'today', t,
+    -- liga egasi (free_phones): simulyator sinovi faqat unga ko'rinadi
+    'owner', exists (select 1 from public.safari_players s where s.id = p_id and s.phone = any(string_to_array(public.liga_doc_cfg('free_phones', ''), ','))),
     'week_right', (select coalesce(sum(right_n), 0) from public.liga_runs where kind = 'doc' and player_id = p_id and started_at >= public.liga_week_start()),
     'week_days', (select count(*) from public.liga_runs where kind = 'doc' and player_id = p_id and started_at >= public.liga_week_start()),
     'total_right', (select coalesce(sum(right_n), 0) from public.liga_runs where kind = 'doc' and player_id = p_id),

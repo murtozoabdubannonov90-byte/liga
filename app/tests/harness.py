@@ -33,10 +33,28 @@ def new_run(kind, n, prefill=0):
     RUNS[rid]["extra"] = EXTRA.get("_extra", 0) if kind == "stage" else 0
     for i in range(1, 1 + prefill): RUNS[rid]["st"][i] = "ok"; RUNS[rid]["right"] += 1; RUNS[rid]["done"] += 1; RUNS[rid]["gain"] += 10
     return rid
+# ---- Faktura detektivi va qonun testi taqlidi ----
+DOC_ROWS = [{"k": "qty", "l": "Miqdor", "v": "10 dona"}, {"k": "price", "l": "Narx (QQSsiz)", "v": "100 000"}, {"k": "sum", "l": "Yetkazib berish qiymati", "v": "1 000 000"},
+            {"k": "vat", "l": "QQS summasi", "v": "150 000"}, {"k": "total", "l": "QQS bilan qiymati", "v": "1 150 000"}]
+DOC_BAD = [["vat"], [], ["sum", "total"], ["qty"], []]
+def new_doc_run():
+    rid = f"doc-{len(RUNS)+1}"
+    items = [{"k": k, "t": "doc", "q": f"Hujjat №{k+1}: xato qatorlarni belgilang", "doc": {"title": "Hisob-faktura", "rows": DOC_ROWS}} for k in range(5)]
+    ans = [{"bad": b} for b in DOC_BAD]
+    RUNS[rid] = {"kind": "doc", "items": items, "ans": ans, "st": [None] * 5, "combo": 0, "right": 0, "done": 0, "gain": 0, "bonus": 0, "stars": None, "finished": False}
+    return rid
+def new_law_run(news):
+    rid = f"law-{len(RUNS)+1}"
+    items = [{"k": k, "t": "mc", "q": q["q"], "o": q["o"]} for k, q in enumerate(news["qs"])]
+    ans = [{"a": 0, "src": news.get("url")} for _ in news["qs"]]
+    RUNS[rid] = {"kind": "law", "items": items, "ans": ans, "st": [None] * len(items), "combo": 0, "right": 0, "done": 0, "gain": 0, "bonus": 0, "stars": None, "finished": False}
+    return rid
+DOC_ME = {"on": True, "owner": False, "today": None, "week_right": 3, "week_days": 1, "total_right": 12, "total_n": 15, "days": 3}
 def run_answer(a):
     rid, k, p = a["p_run"], a["p_k"], a.get("p_ans") or {}; r = RUNS[rid]; x = r["ans"][k]; t = r["items"][k]["t"]
     if p.get("left"): ok, why = False, "left"
     elif t == "pv": ok, why = p.get("dt") == x["dt"] and p.get("kt") == x["kt"], ""
+    elif t == "doc": ok, why = isinstance(p.get("pick"), list) and sorted(p["pick"]) == sorted(x["bad"]), ""
     elif t == "mc": ok, why = p.get("pick") == x["a"], ""
     else: ok, why = str(p.get("val", "")).isdigit() and int(p["val"]) == x["a"], ""
     g = 0
@@ -48,7 +66,9 @@ def run_answer(a):
     if r["done"] >= len(r["items"]):
         r["finished"] = True
         if r["kind"] == "stage": miss = len(r["items"]) - r["right"]; r["stars"] = 3 if miss == 0 else 2 if miss <= 2 else 1; r["bonus"] = r["stars"] * 30
-    return dict(run_state(rid), ok=ok, why=why, got=g, reveal=dict(x, e="Izoh: shunday hisoblanadi."))
+    rv = dict(x, e="Izoh: shunday hisoblanadi.")
+    if t == "doc": rv = {"bad": x["bad"], "none": not x["bad"], "fix": {b: f"Tushuntirish: {b} qatori noto'g'ri" for b in x["bad"]}, "e": "Xato qatorlar"}
+    return dict(run_state(rid), ok=ok, why=why, got=g, reveal=rv)
 # ---- jonli duel taqlidi ----
 LIVE = {}
 def live_reset(**kw):
@@ -117,6 +137,10 @@ def body_for0(fn, args):
     if fn == "liga_live_answer": return live_answer(args)
     if fn == "liga_stage_start": return run_view(new_run("stage", 20, EXTRA.get("_prefill", 0)))
     if fn == "liga_duel_start": return run_view(new_run("duel", 10))
+    if fn == "liga_doc_start": return run_view(new_doc_run())
+    if fn == "liga_doc_me": return DOC_ME
+    if fn == "liga_law_me": return {"runs": {}, "month_right": 0}
+    if fn == "liga_law_start": return run_view(new_law_run(body_for0("liga_news_list", {})[0]))
     if fn == "liga_final_start": return run_view(new_run("final", 20))
     if fn == "liga_test_begin": return dict(run_view(new_run("test", 10)), secret="sek", minutes=20, test_started="2026-10-01T05:00:00Z", title="Bosh buxgalter")
     if fn == "liga_cert_verify2": return CERTS.get(str(args.get("p_id", "")).upper(), {"ok": False, "checked_at": "2026-10-01T05:00:00Z"})

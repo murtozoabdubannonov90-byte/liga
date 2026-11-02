@@ -151,6 +151,52 @@ const RU: Record<string, string> = {
   "Manbalar": "Источники",
   "🤖 Javobni AI internetdan qidirib tayyorladi. Muhim qarordan oldin manbani tekshiring.": "🤖 Ответ подготовлен ИИ по данным из интернета. Перед важным решением проверьте источник.",
   "❓ <b>Buxgalteriya savolingiz bormi?</b>\nYozing: <code>/savol savolingiz</code>\nMasalan: <code>/savol 2026-yilda QQS stavkasi qancha?</code>\nShaxsiy chatda esa savolni shunchaki yozib yuboring.": "❓ <b>Есть вопрос по бухгалтерии?</b>\nНапишите: <code>/savol ваш вопрос</code>\nНапример: <code>/savol Какая ставка НДС в 2026 году?</code>\nВ личном чате просто отправьте вопрос.",
+  "🧾 <b>Buxgalterni tekshirish — rahbarlar uchun</b>\n\nIshga olayotgan (yoki hozirgi) buxgalteringizni 30 daqiqada tekshiring:\n• 30 ta savol: provodka, hisob-kitob, soliq va qonunchilik;\n• nomzod ro'yxatdan o'tmaydi — siz yuborgan havolani ochib, ishlaydi;\n• savol paytida boshqa ilovaga (AI, internet) chiqsa — savol xato hisoblanadi;\n• tugashi bilan <b>batafsil hisobot shu yerga keladi</b>: ball, mavzular bo'yicha kuchli va zaif tomonlari.\n\nBirinchi {n} ta test — bepul.\n\n✍️ <b>Kompaniyangiz nomini yozing</b> (masalan: «Oltin Vodiy» MChJ):": "🧾 <b>Проверка бухгалтера — для руководителей</b>\n\nПроверьте кандидата (или текущего бухгалтера) за 30 минут:\n• 30 вопросов: проводки, расчёты, налоги и законодательство;\n• кандидат не регистрируется — открывает присланную вами ссылку и проходит тест;\n• если во время вопроса он уходит в другое приложение (ИИ, интернет) — вопрос засчитывается как ошибка;\n• сразу после окончания <b>подробный отчёт придёт сюда</b>: балл, сильные и слабые темы.\n\nПервые {n} теста — бесплатно.\n\n✍️ <b>Напишите название компании</b> (например: ООО «Олтин Водий»):",
+  "ℹ️ Bepul testlar tugadi ({u} ta yaratilgan). Yana test kerak bo'lsa, administratorga yozing: @murtozo_44\n\nAvvalgi testlar natijasi: /tekshiruvlar": "ℹ️ Бесплатные тесты закончились (создано: {u}). Если нужны ещё — напишите администратору: @murtozo_44\n\nРезультаты прошлых тестов: /tekshiruvlar",
+  "✍️ Kompaniya nomini 2–80 belgida yozing.": "✍️ Напишите название компании (2–80 символов).",
+  "😔 Test yaratib bo'lmadi. Birozdan keyin qayta urinib ko'ring.": "😔 Не удалось создать тест. Попробуйте чуть позже.",
+  "✅ <b>Test tayyor — «{c}»</b>\n\nShu havolani nomzodga yuboring:\n{u}\n\n• Nomzod ismi va telefonini yozib, darhol boshlaydi (30 savol, 30 daqiqa).\n• Bir havola bilan bir nechta nomzod ishlashi mumkin — har biri bir marta.\n• Har bir nomzod tugatgach, hisobot shu yerga keladi.\n\nTestlar ro'yxati: /tekshiruvlar · Yangi test: /tekshiruv ({a}/{l})": "✅ <b>Тест готов — «{c}»</b>\n\nОтправьте эту ссылку кандидату:\n{u}\n\n• Кандидат вводит имя и телефон и сразу начинает (30 вопросов, 30 минут).\n• По одной ссылке могут пройти несколько кандидатов — каждый один раз.\n• Как только кандидат закончит, отчёт придёт сюда.\n\nСписок тестов: /tekshiruvlar · Новый тест: /tekshiruv ({a}/{l})",
+  "📤 Nomzodga yuborish": "📤 Отправить кандидату",
+  "Buxgalter lavozimiga test (30 daqiqa). Havolani oching:": "Тест на должность бухгалтера (30 минут). Откройте ссылку:",
+  "Sizda hali test yo'q. Yaratish: /tekshiruv": "У вас пока нет тестов. Создать: /tekshiruv",
+  "ishlamoqda": "проходит",
+  "hali nomzod yo'q": "кандидатов пока нет",
+  "🧾 <b>Testlaringiz</b> ({u}/{l})": "🧾 <b>Ваши тесты</b> ({u}/{l})",
+  "Provodkalar": "Проводки",
+  "Hisob-kitob": "Расчёты",
+  "Soliq, qonun va nazariya": "Налоги, законы и теория",
+  "🟢 Yuqori daraja": "🟢 Высокий уровень",
+  "🟡 O'rta daraja — suhbatda zaif mavzularni so'rang": "🟡 Средний уровень — на собеседовании уточните слабые темы",
+  "🔴 Past daraja": "🔴 Низкий уровень",
+  "• Savol paytida ilovadan chiqdi: {n} marta": "• Выходил из приложения во время вопроса: {n} раз",
+  "• Savol paytida ilovadan chiqmadi ✅": "• Не выходил из приложения во время вопросов ✅",
+  "• Shu sababli xato hisoblangan savollar: {n} ta": "• Из-за этого засчитаны ошибкой: {n}",
+  "• Vaqti tugagan savollar: {n} ta": "• Вопросов с истёкшим временем: {n}",
+  "• ⚠️ Umumiy vaqtdan oshib ketdi": "• ⚠️ Превышено общее время",
+  "🧾 <b>Nomzod testni tugatdi</b> — «{c}»": "🧾 <b>Кандидат прошёл тест</b> — «{c}»",
+  "🎯 Natija: <b>{s}/{t}</b> ({p}%)": "🎯 Результат: <b>{s}/{t}</b> ({p}%)",
+  "⏱ Sarflangan vaqt: {m} ({x} daqiqadan)": "⏱ Затрачено времени: {m} (из {x} минут)",
+  "<b>Savol turlari bo'yicha:</b>": "<b>По типам вопросов:</b>",
+  "💪 <b>Kuchli mavzular:</b>": "💪 <b>Сильные темы:</b>",
+  "⚠️ <b>Zaif mavzular:</b>": "⚠️ <b>Слабые темы:</b>",
+  "<b>Halollik:</b>": "<b>Честность прохождения:</b>",
+  "Test — yordamchi vosita. Yakuniy qarorni suhbat va amaliy topshiriq bilan birga qabul qiling.": "Тест — вспомогательный инструмент. Окончательное решение принимайте вместе с собеседованием и практическим заданием.",
+  "📋 Barcha testlarim": "📋 Все мои тесты",
+  "Ilovani ochish": "Открыть приложение",
+  "🆕 <b>Hisobchi Ligada uchta yangilik!</b>\n\n🔍 <b>Faktura detektivi</b> — har kuni 5 ta hujjat: hisob-faktura, kassa orderi, ish haqi varaqasi, ishonchnoma. Xato qatorlarni toping! Osondan qiyinga, har xatoning tushuntirishi bilan.\n\n⚖️ <b>Qonun yangiligi testi</b> — yangi qaror yoki o'zgarish chiqqanda qisqa sharh va 3 ta savol. Yangilikni birinchi bo'lib bilasiz.\n\n🧾 <b>Rahbarlar uchun</b> — firmangiz rahbari buxgalter tanlayotgan bo'lsa, botda /tekshiruv buyrug'i bilan 30 daqiqalik test yaratadi va hisobotni oladi.\n\nDetektiv va qonun testi ballari liga jamiga qo'shilmaydi — alohida ko'rinadi.": "🆕 <b>В Лиге бухгалтеров три новинки!</b>\n\n🔍 <b>Детектив фактур</b> — каждый день 5 документов: счёт-фактура, кассовый ордер, расчётный листок, доверенность. Найдите ошибочные строки! От простого к сложному, с объяснением каждой ошибки.\n\n⚖️ <b>Тест по новому закону</b> — когда выходит новое постановление или изменение: краткий обзор и 3 вопроса. Узнаёте новости первыми.\n\n🧾 <b>Для руководителей</b> — если руководитель вашей фирмы выбирает бухгалтера, командой /tekshiruv в боте он создаёт 30-минутный тест и получает отчёт.\n\nБаллы детектива и теста по закону не входят в итог лиги — показываются отдельно.",
+  "⚖️ Bugun yana: <b>qonun yangiligi</b> va {n} savollik test — ilovada.": "⚖️ Сегодня ещё: <b>новость закона</b> и тест из {n} вопросов — в приложении.",
+  "Birinchi ish kuni": "Первый рабочий день",
+  "Firma tug'iladi": "Фирма рождается",
+  "Tovar keldi": "Товар поступил",
+  "Birinchi savdo": "Первая продажа",
+  "Ish haqi kuni": "День зарплаты",
+  "Yangi uskuna": "Новое оборудование",
+  "Soliqlar xaritasi": "Карта налогов",
+  "Hisobotlar taqvimi": "Календарь отчётности",
+  "Imtiyozlar": "Льготы",
+  "Qonun va qarorlar": "Законы и постановления",
+  "Yil yakuni": "Итоги года",
+  "Boss: soliq tekshiruvi": "Босс: налоговая проверка",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
 function tr(lang: string | null | undefined, uz: string, v: Record<string, string | number> = {}) {
@@ -672,6 +718,26 @@ async function onCallback(q: any) {
   const ack = (text?: string) => tg("answerCallbackQuery", { callback_query_id: q.id, text });
   if (data.startsWith("dq:")) return groupDuelTake(q, data.slice(3));
   if (data === "pxj") { await ack(); return chatId ? pxJoin(chatId, q.from?.id) : null; }
+  if (data === "ck:list") { await ack(); return chatId ? chkList(chatId, q.from) : null; }
+  if (data === "ck:new") { await ack(); return chatId ? chkBegin(chatId, q.from) : null; }
+  if (data.startsWith("lw:")) {
+    const [, ok, id] = data.split(":");
+    const { data: x } = await db.rpc("liga_law_decide_sys", { p_id: Number(id), p_ok: ok === "1", p_admin_chat: q.from?.id ?? chatId });
+    if (!x?.done) return ack(x?.reason === "already" ? "Avval hal qilingan" : "Ruxsat yo'q");
+    const mark = x.status === "live" ? `\n\n✅ <b>Chiqarildi</b> — ${x.today ? "bugun" : fmtD(String(x.day))} guruhlarga chiqadi, ilovada test ochiladi.` : "\n\n❌ <b>O'chirildi.</b>";
+    if (q.message?.message_id) await tg("editMessageReplyMarkup", { chat_id: chatId, message_id: q.message.message_id, reply_markup: { inline_keyboard: [] } });
+    await tg("sendMessage", { chat_id: chatId, parse_mode: "HTML", text: mark.trim() });
+    if (x.status === "live" && x.today) bg(lawPost());
+    return ack(x.status === "live" ? "Chiqarildi" : "O'chirildi");
+  }
+  if (data === "an:new3") {
+    if (!(await isLigaAdmin(q.from?.id ?? 0))) return ack("Ruxsat yo'q");
+    await ack("Yuborilmoqda...");
+    if (q.message?.message_id) await tg("editMessageReplyMarkup", { chat_id: chatId, message_id: q.message.message_id, reply_markup: { inline_keyboard: [] } });
+    const task = (async () => { const r: any = await announceNew3(); await dm(chatId, r.skip ? "ℹ️ E'lon bugun allaqachon yuborilgan." : `📢 E'lon yuborildi: guruhlar ${r.groups}, shaxsan ${r.sent} kishi (yetmadi: ${r.fail}).`); })();
+    const ER = (globalThis as any).EdgeRuntime; if (ER?.waitUntil) ER.waitUntil(task); else await task;
+    return;
+  }
   if (data.startsWith("rp:")) {
     const [, ok, id] = data.split(":");
     const { data: x } = await db.rpc("liga_px_decide_sys", { p_id: Number(id), p_ok: ok === "1", p_admin_chat: chatId });
@@ -1185,11 +1251,24 @@ async function onUpdate0(u: any) {
     const L = (lg ?? []) as any[], ok = L.filter((x) => x.status === "ok");
     const usd = ok.reduce((s, x) => s + (x.in_tok ?? 0) * 3e-6 + (x.out_tok ?? 0) * 15e-6 + (x.searches ?? 0) * 0.01, 0);
     return reply(`🤖 <b>Savol-javob</b>: ${(await cfgGet("ai_on")) === "off" ? "o'chiq" : "yoqiq"} · kalit: ${Deno.env.get("ANTHROPIC_API_KEY") || (await cfgGet("ai_key")) ? "bor" : "<b>yo'q</b>"}\nModel: ${esc((await cfgGet("ai_model")) || "claude-sonnet-4-5")}\nLimit: kishiga ${Number(await cfgGet("ai_user_day")) || 5} ta, hammaga ${Number(await cfgGet("ai_day_cap")) || 300} ta / kun\n\nBugun: javob ${ok.length} ta (${new Set(ok.map((x) => x.tg)).size} kishi), o'yinda bo'lgani uchun rad ${L.filter((x) => x.status === "busy").length}, o'xshash savol ${L.filter((x) => x.status === "similar").length}, limit ${L.filter((x) => x.status === "limit").length}, xato ${L.filter((x) => x.status === "err").length}\nTaxminiy xarajat: ~$${usd.toFixed(2)}\n\n<code>/ai on</code> · <code>/ai off</code> · <code>/ai limit 5</code> · <code>/ai cap 300</code> · <code>/ai model NOM</code> · <code>/ai_kalit KALIT</code>`);
+  } else if (priv && (cmd === "/tekshiruv" || (cmd === "/start" && arg === "tekshiruv"))) {
+    return chkBegin(m.chat.id, m.from);
+  } else if (priv && cmd === "/tekshiruvlar") {
+    return chkList(m.chat.id, m.from);
+  } else if (priv && cmd === "/tekshiruv_ruxsat") {
+    if (!(await isLigaAdmin(m.from?.id ?? 0))) return reply("⛔ Bu buyruq faqat liga administratori uchun.");
+    const [, who, nn] = text.split(/\s+/);
+    if (!/^\d{5,15}$/.test(who ?? "") || !(Number(nn) > 0)) return reply("Yozing: <code>/tekshiruv_ruxsat TELEGRAM_ID SONI</code> (ID «Yangi rahbar tekshiruvi» xabarida bor)");
+    const { data: lim, error } = await db.rpc("liga_chk_grant_sys", { p_admin_chat: m.from?.id, p_tg: Number(who), p_n: Math.floor(Number(nn)) });
+    if (error) return reply("❌ " + esc(error.message));
+    await dm(Number(who), tr("uz", "✅ Sizga yana {n} ta buxgalter testi ochildi. Yaratish: /tekshiruv", { n: Math.floor(Number(nn)) }));
+    return reply(`✅ Ruxsat berildi. Endi limit: ${lim} ta.`);
   } else if (cmd === "/savol") {
     const q = text.replace(/^\/savol(@\w+)?/i, "").trim();
     if (!q) return reply(tr(await playerLang(m.from?.id), "❓ <b>Buxgalteriya savolingiz bormi?</b>\nYozing: <code>/savol savolingiz</code>\nMasalan: <code>/savol 2026-yilda QQS stavkasi qancha?</code>\nShaxsiy chatda esa savolni shunchaki yozib yuboring."));
     return askAI(m, q);
   } else if (priv && text && !text.startsWith("/")) {
+    if (await chkWizard(m)) return;
     return askAI(m, text, false);
   } else if (cmd === "/natija") {
     const code = priv ? "ASOSIY" : await chatGroup(m.chat.id);
@@ -1743,6 +1822,140 @@ async function quadDone(code: string) {
   }
   return { ok: true, sent };
 }
+
+// ================= 2026-11-02: rahbar tekshiruvi, qonun yangiligi testi, faktura detektivi =================
+const TEST_URL = (code: string) => `${APP}?t=${encodeURIComponent(code)}`;
+const tgLang = (from: any) => (String(from?.language_code ?? "").startsWith("ru") ? "ru" : "uz");
+const shareUrl = (url: string, text: string) => `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+const mmssOf = (ms: number) => Math.floor(ms / 60000) + ":" + String(Math.floor(ms / 1000) % 60).padStart(2, "0");
+
+// --- Rahbar uchun buxgalter tekshiruvi: /tekshiruv ---
+const CHK_INTRO = "🧾 <b>Buxgalterni tekshirish — rahbarlar uchun</b>\n\nIshga olayotgan (yoki hozirgi) buxgalteringizni 30 daqiqada tekshiring:\n• 30 ta savol: provodka, hisob-kitob, soliq va qonunchilik;\n• nomzod ro'yxatdan o'tmaydi — siz yuborgan havolani ochib, ishlaydi;\n• savol paytida boshqa ilovaga (AI, internet) chiqsa — savol xato hisoblanadi;\n• tugashi bilan <b>batafsil hisobot shu yerga keladi</b>: ball, mavzular bo'yicha kuchli va zaif tomonlari.\n\nBirinchi {n} ta test — bepul.\n\n✍️ <b>Kompaniyangiz nomini yozing</b> (masalan: «Oltin Vodiy» MChJ):";
+async function chkBegin(chatId: number, from: any) {
+  const lang = tgLang(from);
+  await db.from("liga_chk_wiz").upsert({ chat_id: chatId, step: "company", lang, updated_at: new Date().toISOString() });
+  const { data: lim } = await db.rpc("liga_chk_list_sys", { p_tg: from?.id ?? chatId });
+  const left = Math.max(0, Number(lim?.limit ?? 3) - Number(lim?.used ?? 0));
+  if (left <= 0) {
+    await db.from("liga_chk_wiz").delete().eq("chat_id", chatId);
+    return dm(chatId, tr(lang, "ℹ️ Bepul testlar tugadi ({u} ta yaratilgan). Yana test kerak bo'lsa, administratorga yozing: @murtozo_44\n\nAvvalgi testlar natijasi: /tekshiruvlar", { u: Number(lim?.used ?? 0) }));
+  }
+  return dm(chatId, tr(lang, CHK_INTRO, { n: Number(lim?.limit ?? 3) }));
+}
+async function chkWizard(m: any): Promise<boolean> {
+  const { data: wz } = await db.from("liga_chk_wiz").select("step,lang,updated_at").eq("chat_id", m.chat.id).maybeSingle();
+  if (!wz || wz.step !== "company" || Date.now() - new Date(wz.updated_at).getTime() > 3600e3) return false;
+  const company = String(m.text ?? "").trim();
+  const lang = wz.lang || tgLang(m.from);
+  if (company.length < 2 || company.length > 80) { await dm(m.chat.id, tr(lang, "✍️ Kompaniya nomini 2–80 belgida yozing.")); return true; }
+  await db.from("liga_chk_wiz").delete().eq("chat_id", m.chat.id);
+  const name = [m.from?.first_name, m.from?.last_name].filter(Boolean).join(" ") + (m.from?.username ? " (@" + m.from.username + ")" : "");
+  const { data, error } = await db.rpc("liga_chk_create_sys", { p_tg: m.from?.id, p_name: name, p_company: company, p_lang: lang });
+  if (error) { await dm(m.chat.id, tr(lang, "😔 Test yaratib bo'lmadi. Birozdan keyin qayta urinib ko'ring.")); return true; }
+  if (data?.err === "limit") { await dm(m.chat.id, tr(lang, "ℹ️ Bepul testlar tugadi ({u} ta yaratilgan). Yana test kerak bo'lsa, administratorga yozing: @murtozo_44\n\nAvvalgi testlar natijasi: /tekshiruvlar", { u: data.used })); return true; }
+  const url = TEST_URL(data.code);
+  await tg("sendMessage", { chat_id: m.chat.id, parse_mode: "HTML", disable_web_page_preview: true,
+    text: tr(lang, "✅ <b>Test tayyor — «{c}»</b>\n\nShu havolani nomzodga yuboring:\n{u}\n\n• Nomzod ismi va telefonini yozib, darhol boshlaydi (30 savol, 30 daqiqa).\n• Bir havola bilan bir nechta nomzod ishlashi mumkin — har biri bir marta.\n• Har bir nomzod tugatgach, hisobot shu yerga keladi.\n\nTestlar ro'yxati: /tekshiruvlar · Yangi test: /tekshiruv ({a}/{l})", { c: esc(company), u: url, a: data.used, l: data.limit }),
+    reply_markup: { inline_keyboard: [[{ text: tr(lang, "📤 Nomzodga yuborish"), url: shareUrl(url, tr(lang, "Buxgalter lavozimiga test (30 daqiqa). Havolani oching:")) }]] } });
+  // liga egasiga — yangi rahbar (mijoz) haqida xabar
+  const { data: adm } = await db.from("liga_admin_chats").select("chat_id").eq("group_code", "ASOSIY");
+  for (const a of uniqChats(adm)) if (a !== m.chat.id) await dm(a, `🧾 <b>Yangi rahbar tekshiruvi</b>\n${esc(company)} — ${esc(name)}\nTelegram ID: <code>${m.from?.id}</code> · ${data.used}/${data.limit}`);
+  return true;
+}
+const uniqChats = (rows: any) => [...new Set(((rows ?? []) as any[]).map((x) => Number(x.chat_id)).filter(Boolean))];
+async function chkList(chatId: number, from: any) {
+  const lang = tgLang(from);
+  const { data } = await db.rpc("liga_chk_list_sys", { p_tg: from?.id ?? chatId });
+  const T = (data?.tests ?? []) as any[];
+  if (!T.length) return dm(chatId, tr(lang, "Sizda hali test yo'q. Yaratish: /tekshiruv"));
+  const lines = T.slice(0, 10).map((t) => {
+    const runs = (t.runs ?? []) as any[];
+    const rl = runs.map((r) => `   • ${esc(r.name)} — ${r.finished ? `<b>${r.score}/${r.total}</b>` : tr(lang, "ishlamoqda")}`).join("\n");
+    return `🏢 <b>${esc(t.company ?? "")}</b> · ${fmtD(String(t.created_at).slice(0, 10))}\n   ${TEST_URL(t.code)}${rl ? "\n" + rl : "\n   " + tr(lang, "hali nomzod yo'q")}`;
+  });
+  return tg("sendMessage", { chat_id: chatId, parse_mode: "HTML", disable_web_page_preview: true,
+    text: tr(lang, "🧾 <b>Testlaringiz</b> ({u}/{l})", { u: data.used, l: data.limit }) + "\n\n" + lines.join("\n\n") });
+}
+const CHK_T: Record<string, string> = { pv: "Provodkalar", calc: "Hisob-kitob", mc: "Soliq, qonun va nazariya" };
+function chkReportText(r: any, lang: string) {
+  const pct = r.total ? Math.round((r.score / r.total) * 100) : 0;
+  const level = pct >= 80 ? tr(lang, "🟢 Yuqori daraja") : pct >= 60 ? tr(lang, "🟡 O'rta daraja — suhbatda zaif mavzularni so'rang") : tr(lang, "🔴 Past daraja");
+  const byT = Object.entries(r.by_t ?? {}).map(([k, v]: [string, any]) => `• ${tr(lang, CHK_T[k] ?? k)}: <b>${v[0]}/${v[1]}</b>`).join("\n");
+  const pools = ((r.by_pool ?? []) as any[]).map(([pool, ok, n]) => ({ name: /^s\d+$/.test(pool) ? TITLES[Number(pool.slice(1))] ?? pool : pool, ok, n }));
+  const weak = pools.filter((x) => x.n >= 2 && x.ok / x.n < 0.6).map((x) => `${tr(lang, x.name)} (${x.ok}/${x.n})`);
+  const strong = pools.filter((x) => x.n >= 2 && x.ok / x.n >= 0.8).map((x) => `${tr(lang, x.name)} (${x.ok}/${x.n})`);
+  const fair = [
+    r.away_n ? tr(lang, "• Savol paytida ilovadan chiqdi: {n} marta", { n: r.away_n }) : tr(lang, "• Savol paytida ilovadan chiqmadi ✅"),
+    r.left_n ? tr(lang, "• Shu sababli xato hisoblangan savollar: {n} ta", { n: r.left_n }) : "",
+    r.time_n ? tr(lang, "• Vaqti tugagan savollar: {n} ta", { n: r.time_n }) : "",
+    r.late ? tr(lang, "• ⚠️ Umumiy vaqtdan oshib ketdi") : "",
+  ].filter(Boolean).join("\n");
+  return tr(lang, "🧾 <b>Nomzod testni tugatdi</b> — «{c}»", { c: esc(r.company ?? "") }) +
+    `\n\n👤 <b>${esc(r.name ?? "")}</b>\n📞 ${esc(r.phone ?? "")}\n\n` +
+    tr(lang, "🎯 Natija: <b>{s}/{t}</b> ({p}%)", { s: r.score ?? 0, t: r.total ?? 0, p: pct }) + "\n" + level + "\n" +
+    tr(lang, "⏱ Sarflangan vaqt: {m} ({x} daqiqadan)", { m: mmssOf(Number(r.ms ?? 0)), x: r.minutes }) +
+    (byT ? "\n\n" + tr(lang, "<b>Savol turlari bo'yicha:</b>") + "\n" + byT : "") +
+    (strong.length ? "\n\n" + tr(lang, "💪 <b>Kuchli mavzular:</b>") + " " + esc(strong.join(", ")) : "") +
+    (weak.length ? "\n" + tr(lang, "⚠️ <b>Zaif mavzular:</b>") + " " + esc(weak.join(", ")) : "") +
+    "\n\n" + tr(lang, "<b>Halollik:</b>") + "\n" + fair +
+    "\n\n<i>" + tr(lang, "Test — yordamchi vosita. Yakuniy qarorni suhbat va amaliy topshiriq bilan birga qabul qiling.") + "</i>";
+}
+async function chkDone(run: string) {
+  if (!/^[0-9a-f-]{36}$/i.test(run)) return { skip: "bad_run" };
+  const { data: r } = await db.rpc("liga_chk_report_sys", { p_run: run });
+  if (!r || !r.owner_tg || !r.finished) return { skip: "no_owner" };
+  const { data: first } = await db.rpc("liga_chk_mark_sys", { p_run: run });
+  if (first !== true) return { skip: "sent_before" };
+  const lang = r.lang === "ru" ? "ru" : "uz";
+  const ok = await dm(r.owner_tg, chkReportText(r, lang), { inline_keyboard: [[{ text: tr(lang, "📋 Barcha testlarim"), callback_data: "ck:list" }]] });
+  return { ok };
+}
+
+// --- Qonun yangiligi testi ---
+const LAW_LETTER = ["A", "B", "C", "D", "E"];
+function lawPreview(n: any) {
+  const qs = ((n.qs ?? []) as any[]).map((q, i) => `\n<b>${i + 1}. ${esc(q.q ?? "")}</b>\n` + (q.o ?? []).map((o: string, j: number) => `${j === Number(q.a) ? "✅" : "▫️"} ${LAW_LETTER[j]}) ${esc(o)}`).join("\n") + (q.e ? `\n<i>${esc(q.e)}</i>` : "")).join("\n");
+  return `⚖️ <b>Qonun yangiligi — qoralama</b> (${n.day ? fmtD(n.day) : "darhol"})\n\n<b>${esc(n.title_uz ?? "")}</b>\n${esc(n.body_uz ?? "")}${n.url ? `\n🔗 ${esc(n.url)}` : ""}\n${qs}\n\nTekshiring: «Chiqarish» bosilsa — o'z kunida 09:00 da guruhlarga chiqadi va ilovada test ochiladi.`;
+}
+async function lawDraft(id: number) {
+  const { data: n } = await db.rpc("liga_law_get_sys", { p_id: id });
+  if (!n || n.status !== "draft") return { skip: "not_draft" };
+  const { data: adm } = await db.from("liga_admin_chats").select("chat_id").eq("group_code", "ASOSIY");
+  let sent = 0;
+  const parts = chunks(lawPreview(n));
+  for (const a of uniqChats(adm)) for (let i = 0; i < parts.length; i++) {
+    const part = parts[i], last = i === parts.length - 1;
+    const r = await tg("sendMessage", { chat_id: a, parse_mode: "HTML", text: part, disable_web_page_preview: true,
+      reply_markup: last ? { inline_keyboard: [[{ text: "✅ Chiqarish", callback_data: "lw:1:" + id }, { text: "❌ O'chirish", callback_data: "lw:0:" + id }]] } : undefined });
+    if (r?.ok && last) sent++;
+  }
+  return { ok: true, sent };
+}
+// kuni kelgan yangilikni guruhlarga bir marta chiqaradi
+async function lawPost() {
+  const { data } = await db.rpc("liga_law_due_sys");
+  const x = ((data ?? []) as any[])[0]; if (!x) return 0;
+  await db.from("liga_news").update({ posted_at: new Date().toISOString() }).eq("id", x.id).is("posted_at", null);
+  const body = x.body_uz.length > 700 ? x.body_uz.slice(0, 700) + "…" : x.body_uz;
+  const nq = ((x.qs ?? []) as any[]).length;
+  return await toChats(() => `⚖️ <b>Qonun yangiligi</b>\n<b>${esc(x.title_uz)}</b>\n\n${esc(body)}${x.url ? `\n\n🔗 Manba: ${esc(x.url)}` : ""}\n\n📝 Ilovada shu yangilik bo'yicha <b>${nq} savollik test</b> bor — Asosiy → «Qonun yangiligi» 👇`);
+}
+
+// --- bir martalik e'lon: uchta yangilik (admin tugmasi bilan) ---
+const NEW3_TEXT = "🆕 <b>Hisobchi Ligada uchta yangilik!</b>\n\n🔍 <b>Faktura detektivi</b> — har kuni 5 ta hujjat: hisob-faktura, kassa orderi, ish haqi varaqasi, ishonchnoma. Xato qatorlarni toping! Osondan qiyinga, har xatoning tushuntirishi bilan.\n\n⚖️ <b>Qonun yangiligi testi</b> — yangi qaror yoki o'zgarish chiqqanda qisqa sharh va 3 ta savol. Yangilikni birinchi bo'lib bilasiz.\n\n🧾 <b>Rahbarlar uchun</b> — firmangiz rahbari buxgalter tanlayotgan bo'lsa, botda /tekshiruv buyrug'i bilan 30 daqiqalik test yaratadi va hisobotni oladi.\n\nDetektiv va qonun testi ballari liga jamiga qo'shilmaydi — alohida ko'rinadi.";
+async function announceNew3(limit = 1000) {
+  if (!(await once("announce_new3"))) return { skip: "already" };
+  const groups = await toChats(() => NEW3_TEXT);
+  let sent = 0, fail = 0, after = 0;
+  for (;;) {
+    const { data } = await db.from("safari_players").select("tg_user_id,lang").not("tg_user_id", "is", null).gt("tg_user_id", after).order("tg_user_id").limit(200);
+    const L = (data ?? []) as any[]; if (!L.length) break;
+    for (const p of L) { if (sent + fail >= limit) break; if (await dm(p.tg_user_id, tr(p.lang, NEW3_TEXT), appBtn(tr(p.lang, "Ilovani ochish"), "?go=doc"))) sent++; else fail++; }
+    after = Number(L[L.length - 1].tg_user_id); if (L.length < 200 || sent + fail >= limit) break;
+  }
+  return { ok: true, groups, sent, fail };
+}
+
 async function onCron(action: string, body: any = {}) {
   if (action === "setup") {
     const url = `${SB_URL}/functions/v1/liga-bot`;
@@ -1757,6 +1970,8 @@ async function onCron(action: string, body: any = {}) {
           { command: "natija", description: "Oxirgi hafta natijalari" },
           { command: "tolov", description: "Obuna to'lovi (karta va chek)" },
           { command: "musobaqa", description: "Sovrinli musobaqaga qo'shilish (30 000 so'm)" },
+          { command: "tekshiruv", description: "Rahbarlar uchun: buxgalterni tekshirish testi" },
+          { command: "tekshiruvlar", description: "Yaratilgan testlar va natijalar" },
           { command: "qoida", description: "Liga qoidalari" }] }),
         tg("setMyCommands", { scope: { type: "all_group_chats" }, commands: [
           { command: "duel", description: "Jonli duelga chaqirish" },
@@ -1798,12 +2013,14 @@ async function onCron(action: string, body: any = {}) {
     let polls = 0; const gm = await groupMap();
     for (const c of await chats()) if (groupOk(gm[c.group_code]) && todayStage(gm[c.group_code].start_date) !== null && await sendDailyPoll(c.chat_id)) polls++;
     // har o'yinchiga shaxsan
+    const { data: lawDue } = await db.rpc("liga_law_due_sys"); const lawToday = ((lawDue ?? []) as any[])[0];
     const { data: list } = await db.rpc("liga_morning_list3"); let personal = 0;
     for (const p of (list ?? []) as any[]) {
       const msg = kindText(p, "morning", closeStr(w)) ?? (plan
         ? tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich: «{t}»</b> ochildi — {p} provodka + {o} qonun va hisob savoli.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w), p: cnt0.p, o: cnt0.o, t: esc((p.lang === "ru" ? plan.title?.ru : plan.title?.uz) ?? "") })
         : tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w) }));
-      if (await dm(p.tg, msg,
+      const lawLine = lawToday ? "\n\n" + tr(p.lang, "⚖️ Bugun yana: <b>qonun yangiligi</b> va {n} savollik test — ilovada.", { n: ((lawToday.qs ?? []) as any[]).length }) : "";
+      if (await dm(p.tg, msg + lawLine,
         appBtn(tr(p.lang, "Bosqichni boshlash")))) personal++;
     }
     // soliq taqvimi — shaxsan
@@ -1816,15 +2033,8 @@ async function onCron(action: string, body: any = {}) {
           appBtn(tr(p.lang, "Mashq qilish"), due[0].topic ? "?tp=" + due[0].topic : ""))) tax++;
       }
     }
-    // qonun yangiligi — guruhlarga (bir marta)
-    let news = 0;
-    const { data: nw } = await db.from("liga_news").select("id,title_uz,body_uz,url").eq("active", true).is("posted_at", null)
-      .gte("created_at", new Date(Date.now() - 14 * 864e5).toISOString()).order("created_at").limit(1);
-    if (nw?.[0]) {
-      const x = nw[0], body = x.body_uz.length > 700 ? x.body_uz.slice(0, 700) + "…" : x.body_uz;
-      news = await toChats(() => `⚖️ <b>Qonun yangiligi</b>\n<b>${esc(x.title_uz)}</b>\n\n${esc(body)}${x.url ? `\n\n🔗 Manba: ${esc(x.url)}` : ""}\n\nIlovada shu yangilik bo'yicha qisqa test bor 👇`);
-      await db.from("liga_news").update({ posted_at: new Date().toISOString() }).eq("id", x.id);
-    }
+    // qonun yangiligi — guruhlarga (bir marta, kuni kelgan va admin chiqargan bo'lsa)
+    const news = await lawPost();
     // kunlik duel kubogi: tasodifiy juftlar 09:00 da (duellar 10:00 dan, 12:00–14:00 tanaffus, final 17:00), jadval — hammaga va guruhga
     let duels = 0;
     const { data: dp } = await db.rpc("liga_cup_start_sys");
@@ -1945,6 +2155,15 @@ async function onCron(action: string, body: any = {}) {
   }
   if (action === "rates") return await fetchRates();
   if (action === "quad_done") return await quadDone(String(body.code ?? ""));
+  if (action === "chk_done") return await chkDone(String(body.run ?? ""));
+  if (action === "law_draft") return await lawDraft(Number(body.id));
+  if (action === "law_post") return { ok: true, sent: await lawPost() };
+  if (action === "new3_preview") {
+    const { data: adm } = await db.from("liga_admin_chats").select("chat_id").eq("group_code", "ASOSIY"); let n = 0;
+    for (const a of uniqChats(adm)) if ((await tg("sendMessage", { chat_id: a, parse_mode: "HTML", text: "👀 <b>E'lon ko'rinishi</b> (hali hech kimga yuborilmadi):\n\n" + NEW3_TEXT,
+      reply_markup: { inline_keyboard: [[{ text: "📢 Hammaga yuborish", callback_data: "an:new3" }]] } }))?.ok) n++;
+    return { ok: true, sent: n };
+  }
   if (action === "sms_tick") return await smsTick();
   if (action === "remind_noon") {
     if (w < 1 || w > 5 || !(await once("remind_noon"))) return { skip: true };

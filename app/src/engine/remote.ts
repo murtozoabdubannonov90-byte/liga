@@ -10,7 +10,7 @@ import type { Run, Q, Mode } from "./run";
 
 export interface StageSt { si: number; n: number; done_n: number; right_n: number; gain: number; bonus: number; stars: number | null; finished: boolean }
 export interface RState { run: string; kind: string; n: number; combo: number; right_n: number; done_n: number; gain: number; bonus: number; stars: number | null; finished: boolean; ms?: number | null; started_at?: string }
-export interface RRes { ok: boolean; why: "" | "time" | "left" | "skip"; gain: number; reveal: { dt?: string; kt?: string; a?: number; e?: string }; state: RState }
+export interface RRes { ok: boolean; why: "" | "time" | "left" | "skip"; gain: number; reveal: { dt?: string; kt?: string; a?: number; e?: string; bad?: string[]; none?: boolean; fix?: Record<string, string>; src?: string }; state: RState }
 
 const lang = () => (S.lang === "ru" ? "ru" : "uz");
 const auth = (r: Run) => (r.remote?.secret ? { p_id: null, p_token: null, p_secret: r.remote.secret } : { p_id: S.pid, p_token: S.token, p_secret: null });
@@ -37,7 +37,8 @@ function keepState(si: number, st: RState) {
 /* serverdan kelgan ko'rinish → o'yin navbati (javob berilganlari belgilanadi, qolganlari navbatda) */
 function fromView(mode: Mode, v: any, o: Partial<Run>): Run {
   const items: any[] = v.items || [];
-  const all: Q[] = items.map((x) => ({ id: "R" + x.k, k: x.k, t: x.t, q: tx(x.q || ""), o: x.t === "mc" ? (x.o || []).map((s: string) => tx(s)) : x.o, unit: x.unit ? tx(x.unit) : undefined, e: "" } as Q));
+  const all: Q[] = items.map((x) => ({ id: "R" + x.k, k: x.k, t: x.t, q: tx(x.q || ""), o: x.t === "mc" ? (x.o || []).map((s: string) => tx(s)) : x.o, unit: x.unit ? tx(x.unit) : undefined, e: "",
+    doc: x.doc ? { title: tx(x.doc.title || ""), rows: (x.doc.rows || []).map((w: any) => ({ k: w.k, l: tx(w.l || ""), v: tx(w.v || "") })) } : undefined } as Q));
   const queue = all.filter((_, k) => !items[k].st);
   return {
     mode, si: null, title: "", queue, i: 0, lives: 99, maxLives: 0, combo: v.combo || 0, mistakes: items.filter((x) => x.st === "bad").length,
@@ -100,6 +101,54 @@ export async function beginTestR(code: string, name: string, phone: string): Pro
     return /already_done/.test(m) ? "Siz bu testni allaqachon topshirgansiz" : /test_closed/.test(m) ? "Test yopilgan" : /bad_input/.test(m) ? "Ma'lumotlarni tekshiring"
       : "Serverga ulanib bo'lmadi — internetni tekshiring";
   }
+}
+
+
+/* serverga ulanish (telefonda hisob hali ulanmagan bo'lsa) */
+async function ensureServer(): Promise<string | null> {
+  if (S.pid && S.token) return null;
+  const r = await joinServer(true);
+  return !r.ok || !S.pid || !S.token ? r.msg || "Hisobingiz bu telefonga ulanmagan — «Qayta ulanish» tugmasini bosing" : null;
+}
+const commonErr = (m: string) => /unpaid/.test(m) ? "Ligaga qo'shilish uchun obuna kerak"
+  : /bad_token/.test(m) ? (S.token = "", S.tokenLost = true, persist(), "Hisobingiz bu telefonga ulanmagan — «Qayta ulanish» tugmasini bosing")
+  : "Serverga ulanib bo'lmadi — internetni tekshiring";
+/* «Faktura detektivi»: kuniga 5 ta hujjat (server tanlaydi va tekshiradi) */
+export async function startDocR(): Promise<Run | string> {
+  const e0 = await ensureServer(); if (e0) return e0;
+  try {
+    const v = await rpc<any>("liga_doc_start", { p_id: S.pid, p_token: S.token, p_lang: lang() });
+    if (!v.items?.some((x: any) => !x.st)) return "Bugungi hujjatlar tekshirildi — ertaga yangilari";
+    return fromView("doc", v, { title: "Faktura detektivi" });
+  } catch (e) {
+    const m = errOf(e);
+    if (/already_done/.test(m)) return "Bugungi hujjatlar tekshirildi — ertaga yangilari";
+    if (/doc_off/.test(m)) return "Faktura detektivi vaqtincha yopiq";
+    if (/not_found/.test(m)) return "Hujjatlar topilmadi — keyinroq urinib ko'ring";
+    return commonErr(m);
+  }
+}
+/* qonun yangiligi testi: savollar va javoblar serverda */
+export async function startLawR(id: number): Promise<Run | string> {
+  const e0 = await ensureServer(); if (e0) return e0;
+  try {
+    const v = await rpc<any>("liga_law_start", { p_id: S.pid, p_token: S.token, p_news: id, p_lang: lang() });
+    if (!v.items?.some((x: any) => !x.st)) return "Bu test bajarilgan";
+    return fromView("law", v, { title: "Qonun yangiligi", newsId: id });
+  } catch (e) {
+    const m = errOf(e);
+    if (/already_done/.test(m)) return "Bu test bajarilgan";
+    if (/not_found/.test(m)) return "Test topilmadi";
+    return commonErr(m);
+  }
+}
+/* detektiv va qonun testi natijalari (bosh sahifa kartalari uchun) */
+export async function pullExtras() {
+  if (!S.pid || !S.token) return;
+  const [d, l] = await Promise.all([rpc<any>("liga_doc_me", { p_id: S.pid, p_token: S.token }).catch(() => null),
+    rpc<any>("liga_law_me", { p_id: S.pid, p_token: S.token }).catch(() => null)]);
+  if (d) S.docMe = d; if (l) S.lawMe = l;
+  if (d || l) { persist(); }
 }
 
 /* savol ekranda ko'rindi — server vaqtni shu paytdan hisoblaydi; qolgan soniyani qaytaradi */

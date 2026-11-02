@@ -9,7 +9,8 @@ import { C, QSEC, apply, finish, grade, markPending, giftReward, startBlitz, sta
 import { shuffle, fmt } from "../engine/data";
 import { saSettle } from "../engine/score";
 import { watchAway, AWAY_MS, AWAY_LOG_MS } from "../lib/guard";
-import { answerR, awayR, showR, finishR, stageFinishedLocal, type RState } from "../engine/remote";
+import { answerR, awayR, showR, finishR, stageFinishedLocal, pullExtras, type RState } from "../engine/remote";
+import { openUrl } from "../lib/tg";
 import { stageOpen, closeStr } from "../engine/time";
 import { rpc, syncSoon, syncNow, errMsg, stageDoneNotify } from "../engine/server";
 import { sfx, burst, cheer } from "../lib/fx";
@@ -19,7 +20,9 @@ import { DayRewards } from "./Perks";
 import { Ring, Star, CountUp } from "../components/ui";
 import { botNotify } from "./Duel";
 
-const KIND: Record<string, string> = { mc: "Test", pv: "Provodka tuzing", calc: "Hisoblang" };
+const KIND: Record<string, string> = { mc: "Test", pv: "Provodka tuzing", calc: "Hisoblang", doc: "Xatoni toping" };
+/* hujjat, qonun testi va bosqich — chiqib ketsa keyin davom ettiriladi (javobsiz savol xato) */
+const RESUMABLE = ["stage", "doc", "law"];
 const isFair = (r: Run) => r.fair;
 
 function Confirm({ text, yes, no, onYes, onNo }: { text: string; yes: string; no: string; onYes: () => void; onNo: () => void }) {
@@ -39,7 +42,7 @@ export default function Quiz({ run }: { run: Run }) {
   (window as any).__run = r; /* testlar uchun */
   const c = C();
   const [i, setI] = useState(r.i);
-  const [ans, setAns] = useState<Ans>({ dt: null, kt: null, pick: null, val: "" });
+  const [ans, setAns] = useState<Ans>({ dt: null, kt: null, pick: null, val: "", keys: [], none: false });
   const [active, setActive] = useState<"dt" | "kt">("dt");
   const [res, setRes] = useState<null | { ok: boolean; gain: number; why: "time" | "left" | "" }>(null);
   const [left, setLeft] = useState(r.qsec || QSEC);
@@ -71,7 +74,7 @@ export default function Quiz({ run }: { run: Run }) {
   useEffect(() => {
     if (!tq) return;
     if (!r.remote) markPending(r, tq);
-    setAns({ dt: null, kt: null, pick: null, val: "" }); setActive("dt"); setRes(null); setExp(false);
+    setAns({ dt: null, kt: null, pick: null, val: "", keys: [], none: false }); setActive("dt"); setRes(null); setExp(false);
     qEnd.current = Date.now() + QS * 1000; setLeft(QS); window.scrollTo(0, 0);
     /* server: savol ko'rsatildi — vaqt serverda shu paytdan; qayta ochilsa qolgan vaqt */
     if (r.remote) { const cur = tq; showR(r, tq.k).then((sec) => { if (r.queue[r.i] === cur && !answered.current) qEnd.current = Date.now() + Math.max(0, sec) * 1000; }).catch(() => {}); }
@@ -114,7 +117,7 @@ export default function Quiz({ run }: { run: Run }) {
   /* orqaga — tasdiq */
   useEffect(() => { setBackGuard(() => { if (fin) return true; setAsk(true); return false; }); return () => setBackGuard(null); }, [fin]);
 
-  const canCheck = tq && (tq.t === "pv" ? !!(ans.dt && ans.kt) : tq.t === "mc" ? ans.pick != null : String(ans.val || "").replace(/\D/g, "") !== "");
+  const canCheck = tq && (tq.t === "doc" ? (ans.keys || []).length > 0 || !!ans.none : tq.t === "pv" ? !!(ans.dt && ans.kt) : tq.t === "mc" ? ans.pick != null : String(ans.val || "").replace(/\D/g, "") !== "");
   async function check(why: "time" | "left" | "" = "") {
     if (!tq || answered.current || busy) return;
     if (r.mode === "stage" && r.si != null && !stageOpen(r.si)) return onClosed();
@@ -137,15 +140,17 @@ export default function Quiz({ run }: { run: Run }) {
   /* server tekshiradi: javob yuboriladi, to'g'ri javob va izoh faqat shundan keyin keladi */
   async function checkRemote(why: "time" | "left" | "") {
     setBusy(true);
-    const payload = why === "left" ? { left: true } : tq.t === "pv" ? { dt: ans.dt, kt: ans.kt }
+    const payload = why === "left" ? { left: true } : tq.t === "doc" ? { pick: ans.none ? [] : ans.keys || [] } : tq.t === "pv" ? { dt: ans.dt, kt: ans.kt }
       : tq.t === "mc" ? { pick: ans.pick != null ? (opts[ans.pick] as any)?.i ?? -1 : -1 } : { val: String(ans.val || "").replace(/\D/g, "") };
     try {
       const x = await answerR(r, tq.k, payload);
       if (x.reveal.dt) tq.dt = x.reveal.dt; if (x.reveal.kt) tq.kt = x.reveal.kt; if (x.reveal.a != null) tq.a = Number(x.reveal.a);
       tq.e = tx(x.reveal.e || "");
+      if (tq.t === "doc") { tq.bad = x.reveal.bad || []; tq.none = !!x.reveal.none; tq.fix = Object.fromEntries(Object.entries(x.reveal.fix || {}).map(([k, v]) => [k, tx(String(v))])); }
+      if (x.reveal.src) tq.src = x.reveal.src;
       r.answers.push({ id: tq.id, ok: x.ok }); r.marks[tq.k] = x.ok ? "ok" : "bad"; r.earned += x.gain;
       const w = x.why === "time" || x.why === "left" ? x.why : why;
-      if (!x.ok) { r.mistakes++; if (r.maxLives) r.lives--; if (r.mode !== "test") recordErr(tq, mine(w), true); }
+      if (!x.ok) { r.mistakes++; if (r.maxLives) r.lives--; if (r.mode !== "test" && tq.t !== "doc") recordErr(tq, mine(w), true); }
       setRes({ ok: x.ok, gain: x.gain, why: w });
       sfx(x.ok ? "ok" : "bad"); cheer(x.ok); if (x.ok && x.state.combo === 5) toast(t("🔥 5 ketma-ket!"));
     } catch (e) {
@@ -200,12 +205,13 @@ export default function Quiz({ run }: { run: Run }) {
     setFin({ passed: true, stars: 0, bonus: 0, dayBonus: 0, total: 0 }); setExtra({ sent: !!st?.finished, ms, err: st ? "" : t("Serverga ulanib bo'lmadi — internetni tekshiring") });
     if (r.mode === "final") { S.finRun = { month: r.month, right: st?.right_n ?? r.right, done: st?.n, ms, sent: true }; persist(); }
     if (r.mode === "duel" && r.duel) botNotify(r.duel);
+    if (r.mode === "doc" || r.mode === "law") pullExtras();
     burst(); sfx("win");
   }
   const quit = () => {
     setAsk(false);
     if (r.remote) {
-      if (r.mode === "stage") { if (!answered.current && tq) answerR(r, tq.k, { left: true }).catch(() => {}); syncNow(); back(); return; }
+      if (RESUMABLE.includes(r.mode)) { if (!answered.current && tq) answerR(r, tq.k, { left: true }).catch(() => {}); if (r.mode === "stage") syncNow(); else pullExtras(); back(); return; }
       doFinish(true); return;
     }
     if (r.mode === "stage") { if (!answered.current && tq) { r.mistakes++; } if (r.si != null) saSettle(r.si); syncNow(); back(); return; }
@@ -255,6 +261,23 @@ export default function Quiz({ run }: { run: Run }) {
           const cls = res ? (o.i === Number(tq.a) ? "right" : k === ans.pick ? "wrong" : "") : k === ans.pick ? "sel" : "";
           return <button key={k} className={"opt " + cls} disabled={!!res} onClick={() => { sfx("tap"); setAns({ ...ans, pick: k }); }}>{o.x}</button>;
         })}</div>}
+        {tq.t === "doc" && tq.doc && <div className="doc" id="doc">
+          <div className="doc-h">{tq.doc.title}</div>
+          {tq.doc.rows.map((w) => {
+            const on = (ans.keys || []).includes(w.k), isBad = !!res && (tq.bad || []).includes(w.k);
+            const cls = res ? (isBad ? (on ? "right" : "missed") : on ? "wrong" : "") : on ? "sel" : "";
+            return (<button key={w.k} className={"doc-row " + cls} data-k={w.k} disabled={!!res} onClick={() => {
+              sfx("tap"); const ks = new Set(ans.keys || []); if (ks.has(w.k)) ks.delete(w.k); else ks.add(w.k); setAns({ ...ans, keys: [...ks], none: false });
+            }}>
+              <span className="l">{w.l}</span><span className="v">{w.v}</span>
+              {isBad && tq.fix?.[w.k] && <span className="fx">{tq.fix[w.k]}</span>}
+              {res && !isBad && on && <span className="fx">{t("Bu qator to'g'ri edi")}</span>}
+            </button>);
+          })}
+          <button className={"doc-none " + (res ? (tq.none ? (ans.none ? "right" : "missed") : ans.none ? "wrong" : "") : ans.none ? "sel" : "")} id="doc-none" disabled={!!res}
+            onClick={() => { sfx("tap"); setAns({ ...ans, keys: [], none: !ans.none }); }}>{t("Xato yo'q")}</button>
+          {!res && <p className="tiny muted" style={{ marginTop: 8, fontWeight: 700 }}>{t("Xato deb o'ylagan qatorlarni bosing — bir nechtasini tanlash mumkin.")}</p>}
+        </div>}
         {tq.t === "calc" && <div className="calc">
           <input id="num" inputMode="numeric" autoComplete="off" placeholder="0" aria-label={t("Javob")} disabled={!!res} value={ans.val}
             onChange={(e) => { const d = e.target.value.replace(/\D/g, ""); setAns({ ...ans, val: d ? fmt(+d) : "" }); }}
@@ -267,17 +290,19 @@ export default function Quiz({ run }: { run: Run }) {
         <motion.div className={"sheet-fb " + (res.ok ? "ok" : "bad")} initial={{ y: "100%" }} animate={{ y: 0 }} exit={{ y: "100%" }} transition={{ type: "spring", stiffness: 420, damping: 38 }}>
           <div>
             <h4>{res.ok ? t("To'g'ri!") + (res.gain ? " +" + res.gain + " ball" : "") : res.why === "left" ? t("Ilovadan chiqildi — savol xato hisoblandi") : res.why === "time" ? t("Vaqt tugadi") : t("Xato — sababini ko'ring")}</h4>
-            {!res.ok && <p className="ans">{tq.t === "pv" ? `${t("To'g'ri provodka")}: Dt ${tq.dt} — Kt ${tq.kt}` : tq.t === "mc" ? `${t("To'g'ri javob")}: ${opts.find((o) => o.i === Number(tq.a))?.x}` : `${t("To'g'ri javob")}: ${fmt(Number(tq.a))} ${tq.unit || t("so'm")}`}</p>}
+            {!res.ok && tq.t === "doc" && <p className="ans">{tq.none ? t("Hujjatda xato yo'q edi") : t("Xato qatorlar: {n} ta — yuqorida qizil bilan belgilangan", { n: (tq.bad || []).length })}</p>}
+            {!res.ok && tq.t !== "doc" && <p className="ans">{tq.t === "pv" ? `${t("To'g'ri provodka")}: Dt ${tq.dt} — Kt ${tq.kt}` : tq.t === "mc" ? `${t("To'g'ri javob")}: ${opts.find((o) => o.i === Number(tq.a))?.x}` : `${t("To'g'ri javob")}: ${fmt(Number(tq.a))} ${tq.unit || t("so'm")}`}</p>}
             {!res.ok && tq.t === "pv" && <p className="small">{tq.dt} — {c.A[tq.dt!]}<br />{tq.kt} — {c.A[tq.kt!]}</p>}
             {!exp && <p>{tq.e}</p>}
-            {!res.ok && <button className="ex-toggle" id="exbtn" onClick={() => { sfx("tap"); setExp(!exp); }}><Lightbulb size={17} />{t("Misol bilan tushuntirish")}<ChevronDown size={16} style={{ transform: exp ? "rotate(180deg)" : "" }} /></button>}
+            {tq.src && <button className="ex-toggle" id="srcbtn" onClick={() => openUrl(tq.src!)}>{t("Manbani ochish")}</button>}
+            {!res.ok && tq.t !== "doc" && <button className="ex-toggle" id="exbtn" onClick={() => { sfx("tap"); setExp(!exp); }}><Lightbulb size={17} />{t("Misol bilan tushuntirish")}<ChevronDown size={16} style={{ transform: exp ? "rotate(180deg)" : "" }} /></button>}
             {exp && !res.ok && <Explain task={tq} my={mine(res.why)} />}
             <button className={"btn " + (res.ok ? "ok" : "bad")} id="nx" onClick={next}>
               {r.mode === "gift" ? t("Sovg'ani ochish") : r.maxLives && r.lives <= 0 ? t("Natijani ko'rish") : i >= r.queue.length - 1 ? t("Yakunlash") : t("Davom etish")}
             </button>
           </div>
         </motion.div>)}</AnimatePresence>
-      {ask && <Confirm text={r.mode === "stage" ? t("Chiqasizmi? Javobsiz savol XATO hisoblanadi va qaytib chiqmaydi. Topgan ballaringiz saqlanadi.") : ["final", "duel", "test"].includes(r.mode) ? t("Chiqsangiz, natijangiz shu holatda yuboriladi va qayta kirib bo'lmaydi.") : t("Chiqasizmi? Bu mashq natijasi saqlanmaydi.")}
+      {ask && <Confirm text={r.mode === "stage" ? t("Chiqasizmi? Javobsiz savol XATO hisoblanadi va qaytib chiqmaydi. Topgan ballaringiz saqlanadi.") : r.mode === "doc" || r.mode === "law" ? t("Chiqasizmi? Ochiq savol XATO hisoblanadi. Qolganlarini keyinroq shu yerdan davom ettirasiz.") : ["final", "duel", "test"].includes(r.mode) ? t("Chiqsangiz, natijangiz shu holatda yuboriladi va qayta kirib bo'lmaydi.") : t("Chiqasizmi? Bu mashq natijasi saqlanmaydi.")}
         yes={t("Chiqish")} no={t("Qolish")} onYes={quit} onNo={() => setAsk(false)} />}
     </div>
   );
@@ -294,6 +319,8 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
   else if (r.mode === "final") { title = t("Final yakunlandi!"); big = <><CountUp to={okN * 20} /> {t("ball")}</>; }
   else if (r.mode === "duel") { title = t("Duel natijangiz"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
   else if (r.mode === "test") { title = t("Test yakunlandi"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
+  else if (r.mode === "doc") { title = t("Detektiv yakunlandi"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
+  else if (r.mode === "law") { title = t("Qonun testi yakunlandi"); big = <><CountUp to={okN} />/{st?.n || r.queue.length}</>; }
   else if (r.mode === "review") { title = t("Xatolar tahlili yakunlandi"); big = <><CountUp to={r.mastered || 0} /> {t("ta o'zlashtirildi")}</>; }
   else if (!f.passed) title = t("Jonlar tugadi");
   else { title = r.mode === "stage" ? t("Bosqich yakunlandi!") : r.mode === "topic" ? t("Yo'nalish mashqi bajarildi!") : t("Mashq bajarildi!"); big = <>+<CountUp to={f.total} /> {t("ball")}</>; }
@@ -317,6 +344,8 @@ function Result({ r, f, extra }: { r: Run; f: Fin; extra: any }) {
         {r.mode === "test" && !r.promo && <p className="small muted">{extra?.sent ? t("Natijangiz kompaniyaga yuborildi. Rahmat!") : extra?.err || ""}</p>}
         {r.mode === "test" && r.promo && <p className="small" id="promo-note" style={{ fontWeight: 700 }}>{t("Hisobchi Ligada har ish kuni shunday bosqich: 20 savol, xatolar tushuntirish bilan, haftalik reyting va sertifikat. 30-noyabrgacha hammaga bepul!")}</p>}
         {r.mode === "blitz" && <p className="small muted">{t("Blits bali alohida — haftalik jamiga qo'shilmaydi.")}</p>}
+        {r.mode === "doc" && <p className="small muted" id="doc-note">{t("Detektiv natijasi alohida — liga jamiga qo'shilmaydi. Ertaga yangi 5 ta hujjat.")}</p>}
+        {r.mode === "law" && <p className="small muted">{t("Qonun testi natijasi alohida — liga jamiga qo'shilmaydi.")}</p>}
         {r.mode === "review" && <p className="small muted">{(r.mastered || 0) > 0 ? t("Asl savolni ham, teskarisini ham to'g'ri topgan xatolar daftardan o'chirildi.") : t("Xato o'chishi uchun asl savolni ham, teskarisini ham to'g'ri toping.")} {t("Daftarda qoldi: {n} ta", { n: Object.keys(S.errs).length })}</p>}
         {!f.passed && r.mode === "stage" && <p className="small muted">{t("Topgan ballaringiz saqlandi. Javob berilgan savollar qaytmaydi — «Davom etish» bilan qolganlarini ishlaysiz.")}</p>}
       </div>

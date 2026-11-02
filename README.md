@@ -44,6 +44,30 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-11-02: Faktura detektivi, qonun yangiligi testi, rahbar tekshiruvi, simulyator (sinov)
+
+**1. Faktura detektivi** — Asosiy → «Faktura detektivi» (karta va plitka), bot havolasi `?go=doc`.
+- Har kuni 5 ta hujjat (1 oson, 2 o'rta, 2 qiyin): hisob-faktura, kassa kirim orderi, ish haqi varaqasi, ishonchnoma. Har birida 0–3 ta xato qator: arifmetika (miqdor×narx, QQS 12%, jami), STIR (9 raqam), IKPU (17 raqam), eskirgan QQS stavkasi, faktura sanasi shartnomadan oldin, so'z bilan yozilgan summa, korrespondent schyot, imzo, JShDS/ijtimoiy soliq, ishonchnoma muddati, pasport.
+- O'yinchi xato qatorlarni bosadi (bir nechta) yoki «Xato yo'q». Har hujjatga 150 soniya. Javob serverda tekshiriladi (`liga_q_ok` → `doc`): belgilangan to'plam kalit bilan aynan bir xil bo'lishi kerak. Javobdan keyin xato qatorlar ostida tushuntirish; noto'g'ri belgilangan qator — sariq.
+- Chiqib ketsa — ochiq hujjat xato, qolganlari shu kuni davom etadi. Natija faqat o'yinchiga ko'rinadi, liga jamiga qo'shilmaydi; hujjat xatolari «Xato daftari»ga yozilmaydi.
+- Bank: 240 hujjat (`scripts/doc_bank.py` → `db/2026-11-02b_detektiv_bank.sql`; `python3 scripts/doc_bank.py --check` har hujjatni qayta hisoblab kalitni tekshiradi). O'chirish: `liga_bot_config.doc_on = off`.
+
+**2. Qonun yangiligi testi** — `liga_news` endi kunlik: `day` (qaysi kundan), `status` (draft/live/off). Savollar `liga_bank` ga ko'chiriladi (`law<N>_<k>`, pool `law`), ilovaga javobsiz boradi, javob serverda (`liga_law_start`, o'yin turi `law`, 90 soniya). Kartada «N savollik test» / «✅ Test: 2/3».
+- Qoralama: `select liga_law_draft_sys('{...}')` (rejalashtirilgan vazifa yoki superadmin) → bot liga admin(lar)iga to'liq matn va javoblar bilan yuboradi, tugmalar «✅ Chiqarish» / «❌ O'chirish». Chiqarilgan yangilik o'z kunida 09:00 da guruhlarga chiqadi (bugungi bo'lsa — darhol), ertalabki shaxsiy xabarda «Bugun yana: qonun yangiligi» qatori.
+- Superadmin → Yangiliklar muharririda «Qaysi kundan ko'rinadi» va «Qoralama».
+- Noyabr boshi uchun 3 ta yangilik: `content/qonun_2026-11.json` (PQ-387, PQ-371, O'RQ-1137).
+
+**3. Rahbar uchun buxgalter tekshiruvi** — botda `/tekshiruv` (yoki `t.me/Buxgalterlar_Ligasi_bot?start=tekshiruv`).
+- Rahbar kompaniya nomini yozadi → 30 savol / 30 daqiqalik test havolasi (`?t=KOD`) va «Nomzodga yuborish» tugmasi. Nomzod tugatishi bilan rahbarga shaxsan hisobot: ball va %, daraja, savol turlari (provodka / hisob-kitob / soliq va qonun), kuchli va zaif mavzular, ilovadan chiqishlar soni (xodim testida ham endi yoziladi), vaqt.
+- `/tekshiruvlar` — testlar va nomzodlar. Bepul limit `chk_free` (standart 3); liga adminiga har yangi rahbar haqida xabar (Telegram ID bilan); qo'shimcha ruxsat: `/tekshiruv_ruxsat ID SONI`.
+- Testlar ASOSIY jamoasida saqlanadi — Admin panel → Testlar ro'yxatida ham ko'rinadi.
+
+**4. Simulyator «Firmani 1 hafta yurit» (sinov)** — faqat liga egasiga (free_phones) Asosiy oynada ko'rinadi. 5 kun × 3 hujjat, provodkalarni o'yinchi yozadi, oxirida qoldiqlar, balans, 2-shakl va QQS to'g'risi bilan yonma-yon. Telefonda saqlanadi, serverga yozilmaydi.
+
+- SQL: `db/2026-11-02_detektiv_qonun_tekshiruv.sql`; sinov: `db/tests/2026-11-02_detektiv_qonun_tekshiruv_test.sql` (49 tekshiruv, oxirida o'zini bekor qiladi).
+- Bot: `chk_done`, `law_draft`, `law_post`, `new3_preview` (e'lon ko'rinishi adminga, «📢 Hammaga yuborish» tugmasi bilan).
+- Kesh: `hisobchi-liga-v5-20261102`, versiya `2026-11-02`.
+
 ## 2026-10-31d: Telefonlarda avtomatik yangilanish
 - `ver.txt` (deploy paytida `publish.mjs` yozadi): sahifa 2,5 soniyadan keyin tekshiradi — telefondagi versiya eski bo'lsa keshni tozalab bir marta qayta yuklanadi.
 - Profil → Sozlamalar: «Ilovani yangilash» tugmasi va joriy versiya. Testlar: 334 ta.

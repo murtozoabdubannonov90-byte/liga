@@ -6,7 +6,8 @@ import { S, persist } from "../engine/state";
 import { t, tx, getLang } from "../lib/i18n";
 import { go, replace, toast } from "../lib/nav";
 import { rpc, errMsg } from "../engine/server";
-import { C, startTopic, startNews } from "../engine/run";
+import { C, startTopic } from "../engine/run";
+import { startLawR } from "../engine/remote";
 import { fmt } from "../engine/data";
 import { tzNow, ymd, fmtD } from "../engine/time";
 import { openUrl } from "../lib/tg";
@@ -72,12 +73,22 @@ export function TaxCalendar() {
 /* ---------------- qonun yangiliklari ---------------- */
 const nTitle = (n: any) => (getLang() === "ru" && n.title_ru ? n.title_ru : tx(n.title_uz));
 const nBody = (n: any) => (getLang() === "ru" && n.body_ru ? n.body_ru : tx(n.body_uz));
+/* qonun testi holati (server: liga_law_me) */
+const lawRun = (id: number): { n: number; right_n: number; done_n: number; finished: boolean } | undefined => S.lawMe?.runs?.[String(id)];
+const lawSub = (n: any) => { const r = lawRun(n.id), q = n.qs?.length || 0; if (!q) return "";
+  return r?.finished ? t("✅ Test: {r}/{n}", { r: r.right_n, n: r.n }) : r ? t("Test: {d}/{n} — davom eting", { d: r.done_n, n: r.n }) : t("{n} savollik test", { n: q }); };
+async function openLaw(id: number) {
+  const r = await startLawR(id);
+  if (typeof r === "string") { toast(t(r)); return; }
+  replace("quiz", { run: r });
+}
 export function NewsCard() {
   const n = (S.news || [])[0]; if (!n || Date.now() - new Date(n.created_at).getTime() > 14 * 864e5) return null;
   return (
     <button className="card row news-card" style={{ textAlign: "left" }} onClick={() => go("newsView", { id: n.id })}>
       <span className="ic"><Scale size={20} /></span>
-      <span className="grow"><span className="tiny muted" style={{ fontWeight: 800 }}>{t("Qonun yangiligi")} · {fmtD(n.created_at)}</span><br /><b>{nTitle(n)}</b></span>
+      <span className="grow"><span className="tiny muted" style={{ fontWeight: 800 }}>{t("Qonun yangiligi")} · {fmtD(n.created_at)}</span><br /><b>{nTitle(n)}</b>
+        {n.qs?.length > 0 && <><br /><span className={"small " + (lawRun(n.id)?.finished ? "muted" : "")} id="law-sub" style={{ fontWeight: 800, color: lawRun(n.id)?.finished ? undefined : "var(--stamp)" }}>{lawSub(n)}</span></>}</span>
       <ChevronRight size={18} color="var(--muted)" />
     </button>);
 }
@@ -88,7 +99,7 @@ export function News() {
       {!L.length ? <Empty>{t("Hali yangilik yo'q. Har hafta yangi qaror va xatlar bo'yicha qisqa sharh qo'shiladi.")}</Empty>
         : <div className="stack">{L.map((n: any) => (
           <button key={n.id} className="card" style={{ textAlign: "left" }} onClick={() => go("newsView", { id: n.id })}>
-            <span className="tiny muted" style={{ fontWeight: 800 }}>{fmtD(n.created_at)}{n.qs?.length ? " · " + t("{n} ta savol", { n: n.qs.length }) : ""}</span>
+            <span className="tiny muted" style={{ fontWeight: 800 }}>{fmtD(n.created_at)}{n.qs?.length ? " · " + lawSub(n) : ""}</span>
             <h3 style={{ fontSize: 17, margin: "4px 0 6px" }}>{nTitle(n)}</h3>
             <p className="small muted">{nBody(n).slice(0, 140)}{nBody(n).length > 140 ? "…" : ""}</p>
           </button>))}</div>}
@@ -107,8 +118,8 @@ export function NewsView({ id }: { id: number }) {
           {n.url && <button className="btn ghost sm" style={{ marginTop: 12 }} onClick={() => openUrl(n.url)}><ExternalLink size={16} />{t("Manbani ochish")}</button>}
         </section>
       </div>
-      {n.qs?.length > 0 && <div className="dock"><button className="btn" id="go" onClick={() => { const r = startNews(n); if (typeof r === "string") toast(t(r)); else replace("quiz", { run: r }); }}>
-        {t("Bilimni tekshirish · {n} savol", { n: n.qs.length })}</button></div>}
+      {n.qs?.length > 0 && <div className="dock"><button className="btn" id="go" disabled={!!lawRun(n.id)?.finished} onClick={() => openLaw(n.id)}>
+        {lawRun(n.id)?.finished ? lawSub(n) : lawRun(n.id) ? t("Testni davom ettirish") : t("Bilimni tekshirish · {n} savol", { n: n.qs.length })}</button></div>}
     </div>);
 }
 
@@ -289,6 +300,10 @@ export function NewsEditor() {
           <input className="inp" placeholder={t("Sarlavha")} value={f.title_uz} onChange={(e) => setF({ ...f, title_uz: e.target.value })} />
           <textarea className="inp" rows={5} placeholder={t("Qisqa sharh: nima o'zgardi, kimga tegishli, qachondan")} value={f.body_uz} onChange={(e) => setF({ ...f, body_uz: e.target.value })} />
           <input className="inp" placeholder={t("Manba havolasi (lex.uz, soliq.uz)")} value={f.url} onChange={(e) => setF({ ...f, url: e.target.value })} />
+          <div className="row" style={{ gap: 8 }}>
+            <label className="small grow" style={{ fontWeight: 700 }}>{t("Qaysi kundan ko'rinadi")}<input className="inp" type="date" value={f.day || ""} onChange={(e) => setF({ ...f, day: e.target.value })} /></label>
+            <label className="small" style={{ fontWeight: 700 }}><input type="checkbox" checked={f.status === "draft"} onChange={(e) => setF({ ...f, status: e.target.checked ? "draft" : "live" })} /> {t("Qoralama")}</label>
+          </div>
           <details><summary className="small" style={{ fontWeight: 700 }}>{t("Ruscha matn (ixtiyoriy)")}</summary>
             <div className="stack" style={{ gap: 8, marginTop: 8 }}><input className="inp" placeholder="Заголовок" value={f.title_ru} onChange={(e) => setF({ ...f, title_ru: e.target.value })} />
               <textarea className="inp" rows={4} placeholder="Краткий обзор" value={f.body_ru} onChange={(e) => setF({ ...f, body_ru: e.target.value })} /></div></details>
@@ -305,8 +320,8 @@ export function NewsEditor() {
       </Card>
       {rows.map((n) => (
         <section key={n.id} className="card row" style={{ opacity: n.active ? 1 : 0.45 }}>
-          <span className="grow"><b>{n.title_uz}</b><br /><span className="small muted">{fmtD(n.created_at)} · {t("{n} ta savol", { n: (n.qs || []).length })}{n.posted_at ? " · " + t("guruhlarga yuborildi") : ""}</span></span>
-          <button className="chip" onClick={() => setF({ ...n, title_ru: n.title_ru || "", body_ru: n.body_ru || "", url: n.url || "", qs: (n.qs || []).map((x: any) => ({ ...x, o: [...x.o, "", "", "", ""].slice(0, 4) })) })}>{t("tahrir")}</button>
+          <span className="grow"><b>{n.title_uz}</b><br /><span className="small muted">{fmtD(n.day || n.created_at)} · {t("{n} ta savol", { n: (n.qs || []).length })}{n.status === "draft" ? " · " + t("qoralama") : n.status === "off" ? " · " + t("o'chirilgan") : ""}{n.posted_at ? " · " + t("guruhlarga yuborildi") : ""}</span></span>
+          <button className="chip" onClick={() => setF({ ...n, title_ru: n.title_ru || "", body_ru: n.body_ru || "", url: n.url || "", day: n.day || "", status: n.status || "live", qs: (n.qs || []).map((x: any) => ({ ...x, o: [...x.o, "", "", "", ""].slice(0, 4) })) })}>{t("tahrir")}</button>
         </section>))}
     </div>);
 }
