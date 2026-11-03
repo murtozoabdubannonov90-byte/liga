@@ -46,6 +46,8 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 
 ## 2026-11-02: Faktura detektivi, qonun yangiligi testi, rahbar tekshiruvi, simulyator (sinov)
 
+> **2026-11-03 — sinov davri:** hammasi hozircha faqat liga egasiga (free_phones) ko'rinadi: `liga_bot_config.new3_beta = on` (`db/2026-11-03_faqat_egasiga.sql`). Oddiy o'yinchilarga detektiv kartasi va plitkasi, testli qonun yangiliklari ko'rinmaydi; qonun yangiligi guruhlarga chiqmaydi; `/tekshiruv` faqat liga adminiga ishlaydi. **Hammaga ochish:** `update liga_bot_config set value = 'off' where key = 'new3_beta';`, keyin botda e'lon (`select liga_bot_call('new3_preview')` → «📢 Hammaga yuborish»).
+
 **1. Faktura detektivi** — Asosiy → «Faktura detektivi» (karta va plitka), bot havolasi `?go=doc`.
 - Har kuni 5 ta hujjat (1 oson, 2 o'rta, 2 qiyin): hisob-faktura, kassa kirim orderi, ish haqi varaqasi, ishonchnoma. Har birida 0–3 ta xato qator: arifmetika (miqdor×narx, QQS 12%, jami), STIR (9 raqam), IKPU (17 raqam), eskirgan QQS stavkasi, faktura sanasi shartnomadan oldin, so'z bilan yozilgan summa, korrespondent schyot, imzo, JShDS/ijtimoiy soliq, ishonchnoma muddati, pasport.
 - O'yinchi xato qatorlarni bosadi (bir nechta) yoki «Xato yo'q». Har hujjatga 150 soniya. Javob serverda tekshiriladi (`liga_q_ok` → `doc`): belgilangan to'plam kalit bilan aynan bir xil bo'lishi kerak. Javobdan keyin xato qatorlar ostida tushuntirish; noto'g'ri belgilangan qator — sariq.
