@@ -7,6 +7,8 @@ declare pid uuid := gen_random_uuid(); tok text := 'dqt-' || md5(random()::text)
 begin
   insert into public.safari_players(id, first_name, last_name, phone, token_hash, paid_until, lang)
     values (pid, 'Sinov', 'DQT', '+998900009911', public.liga_hash(tok), public.liga_today() + 5, 'uz');
+  -- 1–3 bo'limlar hammaga ochiq holatda tekshiriladi (sinov davri 4-bo'limda)
+  insert into public.liga_bot_config(key, value) values ('beta_only', 'off') on conflict (key) do update set value = 'off';
 
   -- ===== 0) sinov davri (new3_beta): oddiy o'yinchiga yopiq =====
   insert into public.liga_bot_config(key, value) values ('new3_beta', 'on') on conflict (key) do update set value = 'on';
@@ -138,6 +140,31 @@ begin
   r := r || jsonb_build_object('mark_once', public.liga_chk_mark_sys(trid) and public.liga_chk_mark_sys(trid) is null);
   v := public.liga_chk_list_sys(777000111);
   r := r || jsonb_build_object('chk_list', jsonb_array_length(v->'tests') = 4 and (v->>'used')::int = 4);
+
+  -- ===== 4) sinov davri: faqat egasiga =====
+  update public.liga_bot_config set value = 'on' where key = 'beta_only';
+  update public.liga_bot_config set value = '+998900009933' where key = 'free_phones';
+  v := public.liga_doc_me(pid, tok);
+  r := r || jsonb_build_object('beta_doc_hidden', not (v->>'on')::boolean and not (v->>'owner')::boolean);
+  delete from public.liga_runs where kind = 'doc' and player_id = pid;
+  begin perform public.liga_doc_start(pid, tok, 'uz'); r := r || '{"beta_doc_blocked": false}';
+  exception when others then r := r || jsonb_build_object('beta_doc_blocked', sqlerrm = 'doc_off'); end;
+  update public.safari_players set phone = '+998900009933' where id = pid;
+  v := public.liga_doc_me(pid, tok);
+  r := r || jsonb_build_object('beta_owner_doc', (v->>'on')::boolean and (v->>'owner')::boolean);
+  did := public.liga_law_draft_sys(jsonb_build_object('title_uz', 'Beta DQT sinovi', 'body_uz', 'Beta matni, sinov uchun yozildi.', 'day', (public.liga_today() + 3)::text,
+    'qs', '[{"q":"Beta savoli?","o":["A","B"],"a":0,"e":"A"}]'::jsonb));
+  v := public.liga_law_decide_sys(did, true, adm);
+  r := r || jsonb_build_object('beta_status', v->>'status' = 'beta',
+    'beta_not_public', not exists (select 1 from public.liga_news_list() l where l.id = did),
+    'beta_owner_sees', exists (select 1 from public.liga_law_beta(pid, tok) l where l.id = did),
+    'beta_not_due', not exists (select 1 from public.liga_law_due_sys() d where d.id = did));
+  v := public.liga_law_start(pid, tok, did, 'uz');
+  r := r || jsonb_build_object('beta_owner_start', jsonb_array_length(v->'items') = 1);
+  update public.safari_players set phone = '+998900009911' where id = pid;
+  r := r || jsonb_build_object('beta_other_no_list', not exists (select 1 from public.liga_law_beta(pid, tok)));
+  v := public.liga_chk_create_sys(777000222, 'X', 'Sinov MChJ', 'uz');
+  r := r || jsonb_build_object('beta_chk_blocked', v->>'err' = 'beta', 'beta_chk_admin', public.liga_beta_sys(adm) and not public.liga_beta_sys(777000222));
 
   raise exception 'DQT_TEST %', r;
 end $t$;
