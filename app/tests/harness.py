@@ -139,7 +139,7 @@ def body_for0(fn, args):
     if fn == "liga_duel_start": return run_view(new_run("duel", 10))
     if fn == "liga_doc_start": return run_view(new_doc_run())
     if fn == "liga_doc_me": return DOC_ME
-    if fn == "liga_law_me": return {"runs": {}, "month_right": 0}
+    if fn == "liga_law_me": return {"on": DOC_ME["on"], "runs": {}, "month_right": 0}
     if fn == "liga_law_start": return run_view(new_law_run(body_for0("liga_news_list", {})[0]))
     if fn == "liga_final_start": return run_view(new_run("final", 20))
     if fn == "liga_test_begin": return dict(run_view(new_run("test", 10)), secret="sek", minutes=20, test_started="2026-10-01T05:00:00Z", title="Bosh buxgalter")

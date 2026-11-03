@@ -74,6 +74,8 @@ export function TaxCalendar() {
 const nTitle = (n: any) => (getLang() === "ru" && n.title_ru ? n.title_ru : tx(n.title_uz));
 const nBody = (n: any) => (getLang() === "ru" && n.body_ru ? n.body_ru : tx(n.body_uz));
 /* qonun testi holati (server: liga_law_me) */
+/* savolli (testli) yangiliklar faqat server ruxsat bersa ko'rinadi — sinov davrida faqat liga egasiga */
+export const newsVisible = () => (S.news || []).filter((n: any) => !(n.qs?.length > 0) || S.lawMe?.on === true);
 const lawRun = (id: number): { n: number; right_n: number; done_n: number; finished: boolean } | undefined => S.lawMe?.runs?.[String(id)];
 const lawSub = (n: any) => { const r = lawRun(n.id), q = n.qs?.length || 0; if (!q) return "";
   return r?.finished ? t("✅ Test: {r}/{n}", { r: r.right_n, n: r.n }) : r ? t("Test: {d}/{n} — davom eting", { d: r.done_n, n: r.n }) : t("{n} savollik test", { n: q }); };
@@ -83,7 +85,7 @@ async function openLaw(id: number) {
   replace("quiz", { run: r });
 }
 export function NewsCard() {
-  const n = (S.news || [])[0]; if (!n || Date.now() - new Date(n.created_at).getTime() > 14 * 864e5) return null;
+  const n = newsVisible()[0]; if (!n || Date.now() - new Date(n.created_at).getTime() > 14 * 864e5) return null;
   return (
     <button className="card row news-card" style={{ textAlign: "left" }} onClick={() => go("newsView", { id: n.id })}>
       <span className="ic"><Scale size={20} /></span>
@@ -93,7 +95,7 @@ export function NewsCard() {
     </button>);
 }
 export function News() {
-  const L = S.news || [];
+  const L = newsVisible();
   return (
     <div className="shell bare"><PageTitle title={t("Qonun yangiliklari")} />
       {!L.length ? <Empty>{t("Hali yangilik yo'q. Har hafta yangi qaror va xatlar bo'yicha qisqa sharh qo'shiladi.")}</Empty>
@@ -106,7 +108,7 @@ export function News() {
     </div>);
 }
 export function NewsView({ id }: { id: number }) {
-  const n = (S.news || []).find((x: any) => x.id === id);
+  const n = newsVisible().find((x: any) => x.id === id);
   if (!n) return <div className="shell bare"><PageTitle title={t("Qonun yangiligi")} /><Empty>{t("Topilmadi")}</Empty></div>;
   return (
     <div className="shell bare"><PageTitle title={t("Qonun yangiligi")} />

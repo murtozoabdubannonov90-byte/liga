@@ -197,6 +197,7 @@ const RU: Record<string, string> = {
   "Qonun va qarorlar": "Законы и постановления",
   "Yil yakuni": "Итоги года",
   "Boss: soliq tekshiruvi": "Босс: налоговая проверка",
+  "ℹ️ Bu xizmat tez orada ochiladi.": "ℹ️ Этот сервис скоро откроется.",
 };
 const TIER_UZ = ["Bronza", "Kumush", "Oltin", "Olmos"], TIER_RU = ["Бронза", "Серебро", "Золото", "Алмаз"];
 function tr(lang: string | null | undefined, uz: string, v: Record<string, string | number> = {}) {
@@ -1831,7 +1832,14 @@ const mmssOf = (ms: number) => Math.floor(ms / 60000) + ":" + String(Math.floor(
 
 // --- Rahbar uchun buxgalter tekshiruvi: /tekshiruv ---
 const CHK_INTRO = "🧾 <b>Buxgalterni tekshirish — rahbarlar uchun</b>\n\nIshga olayotgan (yoki hozirgi) buxgalteringizni 30 daqiqada tekshiring:\n• 30 ta savol: provodka, hisob-kitob, soliq va qonunchilik;\n• nomzod ro'yxatdan o'tmaydi — siz yuborgan havolani ochib, ishlaydi;\n• savol paytida boshqa ilovaga (AI, internet) chiqsa — savol xato hisoblanadi;\n• tugashi bilan <b>batafsil hisobot shu yerga keladi</b>: ball, mavzular bo'yicha kuchli va zaif tomonlari.\n\nBirinchi {n} ta test — bepul.\n\n✍️ <b>Kompaniyangiz nomini yozing</b> (masalan: «Oltin Vodiy» MChJ):";
+// sinov davrida (new3_beta = on) /tekshiruv faqat liga adminiga
+async function chkClosed(chatId: number, from: any) {
+  if (((await cfgGet("new3_beta")) || "off") !== "on" || (await isLigaAdmin(from?.id ?? 0))) return false;
+  await dm(chatId, tr(tgLang(from), "ℹ️ Bu xizmat tez orada ochiladi."));
+  return true;
+}
 async function chkBegin(chatId: number, from: any) {
+  if (await chkClosed(chatId, from)) return;
   const lang = tgLang(from);
   await db.from("liga_chk_wiz").upsert({ chat_id: chatId, step: "company", lang, updated_at: new Date().toISOString() });
   const { data: lim } = await db.rpc("liga_chk_list_sys", { p_tg: from?.id ?? chatId });
@@ -1864,6 +1872,7 @@ async function chkWizard(m: any): Promise<boolean> {
 }
 const uniqChats = (rows: any) => [...new Set(((rows ?? []) as any[]).map((x) => Number(x.chat_id)).filter(Boolean))];
 async function chkList(chatId: number, from: any) {
+  if (await chkClosed(chatId, from)) return;
   const lang = tgLang(from);
   const { data } = await db.rpc("liga_chk_list_sys", { p_tg: from?.id ?? chatId });
   const T = (data?.tests ?? []) as any[];

@@ -1327,4 +1327,5 @@ export const RU: Record<string, string> = {
   "✅ Bugun {r}/{n} to'g'ri · ertaga yangi hujjatlar": "✅ Сегодня {r}/{n} верно · завтра новые документы",
   "✅ Test: {r}/{n}": "✅ Тест: {r}/{n}",
   "Bu qator to'g'ri edi": "Эта строка была верной",
+  "Sinov — faqat sizga": "Проба — только для вас",
 };

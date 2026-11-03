@@ -1022,7 +1022,7 @@ with sync_playwright() as p:
     check("320px: hujjat ekranda gorizontal siljish yo'q", over <= 0 and pg.locator("#doc").count() == 1, over)
 
     print("10v. Qonun yangiligi testi va simulyator")
-    EXTRA["liga_law_me"] = {"runs": {"7": {"n": 1, "right_n": 1, "done_n": 1, "finished": True}}, "month_right": 1}
+    EXTRA["liga_law_me"] = {"on": True, "runs": {"7": {"n": 1, "right_n": 1, "done_n": 1, "finished": True}}, "month_right": 1}
     pg.context.close() if 'pg' in dir() else None
     pg, e = page(b); ALLERR += e
     nc = pg.inner_text(".news-card") if pg.locator(".news-card").count() else ""
@@ -1058,6 +1058,21 @@ with sync_playwright() as p:
     for _ in range(5): pg.click("#sim-next"); pg.wait_for_timeout(250)
     check("hafta yakuni hisoboti: jadval va xato hujjatlar ro'yxati", pg.locator("#sim-report").count() == 1 and "Hujjatlar: 0/15" in txt(pg) and pg.locator(".sim-tbl tr.bad").count() > 0, txt(pg)[:300])
     DOC_ME["owner"] = False
+
+    print("10w. Sinov davri — yangi bo'limlar faqat egasiga")
+    pg.context.close()
+    DOC_ME["on"] = False
+    pg, e = page(b); ALLERR += e
+    check("oddiy o'yinchi: detektiv kartasi va plitkasi yo'q", pg.locator("#doc-card").count() == 0 and pg.locator(".tile", has_text="Faktura detektivi").count() == 0)
+    check("oddiy o'yinchi: testli qonun yangiligi ko'rinmaydi", pg.locator(".news-card").count() == 0)
+    go(pg, "newsView", {"id": 7})
+    check("oddiy o'yinchi: yangilik sahifasi ochilmaydi", "Topilmadi" in txt(pg))
+    pg.context.close()
+    DOC_ME["on"] = True; DOC_ME["beta"] = True
+    pg, e = page(b); ALLERR += e
+    check("egasi: detektiv kartasida «Sinov — faqat sizga»", "Sinov — faqat sizga" in (pg.inner_text("#doc-card") if pg.locator("#doc-card").count() else ""))
+    DOC_ME["beta"] = False
+    pg.context.close()
 
     print("10t. Versiya va yangilash")
     pg, e = page(b); ALLERR += e; go(pg, "settings")

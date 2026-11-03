@@ -180,11 +180,11 @@ export default function Home() {
     [Zap, "Blits", t("20 provodka · rekord {n}", { n: S.blitz || 0 }), () => runOrToast(startBlitz())],
     [Swords, "Duel", t("Hamkasbingizni chaqiring"), () => go("duel"), true],
     [Users, "Provodka poygasi", t("2–10 kishi bir vaqtda"), () => openQuad(), true],
-    [SearchCheck, "Faktura detektivi", t("Hujjatdagi xatoni toping"), () => go("detective")],
     [Scale, "Balans o'yini", t("Aktiv va passivni joylang"), () => go("balance")],
     [NotebookPen, "Xato daftari", errs ? t("{n} ta · misol bilan", { n: errs }) : t("{n} ta savol", { n: 0 }), () => go("review"), errs > 0],
     [Gift, "Kunlik sovg'a", giftDone() ? t("ertaga yana") : giftReady() ? t("ochishga tayyor") : t("{a}/{b} to'g'ri javob", { a: giftCorrect(), b: GIFT_NEED }), () => runOrToast(startGift()), giftReady()],
   ];
+  if (S.docMe?.on === true) tiles.splice(4, 0, [SearchCheck, "Faktura detektivi", t("Hujjatdagi xatoni toping"), () => go("detective")]);
   const fin = S.fin, wq = S.wq;
   return (
     <div className="shell">

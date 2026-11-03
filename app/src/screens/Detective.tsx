@@ -10,7 +10,7 @@ import { PageTitle } from "../components/ui";
 import { startDocR, pullExtras } from "../engine/remote";
 import { sfx } from "../lib/fx";
 
-export interface DocMe { on?: boolean; owner?: boolean; today?: { n: number; done_n: number; right_n: number; finished: boolean } | null; week_right?: number; week_days?: number; total_right?: number; total_n?: number; days?: number }
+export interface DocMe { on?: boolean; owner?: boolean; beta?: boolean; today?: { n: number; done_n: number; right_n: number; finished: boolean } | null; week_right?: number; week_days?: number; total_right?: number; total_n?: number; days?: number }
 const me = (): DocMe => S.docMe || {};
 
 async function openDoc() {
@@ -28,12 +28,13 @@ export function docStatus(): { line: string; done: boolean; started: boolean } {
 /* Asosiy oynadagi karta */
 export function DocCard() {
   useStore();
-  if (!S.pid || me().on === false) return null;
+  /* faqat server «ochiq» desa (sinov davrida — faqat liga egasiga) */
+  if (!S.pid || me().on !== true) return null;
   const st = docStatus();
   return (
     <button className="card row" id="doc-card" style={{ textAlign: "left", borderColor: st.done ? "var(--rule)" : "var(--stamp)" }} onClick={() => go("detective")}>
       <span className="ic" style={{ background: "var(--stamp-soft)", color: "var(--stamp)", borderRadius: 12, padding: 8, display: "grid" }}><SearchCheck size={22} /></span>
-      <span className="grow"><b>{t("Faktura detektivi")}</b> <span className="chip blue" style={{ marginLeft: 4 }}>{t("Yangi")}</span><br />
+      <span className="grow"><b>{t("Faktura detektivi")}</b> <span className="chip blue" style={{ marginLeft: 4 }}>{me().beta ? t("Sinov — faqat sizga") : t("Yangi")}</span><br />
         <span className="small muted" style={{ fontWeight: 700 }}>{st.line}</span></span>
       <ChevronRight size={18} color="var(--muted)" />
     </button>);

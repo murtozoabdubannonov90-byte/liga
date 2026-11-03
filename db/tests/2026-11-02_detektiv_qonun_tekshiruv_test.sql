@@ -8,6 +8,16 @@ begin
   insert into public.safari_players(id, first_name, last_name, phone, token_hash, paid_until, lang)
     values (pid, 'Sinov', 'DQT', '+998900009911', public.liga_hash(tok), public.liga_today() + 5, 'uz');
 
+  -- ===== 0) sinov davri (new3_beta): oddiy o'yinchiga yopiq =====
+  insert into public.liga_bot_config(key, value) values ('new3_beta', 'on') on conflict (key) do update set value = 'on';
+  begin perform public.liga_doc_start(pid, tok, 'uz'); r := r || '{"beta_doc_closed": false}';
+  exception when others then r := r || jsonb_build_object('beta_doc_closed', sqlerrm = 'doc_off'); end;
+  r := r || jsonb_build_object('beta_doc_me_off', not (public.liga_doc_me(pid, tok)->>'on')::boolean,
+    'beta_law_me_off', not (public.liga_law_me(pid, tok)->>'on')::boolean,
+    'beta_owner_open', coalesce((select public.liga_new3_open(s.id) from public.safari_players s
+       where s.phone = any(string_to_array((select value from public.liga_bot_config where key = 'free_phones'), ',')) limit 1), true));
+  update public.liga_bot_config set value = 'off' where key = 'new3_beta';
+
   -- ===== 1) Faktura detektivi =====
   r := r || jsonb_build_object('bank240', (select count(*) from public.liga_bank where pool = 'doc' and t = 'doc' and active) >= 240,
                                'bank_clean', (select count(*) from public.liga_bank where pool = 'doc' and coalesce(dt, '') = '') > 0);
@@ -92,6 +102,9 @@ begin
   v := public.liga_law_decide_sys(did, false, adm);
   r := r || jsonb_build_object('decide_once', v->>'reason' = 'already');
   r := r || jsonb_build_object('due', exists (select 1 from public.liga_law_due_sys()));
+  update public.liga_bot_config set value = 'on' where key = 'new3_beta';
+  r := r || jsonb_build_object('beta_no_group_post', not exists (select 1 from public.liga_law_due_sys()));
+  update public.liga_bot_config set value = 'off' where key = 'new3_beta';
   begin perform public.liga_law_draft_sys('{"title_uz":"x","body_uz":"y"}'); r := r || '{"draft_validates": false}';
   exception when others then r := r || jsonb_build_object('draft_validates', sqlerrm = 'bad_input'); end;
 
