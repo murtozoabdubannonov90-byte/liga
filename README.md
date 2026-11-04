@@ -44,6 +44,10 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-11-04c: Provodka poygasi natijasi guruhga ham
+- Guruh dueli (2–10 kishi) tugashi bilan natija endi shaxsan xabardan tashqari xona egasining jamoasidagi faol guruh(lar)ga ham chiqadi: o'rinlar, ochkolar, g'olib va «Ligani ochish» tugmasi. Faqat boshlangan va kamida bitta to'g'ri javob bo'lgan duel uchun, bir marta.
+- SQL: `db/2026-11-04c_poyga_natija_guruhga.sql` (`liga_quad_result_sys` → `group`). Bot: `quadDone` → `quadGroupText`.
+
 ## 2026-11-04: Tuzatishlar — liga egasi kubokda, chempion e'loni, qulflar
 - **Liga egasi kubokda doim qatnashadi.** Avval son toq bo'lsa egasi chetda turardi — 03.11 dan beri 547 kishi (toq), egasida duel ham, bot xabari ham yo'q edi. Endi toq chiqsa eng uzoq vaqt ilovaga kirmagan oddiy o'yinchi shu kuni chetda qoladi (`db/2026-11-04b_kubok_egasi_qatnashadi.sql`, `liga_cup_start_sys`).
 - **Chempion e'loni:** `liga-juft-duel` cron 18:55 gacha (`*/5 4-13`). Final 17:55 dan keyin tugasa chempion e'lon qilinmasdi (02.11).

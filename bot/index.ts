@@ -1800,7 +1800,7 @@ async function smsStatusText() {
     `Buyruqlar: /sms on · /sms off · /sms test 998901234567 · /sms cap 400`;
 }
 
-// ---------------- guruh dueli (2–10 kishi): natija har bir o'yinchiga shaxsan (guruhga yuborilmaydi) ----------------
+// ---------------- guruh dueli (2–10 kishi): natija har bir o'yinchiga shaxsan + 2026-11-04 dan guruh(lar)ga ham ----------------
 const QMEDAL = ["🥇", "🥈", "🥉"];
 function quadText(r: any, me: any, lang: string | null): string {
   const lines = (r.players ?? []).map((p: any) => `${QMEDAL[p.place - 1] ?? p.place + "."} ${esc(String(p.name ?? ""))} — <b>${p.pts}</b>${p === me ? tr(lang, " (siz)") : ""}`).join("\n");
@@ -1821,7 +1821,27 @@ async function quadDone(code: string) {
     const lang = p.lang || "uz";
     if (await dm(p.tg, quadText(r, p, lang), appBtn(tr(lang, "Natijani ko'rish"), "?d=" + r.code))) sent++;
   }
-  return { ok: true, sent };
+  // 2026-11-04: natija o'yinchilar jamoasining guruh(lar)iga ham (kamida bitta to'g'ri javob bo'lsa)
+  let posted = 0;
+  const ps = (r.players ?? []) as any[];
+  if (r.group && ps.length >= 2 && ps.some((p) => Number(p.pts) > 0)) {
+    const g = (await groupMap())[r.group];
+    if (groupOk(g)) {
+      const text = quadGroupText(r);
+      for (const c of await chatsOf(r.group)) {
+        await tg("sendMessage", { chat_id: c.chat_id, text, parse_mode: "HTML", reply_markup: openBot(g.code) }); posted++;
+      }
+    }
+  }
+  return { ok: true, sent, posted };
+}
+function quadGroupText(r: any): string {
+  const ps = (r.players ?? []) as any[];
+  const lines = ps.map((p) => `${QMEDAL[p.place - 1] ?? p.place + "."} ${esc(String(p.name ?? ""))} — <b>${p.pts}</b>`).join("\n");
+  const head = r.tie
+    ? `🤝 <b>Provodka poygasi — durang!</b> (${ps.length} kishi)`
+    : `🏁 <b>Provodka poygasi yakunlandi</b> (${ps.length} kishi)\n🏆 G'olib: <b>${esc(String(ps[0]?.name ?? ""))}</b>!`;
+  return `${head}\n\n${lines}\n\n${r.n} ta savol, kim birinchi to'g'ri javob bersa — ochko.\nSiz ham xona ochib, 10 tagacha do'stingizni chaqiring 👇`;
 }
 
 // ================= 2026-11-02: rahbar tekshiruvi, qonun yangiligi testi, faktura detektivi =================
