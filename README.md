@@ -44,6 +44,11 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-11-04d: Yopish provodkalari bo'yicha chalg'ituvchi savollar (26.11 va 30.11)
+- Darslikdagi 11-bo'lim mashqlari asosida 7 ta savol: foyda/zarar yo'nalishi (Dt 9910 — Kt 8710 yoki teskari), aralash oborotlardan natijani hisoblash (balans schyotlari — 5110, 4010 — chalg'ituvchi sifatida), nega 9000-guruh yopiladi va 5110 yopilmaydi, 8710 debet qoldig'i.
+- 26.11: `d20261126-21…25` qo'shildi, takroriy 02, 05, 10, 16, 20 `active = false` (o'chirilmagan). 30.11: `d20261130-21, 22` qo'shildi, 15 va 19 `active = false`. Kunlik son o'zgarmadi (26.11 — 8+12, 30.11 — 15+5).
+- Savollar to'g'ridan-to'g'ri `liga_bank` ga yozildi, javoblar ochiq repoga qo'yilmadi. **Diqqat:** `content/nov.asc` qayta yuklansa (`liga_plan_load_sys`), bu o'zgarishlar ustidan yozilishi mumkin — avval shifrlangan manbaga ham qo'shing.
+
 ## 2026-11-04c: Provodka poygasi natijasi guruhga ham
 - Guruh dueli (2–10 kishi) tugashi bilan natija endi shaxsan xabardan tashqari xona egasining jamoasidagi faol guruh(lar)ga ham chiqadi: o'rinlar, ochkolar, g'olib va «Ligani ochish» tugmasi. Faqat boshlangan va kamida bitta to'g'ri javob bo'lgan duel uchun, bir marta.
 - SQL: `db/2026-11-04c_poyga_natija_guruhga.sql` (`liga_quad_result_sys` → `group`). Bot: `quadDone` → `quadGroupText`.
