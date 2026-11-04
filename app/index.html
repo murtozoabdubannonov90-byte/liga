@@ -26,7 +26,7 @@
 /* ES5 — eng eski telefonda ham ishlaydi. Ilova 15 soniyada ochilmasa: sababini ko'rsatadi va qayta yuklash tugmasini beradi. */
 (function () {
   var t0 = Date.now(), errs = [];
-  window.__ligaVer = "2026-11-02";
+  window.__ligaVer = "2026-11-04";
   function send(m, s) {
     try {
       if (errs.length > 4 || errs.indexOf(m) >= 0) return; errs.push(m);
@@ -36,7 +36,8 @@
       x.send(JSON.stringify({ p_msg: String(m).slice(0, 400), p_stack: String(s || "").slice(0, 1500), p_ua: navigator.userAgent.slice(0, 300), p_where: "boot " + location.pathname, p_tg: "", p_ver: window.__ligaVer }));
     } catch (e) {}
   }
-  window.addEventListener("error", function (e) { if (!window.__ligaMounted) send("boot: " + (e.message || "script error"), (e.filename || "") + ":" + (e.lineno || "")); }, true);
+  /* 2026-11-04: Edge 18 kabi brauzerlar modern to'plamda sintaksis xatosi beradi, keyin legacy to'plam bilan ochiladi — bu xatolar shovqin */
+  window.addEventListener("error", function (e) { if (/Module import or export|^Syntax ?error/i.test(e.message || "")) return; if (!window.__ligaMounted) send("boot: " + (e.message || "script error"), (e.filename || "") + ":" + (e.lineno || "")); }, true);
   function reload() {
     try { if (window.caches) caches.keys().then(function (ks) { ks.forEach(function (k) { caches["delete"](k); }); }); } catch (e) {}
     try { if (navigator.serviceWorker) navigator.serviceWorker.getRegistrations().then(function (rs) { rs.forEach(function (r) { r.unregister(); }); }); } catch (e) {}

@@ -58,7 +58,8 @@ const blank = (): E => ({ dt: "", kt: "", s: 0 });
 export default function Sim() {
   useStore();
   const c = C();
-  const st = (S.sim = S.sim || { day: 1, entries: SIM_DOCS.map(() => [blank()]), done: false });
+  // eski 1.0 ilova S.sim ga vaqt (raqam) yozgan — obyekt bo'lmasa yangidan boshlanadi
+  const st = (S.sim = S.sim && typeof S.sim === "object" && Array.isArray(S.sim.entries) ? S.sim : { day: 1, entries: SIM_DOCS.map(() => [blank()]), done: false });
   const [, force] = useState(0);
   const save = () => { persist(); force((x) => x + 1); };
   const rep = useMemo(() => (st.done ? report(st.entries) : null), [st.done, st.entries]);
