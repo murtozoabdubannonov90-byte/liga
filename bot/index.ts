@@ -13,10 +13,13 @@ const deep = (code?: string) => `https://t.me/${BOT}?start=${code && code !== "A
 const appUrl = (code?: string) => code && code !== "ASOSIY" ? `${APP}?g=${encodeURIComponent(code)}` : APP;
 
 async function tg(method: string, body: Record<string, unknown>) {
-  const r = await fetch(`https://api.telegram.org/bot${TOKEN}/${method}`, {
-    method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body),
-  });
-  return await r.json();
+  // 2026-11-05: 15 s dan ortiq kutmaymiz — bitta osilgan so'rov butun xabar yuborishni (150 s limit) to'xtatmasin
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${TOKEN}/${method}`, {
+      method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body), signal: AbortSignal.timeout(15000),
+    });
+    return await r.json();
+  } catch (e) { return { ok: false, description: "fetch: " + String((e as Error)?.message ?? e) }; }
 }
 async function hookSecret() {
   const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode("liga:" + TOKEN));
@@ -238,7 +241,7 @@ async function dm(chat: number, text: string, kb?: unknown) {
 // kunning savoli — guruhga Telegram "quiz" so'rovnomasi (public/polls.json, ilova bilan bir xil savollar)
 let POLLS: { uz: any[]; ru: any[] } | null = null;
 async function sendDailyPoll(chat: number) {
-  try { if (!POLLS) POLLS = await (await fetch(APP + "polls.json")).json(); } catch { return false; }
+  try { if (!POLLS) POLLS = await (await fetch(APP + "polls.json", { signal: AbortSignal.timeout(8000) })).json(); } catch { return false; }
   const list = POLLS?.uz ?? []; if (!list.length) return false;
   const day = Math.round((tzDate().getTime() - Date.UTC(2026, 9, 1)) / 864e5);
   const q = list[((day * 37) % list.length + list.length) % list.length];
@@ -376,28 +379,92 @@ async function cupFullText(code = "ASOSIY") {
   return cupText(rows, "uz", bys[code] ?? [], plan);
 }
 // jadvalni hammaga (shaxsan, o'z dueli bilan) va jamoa guruhlariga yuborish
-async function cupBroadcast(rows: any[]) {
-  const by = await cupBoard(), bys = await cupByes(); let n = 0;
+// 2026-11-05: ertalabki shaxsiy xabarlar navbat bilan (tg id o'sish tartibida, oxirgisi day_dm_last_<sana> da).
+// Avval hammasi day_start ichida edi: 548 kishi × ~0.2 s ≈ 100–150 s → 05.11 da Edge limiti (150 s) dan oshib,
+// kubok umuman boshlanmadi. Endi har chaqiruv budgetMs dan oshmaydi, qolgani keyingi daqiqada davom etadi.
+async function dayDm(w: number, budgetMs: number) {
+  const t0 = Date.now(), day = tzDate().toISOString().slice(0, 10), lk = `day_dm_last_${day}`, st = await cfgGet(lk);
+  if (st === "done") return { done: true };
+  if (!(await cfgGet(`sent_day_start_${day}`))) return { skip: "no_day_start" };
+  let last = Number(st || 0);
+  const { data: ptd } = await db.rpc("liga_plan_today_sys"); const plan = (ptd ?? [])[0] as any;
+  const { data: pcn } = await db.rpc("liga_plan_counts_sys"); const cnt0 = { p: Number((pcn ?? [])[0]?.n_pv ?? 15), o: Number((pcn ?? [])[0]?.n_other ?? 5) };
+  const { data: lawDue } = await db.rpc("liga_law_due_sys"); const lawToday = ((lawDue ?? []) as any[])[0];
+  const q = new Map<number, { m?: any; t?: any; c?: any }>();
+  const add = (k: "m" | "t" | "c", p: any) => { const id = Number(p?.tg); if (!id) return; const e = q.get(id) ?? {}; e[k] = p; q.set(id, e); };
+  const { data: list } = await db.rpc("liga_morning_list3"); for (const p of (list ?? []) as any[]) add("m", p);
+  const due = await taxDue();
+  if (due.length) { const { data: tl } = await db.rpc("liga_tax_remind_list"); for (const p of (tl ?? []) as any[]) add("t", p); }
+  // kubok: day_start uni yaratolmay qolgan bo'lsa — shu yerda yaratiladi va guruhga chiqariladi
+  const { data: dp } = await db.rpc("liga_cup_start_sys"); const rows = (dp ?? []) as any[];
+  let ctx: any = null;
+  if (rows.some((x) => x.fresh)) { ctx = await cupCtx(rows); await cupGroups(ctx); await cfgSet(`day_dm_cup_${day}`, "1"); }
+  if (await cfgGet(`day_dm_cup_${day}`)) {
+    ctx = ctx ?? await cupCtx(rows);
+    const { data: ppl } = await db.rpc("liga_cup_people_sys"); for (const p of (ppl ?? []) as any[]) add("c", p);
+  }
+  const ids = [...q.keys()].filter((k) => k > last).sort((x, y) => x - y);
+  let personal = 0, tax = 0, cup = 0, i = 0;
+  for (const id of ids) {
+    if (Date.now() - t0 > budgetMs) { await cfgSet(lk, String(last)); return { more: true, left: ids.length - i, personal, tax, cup }; }
+    const e = q.get(id)!;
+    if (e.m) {
+      const p = e.m;
+        const msg = kindText(p, "morning", closeStr(w)) ?? (plan
+          ? tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich: «{t}»</b> ochildi — {p} provodka + {o} qonun va hisob savoli.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w), p: cnt0.p, o: cnt0.o, t: esc((p.lang === "ru" ? plan.title?.ru : plan.title?.uz) ?? "") })
+          : tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w) }));
+        const lawLine = lawToday ? "\n\n" + tr(p.lang, "⚖️ Bugun yana: <b>qonun yangiligi</b> va {n} savollik test — ilovada.", { n: ((lawToday.qs ?? []) as any[]).length }) : "";
+        if (await dm(p.tg, msg + lawLine, appBtn(tr(p.lang, "Bosqichni boshlash")))) personal++;
+    }
+    if (e.t) {
+      const p = e.t;
+        const lines = due.map((x) => "• <b>" + (x.n === 1 ? tr(p.lang, "{d} (ertaga)", { d: dayName(x.date, p.lang) }) : tr(p.lang, "{d} ({n} kun qoldi)", { d: dayName(x.date, p.lang), n: x.n })) + "</b>: " + esc(p.lang === "ru" ? (x.title_ru || x.title_uz) : tr(p.lang, x.title_uz)));
+        if (await dm(p.tg, tr(p.lang, "📅 <b>Soliq taqvimi</b>") + "\n" + lines.join("\n") + "\n\n" + tr(p.lang, "Muddatni o'tkazib yubormang — jarima bo'lmasin!"),
+          appBtn(tr(p.lang, "Mashq qilish"), due[0].topic ? "?tp=" + due[0].topic : ""))) tax++;
+    }
+    if (e.c && ctx) { if (await cupPersonal(e.c, ctx)) cup++; }
+    last = id; i++;
+    if (i % 20 === 0) await cfgSet(lk, String(last));
+  }
+  await cfgSet(lk, "done");
+  const names = await fillNames(150).catch(() => null);
+  const invites = await inviteAll(300).catch(() => null);
+  const perms = await discussPerms().catch(() => null);   // guruhda pin — faqat adminlar
+  return { ok: true, done: true, personal, tax, cup, names, invites, perms };
+}
+// 2026-11-05: kubok e'loni ikki qismga bo'lindi — guruh/kanal (tez) va shaxsiy xabarlar (500+ kishi, uzoq).
+// Shaxsiy qismi day_dm da navbat bilan, bir necha chaqiruvda yuboriladi (Edge 150 s limitidan oshmasin).
+async function cupCtx(rows: any[]) {
+  const by = await cupBoard(), bys = await cupByes();
   const plans: Record<string, any[]> = {};
   for (const code of Object.keys(by)) plans[code] = await cupPlan(by[code].filter((x) => x.round === 1).length * 2 + (bys[code] ?? []).length);
-  for (const code of Object.keys(by)) for (const c of await chatsOf(code))
-    for (const part of chunks(cupText(by[code], "uz", bys[code] ?? [], plans[code]))) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: part });
-  if (by["ASOSIY"]) await toChannels(cupText(by["ASOSIY"], "uz", bys["ASOSIY"] ?? [], plans["ASOSIY"]), openBot("ASOSIY"));
   const mine: Record<string, any> = {}; for (const x of rows) mine[x.player] = x;
   const bye: Record<string, any> = {}; for (const code of Object.keys(bys)) for (const b of bys[code]) bye[b.player] = b;
   const { data: bn } = await db.rpc("liga_cup_bench_sys"); const bench = new Set(((bn ?? []) as any[]).map((x) => x.player));
+  return { by, bys, plans, mine, bye, bench };
+}
+async function cupGroups(ctx: any) {
+  const { by, bys, plans } = ctx;
+  for (const code of Object.keys(by)) for (const c of await chatsOf(code))
+    for (const part of chunks(cupText(by[code], "uz", bys[code] ?? [], plans[code]))) await tg("sendMessage", { chat_id: c.chat_id, parse_mode: "HTML", reply_markup: openBot(code), text: part });
+  if (by["ASOSIY"]) await toChannels(cupText(by["ASOSIY"], "uz", bys["ASOSIY"] ?? [], plans["ASOSIY"]), openBot("ASOSIY"));
+}
+async function cupPersonal(p: any, ctx: any) {
+  const { by, bys, plans, mine, bye, bench } = ctx;
+  const m = mine[p.player], board = by[p.group_code]; if (!board) return false;
+  const bb = bys[p.group_code] ?? [], plan = plans[p.group_code] ?? [];
+  let txt = board.length > 8 ? cupShort(board, p.lang, bb, plan) : cupText(board, p.lang, bb, plan);
+  if (m) txt += "\n\n" + tr(p.lang, "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.", { st: stageName(m.stage, p.lang), s: String(m.slot).slice(0, 5), o: esc(m.opp_name ?? "") });
+  else if (bye[p.player]) txt += "\n\n" + tr(p.lang, "✅ <b>Siz saralashsiz keyingi raundga o'tdingiz!</b>\nOxirgi 7 kundagi bosqich balingiz yuqori bo'lgani uchun saralash duelini o'ynamaysiz. Keyingi duelingiz — soat <b>{s}</b> ({st}). Raqib saralash tugagach ma'lum bo'ladi, bot xabar beradi.",
+    { s: String(plan[1]?.at ?? "").slice(0, 5), st: stageName(plan[1]?.stage ?? "", p.lang) });
+  if (!m && !bye[p.player] && bench.has(p.player)) txt += "\n\n" + tr(p.lang, "ℹ️ <b>Bugun ishtirokchilar soni toq bo'ldi</b> — eng oxirgi qo'shilgan siz bo'lganingiz uchun bugungi kubokda juftingiz yo'q. <b>Ertadan kubokda qatnashasiz.</b> Kunlik bosqich odatdagidek ochiq — o'ynashni unutmang!");
+  const opp = m ? await oppLine(m.code, p.tg, p.lang) : "";
+  return await dm(p.tg, (txt.length > 4000 ? cupShort(board, p.lang, bb, plan) : txt) + opp, m ? appBtn(tr(p.lang, "Duelni ochish"), "?d=" + m.code) : appBtn(tr(p.lang, "Ligani ochish")));
+}
+async function cupBroadcast(rows: any[]) {
+  const ctx = await cupCtx(rows); await cupGroups(ctx); let n = 0;
   const { data: ppl } = await db.rpc("liga_cup_people_sys");
-  for (const p of (ppl ?? []) as any[]) {
-    const m = mine[p.player], board = by[p.group_code]; if (!board) continue;
-    const bb = bys[p.group_code] ?? [], plan = plans[p.group_code] ?? [];
-    let txt = board.length > 8 ? cupShort(board, p.lang, bb, plan) : cupText(board, p.lang, bb, plan);
-    if (m) txt += "\n\n" + tr(p.lang, "👉 Sizning duelingiz ({st}): soat <b>{s}</b>, raqib — <b>{o}</b>.", { st: stageName(m.stage, p.lang), s: String(m.slot).slice(0, 5), o: esc(m.opp_name ?? "") });
-    else if (bye[p.player]) txt += "\n\n" + tr(p.lang, "✅ <b>Siz saralashsiz keyingi raundga o'tdingiz!</b>\nOxirgi 7 kundagi bosqich balingiz yuqori bo'lgani uchun saralash duelini o'ynamaysiz. Keyingi duelingiz — soat <b>{s}</b> ({st}). Raqib saralash tugagach ma'lum bo'ladi, bot xabar beradi.",
-      { s: String(plan[1]?.at ?? "").slice(0, 5), st: stageName(plan[1]?.stage ?? "", p.lang) });
-    if (!m && !bye[p.player] && bench.has(p.player)) txt += "\n\n" + tr(p.lang, "ℹ️ <b>Bugun ishtirokchilar soni toq bo'ldi</b> — eng oxirgi qo'shilgan siz bo'lganingiz uchun bugungi kubokda juftingiz yo'q. <b>Ertadan kubokda qatnashasiz.</b> Kunlik bosqich odatdagidek ochiq — o'ynashni unutmang!");
-    const opp = m ? await oppLine(m.code, p.tg, p.lang) : "";
-    if (await dm(p.tg, (txt.length > 4000 ? cupShort(board, p.lang, bb, plan) : txt) + opp, m ? appBtn(tr(p.lang, "Duelni ochish"), "?d=" + m.code) : appBtn(tr(p.lang, "Ligani ochish")))) n++;
-  }
+  for (const p of (ppl ?? []) as any[]) if (await cupPersonal(p, ctx)) n++;
   return n;
 }
 async function chatsOf(code: string) { return (await chats()).filter((c) => c.group_code === code); }
@@ -1428,7 +1495,7 @@ function todayStage(startDate: string): number | null {
 // kunning darsi (ilovadagi bilan bir xil: 01.10.2026 dan beri kunlar)
 let LESSONS: any[] | null = null;
 async function lessonOfDay() {
-  try { if (!LESSONS) LESSONS = await (await fetch(APP + "lessons.json")).json(); } catch { return null; }
+  try { if (!LESSONS) LESSONS = await (await fetch(APP + "lessons.json", { signal: AbortSignal.timeout(8000) })).json(); } catch { return null; }
   if (!LESSONS?.length) return null;
   const d = Math.round((tzDate().getTime() - Date.UTC(2026, 9, 1)) / 864e5);
   return LESSONS[((d % LESSONS.length) + LESSONS.length) % LESSONS.length];
@@ -2025,6 +2092,7 @@ async function onCron(action: string, body: any = {}) {
   if (action === "day_start") {
     if (w < 1 || w > 5) return { skip: "weekend" };
     if (!(await once("day_start"))) return { skip: "already" };
+    const t0 = Date.now();
     const lesson = await lessonOfDay();
     const { data: ptd } = await db.rpc("liga_plan_today_sys"); const plan = (ptd ?? [])[0] as any;   // sanaga bog'langan kunlik reja
     const { data: pcn } = await db.rpc("liga_plan_counts_sys"); const cnt0 = { p: Number((pcn ?? [])[0]?.n_pv ?? 15), o: Number((pcn ?? [])[0]?.n_other ?? 5) };
@@ -2041,33 +2109,12 @@ async function onCron(action: string, body: any = {}) {
     // guruhlarga kunning savoli (so'rovnoma)
     let polls = 0; const gm = await groupMap();
     for (const c of await chats()) if (groupOk(gm[c.group_code]) && todayStage(gm[c.group_code].start_date) !== null && await sendDailyPoll(c.chat_id)) polls++;
-    // har o'yinchiga shaxsan
-    const { data: lawDue } = await db.rpc("liga_law_due_sys"); const lawToday = ((lawDue ?? []) as any[])[0];
-    const { data: list } = await db.rpc("liga_morning_list3"); let personal = 0;
-    for (const p of (list ?? []) as any[]) {
-      const msg = kindText(p, "morning", closeStr(w)) ?? (plan
-        ? tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich: «{t}»</b> ochildi — {p} provodka + {o} qonun va hisob savoli.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w), p: cnt0.p, o: cnt0.o, t: esc((p.lang === "ru" ? plan.title?.ru : plan.title?.uz) ?? "") })
-        : tr(p.lang, "☀️ <b>Xayrli tong, {n}!</b>\nBugun <b>{s}-bosqich</b> ochildi — 20 savol.\n⏰ Soat {c} gacha ochiq.", { n: esc(p.first_name ?? ""), s: (p.stage ?? 0) + 1, c: closeStr(w) }));
-      const lawLine = lawToday ? "\n\n" + tr(p.lang, "⚖️ Bugun yana: <b>qonun yangiligi</b> va {n} savollik test — ilovada.", { n: ((lawToday.qs ?? []) as any[]).length }) : "";
-      if (await dm(p.tg, msg + lawLine,
-        appBtn(tr(p.lang, "Bosqichni boshlash")))) personal++;
-    }
-    // soliq taqvimi — shaxsan
-    let tax = 0; const due = await taxDue();
-    if (due.length) {
-      const { data: tl } = await db.rpc("liga_tax_remind_list");
-      for (const p of (tl ?? []) as any[]) {
-        const lines = due.map((x) => "• <b>" + (x.n === 1 ? tr(p.lang, "{d} (ertaga)", { d: dayName(x.date, p.lang) }) : tr(p.lang, "{d} ({n} kun qoldi)", { d: dayName(x.date, p.lang), n: x.n })) + "</b>: " + esc(p.lang === "ru" ? (x.title_ru || x.title_uz) : tr(p.lang, x.title_uz)));
-        if (await dm(p.tg, tr(p.lang, "📅 <b>Soliq taqvimi</b>") + "\n" + lines.join("\n") + "\n\n" + tr(p.lang, "Muddatni o'tkazib yubormang — jarima bo'lmasin!"),
-          appBtn(tr(p.lang, "Mashq qilish"), due[0].topic ? "?tp=" + due[0].topic : ""))) tax++;
-      }
-    }
     // qonun yangiligi — guruhlarga (bir marta, kuni kelgan va admin chiqargan bo'lsa)
     const news = await lawPost();
-    // kunlik duel kubogi: tasodifiy juftlar 09:00 da (duellar 10:00 dan, 12:00–14:00 tanaffus, final 17:00), jadval — hammaga va guruhga
+    // kunlik duel kubogi: tasodifiy juftlar 09:00 da (duellar 10:00 dan), jadval — avval guruh/kanalga; shaxsan — day_dm da
     let duels = 0;
     const { data: dp } = await db.rpc("liga_cup_start_sys");
-    if (((dp ?? []) as any[]).some((x) => x.fresh)) duels = await cupBroadcast((dp ?? []) as any[]);
+    if (((dp ?? []) as any[]).some((x) => x.fresh)) { await cupGroups(await cupCtx((dp ?? []) as any[])); await cfgSet(`day_dm_cup_${tzDate().toISOString().slice(0, 10)}`, "1"); duels = 1; }
     // dushanba — jamoalar bellashuvi juftlari
     let pairs = 0;
     if (w === 1) {
@@ -2081,10 +2128,13 @@ async function onCron(action: string, body: any = {}) {
         }
       }
     }
-    const names = await fillNames(150).catch(() => null);
-    const invites = await inviteAll(300).catch(() => null);
-    const perms = await discussPerms().catch(() => null);   // guruhda pin — faqat adminlar
-    return { ok: true, sent: n, polls, personal, tax, news, pairs, duels, names, invites, perms };
+    // 2026-11-05: shaxsiy xabarlar (ertalabki, soliq, kubok) — vaqt chegarasi bilan; qolgani cron liga-kun-boshi-dm (09:01–09:20) da davom etadi
+    const dmr = await dayDm(w, Math.max(20000, 105000 - (Date.now() - t0)));
+    return { ok: true, sent: n, polls, news, pairs, duels, dm: dmr };
+  }
+  if (action === "day_dm") {
+    if (w < 1 || w > 5) return { skip: "weekend" };
+    return await dayDm(w, 105000);
   }
   if (action === "duel_due") {
     // kubok: yangi bosqich jufti, 5 daqiqa qoldi, boshlandi, g'olib
