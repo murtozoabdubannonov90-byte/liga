@@ -30,7 +30,7 @@ function share(code: string) {
 function DuelView({ code }: { code: string }) {
   const [d, setD] = useState<any>(null), [err, setErr] = useState("");
   useEffect(() => { let on = true; const load = () => rpc<any[]>("liga_duel_get", { p_code: code, p_id: S.pid || null }).then((r) => on && (r && r[0] ? setD(r[0]) : setErr(t("Duel topilmadi")))).catch((e) => setErr(errMsg(e)));
-    load(); const iv = setInterval(load, 8000); return () => { on = false; clearInterval(iv); }; }, [code]);
+    load(); const iv = setInterval(load, 15000); return () => { on = false; clearInterval(iv); }; }, [code]);
   useEffect(() => { if (!d) return; const w = winner(d); if (w && ((w === "a" && d.is_a) || (w === "b" && d.is_b)) && !(S.duelsWon || {})[code]) { S.duelsWon = { ...(S.duelsWon || {}), [code]: 1 }; persist(); award("duel"); burst(true); sfx("win"); } }, [d]);
   if (err) return <Empty>{err}</Empty>;
   if (!d) return <Empty>{t("Yuklanmoqda...")}</Empty>;

@@ -73,24 +73,42 @@ async function mergeMe() {
     if (ch) { persist(); bump(); }
   } catch { /* */ }
 }
+/* Trafik tejash (Supabase bepul tarif — oyiga 5 GB):
+   - fonda yangilash 5 daqiqada bir (ilova ochilganda / qaytganda ham shu chegara);
+   - majburiy yangilash (bosqich tugadi va h.k.) — 20 soniyada ko'pi bilan bir marta;
+   - kam o'zgaradigan ma'lumot (reja, yangiliklar, chempionlar...) telefonda saqlanadi va soatlab qayta olinmaydi. */
+const SOFT_GAP = 5 * 60000, HARD_GAP = 20000, MIN = 60000, HOUR = 60 * MIN;
+/* hafta almashsa yoki boshqa hisob bilan kirilsa — saqlangan vaqtlar bekor */
+export const resetCache = () => { (S as any).rl = {}; };
+const due = (k: string, ms: number) => {
+  const A = S as any; if (A.rlPid !== (S.pid || "")) { A.rl = {}; A.rlPid = S.pid || ""; }
+  const rl = (A.rl ||= {}) as Record<string, number>, now = Date.now();
+  if (rl[k] && now - rl[k] < ms && now >= rl[k]) return false;
+  rl[k] = now; return true;
+};
 let lastPull = 0, pulling = false;
 export async function pull(force = false) {
-  if (pulling || (!force && Date.now() - lastPull < 40000)) return;
+  const gap = Date.now() - lastPull;
+  if (pulling || gap < (force ? HARD_GAP : SOFT_GAP)) return;
   pulling = true; lastPull = Date.now();
   try {
     const p = S.pid || null;
     const [res, cnt, mem] = await Promise.all([
-      rpc<any[]>("liga_results", { p_id: p }).catch(() => null), rpc<number>("liga_count", { p_id: p }).catch(() => null),
-      rpc<any[]>("liga_members2", { p_id: p }).catch(() => null)]);
+      rpc<any[]>("liga_results", { p_id: p }).catch(() => null),
+      due("count", 30 * MIN) ? rpc<number>("liga_count", { p_id: p }).catch(() => null) : Promise.resolve(null),
+      due("members", 30 * MIN) || !S.members ? rpc<any[]>("liga_members2", { p_id: p }).catch(() => null) : Promise.resolve(null)]);
     if (res) S.lastRes = res.length ? { id: res[0].week_id, rows: res.map((x) => ({ n: x.name, x: x.week_xp, me: x.is_me, d: x.week_stages || {} })) } : null;
     if (cnt != null) S.pcount = cnt;
     if (mem) S.members = mem.map((x) => ({ n: x.name, me: x.is_me, m: x.medal || 0, tier: x.tier || 0 }));
     if (S.pid) {
       const r = await Promise.all([
-        rpc<any[]>("liga_group_info", { p_id: S.pid }).catch(() => null), rpc<any[]>("liga_champions", { p_id: S.pid }).catch(() => null),
+        rpc<any[]>("liga_group_info", { p_id: S.pid }).catch(() => null),
+        due("champs", 2 * HOUR) ? rpc<any[]>("liga_champions", { p_id: S.pid }).catch(() => null) : null,
         rpc<any[]>("liga_wq_state", { p_id: S.pid }).catch(() => null), rpc<any[]>("liga_final_info", { p_id: S.pid }).catch(() => null),
-        rpc<any[]>("liga_region_league", { p_id: S.pid }).catch(() => null), rpc<any[]>("liga_player_status2", { p_id: S.pid }).catch(() => null),
-        rpc<any[]>("liga_cq_list", { p_id: S.pid }).catch(() => null), rpc<any[]>("liga_my_certs", { p_id: S.pid }).catch(() => null)]);
+        due("region", 30 * MIN) ? rpc<any[]>("liga_region_league", { p_id: S.pid }).catch(() => null) : null,
+        rpc<any[]>("liga_player_status2", { p_id: S.pid }).catch(() => null),
+        due("cq", HOUR) ? rpc<any[]>("liga_cq_list", { p_id: S.pid }).catch(() => null) : null,
+        due("certs", HOUR) ? rpc<any[]>("liga_my_certs", { p_id: S.pid }).catch(() => null) : null]);
       const [gi, ch, wq, fin, reg, me, cq, certs] = r;
       if (gi && gi[0]) { S.group = { code: gi[0].code, name: gi[0].name, until: gi[0].paid_until, ok: gi[0].ok, members: gi[0].members, start: gi[0].start_date }; setLigaStart(S.group.start); }
       if (ch) S.champs = ch; if (wq) S.wq = wq[0] || null; if (fin) S.fin = fin[0] || null; if (reg) S.regL = reg;
@@ -102,26 +120,28 @@ export async function pull(force = false) {
         if (st) { const { setStageStatus } = await import("./remote"); setStageStatus(st); }
       }
       const [mi, nw, tc] = await Promise.all([rpc<any>("liga_match_info", { p_id: S.pid }).catch(() => null),
-        rpc<any[]>("liga_news_list").catch(() => null), rpc<any[]>("liga_tax_cal_list").catch(() => null)]);
+        due("news", 30 * MIN) ? rpc<any[]>("liga_news_list").catch(() => null) : null,
+        due("taxcal", 6 * HOUR) ? rpc<any[]>("liga_tax_cal_list").catch(() => null) : null]);
       if (mi) S.match = mi; if (nw) S.news = nw; if (tc) S.taxCal = tc;
       import("./remote").then((m) => m.pullExtras()).catch(() => {});
       const [di, dd] = await Promise.all([rpc<any>("liga_day_info", { p_id: S.pid }).catch(() => null), rpc<any>("liga_day_duel_me", { p_id: S.pid }).catch(() => undefined)]);
       if (di) S.day = di; if (dd !== undefined) S.dd = dd;
       const [dl, dm] = await Promise.all([rpc<any[]>("liga_cup_list", { p_id: S.pid }).catch(() => null), rpc<any>("liga_cup_me2", { p_id: S.pid }).catch(() => null)]);
       if (dl) S.dl = dl; if (dm) S.dm = dm;
-      if (S.token) { const ln = await rpc<string | null>("liga_discuss_link", { p_id: S.pid, p_token: S.token }).catch(() => undefined); if (ln !== undefined) S.discuss = ln || ""; }
+      if (S.token && due("discuss", 6 * HOUR)) { const ln = await rpc<string | null>("liga_discuss_link", { p_id: S.pid, p_token: S.token }).catch(() => undefined); if (ln !== undefined) S.discuss = ln || ""; }
     }
-    rpc<boolean>("liga_trial").then((v) => { S.trial = !!v; persist(); }).catch(() => {});
-    rpc<number>("liga_free_days").then((v) => { S.freeDays = Number(v) || 0; persist(); }).catch(() => {});
-    if (S.pid) rpc<any>("liga_grand_info", { p_id: S.pid }).then((v) => { if (v) { S.grand = v; persist(); } }).catch(() => {});
-    rpc<any[]>("liga_day_plans").then((v) => { if (Array.isArray(v)) { (S as any).plans = v; persist(); } }).catch(() => {});
-    rpc<any[]>("liga_pay_config2").then((c) => { if (c && c[0]) { S.payCfg = c[0]; persist(); } }).catch(() => {});
+    if (due("trial", 6 * HOUR)) rpc<boolean>("liga_trial").then((v) => { S.trial = !!v; persist(); }).catch(() => {});
+    if (due("freedays", 6 * HOUR)) rpc<number>("liga_free_days").then((v) => { S.freeDays = Number(v) || 0; persist(); }).catch(() => {});
+    if (S.pid && due("grand", HOUR)) rpc<any>("liga_grand_info", { p_id: S.pid }).then((v) => { if (v) { S.grand = v; persist(); } }).catch(() => {});
+    if (due("plans", 6 * HOUR) || !(S as any).plans) rpc<any[]>("liga_day_plans").then((v) => { if (Array.isArray(v)) { (S as any).plans = v; persist(); } }).catch(() => {});
+    if (due("paycfg", 6 * HOUR) || !S.payCfg) rpc<any[]>("liga_pay_config2").then((c) => { if (c && c[0]) { S.payCfg = c[0]; persist(); } }).catch(() => {});
     if (S.adminPin) rpc<any[]>("liga_admin_list2", { p_pin: S.adminPin }).then((x) => { S.adminRows = x; persist(); }).catch(() => {});
     persist();
   } finally { pulling = false; }
 }
 let tmr: any = null;
-export const syncSoon = () => { clearTimeout(tmr); tmr = setTimeout(() => { pushMe().then(() => pull(true)); }, 2500); };
+/* har to'g'ri javobdan keyin faqat ball yoziladi; to'liq yangilash — bosqich oxirida (syncNow) yoki 5 daqiqalik navbatda */
+export const syncSoon = () => { clearTimeout(tmr); tmr = setTimeout(() => { pushMe().then(() => pull()); }, 2500); };
 export const syncNow = async () => { await pushMe(); await pull(true); };
 
 /* Telegram orqali ochilgan bo'lsa — shaxsiy eslatmalar uchun bog'lash (bot initData ni tekshiradi) */

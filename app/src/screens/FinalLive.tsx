@@ -49,7 +49,7 @@ export default function FinalLive() {
   useEffect(() => {
     let on = true;
     const load = () => S.pid && rpc<any[]>("liga_final_board", { p_id: S.pid }).then((r) => on && setRows(r || [])).catch(() => {});
-    load(); const iv = setInterval(load, 5000); return () => { on = false; clearInterval(iv); };
+    load(); const iv = setInterval(load, 15000); return () => { on = false; clearInterval(iv); };
   }, []);
   const can = finalCanPlay();
   return (

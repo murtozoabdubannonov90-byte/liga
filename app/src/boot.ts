@@ -5,7 +5,7 @@ import { setSound, sfx } from "./lib/fx";
 import { tgInit, tgDark, startParam, inTelegram } from "./lib/tg";
 import { sweepDays, checkWeek, setAwardHandler, ACH, recalcWeek } from "./engine/score";
 import { setLigaStart } from "./engine/time";
-import { joinServer, pull, linkTelegram, rpc, tgLogin } from "./engine/server";
+import { joinServer, pull, linkTelegram, rpc, tgLogin, resetCache } from "./engine/server";
 import { startTopic } from "./engine/run";
 import { bump } from "./engine/state";
 import { toast, go, nativeBack } from "./lib/nav";
@@ -39,7 +39,7 @@ export function boot() {
   setLigaStart(S.group?.start);
   recalcWeek(); sweepDays();
   setAwardHandler((id) => { const a = ACH.find((x) => x.id === id); if (a) { toast("🏅 " + t("Yangi yutuq") + ": " + t(a.n) + t(" (+60 ball)")); sfx("coin"); } });
-  if (checkWeek()) setTimeout(() => go("weekEnd"), 400);
+  if (checkWeek()) { resetCache(); setTimeout(() => go("weekEnd"), 400); }
   /* Telegram ichida: hisob Telegram ID orqali topiladi (yangi telefon/kompyuter — qayta ro'yxatsiz) */
   if (inTelegram && (!S.pid || !S.token)) {
     S.tgTry = true;
@@ -59,7 +59,7 @@ export function boot() {
   linkTelegram();
   flushFinal();
   /* ilova ochiq turganda juma 18:00 o'tsa — hafta yangilanadi (eski hafta bali yangi haftaga o'tib ketmaydi) */
-  const tick = () => { if (checkWeek()) { go("weekEnd"); pull(true); } };
+  const tick = () => { if (checkWeek()) { resetCache(); go("weekEnd"); pull(true); } };
   setInterval(() => { if (document.visibilityState === "visible") { tick(); pull(); } }, 60000);
   document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { tick(); pull(); } });
   try { matchMedia("(prefers-color-scheme: dark)").addEventListener("change", applyTheme); } catch { /* */ }
