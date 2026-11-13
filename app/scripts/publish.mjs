@@ -29,6 +29,10 @@ fs.writeFileSync(bj, JSON.stringify(builds));
 // ver.txt — telefondagi eski sahifa yangi versiya chiqqanini bilib, keshni tozalab qayta yuklanadi (index.html dagi __ligaVer)
 const ver = (fs.readFileSync(path.join(root, "index.html"), "utf8").match(/__ligaVer = "([^"]+)"/) || [])[1];
 if (ver) fs.writeFileSync(path.join(root, "ver.txt"), ver + "\n");
+// release.json — bot shu fayldan yangi versiya e'lonini muhokama guruhiga chiqaradi (har relizda yangilang: ver = __ligaVer)
+try { const rel = JSON.parse(fs.readFileSync(path.join(root, "release.json"), "utf8"));
+  if (rel.ver !== ver) console.warn(`⚠️  release.json versiyasi (${rel.ver}) ilova versiyasiga (${ver}) teng emas — guruhga yangilik e'loni CHIQMAYDI. app/public/release.json ni yangilang.`);
+} catch { console.warn("⚠️  release.json yo'q — guruhga yangilik e'loni chiqmaydi."); }
 // GitHub Pages: Jekyll'siz (assets/_ fayllar uchun)
 fs.writeFileSync(path.join(root, ".nojekyll"), "");
 console.log("tayyor:", fs.readdirSync(dist).join(", "));

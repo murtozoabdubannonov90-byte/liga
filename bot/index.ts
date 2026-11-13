@@ -721,6 +721,15 @@ async function onCallback(q: any) {
   if (data === "pxj") { await ack(); return chatId ? pxJoin(chatId, q.from?.id) : null; }
   if (data === "ck:list") { await ack(); return chatId ? chkList(chatId, q.from) : null; }
   if (data === "ck:new") { await ack(); return chatId ? chkBegin(chatId, q.from) : null; }
+  if (data.startsWith("up:")) {
+    if (!(await isLigaAdmin(q.from?.id ?? 0))) return ack("Ruxsat yo'q");
+    const [, ok, id] = data.split(":");
+    const { data: got } = await db.from("liga_updates").update({ status: ok === "1" ? "sending" : "cancel" }).eq("id", Number(id)).eq("status", "draft").select("id");
+    if (q.message?.message_id) await tg("editMessageReplyMarkup", { chat_id: chatId, message_id: q.message.message_id, reply_markup: { inline_keyboard: [] } });
+    if (!got?.length) return ack("Avval hal qilingan");
+    if (ok === "1") bg(updTick());
+    return ack(ok === "1" ? "Guruhga yuborilmoqda" : "Bekor qilindi");
+  }
   if (data.startsWith("lw:")) {
     const [, ok, id] = data.split(":");
     const { data: x } = await db.rpc("liga_law_decide_sys", { p_id: Number(id), p_ok: ok === "1", p_admin_chat: q.from?.id ?? chatId });
@@ -1124,6 +1133,18 @@ async function onUpdate0(u: any) {
     if (await cfgGet("px_want_" + m.chat.id)) { await cfgSet("px_want_" + m.chat.id, ""); return pxJoin(m.chat.id, m.from.id); }
     await setSession(m.chat.id, pl.id, 1);
     return cardMessage(m.chat.id, 1, pl.first_name);
+  }
+  if (priv && /^\/yangilik(@\w+)?(\s|$)/i.test(String(m.text ?? m.caption ?? "").trim())) {
+    if (!(await isLigaAdmin(m.from?.id ?? 0))) return reply("⛔ Bu buyruq faqat liga administratori uchun.");
+    const raw = String(m.text ?? m.caption ?? "").trim().replace(/^\/yangilik(@\w+)?\s*/i, "");
+    if (!raw) return reply("✍️ Yozing: <b>/yangilik</b> va matn.\nMasalan: <code>/yangilik Ertadan kunlik kubok 10:00 da boshlanadi</code>\n\nRasm bilan: rasmni yuboring, izohiga <b>/yangilik matn</b> yozing.\nYuborishdan oldin ko'rib chiqasiz.");
+    const photo = m.photo?.length ? m.photo[m.photo.length - 1].file_id : null;
+    const body = `📢 <b>Hisobchi Liga yangiligi</b>\n\n${esc(raw)}`;
+    const { data: row } = await db.from("liga_updates").insert({ source: "admin", created_by: m.from?.id ?? null, body_html: body, photo_file_id: photo, status: "draft" }).select("id").single();
+    if (!row) return reply("❌ Saqlab bo'lmadi, qayta urinib ko'ring.");
+    const kb = { inline_keyboard: [[{ text: "✅ Guruhga yuborish", callback_data: "up:1:" + row.id }, { text: "❌ Bekor qilish", callback_data: "up:0:" + row.id }]] };
+    if (photo) return tg("sendPhoto", { chat_id: m.chat.id, photo, caption: ("👀 <b>Ko'rib chiqing:</b>\n\n" + body).slice(0, 1000), parse_mode: "HTML", reply_markup: kb });
+    return reply("👀 <b>Ko'rib chiqing:</b>\n\n" + body, kb);
   }
   if (priv && (m.photo || m.document)) return onReceipt(m);
   if (priv && ((cmd === "/start" && arg === "px") || cmd === "/musobaqa")) return pxJoin(m.chat.id, m.from?.id);
@@ -1940,6 +1961,58 @@ async function chkDone(run: string) {
   return { ok };
 }
 
+// --- Liga yangiliklari → muhokama guruhiga (2026-11-13) ---
+// 1) Ilova yangilansa: bot release.json ni (GitHub Pages) tekshiradi, yangi versiya bo'lsa guruhga e'lon qiladi.
+// 2) Administrator botga «/yangilik matn» yozsa (rasm izohida ham bo'ladi) — ko'rib chiqadi, «Guruhga yuborish» bosilsa chiqadi.
+const RELEASE_URL = "https://murtozoabdubannonov90-byte.github.io/liga/release.json";
+function releaseHtml(r: any) {
+  const items = ((r.items ?? []) as unknown[]).slice(0, 12).map((x) => "• " + esc(String(x))).join("\n");
+  return `🆕 <b>Hisobchi Liga yangilandi!</b>${r.title ? "\n<b>" + esc(String(r.title)) + "</b>" : ""}\n\n${items}${r.note ? "\n\n" + esc(String(r.note)) : ""}\n\n📲 Ilovani oching — yangilanish o'zi tushadi 👇`;
+}
+async function releaseCheck() {
+  let r: any = null;
+  try { const res = await fetch(RELEASE_URL + "?t=" + Date.now(), { headers: { "cache-control": "no-cache" } }); if (res.ok) r = await res.json(); } catch { /* */ }
+  const ver = String(r?.ver ?? "").trim();
+  if (!/^[0-9A-Za-z._-]{4,40}$/.test(ver) || !Array.isArray(r?.items) || !r.items.length) return { skip: "no_release" };
+  if ((await cfgGet("release_posted")) === ver) return { skip: "same", ver };
+  const { error } = await db.from("liga_updates").insert({ source: "ver:" + ver, body_html: releaseHtml(r), status: "sending" });
+  await cfgSet("release_posted", ver);
+  return { queued: !error, ver };
+}
+async function updSend(u: any): Promise<boolean> {
+  const cfg = await discussCfg(); if (!cfg) return false;
+  const kb = openBot(), body = String(u.body_html ?? "");
+  if (u.photo_file_id) {
+    const cap = body.length <= 1000;
+    const r = await tg("sendPhoto", { chat_id: cfg.chat, photo: u.photo_file_id, caption: cap ? body : undefined, parse_mode: "HTML", reply_markup: cap ? kb : undefined });
+    if (!r?.ok) return false; if (cap) return true;
+  }
+  const parts = chunks(body); let ok = true;
+  for (let i = 0; i < parts.length; i++) {
+    const r = await tg("sendMessage", { chat_id: cfg.chat, parse_mode: "HTML", text: parts[i], disable_web_page_preview: true, reply_markup: i === parts.length - 1 ? kb : undefined });
+    ok = ok && !!r?.ok;
+  }
+  return ok;
+}
+async function updTick() {
+  const rel = await releaseCheck();
+  const now = new Date().toISOString();
+  const { data: list } = await db.from("liga_updates").select("*").eq("status", "sending").order("id").limit(3);
+  let sent = 0;
+  for (const u of (list ?? []) as any[]) {
+    if (u.lock_until && u.lock_until > now) continue;
+    const { data: got } = await db.from("liga_updates").update({ lock_until: new Date(Date.now() + 120000).toISOString(), started_at: u.started_at ?? now })
+      .eq("id", u.id).eq("status", "sending").select("id");
+    if (!got?.length) continue;
+    const ok = await updSend(u);
+    await db.from("liga_updates").update({ status: ok ? "done" : "fail", group_sent: ok ? 1 : 0, total: 1, finished_at: new Date().toISOString(), lock_until: null }).eq("id", u.id);
+    if (ok) sent++;
+    const { data: adm } = await db.from("liga_admin_chats").select("chat_id").eq("group_code", "ASOSIY");
+    for (const a of uniqChats(adm)) await dm(a, ok ? "📢 Yangilik muhokama guruhiga chiqdi." : "❗ Yangilikni guruhga yuborib bo'lmadi (bot guruhda administratormi?).");
+  }
+  return { rel, sent };
+}
+
 // --- Qonun yangiligi testi ---
 const LAW_LETTER = ["A", "B", "C", "D", "E"];
 function lawPreview(n: any) {
@@ -2183,6 +2256,7 @@ async function onCron(action: string, body: any = {}) {
     return { ok: true, sent: n };
   }
   if (action === "rates") return await fetchRates();
+  if (action === "upd_tick") return await updTick();
   if (action === "quad_done") return await quadDone(String(body.code ?? ""));
   if (action === "chk_done") return await chkDone(String(body.run ?? ""));
   if (action === "law_draft") return await lawDraft(Number(body.id));
