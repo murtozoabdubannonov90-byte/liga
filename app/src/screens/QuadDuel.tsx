@@ -6,7 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Copy, Send, Crown, Users, Home as HomeI, Lock, Hourglass, Eye, Play, LogOut, ChevronRight, UserPlus } from "lucide-react";
 import { S, persist } from "../engine/state";
 import { t, tx } from "../lib/i18n";
-import { rpc, errMsg } from "../engine/server";
+import { rpc, errMsg, due } from "../engine/server";
+import { pollLoop, liveGap } from "../lib/net";
 import { C } from "../engine/run";
 import { shuffle, fmt } from "../engine/data";
 import { award } from "../engine/score";
@@ -41,8 +42,9 @@ export async function openQuad(rep = false) {
 
 /* Asosiy ekrandagi bo'lim */
 export function QuadCard() {
-  const [busy, setBusy] = useState(false), [list, setList] = useState<any[]>([]);
-  useEffect(() => { if (S.pid && S.token) rpc<any[]>("liga_quad_list", { p_id: S.pid, p_token: S.token }).then((r) => setList(Array.isArray(r) ? r : [])).catch(() => {}); }, []);
+  const [busy, setBusy] = useState(false), [list, setList] = useState<any[]>((S as any).quadL || []);
+  /* 2026-11-13: Asosiy oynaga har qaytishda emas — 3 daqiqada bir */
+  useEffect(() => { if (S.pid && S.token && due("quadL", 3 * 60000)) rpc<any[]>("liga_quad_list", { p_id: S.pid, p_token: S.token }).then((r) => { const v = Array.isArray(r) ? r : []; (S as any).quadL = v; setList(v); }).catch(() => {}); }, []);
   const open = list.filter((x) => x.status !== "done");
   return (
     <section className="ticket quad-ticket" id="quad-card">
@@ -91,16 +93,17 @@ export default function QuadDuel({ code }: { code: string }) {
     setV(x);
   };
   useEffect(() => {
-    let on = true;
+    let on = true, last: V = null;
     const poll = async () => {
       if (!on || done.current || inflight.current || busy.current) return;
       inflight.current = true; const id = ++seq.current;
-      try { const x = await rpc<V>("liga_quad_state", { p_id: S.pid, p_token: S.token, p_code: code }); if (on && !busy.current) apply(x, id); setErr(""); }
+      try { const x = await rpc<V>("liga_quad_state", { p_id: S.pid, p_token: S.token, p_code: code }); last = x; if (on && !busy.current) apply(x, id); setErr(""); }
       catch (e) { if (on) setErr(errMsg(e)); }
       finally { inflight.current = false; }
     };
-    poll(); const iv = setInterval(poll, 1000); const tk = setInterval(() => setNow(Date.now()), 250);
-    return () => { on = false; clearInterval(iv); clearInterval(tk); };
+    /* 2026-11-13: har soniya emas — holatga qarab 2–20 soniyada (trafik tejash) */
+    const stop = pollLoop(poll, () => (done.current ? 600000 : liveGap(last))); const tk = setInterval(() => setNow(Date.now()), 250);
+    return () => { on = false; stop(); clearInterval(tk); };
   }, [code]);
 
   /* halol o'yin: savol ochiq turganda 3 soniyadan ko'p boshqa ilovaga chiqqan o'yinchi shu savolda qulflanadi */

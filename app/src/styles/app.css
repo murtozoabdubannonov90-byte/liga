@@ -763,3 +763,95 @@ table.rep td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:no
 .sim-tbl tr.ok td:last-child{color:var(--green);font-weight:800}
 .sim-tbl td:not(:first-child),.sim-tbl th:not(:first-child){white-space:nowrap;font-family:var(--mono);font-size:12px}
 .sim-tbl td:first-child{word-break:break-word}
+
+/* ===================== 2026-11-13: jalb qiluvchi Asosiy oyna ===================== */
+/* afisha (hero) */
+.hero{position:relative;overflow:hidden;isolation:isolate;border-radius:26px;padding:16px 16px 14px;color:#EAFBF3;
+  background:radial-gradient(120% 90% at 100% 0%,#1f6b52 0%,transparent 55%),linear-gradient(150deg,#0B231D 0%,#0F2A24 45%,#123A5A 100%);
+  box-shadow:0 18px 40px -22px rgba(9,40,32,.9),inset 0 1px 0 rgba(255,255,255,.08)}
+.hero-glow{position:absolute;z-index:-1;width:260px;height:260px;right:-80px;top:-120px;border-radius:50%;
+  background:conic-gradient(from 0deg,#6EE7B7,#38BDF8,#F5C24A,#6EE7B7);filter:blur(48px);opacity:.38;animation:heroSpin 14s linear infinite}
+.hero-grid{position:absolute;inset:0;z-index:-1;opacity:.14;background-image:linear-gradient(rgba(255,255,255,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.5) 1px,transparent 1px);
+  background-size:22px 22px;mask-image:linear-gradient(180deg,#000 0%,transparent 85%);-webkit-mask-image:linear-gradient(180deg,#000 0%,transparent 85%)}
+@keyframes heroSpin{to{transform:rotate(360deg)}}
+.hero-top{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.hero-live{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;letter-spacing:.02em;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14)}
+.hero-live i{width:8px;height:8px;border-radius:50%;background:#9DB8AE}
+.hero-live.on i{background:#4ADE80;box-shadow:0 0 0 0 rgba(74,222,128,.7);animation:livePing 1.6s ease-out infinite}
+@keyframes livePing{0%{box-shadow:0 0 0 0 rgba(74,222,128,.7)}100%{box-shadow:0 0 0 9px rgba(74,222,128,0)}}
+.hero-cd{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#B9D8CC}
+.hero-t{font-family:var(--display);font-weight:700;font-size:30px;line-height:1.05;letter-spacing:-.03em;margin:12px 0 4px;
+  background:linear-gradient(90deg,#FFFFFF 0%,#B7F5DA 55%,#F5D27A 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-s{font-size:14px;font-weight:600;color:#CFE7DD;line-height:1.4;max-width:34ch}
+.hero-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:14px}
+.hero-stats>div{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:9px 10px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.hero-stats b{display:block;font-family:var(--display);font-size:20px;font-weight:700;color:#fff;line-height:1.1}
+.hero-stats>div>span{display:block;font-size:11px;font-weight:700;color:#A9C9BC;margin-top:2px}
+
+/* Telegram guruhi */
+.tg-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px;border-radius:22px;color:#fff;
+  background:linear-gradient(135deg,#2AABEE 0%,#1E88D9 55%,#1565C0 100%);box-shadow:0 14px 30px -16px rgba(30,136,217,.85),inset 0 1px 0 rgba(255,255,255,.25)}
+.tg-card::before{content:"";position:absolute;right:-30px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.12)}
+.tg-card::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.28),transparent);animation:tgShine 4.5s ease-in-out infinite}
+@keyframes tgShine{0%,60%{left:-60%}100%{left:130%}}
+.tg-ava{position:relative;flex:none;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:#fff;color:#229ED9;box-shadow:0 6px 14px -6px rgba(0,0,0,.35)}
+.tg-ava svg{transform:translateX(-2px) rotate(-8deg)}
+.tg-ping{position:absolute;right:1px;top:1px;width:13px;height:13px;border-radius:50%;background:#FF4D4F;border:2px solid #fff;animation:livePingR 1.8s ease-out infinite}
+@keyframes livePingR{0%{box-shadow:0 0 0 0 rgba(255,77,79,.7)}100%{box-shadow:0 0 0 8px rgba(255,77,79,0)}}
+.tg-kicker{display:block;font-size:11px;font-weight:800;letter-spacing:.03em;opacity:.85;text-transform:uppercase}
+.tg-card b{display:block;font-family:var(--display);font-weight:600;font-size:16.5px;line-height:1.2;margin:2px 0 3px}
+.tg-card .small{display:block;color:rgba(255,255,255,.88);font-weight:600;line-height:1.35}
+.tg-go{position:relative;z-index:1;flex:none;align-self:center;background:#fff;color:#1E88D9;font-weight:800;font-size:13.5px;padding:9px 13px;border-radius:999px;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+.tg-card:active{transform:scale(.985)}
+.tg-mini{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:16px;background:var(--card);border:1px solid var(--rule);color:var(--ink)}
+.tg-mini .tg-dot{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#229ED9;color:#fff}
+.tg-mini .small{color:#1E88D9;font-weight:800}
+.tg-pop .gf-sheet{padding-top:26px}
+.tg-pop-ava{justify-self:center;width:78px;height:78px;border-radius:50%;display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#2AABEE,#1565C0);box-shadow:0 12px 26px -10px rgba(30,136,217,.9)}
+.tg-pop-ava svg{transform:translateX(-3px) rotate(-8deg)}
+.tg-pop-l{list-style:none;margin:0;padding:0;display:grid;gap:6px;text-align:left}
+.tg-pop-l li{background:var(--paper-2);border-radius:12px;padding:9px 12px;font-weight:700;font-size:14px}
+.btn.tg-btn{background:#229ED9;box-shadow:0 4px 0 #156A96}
+
+/* yig'iladigan karta */
+.fold{padding:0;overflow:hidden}
+.fold-h{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 14px}
+.fold-h b{display:block;font-family:var(--display);font-weight:600;font-size:16px;line-height:1.2;letter-spacing:-.01em}
+.fold-h small{display:block;color:var(--muted);font-weight:600;font-size:12.5px;line-height:1.3;margin-top:3px}
+.fold-ic{flex:none;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;background:var(--green-soft);color:var(--green)}
+.fold-chev{flex:none;width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:var(--paper-2);color:var(--ink-2);transition:transform .2s}
+.fold.on .fold-chev{transform:rotate(180deg)}
+.fold-b{padding:0 14px 14px;animation:foldIn .22s ease-out}
+@keyframes foldIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.fold .chip{flex:none}
+.fold.gf{background:linear-gradient(135deg,#FFF7DF 0%,var(--card) 60%);border:1.5px solid color-mix(in srgb,var(--goldt) 55%,var(--rule))}
+:root[data-theme="dark"] .fold.gf{background:linear-gradient(135deg,#2B230C 0%,var(--card) 60%)}
+.fold.gf .fold-ic{background:linear-gradient(135deg,#F5C24A,#D9A21B);color:#3A2600;box-shadow:0 6px 14px -8px rgba(217,162,27,.9)}
+.gf-lead2{font-size:13.5px;font-weight:600;color:var(--ink-2);margin-bottom:4px}
+.fold.info .fold-ic{background:linear-gradient(135deg,#13895B,#0E6B47);color:#fff}
+.info-sub{display:flex;align-items:center;gap:6px}
+.info-news{display:grid;gap:6px}
+.info-nw{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border-radius:12px;background:var(--stamp-soft);color:var(--ink)}
+.info-nw small{display:block;font-size:11.5px;font-weight:800;color:var(--stamp)}
+.info-nw b{display:block;font-weight:700;font-size:14px;line-height:1.3}
+.lnk-all{justify-self:end;display:inline-flex;align-items:center;gap:2px;font-size:13px;font-weight:800;color:var(--stamp);padding:4px 2px}
+
+/* bosqich chiptasi — jonliroq */
+.ticket{background:radial-gradient(110% 80% at 0% 0%,#1d5a46 0%,transparent 60%),linear-gradient(160deg,#0F2A24,#0B1F1A);box-shadow:0 16px 34px -20px rgba(9,40,32,.95),inset 0 1px 0 rgba(255,255,255,.07)}
+.ticket .t-no{background:linear-gradient(180deg,#fff,#8FF0C6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ticket .t-no small{-webkit-text-fill-color:var(--on-board-2)}
+.ticket .btn:not(.ghost):not(.gold){background:linear-gradient(180deg,#34D399,#10B981);color:#05291D;box-shadow:0 4px 0 #0A7A55,0 10px 22px -10px rgba(16,185,129,.9)}
+.quad-ticket{background:radial-gradient(100% 80% at 100% 0%,#7c3aed55 0%,transparent 60%),linear-gradient(140deg,#13233F,#3B1F66)}
+
+/* plitkalar — rangli belgilar */
+.tiles .tile{transition:transform .12s}
+.tiles .tile:active{transform:scale(.97)}
+.tiles .tile:nth-child(1) .ic{background:linear-gradient(135deg,#34D399,#059669);color:#fff}
+.tiles .tile:nth-child(2) .ic{background:linear-gradient(135deg,#FB7185,#E11D48);color:#fff}
+.tiles .tile:nth-child(3) .ic{background:linear-gradient(135deg,#A78BFA,#6D28D9);color:#fff}
+.tiles .tile:nth-child(4) .ic{background:linear-gradient(135deg,#FBBF24,#D97706);color:#3A2600}
+.dayduel{border-top:3px solid var(--red)}
+@media (prefers-reduced-motion:reduce){.hero-glow,.tg-card::after,.hero-live.on i,.tg-ping{animation:none}}
+.tg-card{flex-wrap:wrap;align-items:flex-start}
+.tg-card>.grow{flex:1 1 0}
+.tg-go{flex:1 0 100%;text-align:center;padding:11px 14px;font-size:14.5px;margin-top:2px}

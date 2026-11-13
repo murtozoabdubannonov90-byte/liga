@@ -71,13 +71,13 @@ export function TaxCalendar() {
 }
 
 /* ---------------- qonun yangiliklari ---------------- */
-const nTitle = (n: any) => (getLang() === "ru" && n.title_ru ? n.title_ru : tx(n.title_uz));
+export const nTitle = (n: any) => (getLang() === "ru" && n.title_ru ? n.title_ru : tx(n.title_uz));
 const nBody = (n: any) => (getLang() === "ru" && n.body_ru ? n.body_ru : tx(n.body_uz));
 /* qonun testi holati (server: liga_law_me) */
 /* savolli (testli) yangiliklar faqat server ruxsat bersa ko'rinadi — sinov davrida faqat liga egasiga */
 export const newsVisible = () => (S.news || []).filter((n: any) => !(n.qs?.length > 0) || S.lawMe?.on === true);
 const lawRun = (id: number): { n: number; right_n: number; done_n: number; finished: boolean } | undefined => S.lawMe?.runs?.[String(id)];
-const lawSub = (n: any) => { const r = lawRun(n.id), q = n.qs?.length || 0; if (!q) return "";
+export const lawSub = (n: any) => { const r = lawRun(n.id), q = n.qs?.length || 0; if (!q) return "";
   return r?.finished ? t("✅ Test: {r}/{n}", { r: r.right_n, n: r.n }) : r ? t("Test: {d}/{n} — davom eting", { d: r.done_n, n: r.n }) : t("{n} savollik test", { n: q }); };
 async function openLaw(id: number) {
   const r = await startLawR(id);

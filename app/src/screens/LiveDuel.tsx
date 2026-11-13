@@ -6,6 +6,7 @@ import { Copy, Send, Crown, Zap, Home as HomeI, Lock, Hourglass, Eye } from "luc
 import { S, persist } from "../engine/state";
 import { t, tx } from "../lib/i18n";
 import { rpc, errMsg } from "../engine/server";
+import { pollLoop, liveGap } from "../lib/net";
 import { C } from "../engine/run";
 import { shuffle, fmt } from "../engine/data";
 import { award } from "../engine/score";
@@ -66,16 +67,17 @@ export default function LiveDuel({ code }: { code: string }) {
     setV(x);
   };
   useEffect(() => {
-    let on = true;
+    let on = true, last: V = null;
     const poll = async () => {
       if (!on || done.current || inflight.current || busy.current) return;
       inflight.current = true; const id = ++seq.current;
-      try { const x = await rpc<V>("liga_live_state", { p_id: S.pid, p_token: S.token, p_code: code }); if (on && !busy.current) apply(x, id); setErr(""); }
+      try { const x = await rpc<V>("liga_live_state", { p_id: S.pid, p_token: S.token, p_code: code }); last = x; if (on && !busy.current) apply(x, id); setErr(""); }
       catch (e) { if (on) setErr(errMsg(e)); }
       finally { inflight.current = false; }
     };
-    poll(); const iv = setInterval(poll, 1000); const tk = setInterval(() => setNow(Date.now()), 250);
-    return () => { on = false; clearInterval(iv); clearInterval(tk); };
+    /* 2026-11-13: har soniya emas — holatga qarab 2–20 soniyada (trafik tejash) */
+    const stop = pollLoop(poll, () => (done.current ? 600000 : liveGap(last))); const tk = setInterval(() => setNow(Date.now()), 250);
+    return () => { on = false; stop(); clearInterval(tk); };
   }, [code]);
 
   /* halol o'yin: savol ochiq turganda ilovadan (yoki kompyuterda oynadan) 1,5 soniyadan ko'p chiqqan o'yinchi shu savolda qulflanadi.

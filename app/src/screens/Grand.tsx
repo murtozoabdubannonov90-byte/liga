@@ -8,6 +8,7 @@ import { fmt } from "../engine/data";
 import { tzNow, fmtD } from "../engine/time";
 import { monthName } from "./FinalLive";
 import { Medal } from "../components/Medal";
+import { Fold } from "../components/ui";
 
 const OYG = ["yanvar", "fevral", "mart", "aprel", "may", "iyun", "iyul", "avgust", "sentabr", "oktabr", "noyabr", "dekabr"];
 export const dayMonth = (d: string) => { const [, m, dd] = String(d || "").split("-").map(Number); return m ? dd + "-" + t(OYG[m - 1]) : ""; };
@@ -29,17 +30,20 @@ function MonthBlock({ m }: { m: any }) {
     </div>);
 }
 
+/* 2026-11-13: yig'ilgan — bosganda ochiladi */
 export function GrandCard() {
   const g = S.grand; if (!grandOn()) return null;
+  const live = (g.months || []).find((m: any) => m.live);
+  const sub = g.qualified ? "🎟 " + t("Siz Katta finalga yo'llanma oldingiz!")
+    : live?.my_pos ? t("{m}: siz {p}-o'rindasiz · finalga top-3 chiqadi", { m: monthName(live.m), p: live.my_pos })
+    : t("Oktyabr va noyabrning kuchli uchligi bellashadi");
   return (
-    <section className="gf card" id="grand">
-      <div className="gf-head"><Crown size={26} /><div className="grow">
-        <h3>{t("Katta final — {d}", { d: dayMonth(g.date) })}</h3>
-        <p>{t("Oktyabr va noyabrning kuchli uchligi — 6 finalchi. {d}, soat 10:00–13:00, eng qiyin 20 savol.", { d: dayMonth(g.date) })}</p></div></div>
+    <Fold id="grand" tone="gf" icon={<Crown size={22} />} title={t("Katta final — {d}", { d: dayMonth(g.date) })} sub={sub}>
+      <p className="gf-lead2">{t("Oktyabr va noyabrning kuchli uchligi — 6 finalchi. {d}, soat 10:00–13:00, eng qiyin 20 savol.", { d: dayMonth(g.date) })}</p>
       {g.qualified && <p className="gf-q">🎟 {t("Siz Katta finalga yo'llanma oldingiz!")}</p>}
       <div className="gf-months">{(g.months || []).map((m: any) => <MonthBlock key={m.m} m={m} />)}</div>
       <p className="tiny muted">{t("Oy reytingi — shu oydagi haftalik ballar yig'indisi. Har juma soat 18:00 da yangilanadi.")}</p>
-    </section>);
+    </Fold>);
 }
 
 /* har kuni birinchi kirishda bir marta */

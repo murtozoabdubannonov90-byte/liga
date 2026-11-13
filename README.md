@@ -44,6 +44,26 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-11-13: Asosiy oyna — jalb qiluvchi dizayn, guruhga taklif, trafik tejash
+**Asosiy oyna (odam jalb qilish uchun):**
+- Yuqorida yangi **afisha**: «Hisobchi Liga», nechta buxgalter bellashayotgani, bosqich ochiq/yopiqligi (yonib turuvchi nuqta), natijalargacha qolgan vaqt, haftalik bal, seriya, tajriba.
+- **Ishtirokchilar guruhi** (Telegram ko'rinishida, havorang karta) afishadan keyin turadi — faqat guruhga qo'shilmaganlarga. Guruhda borlarga kichik «Guruhga o'tish» qatori.
+- Ligaga kirganda guruhda yo'qlarga **muloyim taklif oynasi** («{ism}, sizni guruhda kutamiz!»): kuniga ko'pi bilan bir marta, «Qo'shilish» bosilsa 3 kun chiqmaydi. Bu oyna bor kuni Katta final eslatmasi chiqmaydi.
+- **«Imtiyozlar va qonun yangiliklari»** — bitta yig'ilgan karta (bosganda ochiladi): ichida qonun yangiliklari (oxirgi 3 ta, «Barcha yangiliklar») va korxona shakllari/imtiyozlar. Yangi yangilik bo'lsa sarlavhada «N yangi» belgisi. Alohida «Qonun yangiligi» kartasi olib tashlandi.
+- **Katta final** kartasi ham yig'ilgan — sarlavhada sana va o'rningiz.
+- Olib tashlandi (kod qoldi, sahifalar havola orqali ishlaydi): Faktura detektivi, Balans o'yini, Kunlik sovg'a, Blits (va haftalik «Blits: N ball» belgisi), **Sovrinli musobaqa** (vaqtincha), **simulyator**. Pastki plitkalar: Kunlik mashq, Duel, Provodka poygasi, Xato daftari.
+- Dizayn: bosqich chiptasi va «Provodka poygasi» gradientli, yashil porloq tugma, rangli plitka belgilar, yig'iladigan kartalar uchun umumiy `Fold` komponenti (`components/ui.tsx`, holati telefonda eslab qolinadi).
+
+**Guruh holati:** `liga_discuss_me(p_id, p_token)` → `{link, in, tg}` (`db/2026-11-13_guruh_taklif_trafik.sql`). `discuss_status` ni bot `discuss_check` bilan har ish kuni 08:40 da yangilaydi (cron `liga-guruh-holat`).
+
+**Trafik (Supabase bepul tarif):** eng ko'p so'rov `liga_live_state` edi (jonli duelda har 1 soniyada — 1,9 mln chaqiruv). Endi:
+- jonli duel / Provodka poygasi: o'yin paytida 2 soniyada, kutishda 3 soniyada, ochilishiga ko'p qolganda 20 soniyagacha, ilova yashirin bo'lsa 5 soniyadan kam emas (`pollLoop`, `liveGap` — `lib/net.ts`);
+- fonda yangilash 10 daqiqada bir (avval 5); `liga_cup_list` (~80 KB) 15 daqiqada bir va raund ochilganda (2 daqiqada bir); `liga_results` (~27 KB) soatda bir; `liga_members2` (~35 KB) 3 soatda bir; detektiv/qonun holati soatda bir;
+- `liga_info` faqat karta ochilganda (6 soatda bir), `liga_quad_list` 3 daqiqada bir, `liga_my_kind` faqat hali o'ynamaganlarga.
+- Sovrinli musobaqa e'lon cronlari o'chiq holda qoldi.
+
+Versiya `2026-11-13`, kesh `hisobchi-liga-v5-20261113`. Testlar: 380 ta (`python3 tests/app.test.py`).
+
 ## 2026-11-04d: Yopish provodkalari bo'yicha chalg'ituvchi savollar (26.11 va 30.11)
 - Darslikdagi 11-bo'lim mashqlari asosida 7 ta savol: foyda/zarar yo'nalishi (Dt 9910 — Kt 8710 yoki teskari), aralash oborotlardan natijani hisoblash (balans schyotlari — 5110, 4010 — chalg'ituvchi sifatida), nega 9000-guruh yopiladi va 5110 yopilmaydi, 8710 debet qoldig'i.
 - 26.11: `d20261126-21…25` qo'shildi, takroriy 02, 05, 10, 16, 20 `active = false` (o'chirilmagan). 30.11: `d20261130-21, 22` qo'shildi, 15 va 19 `active = false`. Kunlik son o'zgarmadi (26.11 — 8+12, 30.11 — 15+5).

@@ -1,29 +1,28 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { entry } from "../boot";
-import { SearchCheck, Rocket, Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing, MessagesSquare, Coffee, Users } from "lucide-react";
+import { SearchCheck, Rocket, Zap, Target, Swords, Scale, NotebookPen, Gift, BookOpenCheck, Clock3, KeyRound, CreditCard, ChevronRight, Trophy, Smartphone, HelpCircle, Flame, BellRing, Coffee, Users, Send, X } from "lucide-react";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, toast } from "../lib/nav";
-import { C, startDaily, startBlitz, startErrs, startGift, startPractice } from "../engine/run";
+import { C, startDaily, startPractice } from "../engine/run";
 import { stLeft, stTotal, stg } from "../engine/remote";
-import { rankOf, giftDone, giftReady, giftCorrect, GIFT_NEED, WEEK_GOAL } from "../engine/score";
+import { rankOf, WEEK_GOAL } from "../engine/score";
 import { stageState, todayStage, tzNow, isWeekend, weekDays, stageOfDate, dkey, OPEN_H, closeH, closeStr, hm, weekEnd, stageDay } from "../engine/time";
 import { joinServer, pull, tgLinkCode, rpc } from "../engine/server";
 import { CountUp, TierBadge, useNow } from "../components/ui";
+import { bump } from "../engine/state";
 import { canHomeScreen, addToHomeScreen, inTelegram, openTg, BOT_LINK } from "../lib/tg";
 import { persist } from "../engine/state";
 import { lessonOfDay } from "./Lessons";
 import { finalCanPlay } from "./FinalLive";
 import { sfx } from "../lib/fx";
-import { DeadlineCard, NewsCard } from "./Tools";
+import { DeadlineCard } from "./Tools";
 import { PerksCard, TeamLiveCard, DayDuelCard } from "./Perks";
 import { QuadCard, openQuad } from "./QuadDuel";
 import { GrandCard } from "./Grand";
 import { InfoCard } from "../components/Malumot";
 import { RatesCard } from "../components/Rates";
-import { PxCard } from "./Px";
-import { DocCard, SimCard } from "./Detective";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -41,17 +40,77 @@ export function TgLinkCard() {
       <span className="chip blue">{t("Ulash")}<ChevronRight size={13} /></span>
     </button>);
 }
-/* liga ishtirokchilarining Telegram muhokama guruhi (havola admin /muhokama qilgandan keyin paydo bo'ladi) */
+/* liga ishtirokchilarining Telegram muhokama guruhi — 2026-11-13: guruhda bo'lmaganlarga yuqorida, Telegram ko'rinishida */
+const discussIn = () => !!(S as any).discussIn;
+const SNOOZE = "discussSnooze";
+export function joinDiscuss(where: string) {
+  const link: string = S.discuss || ""; if (!link) return;
+  sfx("tap"); openTg(link);
+  (S as any)[SNOOZE] = Date.now() + 3 * 864e5; persist();
+  (S as any).discussVia = where;
+}
 export function DiscussCard() {
   const link: string = S.discuss || "";
   if (!link || !S.pid) return null;
+  if (discussIn()) return (
+    <button className="tg-mini" id="discuss" onClick={() => openTg(link)}>
+      <span className="tg-dot"><Send size={14} /></span><b className="grow">{t("Ishtirokchilar guruhi")}</b><span className="small">{t("Guruhga o'tish")}</span><ChevronRight size={15} /></button>);
   return (
-    <button className="card tglink" id="discuss" onClick={() => openTg(link)}>
-      <span className="ic"><MessagesSquare size={22} /></span>
-      <span className="grow"><b>{t("Ishtirokchilar guruhi")}</b>
-        <span className="small">{t("Savollar, provodkalar va duellarni muhokama qilamiz, raqib bilan kelishib olamiz.")}</span></span>
-      <span className="chip blue">{t("Qo'shilish")}<ChevronRight size={13} /></span>
-    </button>);
+    <motion.button className="tg-card" id="discuss" onClick={() => joinDiscuss("card")} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+      <span className="tg-ava" aria-hidden="true"><Send size={26} strokeWidth={2.2} /><i className="tg-ping" /></span>
+      <span className="grow">
+        <span className="tg-kicker">{t("Telegram guruhi")}</span>
+        <b>{t("Hamkasblar guruhiga qo'shiling")}</b>
+        <span className="small">{t("Qiyin savollar tahlili, duel raqibi bilan kelishuv va liga yangiliklari — hammasi bir joyda.")}</span>
+      </span>
+      <span className="tg-go">{t("Qo'shilish")}</span>
+    </motion.button>);
+}
+/* ligaga kirganda: guruhda bo'lmaganlarga muloyim taklif oynasi (kuniga ko'pi bilan bir marta; «Qo'shilish» bosilsa — 3 kun so'ralmaydi) */
+export const discussPopWanted = () => { const A = S as any; return !!S.discuss && !!S.pid && !discussIn() && A.discussPopDay !== tzNow().day && !(A[SNOOZE] && Date.now() < A[SNOOZE]); };
+export function DiscussPop() {
+  const [shown, setShown] = useState(false);
+  const day = tzNow().day, A = S as any;
+  const want = discussPopWanted();
+  useEffect(() => { if (!want) return; const tm = setTimeout(() => setShown(true), 1200); return () => clearTimeout(tm); }, [want]);
+  if (!want || !shown) return null;
+  const close = () => { A.discussPopDay = day; persist(); setShown(false); bump(); };
+  return (
+    <div className="gf-pop tg-pop" role="dialog" aria-modal="true" aria-labelledby="tg-pop-h" id="discuss-pop" onClick={close}>
+      <motion.div className="gf-sheet" initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", stiffness: 380, damping: 32 }} onClick={(e) => e.stopPropagation()}>
+        <button className="gf-x" onClick={close} aria-label={t("Yopish")}><X size={20} /></button>
+        <div className="tg-pop-ava" aria-hidden="true"><Send size={38} strokeWidth={2.2} /></div>
+        <h2 id="tg-pop-h">{t("{n}, sizni guruhda kutamiz!", { n: S.user.first || "" })}</h2>
+        <p className="gf-lead">{t("Hisobchi Liga ishtirokchilari Telegram guruhida savollarni muhokama qilishadi, duel raqibi bilan kelishishadi va birinchi bo'lib yangiliklarni bilishadi. Qo'shilish — bepul, bir bosishda.")}</p>
+        <ul className="tg-pop-l">
+          <li>💬 {t("Qiyin provodkalar tahlili")}</li><li>⚔️ {t("Duel raqibingiz bilan kelishuv")}</li><li>🏆 {t("Natijalar va g'oliblar e'loni")}</li>
+        </ul>
+        <button className="btn tg-btn" id="discuss-pop-go" onClick={() => { joinDiscuss("pop"); close(); }}><Send size={18} />{t("Guruhga qo'shilish")}</button>
+        <button className="btn ghost" style={{ marginTop: 10 }} id="discuss-pop-later" onClick={close}>{t("Keyinroq")}</button>
+      </motion.div>
+    </div>);
+}
+/* bosh sahifa boshi: liga «afishasi» — nechta buxgalter bellashmoqda, bugungi holat */
+function Hero() {
+  useNow(60000);
+  const n = S.pcount || 0, si = todayStage(), wk = isWeekend();
+  const open = si != null && !wk && stageState(si) === "open";
+  const ms = weekEnd().getTime() - Date.now(), d = Math.floor(ms / 864e5), h = Math.floor((ms % 864e5) / 36e5);
+  return (
+    <section className="hero" id="hero">
+      <i className="hero-glow" aria-hidden="true" /><i className="hero-grid" aria-hidden="true" />
+      <div className="hero-top">
+        <span className={"hero-live" + (open ? " on" : "")}><i />{open ? t("Bosqich ochiq") : wk ? t("Dam olish kuni") : t("Liga davom etmoqda")}</span>
+        <span className="hero-cd"><Clock3 size={13} />{d > 0 ? t("Natijalar {d} kun {h} soatdan keyin", { d, h }) : t("Natijalar {h} soatdan keyin", { h: Math.max(1, h) })}</span>
+      </div>
+      <h1 className="hero-t">{t("Hisobchi Liga")}</h1>
+      <p className="hero-s">{n > 1 ? t("{n} ta buxgalter har kuni bellashmoqda. Siz qaysi o'rindasiz?", { n: n.toLocaleString("ru-RU").replace(/ /g, " ") }) : t("Buxgalterlar bellashuvi: har kuni yangi bosqich, haftalik reyting, sertifikat.")}</p>
+      <div className="hero-stats">
+        <div><b className="num"><CountUp to={S.week.my || 0} id="hero-week" /></b><span>{t("ball bu hafta")}</span></div>
+        <div><b className="num">{S.streak || 0}</b><span>{t("kunlik seriya")}</span></div>
+        <div><b className="num">{S.xp >= 1000 ? Math.round(S.xp / 100) / 10 + "k" : S.xp}</b><span>{t("jami tajriba")}</span></div>
+      </div>
+    </section>);
 }
 export const playerBlocked = () => !S.trial && !!(S.me && S.me.personal && S.me.ok === false);
 export const groupBlocked = () => !!(S.group && S.group.ok === false);
@@ -122,7 +181,7 @@ export function FirstStepCard() {
   useNow(60000);
   const [kind, setKind] = useState<string | null>(S.kind ?? null);
   useEffect(() => {
-    if (!S.pid || !S.token) return;
+    if (!S.pid || !S.token || (S.kind && S.kind !== "never") || Object.keys(S.week.stages || {}).length) return;
     let on = true;
     rpc<string>("liga_my_kind", { p_id: S.pid, p_token: S.token }).then((k) => { if (on && typeof k === "string") { setKind(k); S.kind = k; persist(); } }).catch(() => {});
     return () => { on = false; };
@@ -164,7 +223,6 @@ function WeekLedger() {
         <span className="grow" /><span className="chip gold"><Trophy size={13} />{t("maqsad")} {WEEK_GOAL}</span></div>
       <div className="row small" id="week-extra" style={{ marginTop: 8, gap: 8, flexWrap: "wrap", fontWeight: 700 }}>
         <span className="chip"><Target size={13} />{t("Kunlik mashq: {n} ball", { n: S.week.part.daily || 0 })}</span>
-        <span className="chip"><Zap size={13} />{t("Blits: {n} ball", { n: S.week.part.blitz || 0 })}</span>
       </div>
       <div className="meter" style={{ marginTop: 10 }}><motion.i initial={{ width: 0 }} animate={{ width: Math.min(100, (my / WEEK_GOAL) * 100) + "%" }} transition={{ duration: 0.9, ease: "easeOut" }} /></div>
       <p className="small muted" style={{ marginTop: 10, fontWeight: 600 }}>{t("Hafta davomida natijangizni faqat siz ko'rasiz. Jadval juma 18:00 da ochiladi.")}</p>
@@ -175,21 +233,20 @@ function WeekLedger() {
 export default function Home() {
   useEffect(() => { if (entry.d) { const code = entry.d; entry.d = undefined; go("duel", { code }); } }, []);
   const L = lessonOfDay(), errs = Object.keys(S.errs).length;
+  /* 2026-11-13: Blits, Balans o'yini, Kunlik sovg'a, Faktura detektivi, Sovrinli musobaqa va simulyator Asosiy oynadan olib tashlandi */
   const tiles: [any, string, string, () => void, boolean?][] = [
     [Target, "Kunlik mashq", t("10 savol · +8 ball"), () => runOrToast(startDaily())],
-    [Zap, "Blits", t("20 provodka · rekord {n}", { n: S.blitz || 0 }), () => runOrToast(startBlitz())],
     [Swords, "Duel", t("Hamkasbingizni chaqiring"), () => go("duel"), true],
     [Users, "Provodka poygasi", t("2–10 kishi bir vaqtda"), () => openQuad(), true],
-    [Scale, "Balans o'yini", t("Aktiv va passivni joylang"), () => go("balance")],
     [NotebookPen, "Xato daftari", errs ? t("{n} ta · misol bilan", { n: errs }) : t("{n} ta savol", { n: 0 }), () => go("review"), errs > 0],
-    [Gift, "Kunlik sovg'a", giftDone() ? t("ertaga yana") : giftReady() ? t("ochishga tayyor") : t("{a}/{b} to'g'ri javob", { a: giftCorrect(), b: GIFT_NEED }), () => runOrToast(startGift()), giftReady()],
   ];
-  if (S.docMe?.on === true) tiles.splice(4, 0, [SearchCheck, "Faktura detektivi", t("Hujjatdagi xatoni toping"), () => go("detective")]);
   const fin = S.fin, wq = S.wq;
   return (
     <div className="shell">
       <TopBar />
       <div className="stack">
+        <Hero />
+        <DiscussCard />
         <RatesCard />
         {S.user.first && !S.token && (S.tokenLost || S.joinErr) && (
           <div className="card" style={{ borderColor: "var(--red)" }}>
@@ -203,16 +260,11 @@ export default function Home() {
         <Ticket />
         <QuadCard />
         <DayDuelCard />
-        <DocCard />
-        <SimCard />
-        <PxCard />
+        <TgLinkCard />
         <GrandCard />
         <PerksCard />
         <TeamLiveCard />
-        <TgLinkCard />
-        <DiscussCard />
         <DeadlineCard />
-        <NewsCard />
         {S.streak > 1 && <div className="row small" style={{ fontWeight: 800, color: "var(--ink-2)" }}><Flame size={18} color="#E8590C" fill="#FFB020" />{t("{n} kunlik seriya — davom eting!", { n: S.streak })}</div>}
         {wq && wq.q_id && !(S.wqDone || {})[wq.q_id] && (
           <button className="card" style={{ textAlign: "left", borderColor: "var(--stamp)" }} onClick={() => go("wqAnswer")}>

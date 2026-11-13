@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { Timer, Award, Trophy, HelpCircle, ChevronRight, ChevronDown, Medal, Eye, Swords, Crown } from "lucide-react";
 import { useNow } from "../components/ui";
-import { rpc } from "../engine/server";
+import { rpc, due } from "../engine/server";
+import { persist, bump } from "../engine/state";
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go } from "../lib/nav";
@@ -133,6 +134,8 @@ export const stageName = (st?: string) => {
   if (STAGE[st]) return t(STAGE[st]);
   const m = /^r(\d+)$/.exec(st); return m && Number(m[1]) >= 4 ? t("1/{n} final", { n: Number(m[1]) / 2 }) : t("Raund");
 };
+/* kubok ro'yxati katta (500+ duel) — fonda 15 daqiqada bir, raund ochilganda 2 daqiqada bir yangilanadi */
+const cupFresh = () => { if (S.pid && due("cupOpen", 2 * 60000)) rpc<any[]>("liga_cup_list", { p_id: S.pid }).then((v) => { if (Array.isArray(v)) { S.dl = v; persist(); bump(); } }).catch(() => {}); };
 export function DayDuelCard() {
   useNow(20000);
   const [openR, setOpenR] = useState<number | null>(null), [planOn, setPlanOn] = useState(false);
@@ -182,7 +185,7 @@ export function DayDuelCard() {
           if (!rr.length) return null; const on = openR === r, mine = rr.some((x) => x.mine) || by.some((x) => x.mine), live = rr.filter((x) => x.status === "play").length;
           return (
           <div key={r} className={"dd-round" + (on ? " on" : "")}>
-            <button className="dd-rh" aria-expanded={on} onClick={() => setOpenR(on ? null : r)}>
+            <button className="dd-rh" aria-expanded={on} onClick={() => { setOpenR(on ? null : r); if (!on) cupFresh(); }}>
               <span className="grow"><b>{stageName(rr[0].stage)}</b><small>{rr[0].slot} · {t("{d} duel", { d: rr.length })}{live ? " · " + t("{n} tasi o'ynamoqda", { n: live }) : ""}{mine ? " · " + t("siz shu yerda") : ""}</small></span>
               <ChevronDown size={18} className="dd-chev" />
             </button>

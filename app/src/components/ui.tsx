@@ -99,3 +99,18 @@ export function useNow(ms = 1000) { const [n, setN] = useState(Date.now()); useE
 export function copyText(text: string, done?: () => void) {
   try { navigator.clipboard.writeText(text).then(() => done && done(), () => window.prompt("", text)); } catch { window.prompt("", text); }
 }
+/* 2026-11-13: yig'iladigan karta — sarlavha doim ko'rinadi, mazmun bosganda ochiladi (holati telefonda eslab qolinadi) */
+export function Fold({ id, icon, title, sub, badge, tone = "", children, onOpen }: { id: string; icon: ReactNode; title: ReactNode; sub?: ReactNode; badge?: ReactNode; tone?: string; children: ReactNode; onOpen?: () => void }) {
+  const [open, setOpen] = useState<boolean>(() => { try { return localStorage.getItem("fold_" + id) === "1"; } catch { return false; } });
+  const tog = () => { const v = !open; setOpen(v); try { localStorage.setItem("fold_" + id, v ? "1" : "0"); } catch { /* */ } if (v && onOpen) onOpen(); };
+  useEffect(() => { if (open && onOpen) onOpen(); }, []);
+  return (
+    <section className={"card fold " + tone + (open ? " on" : "")} id={id}>
+      <button className="fold-h" aria-expanded={open} onClick={tog} id={id + "-h"}>
+        <span className="fold-ic">{icon}</span>
+        <span className="grow"><b>{title}</b>{sub && <small>{sub}</small>}</span>
+        {badge}<span className="fold-chev" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6" /></svg></span>
+      </button>
+      {open && <div className="fold-b">{children}</div>}
+    </section>);
+}

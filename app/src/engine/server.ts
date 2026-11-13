@@ -74,13 +74,14 @@ async function mergeMe() {
   } catch { /* */ }
 }
 /* Trafik tejash (Supabase bepul tarif — oyiga 5 GB):
+   - 2026-11-13: fonda yangilash 10 daqiqada bir; kubok ro'yxati (80 KB) 15 daqiqada, natijalar soatda, a'zolar 3 soatda bir;
    - fonda yangilash 5 daqiqada bir (ilova ochilganda / qaytganda ham shu chegara);
    - majburiy yangilash (bosqich tugadi va h.k.) — 20 soniyada ko'pi bilan bir marta;
    - kam o'zgaradigan ma'lumot (reja, yangiliklar, chempionlar...) telefonda saqlanadi va soatlab qayta olinmaydi. */
-const SOFT_GAP = 5 * 60000, HARD_GAP = 20000, MIN = 60000, HOUR = 60 * MIN;
+const SOFT_GAP = 10 * 60000, HARD_GAP = 20000, MIN = 60000, HOUR = 60 * MIN;
 /* hafta almashsa yoki boshqa hisob bilan kirilsa — saqlangan vaqtlar bekor */
 export const resetCache = () => { (S as any).rl = {}; };
-const due = (k: string, ms: number) => {
+export const due = (k: string, ms: number) => {
   const A = S as any; if (A.rlPid !== (S.pid || "")) { A.rl = {}; A.rlPid = S.pid || ""; }
   const rl = (A.rl ||= {}) as Record<string, number>, now = Date.now();
   if (rl[k] && now - rl[k] < ms && now >= rl[k]) return false;
@@ -94,9 +95,9 @@ export async function pull(force = false) {
   try {
     const p = S.pid || null;
     const [res, cnt, mem] = await Promise.all([
-      rpc<any[]>("liga_results", { p_id: p }).catch(() => null),
+      due("res", HOUR) || !S.lastRes ? rpc<any[]>("liga_results", { p_id: p }).catch(() => null) : Promise.resolve(null),
       due("count", 30 * MIN) ? rpc<number>("liga_count", { p_id: p }).catch(() => null) : Promise.resolve(null),
-      due("members", 30 * MIN) || !S.members ? rpc<any[]>("liga_members2", { p_id: p }).catch(() => null) : Promise.resolve(null)]);
+      due("members", 3 * HOUR) || !S.members ? rpc<any[]>("liga_members2", { p_id: p }).catch(() => null) : Promise.resolve(null)]);
     if (res) S.lastRes = res.length ? { id: res[0].week_id, rows: res.map((x) => ({ n: x.name, x: x.week_xp, me: x.is_me, d: x.week_stages || {} })) } : null;
     if (cnt != null) S.pcount = cnt;
     if (mem) S.members = mem.map((x) => ({ n: x.name, me: x.is_me, m: x.medal || 0, tier: x.tier || 0 }));
@@ -123,12 +124,13 @@ export async function pull(force = false) {
         due("news", 30 * MIN) ? rpc<any[]>("liga_news_list").catch(() => null) : null,
         due("taxcal", 6 * HOUR) ? rpc<any[]>("liga_tax_cal_list").catch(() => null) : null]);
       if (mi) S.match = mi; if (nw) S.news = nw; if (tc) S.taxCal = tc;
-      import("./remote").then((m) => m.pullExtras()).catch(() => {});
+      if (due("extras", HOUR)) import("./remote").then((m) => m.pullExtras()).catch(() => {});
       const [di, dd] = await Promise.all([rpc<any>("liga_day_info", { p_id: S.pid }).catch(() => null), rpc<any>("liga_day_duel_me", { p_id: S.pid }).catch(() => undefined)]);
       if (di) S.day = di; if (dd !== undefined) S.dd = dd;
-      const [dl, dm] = await Promise.all([rpc<any[]>("liga_cup_list", { p_id: S.pid }).catch(() => null), rpc<any>("liga_cup_me2", { p_id: S.pid }).catch(() => null)]);
+      const [dl, dm] = await Promise.all([due("cup", 15 * MIN) || !S.dl ? rpc<any[]>("liga_cup_list", { p_id: S.pid }).catch(() => null) : null, rpc<any>("liga_cup_me2", { p_id: S.pid }).catch(() => null)]);
       if (dl) S.dl = dl; if (dm) S.dm = dm;
-      if (S.token && due("discuss", 6 * HOUR)) { const ln = await rpc<string | null>("liga_discuss_link", { p_id: S.pid, p_token: S.token }).catch(() => undefined); if (ln !== undefined) S.discuss = ln || ""; }
+      if (S.token && due("discuss", 3 * HOUR)) { const dm2 = await rpc<any>("liga_discuss_me", { p_id: S.pid, p_token: S.token }).catch(() => undefined);
+        if (dm2 !== undefined) { S.discuss = dm2?.link || ""; (S as any).discussIn = !!dm2?.in; } }
     }
     if (due("trial", 6 * HOUR)) rpc<boolean>("liga_trial").then((v) => { S.trial = !!v; persist(); }).catch(() => {});
     if (due("freedays", 6 * HOUR)) rpc<number>("liga_free_days").then((v) => { S.freeDays = Number(v) || 0; persist(); }).catch(() => {});

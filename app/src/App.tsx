@@ -28,6 +28,7 @@ import Topics from "./screens/Topics";
 import { TaxCalendar, News, NewsView, Calcs, TestReport } from "./screens/Tools";
 import Review from "./screens/Review";
 import { GrandPop } from "./screens/Grand";
+import { DiscussPop, discussPopWanted } from "./screens/Home";
 import Px, { PxGame, PxPay } from "./screens/Px";
 import Detective from "./screens/Detective";
 import Sim from "./screens/Sim";
@@ -78,7 +79,7 @@ export default function App() {
           </div>
         </nav>
       )}
-      {showNav && <GrandPop />}
+      {showNav && route.name === "home" && (discussPopWanted() ? <DiscussPop /> : <GrandPop />)}
       <Toast toast={toast} />
     </>
   );
