@@ -44,6 +44,13 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-11-13b: Har qanday yangilik — muhokama guruhiga
+- **Ilova yangilansa** bot o'zi e'lon qiladi: har 5 daqiqada (08:00–20:59) `release.json` ni (GitHub Pages) tekshiradi, versiya yangi bo'lsa «🆕 Hisobchi Liga yangilandi!» xabarini «Ligani ochish» tugmasi bilan guruhga chiqaradi. Bir versiya bir marta (`liga_updates_ver_uq`, `liga_bot_config.release_posted`).
+  **Har relizda:** `app/public/release.json` dagi `ver` ni `__ligaVer` ga tenglang va `items` ga 3–5 ta oddiy tilda yangilikni yozing (`publish.mjs` mos kelmasa ogohlantiradi).
+- **Qo'lda yangilik:** administrator botga shaxsan `/yangilik matn` yozadi (rasm bilan — rasm izohiga). Bot ko'rsatadi → «✅ Guruhga yuborish» / «❌ Bekor qilish». Yuborilgach adminga «Yangilik muhokama guruhiga chiqdi» keladi.
+- Qonun yangiliklari (`lawPost`), kubok va natijalar avvalgidek o'zi chiqadi.
+- Jadval: `liga_updates` (draft → sending → done/fail/cancel), bot: `upd_tick`, cron `liga-yangilik` (`*/5 3-15 * * *`). Migratsiya: `db/2026-11-13b_guruhga_yangiliklar.sql`.
+
 ## 2026-11-13: Asosiy oyna — jalb qiluvchi dizayn, guruhga taklif, trafik tejash
 **Asosiy oyna (odam jalb qilish uchun):**
 - Yuqorida yangi **afisha**: «Hisobchi Liga», nechta buxgalter bellashayotgani, bosqich ochiq/yopiqligi (yonib turuvchi nuqta), natijalargacha qolgan vaqt, haftalik bal, seriya, tajriba.
