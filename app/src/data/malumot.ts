@@ -1,7 +1,7 @@
 /* Buxgalter ma'lumotnomasi: tashkiliy-huquqiy shakllar va 2026 soliq qoidalari (bosh sahifada, yig'ilgan holda).
    Bu — zaxira nusxa: ilova avval bazadagi liga_info() ni o'qiydi (har dushanba yangilanadi), ochilmasa shu ro'yxat ko'rinadi.
-   Holat: 02.11.2026. Bazani yangilaganda shu faylni ham yangilang (scripts/info-seed.mjs). */
-export const UPDATED = "02.11.2026";
+   Holat: 16.11.2026. Bazani yangilaganda shu faylni ham yangilang (scripts/info-seed.mjs). */
+export const UPDATED = "16.11.2026";
 type L = { uz: string; ru: string };
 export type Info = { id: string; short: L; title: L; sub: L; rows: [L, L][]; plus?: L[]; note?: L };
 
@@ -128,7 +128,7 @@ export const INFO: Info[] = [
       [{ uz: "Kasbiy va oliy ta'lim", ru: "Профессиональное и высшее образование" }, { uz: "O'zi, 26 yoshgacha farzandi yoki turmush o'rtog'i uchun kontrakt to'lovi va ta'lim krediti (foizlari bilan) soliqdan ozod", ru: "Контракт за себя, детей до 26 лет или супруга, а также образовательный кредит (с процентами) освобождаются от налога" }],
       [{ uz: "Qanday olinadi", ru: "Как получить" }, { uz: "1) Ish beruvchiga ariza — buxgalteriya ish haqining shu qismini to'g'ridan-to'g'ri ta'lim muassasasiga o'tkazadi; 2) yoki yil oxirida daromad deklaratsiyasi va to'lov hujjatlari bilan soliq organidan qaytarib olinadi", ru: "1) Заявление работодателю — бухгалтерия перечисляет эту часть зарплаты прямо в учебное заведение; 2) или в конце года через декларацию о доходах с платёжными документами" }],
     ],
-    note: { uz: "30.09.2026 da Prezident xususiy maktab uchun chegarani 6 mln so'mga oshirishni e'lon qildi. 02.11.2026 holatiga normativ hujjat chiqmagan — hozircha 3 mln so'm amal qiladi.", ru: "30.09.2026 Президент объявил о повышении лимита для частных школ до 6 млн сумов. На 02.11.2026 нормативный акт не вышел — пока действует 3 млн сумов." },
+    note: { uz: "30.09.2026 da Prezident xususiy maktab uchun chegarani 6 mln so'mga oshirishni e'lon qildi. 16.11.2026 holatiga normativ hujjat chiqmagan — hozircha 3 mln so'm amal qiladi.", ru: "30.09.2026 Президент объявил о повышении лимита для частных школ до 6 млн сумов. На 16.11.2026 нормативный акт не вышел — пока действует 3 млн сумов." },
   },
   {
     id: "mulk", short: { uz: "Yer", ru: "Земля" },
@@ -144,6 +144,7 @@ export const INFO: Info[] = [
       { uz: "Yangi (12.10.2026, PQ-368): transport-logistika markazlari yer va mol-mulk solig'idan 2040 yilgacha to'liq ozod. Shart: ESKATO quruqlik portlari bitimi ro'yxatida bo'lish, TOS va WMS tizimlari, «E-logistika» platformasida «BB» va undan yuqori reyting", ru: "Новое (12.10.2026, ПП-368): транспортно-логистические центры полностью освобождены от земельного налога и налога на имущество до 2040 года. Условия: включение в соглашение ЭСКАТО о сухих портах, системы TOS и WMS, рейтинг «BB» и выше на платформе «E-logistika»" },
       { uz: "Yangi (13.10.2026, PQ-371): issiqxona xo'jaliklari — daromadning kamida 60% issiqxonadan bo'lsa, 1.01.2027–1.01.2030 yuridik shaxslardan yer solig'i va mol-mulk solig'i stavkalari 50% kamaytiriladi, aylanmadan olinadigan soliqdan to'liq ozod", ru: "Новое (13.10.2026, ПП-371): тепличные хозяйства — при доле дохода от теплиц не менее 60% с 01.01.2027 по 01.01.2030 ставки земельного налога с юрлиц и налога на имущество снижаются на 50%, полное освобождение от налога с оборота" },
       { uz: "Yangi (27.10.2026, PQ-387): suv omborlari va ularga tutash hududlarda turizm xizmatlarini ko'rsatuvchi yuridik shaxslar uchun 1.10.2029 gacha yer solig'i va mol-mulk solig'i belgilangan stavkalarning 50% miqdorida", ru: "Новое (27.10.2026, ПП-387): для юрлиц, оказывающих туристические услуги на водохранилищах и прилегающих территориях, до 01.10.2029 земельный налог и налог на имущество — 50% от установленных ставок" },
+      { uz: "Yangi (10.11.2026, PF-243): Yangi Toshkent va Samarqanddagi «Shirin» majmuasida kamida 50 mln AQSh dollarlik shaharsozlik loyihalari obyektlari mol-mulk va yer solig'idan 20 yilga ozod; obyektlarni ijaraga berish va sotishdan foyda solig'i 1% (50 mln $ dan — 5, 100 mln $ dan — 10, 500 mln $ dan — 15 yil). 1.01.2035 gacha qurilishga ruxsat olingan obyektlarga", ru: "Новое (10.11.2026, УП-243): объекты градостроительных проектов от 50 млн долларов США в Новом Ташкенте и комплексе «Ширин» в Самарканде освобождены от налога на имущество и земельного налога на 20 лет; налог на прибыль от аренды и продажи объектов — 1% (от 50 млн $ — 5, от 100 млн $ — 10, от 500 млн $ — 15 лет). Для объектов с разрешением на строительство до 01.01.2035" },
     ],
   },
 ];
