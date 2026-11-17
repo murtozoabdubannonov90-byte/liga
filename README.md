@@ -44,6 +44,12 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-11-17: Guruhga taklif — har kuni, dushanba–shanba
+- Muhokama guruhiga qo'shilmaganlarga bot shaxsan taklif yuboradi: **har kuni 1 marta** (Toshkent vaqti bo'yicha), **dushanba–shanba**, guruhga qo'shilguncha (avval 3 kunda bir, jami 3 marta, faqat ish kunlari edi). Yakshanba yuborilmaydi.
+- 4 xil matn navbatma-navbat almashadi (uz, uzc, ru), «💬 Guruhga qo'shilish» tugmasi bilan. Botni bloklaganlar va guruhdan chiqarilganlar olinmaydi; guruhga kirganlar avtomatik to'xtaydi.
+- Edge Function `liga-taklif` (manba: `bot/taklif.ts`), cron `liga-guruh-qayta` (`*/10 5-13 * * 1-6`, chaqiruvda 40 kishigacha). SQL: `db/2026-11-17_guruh_taklif_har_kuni.sql` (`liga_discuss_resend_pick_sys`, sinov uchun `liga_discuss_resend_count_sys`).
+- O'chirish: `update liga_bot_config set value = 'off' where key = 'discuss_resend_on';`
+
 ## 2026-11-13b: Har qanday yangilik — muhokama guruhiga
 - **Ilova yangilansa** bot o'zi e'lon qiladi: har 5 daqiqada (08:00–20:59) `release.json` ni (GitHub Pages) tekshiradi, versiya yangi bo'lsa «🆕 Hisobchi Liga yangilandi!» xabarini «Ligani ochish» tugmasi bilan guruhga chiqaradi. Bir versiya bir marta (`liga_updates_ver_uq`, `liga_bot_config.release_posted`).
   **Har relizda:** `app/public/release.json` dagi `ver` ni `__ligaVer` ga tenglang va `items` ga 3–5 ta oddiy tilda yangilikni yozing (`publish.mjs` mos kelmasa ogohlantiradi).
