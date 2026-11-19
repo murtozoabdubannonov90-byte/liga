@@ -44,6 +44,11 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-11-19: Blits qaytdi, Provodka poygasi — 20 ta provodka
+- **Provodka poygasi** (guruh dueli, 2–10 kishi): oxirgi 5 ta savol (test/hisob) olib tashlandi, o'rniga provodka — endi **20 ta provodka**. SQL: `db/2026-11-19_poyga_20_provodka.sql` (`liga_quad_draw`). Ilovadagi qoida matnlari va «endi 5 ta savol» yozuvi yangilandi.
+- **Blits** Asosiy oynaga qaytdi (Kunlik mashqdan keyin): 20 ta provodka, vaqtsiz, rekord ko'rinadi; ball haftalik ligaga qo'shilmaydi.
+- Versiya `2026-11-19` (`release.json` — bot guruhga e'lon qiladi).
+
 ## 2026-11-17: Guruhga taklif — har kuni, dushanba–shanba
 - Muhokama guruhiga qo'shilmaganlarga bot shaxsan taklif yuboradi: **har kuni 1 marta** (Toshkent vaqti bo'yicha), **dushanba–shanba**, guruhga qo'shilguncha (avval 3 kunda bir, jami 3 marta, faqat ish kunlari edi). Yakshanba yuborilmaydi.
 - 4 xil matn navbatma-navbat almashadi (uz, uzc, ru), «💬 Guruhga qo'shilish» tugmasi bilan. Botni bloklaganlar va guruhdan chiqarilganlar olinmaydi; guruhga kirganlar avtomatik to'xtaydi.

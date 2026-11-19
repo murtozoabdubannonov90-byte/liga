@@ -887,7 +887,7 @@ with sync_playwright() as p:
     print("10q. Provodka poygasi (2–10 kishi)")
     pg, e = page(b); ALLERR += e
     qc = pg.inner_text("#quad-card") if pg.locator("#quad-card").count() else ""
-    check("asosiy ekranda «Provodka poygasi» bo'limi (2–10 kishi)", "Provodka poygasi" in qc and "2 tadan 10 kishigacha" in qc and "15 ta provodka + 5 ta savol" in qc and "o'tgan mavzulardan" in qc, qc[:200])
+    check("asosiy ekranda «Provodka poygasi» bo'limi (2–10 kishi)", "Provodka poygasi" in qc and "2 tadan 10 kishigacha" in qc and "20 ta provodka" in qc and "o'tgan mavzulardan" in qc, qc[:200])
     order = pg.evaluate("()=>[...document.querySelectorAll('.shell .stack > *')].map(x=>x.id)")
     check("guruh dueli yuqorida: kunlik kubokdan oldin", "quad-card" in order and order.index("quad-card") < order.index("day-duel"), order)
     check("pastki plitkalarda ham «Provodka poygasi»", pg.locator(".tiles .tile", has_text="Provodka poygasi").count() == 1)
@@ -920,7 +920,7 @@ with sync_playwright() as p:
     QUAD.update({"cur": 2, "locked": False, "q_in": 2500, "last": {"k": 1, "w": 2, "w_name": "Aziz R.", "q": "Savol №2", "t": "mc", "o": ["Alfa", "Beta", "Gamma", "Delta"], "a": 1}}); pg.wait_for_timeout(3300)
     check("boshqa o'yinchi birinchi topdi — ismi bilan", "Aziz R. birinchi topdi" in txt(pg) and "Beta" in txt(pg))
     QUAD.update({"cur": 15, "q_in": 2500, "last": {"k": 14, "w": None, "q": "Savol №15", "t": "pv", "dt": "5010", "kt": "5110"}}); pg.wait_for_timeout(3300)
-    check("hech kim topmasa — to'g'ri javob ko'rsatiladi; 15-savoldan keyin 5 ta savol", "Hech kim topmadi" in txt(pg) and "Dt 5010 — Kt 5110" in txt(pg) and "endi 5 ta savol" in txt(pg))
+    check("hech kim topmasa — to'g'ri javob ko'rsatiladi (2026-11-19: 20 ta provodka, «endi 5 ta savol» yo'q)", "Hech kim topmadi" in txt(pg) and "Dt 5010 — Kt 5110" in txt(pg) and "endi 5 ta savol" not in txt(pg))
     QUAD.update({"q_in": 0, "last": None}); pg.wait_for_timeout(3000)
     check("16-savol: tabloda «Savol» bosqichi, savol ochiq", "16/20" in pg.inner_text("#quad-score") and "Savol" in pg.inner_text("#quad-score") and pg.locator("#quad-q .qtext").count() == 1)
     CALLS.clear()
@@ -992,8 +992,8 @@ with sync_playwright() as p:
     print("10u. Faktura detektivi (2026-11-02)")
     pg.context.close() if 'pg' in dir() else None
     pg, e = page(b); ALLERR += e
-    check("2026-11-13: Asosiy oynada detektiv, balans, sovg'a, blits va simulyator yo'q", pg.locator("#doc-card").count() == 0 and pg.locator("#sim-card").count() == 0
-          and all(pg.locator(".tile", has_text=x).count() == 0 for x in ["Faktura detektivi", "Balans o'yini", "Kunlik sovg'a", "Blits"]) and pg.locator(".tiles .tile").count() == 4)
+    check("2026-11-13: Asosiy oynada detektiv, balans, sovg'a va simulyator yo'q; 2026-11-19: Blits qaytdi", pg.locator("#doc-card").count() == 0 and pg.locator("#sim-card").count() == 0
+          and all(pg.locator(".tile", has_text=x).count() == 0 for x in ["Faktura detektivi", "Balans o'yini", "Kunlik sovg'a"]) and pg.locator(".tile", has_text="Blits").count() == 1 and pg.locator(".tiles .tile").count() == 5)
     go(pg, "detective"); pg.wait_for_timeout(500)
     check("Detektiv sahifasi: qoidalar va statistika (bu hafta 3, jami 12)", "0 tadan 3 tagacha xato" in txt(pg) and "12" in pg.inner_text("#det-stats"), txt(pg)[:300])
     CALLS.clear(); pg.click("#doc-go"); pg.wait_for_timeout(700)
@@ -1104,7 +1104,7 @@ with sync_playwright() as p:
 
     print("10t. Versiya va yangilash")
     pg, e = page(b); ALLERR += e; go(pg, "settings")
-    check("Sozlamalar: «Ilovani yangilash» tugmasi va versiya", pg.locator("#app-update").count() == 1 and "2026-11-13" in pg.inner_text("#app-ver"), txt(pg)[-200:])
+    check("Sozlamalar: «Ilovani yangilash» tugmasi va versiya", pg.locator("#app-update").count() == 1 and "2026-11-19" in pg.inner_text("#app-ver"), txt(pg)[-200:])
     check("index.html: ver.txt bilan versiya tekshiruvi", "ver.txt" in open(os.path.join(ROOT, "dist", "index.html"), encoding="utf-8").read())
 
     print("11. Ko'rinish")

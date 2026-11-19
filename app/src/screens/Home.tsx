@@ -5,7 +5,7 @@ import { SearchCheck, Rocket, Zap, Target, Swords, Scale, NotebookPen, Gift, Boo
 import { S } from "../engine/state";
 import { t } from "../lib/i18n";
 import { go, toast } from "../lib/nav";
-import { C, startDaily, startPractice } from "../engine/run";
+import { C, startDaily, startBlitz, startPractice } from "../engine/run";
 import { stLeft, stTotal, stg } from "../engine/remote";
 import { rankOf, WEEK_GOAL } from "../engine/score";
 import { stageState, todayStage, tzNow, isWeekend, weekDays, stageOfDate, dkey, OPEN_H, closeH, closeStr, hm, weekEnd, stageDay } from "../engine/time";
@@ -233,9 +233,10 @@ function WeekLedger() {
 export default function Home() {
   useEffect(() => { if (entry.d) { const code = entry.d; entry.d = undefined; go("duel", { code }); } }, []);
   const L = lessonOfDay(), errs = Object.keys(S.errs).length;
-  /* 2026-11-13: Blits, Balans o'yini, Kunlik sovg'a, Faktura detektivi, Sovrinli musobaqa va simulyator Asosiy oynadan olib tashlandi */
+  /* 2026-11-19: Blits qaytarildi. 2026-11-13: Balans o'yini, Kunlik sovg'a, Faktura detektivi, Sovrinli musobaqa va simulyator Asosiy oynadan olib tashlandi */
   const tiles: [any, string, string, () => void, boolean?][] = [
     [Target, "Kunlik mashq", t("10 savol · +8 ball"), () => runOrToast(startDaily())],
+    [Zap, "Blits", t("20 provodka · rekord {n}", { n: S.blitz || 0 }), () => runOrToast(startBlitz())],
     [Swords, "Duel", t("Hamkasbingizni chaqiring"), () => go("duel"), true],
     [Users, "Provodka poygasi", t("2–10 kishi bir vaqtda"), () => openQuad(), true],
     [NotebookPen, "Xato daftari", errs ? t("{n} ta · misol bilan", { n: errs }) : t("{n} ta savol", { n: 0 }), () => go("review"), errs > 0],

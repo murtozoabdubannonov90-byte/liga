@@ -1,5 +1,5 @@
 /* Provodka poygasi — jonli duel 2 tadan 10 kishigacha (2026-10-28: 4 → 10). Bir kishi xona ochib havolani yuboradi, qolganlar havola orqali kiradi.
-   20 ta savol: 15 ta provodka + 5 ta savol — o'tgan mavzulardan. Kim birinchi to'g'ri javob bersa — +1 ochko, hammaga keyingi savol.
+   20 ta provodka — o'tgan mavzulardan (2026-11-19 dan; avval 15 provodka + 5 savol). Kim birinchi to'g'ri javob bersa — +1 ochko, hammaga keyingi savol.
    Savollar serverdan javobsiz keladi, javob va vaqt serverda tekshiriladi (liga_quad_*). Liga baliga qo'shilmaydi. */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,7 +25,7 @@ const MEDAL = ["🥇", "🥈", "🥉"];
 export const QMAX = 10;   // serverdagi liga_quad_max() bilan bir xil
 
 export function shareQuad(code: string) {
-  const text = t("Provodka poygasiga chaqiraman! 2 dan 10 kishigacha bir vaqtda: 20 ta savol (15 provodka + 5 savol), kim birinchi to'g'ri topsa — ochko o'shaniki. Havolani bosing va kiring ⚡");
+  const text = t("Provodka poygasiga chaqiraman! 2 dan 10 kishigacha bir vaqtda: 20 ta provodka, kim birinchi to'g'ri topsa — ochko o'shaniki. Havolani bosing va kiring ⚡");
   openTg("https://t.me/share/url?url=" + encodeURIComponent(quadLink(code)) + "&text=" + encodeURIComponent(text));
 }
 export async function createQuad(): Promise<string | null> {
@@ -50,7 +50,7 @@ export function QuadCard() {
     <section className="ticket quad-ticket" id="quad-card">
       <div className="t-top"><Users size={40} /><div className="grow">
         <div className="t-title">{t("Provodka poygasi")}</div>
-        <div className="t-meta">{t("Xona oching va havolani hamkasblaringizga yuboring — 2 tadan 10 kishigacha bir vaqtda o'ynaysiz. 20 ta savol: 15 ta provodka + 5 ta savol, o'tgan mavzulardan. Kim birinchi to'g'ri topsa — ochko o'shaniki.")}</div>
+        <div className="t-meta">{t("Xona oching va havolani hamkasblaringizga yuboring — 2 tadan 10 kishigacha bir vaqtda o'ynaysiz. 20 ta provodka, o'tgan mavzulardan. Kim birinchi to'g'ri topsa — ochko o'shaniki.")}</div>
       </div></div>
       {open.length > 0 && <div className="quad-mini">{open.slice(0, 2).map((x) => (
         <button key={x.code} className="quad-mini-r" onClick={() => go("duel", { code: x.code })}>
@@ -188,7 +188,7 @@ export default function QuadDuel({ code }: { code: string }) {
         {v.is_host && <button className="btn gold" id="quad-start" disabled={here < 2 || starting} onClick={start}><Play size={18} />
           {here < 2 ? t("Kamida 2 kishi kerak") : t("Boshlash ({n} kishi)", { n: here })}</button>}
         {me && <button className="btn ghost sm" id="quad-leave" onClick={leave}><LogOut size={16} />{v.is_host ? t("Xonani yopish") : t("Xonadan chiqish")}</button>}
-        <div className="note"><Users size={18} /><span>{t("Qoida: 20 ta savol (15 provodka + 5 savol), har biriga 1,5 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va hammaga keyingi savol chiqadi. Xato javob bergan shu savolda qulflanadi. Teng ochkoda to'g'ri javoblarga kam vaqt sarflagan yuqori turadi.")}</span></div>
+        <div className="note"><Users size={18} /><span>{t("Qoida: 20 ta provodka, har biriga 1,5 daqiqa. Kim birinchi to'g'ri javob bersa — ochko oladi va hammaga keyingi savol chiqadi. Xato javob bergan shu savolda qulflanadi. Teng ochkoda to'g'ri javoblarga kam vaqt sarflagan yuqori turadi.")}</span></div>
       </div>);
   }
 
@@ -242,7 +242,7 @@ export default function QuadDuel({ code }: { code: string }) {
               <p className="small" style={{ fontWeight: 700 }}>{tx(L.q || "")}</p>
               <p className="ex-line">{L.t === "pv" ? `Dt ${L.dt} — Kt ${L.kt}` : L.t === "mc" ? tx((L.o || [])[Number(L.a)] || "") : fmt(Number(L.a))}</p>
               {L.e && <p className="small muted">{tx(L.e)}</p>}
-              <p className="tiny muted">{v.cur === 15 ? t("Provodkalar tugadi — endi 5 ta savol. ") : ""}{t("Keyingi savol {s} soniyada", { s: Math.max(1, Math.ceil((showAt.current - now) / 1000)) })}</p></>}
+              <p className="tiny muted">{t("Keyingi savol {s} soniyada", { s: Math.max(1, Math.ceil((showAt.current - now) / 1000)) })}</p></>}
           </motion.section>
         ) : (
           <motion.article key={"q" + v.cur} className={"qcard" + (me ? "" : " watch")} id={me ? "quad-q" : "quad-watch-q"} initial={{ x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }}>
