@@ -2210,6 +2210,15 @@ async function onCron(action: string, body: any = {}) {
     }
     return out;
   }
+  if (action === "say_group") {
+    // 25.11.2026: admin matni muhokama guruhiga, o'yinchini belgilab (mention). body: { text, tg?, name? } — text oddiy matn (HTML escape qilinadi)
+    const cfg = await discussCfg(); if (!cfg) return { ok: false, why: "no_group" };
+    const raw = String(body.text ?? "").trim(); if (!raw) return { ok: false, why: "no_text" };
+    const tgId = Number(body.tg) || 0, nm = String(body.name ?? "").trim();
+    const head = tgId && nm ? `<a href="tg://user?id=${tgId}">${esc(nm)}</a>, ` : "";
+    const r = await tg("sendMessage", { chat_id: cfg.chat, parse_mode: "HTML", text: head + esc(raw) });
+    return { ok: !!r?.ok, mid: r?.result?.message_id, err: r?.ok ? undefined : r?.description };
+  }
   if (action === "group_live") return await groupLive(String(body.code ?? ""));
   // holatni tekshirish (hech narsa yubormaydi): kim guruhda, kimga yetgan, kimga yetmagan
   if (action === "discuss_check" || action === "discuss_resend") {
