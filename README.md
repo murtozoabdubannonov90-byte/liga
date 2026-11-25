@@ -44,6 +44,15 @@ node scripts/i18n-keys.mjs       # rus lug'atida tarjimasiz matn qolmaganini tek
 - Android: Capacitor (`app/android`), ilova saytni ochadi — sayt yangilansa ilova ham yangilanadi. APK ni `.github/workflows/android.yml` bepul yig'adi. Imzo kaliti ixtiyoriy: GitHub → Settings → Secrets → Actions → `ANDROID_KEYSTORE_B64` va `ANDROID_KEY_PASS` (bo'lmasa debug imzo — yangi APK ni o'rnatishdan oldin eskisini o'chirish kerak bo'ladi).
 - Eski (1.0) ilova testlari: `python3 -m http.server 8765 & python3 tests/app.test.py` (v1/ ni tekshiradi).
 
+## 2026-11-25: Darsliklar — Asosiy oynada
+- **Asosiy oynada «Darsliklar» kartasi** (bosqich chiptasidan keyin). Ichida — o'tgan kunlarning barcha darsliklari (`liga_day_plan`, `day < liga_today()`): har kun o'z mavzusi, takrorlanmaydi, eng yangisi tepada. Hozir 30 ta darslik, 445 ta provodka.
+- Darslik ichida: hikoya, qoida (nazariya), keyin shu kunning **provodkalari** (vaqt cheklovisiz). Savollar **javobsiz** keladi, har javob serverda tekshiriladi; to'g'ri provodka va izoh faqat javobdan keyin.
+- **Xato javob qaytib chiqmaydi** — to'g'ri javob va sababi ko'rsatiladi, keyingisiga o'tiladi; xato «Xato daftari»ga yoziladi. Chiqib ketsa, progress telefonda saqlanadi — «Davom etish».
+- **«Boshidan boshlash»** — shu darslik noldan (hamma provodka qayta).
+- Ballar ligaga **qo'shilmaydi**. Bugungi va kelgusi kun savollari ochilmaydi.
+- SQL: `db/2026-11-25_darsliklar.sql` (`liga_lessons`, `liga_lesson_get`, `liga_lesson_check` — token bilan). Ilova: `src/screens/Darslik.tsx`, Quiz'da `lesson` rejimi. Trafik: ro'yxat 6 soatda bir, darslik telefonda keshlanadi (oxirgi 12 ta).
+- Versiya `2026-11-25`, kesh `hisobchi-liga-v5-20261125`.
+
 ## 2026-11-19: Blits qaytdi, Provodka poygasi — 20 ta provodka
 - **Provodka poygasi** (guruh dueli, 2–10 kishi): oxirgi 5 ta savol (test/hisob) olib tashlandi, o'rniga provodka — endi **20 ta provodka**. SQL: `db/2026-11-19_poyga_20_provodka.sql` (`liga_quad_draw`). Ilovadagi qoida matnlari va «endi 5 ta savol» yozuvi yangilandi.
 - **Blits** Asosiy oynaga qaytdi (Kunlik mashqdan keyin): 20 ta provodka, vaqtsiz, rekord ko'rinadi; ball haftalik ligaga qo'shilmaydi.

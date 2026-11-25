@@ -1102,9 +1102,39 @@ with sync_playwright() as p:
     DOC_ME["beta"] = False
     pg.context.close()
 
+    print("10d. Darsliklar (Asosiy oynada) — o'tgan kunlar, provodka mashqi")
+    pg, e = page(b); ALLERR += e
+    check("Asosiy oynada «Darsliklar» kartasi", pg.locator("#darslik-card").count() == 1 and "Darsliklar" in pg.inner_text("#darslik-card"), txt(pg)[:200])
+    pg.click("#darslik-card"); pg.wait_for_timeout(500)
+    check("ro'yxat: 2 ta darslik, eng yangisi tepada", pg.locator(".darslik-row").count() == 2 and pg.locator(".darslik-row").first.get_attribute("data-day") == "2026-11-24")
+    pg.locator(".darslik-row").first.click(); pg.wait_for_timeout(500)
+    check("darslik ichida qoida va «Provodkalarni ishlash»", "QQS stavkasi" in txt(pg) and pg.locator("#go").count() == 1, txt(pg)[:300])
+    pg.click("#go"); pg.wait_for_timeout(500)
+    def lans(right):
+        dt, kt = ("5110", "6010") if right else ("6010", "5110")
+        for c in (dt, kt): pg.locator(".keys .key", has_text=c).first.click()
+        pg.click("#chk"); pg.wait_for_timeout(450)
+    lans(False)
+    check("xato javob: to'g'ri provodka ko'rsatiladi", "Dt 5110 — Kt 6010" in txt(pg), txt(pg)[-300:])
+    check("javob serverda tekshirildi", len(calls("liga_lesson_check")) == 1)
+    pg.click("#nx"); pg.wait_for_timeout(400)
+    check("xato savol qaytmaydi — keyingisi ochildi", "№2" in pg.inner_text(".qtext"))
+    lans(True); pg.click("#nx"); pg.wait_for_timeout(400)
+    # chiqib, qayta kirish — davom etadi
+    go(pg, "darslik", {"day": "2026-11-24"}); pg.wait_for_timeout(400)
+    check("progress saqlanadi: 2/3, «Davom etish (1 ta qoldi)»", "2/3" in pg.inner_text("#dprog") and "1 ta qoldi" in pg.inner_text("#go"), txt(pg)[-300:])
+    pg.click("#go"); pg.wait_for_timeout(500)
+    check("davomida faqat qolgan savol", "№3" in pg.inner_text(".qtext"))
+    lans(True); pg.click("#nx"); pg.wait_for_timeout(600)
+    check("yakun: «Darslik yakunlandi!» 2/3, ligaga qo'shilmaydi", "Darslik yakunlandi" in txt(pg) and pg.locator("#lesson-note").count() == 1, txt(pg)[:300])
+    check("liga balli o'zgarmadi", S(pg, "S.week.my") == 1180)
+    pg.locator(".btn", has_text="Boshidan boshlash").first.click(); pg.wait_for_timeout(500)
+    check("«Boshidan boshlash» — hamma savol noldan (№1 dan)", "№1" in pg.inner_text(".qtext") and S(pg, "Object.keys(S.dars.p['2026-11-24']).length") == 0)
+    pg.context.close()
+
     print("10t. Versiya va yangilash")
     pg, e = page(b); ALLERR += e; go(pg, "settings")
-    check("Sozlamalar: «Ilovani yangilash» tugmasi va versiya", pg.locator("#app-update").count() == 1 and "2026-11-19" in pg.inner_text("#app-ver"), txt(pg)[-200:])
+    check("Sozlamalar: «Ilovani yangilash» tugmasi va versiya", pg.locator("#app-update").count() == 1 and "2026-11-25" in pg.inner_text("#app-ver"), txt(pg)[-200:])
     check("index.html: ver.txt bilan versiya tekshiruvi", "ver.txt" in open(os.path.join(ROOT, "dist", "index.html"), encoding="utf-8").read())
 
     print("11. Ko'rinish")

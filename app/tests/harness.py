@@ -124,6 +124,14 @@ def body_for0(fn, args):
         if sum(1 for p in QUAD["players"] if p["here"]) < 2: return {"__error": "quad_few"}
         QUAD.update({"status": "play", "q_in": 0}); return quad_view()
     if fn == "liga_quad_answer": return quad_answer(args)
+    if fn == "liga_lessons": return [{"day": "2026-11-23", "level": 9, "icon": "🔄", "title": {"uz": "Qayta baholash", "ru": "Переоценка"}, "n": 3},
+                                     {"day": "2026-11-24", "level": 10, "icon": "🧾", "title": {"uz": "QQS: bo'nak va eksport", "ru": "НДС: аванс"}, "n": 3}]
+    if fn == "liga_lesson_get":
+        return {"day": args["p_day"], "level": 10, "icon": "🧾", "title": "QQS: bo'nak va eksport", "story": "Firma bo'nak oldi.", "theory": "<p>QQS stavkasi — <b>12%</b>.</p>",
+                "items": [{"id": f"L-{k}", "q": f"Darslik savoli №{k+1}: bankka bo'nak tushdi", "q_ru": f"Вопрос №{k+1}", "o": CODES} for k in range(3)]}
+    if fn == "liga_lesson_check":
+        ok = args.get("p_dt") == "5110" and args.get("p_kt") == "6010"
+        return {"ok": ok, "dt": "5110", "kt": "6010", "e": "Izoh: bo'nak 6010 da."}
     if fn == "liga_quad_list": return EXTRA.get("_quad_list", [])
     if fn in ("liga_quad_leave", "liga_quad_away"): return None
     if fn == "liga_live_create": live_reset(); return "LQWERTY"

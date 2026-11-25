@@ -23,6 +23,7 @@ import { QuadCard, openQuad } from "./QuadDuel";
 import { GrandCard } from "./Grand";
 import { InfoCard } from "../components/Malumot";
 import { RatesCard } from "../components/Rates";
+import { DarslikCard } from "./Darslik";
 
 /* Telegram ulanmagan bo'lsa — bot shaxsiy xabar yubora olmaydi */
 export const needTgLink = () => !!(S.pid && S.token && S.me && S.me.tg_linked === false && !(inTelegram && S.tgLinked));
@@ -259,6 +260,7 @@ export default function Home() {
           <div className="t-top"><Trophy size={40} color="var(--gold)" /><div className="grow"><div className="t-title">{S.fin?.month === S.grand?.month ? t("Katta final boshlandi!") : t("Oylik final boshlandi!")}</div><div className="t-meta">{t("Siz saralangansiz · 13:00 gacha")}</div></div><ChevronRight /></div></button>}
         <FirstStepCard />
         <Ticket />
+        <DarslikCard />
         <QuadCard />
         <DayDuelCard />
         <TgLinkCard />

@@ -32,12 +32,14 @@ import { DiscussPop, discussPopWanted } from "./screens/Home";
 import Px, { PxGame, PxPay } from "./screens/Px";
 import Detective from "./screens/Detective";
 import Sim from "./screens/Sim";
+import { Darsliklar, DarslikView } from "./screens/Darslik";
 
 const SCREENS: Record<string, (p: any) => JSX.Element | null> = {
   home: Home, rate: Rating, learn: Learn, profile: Profile, settings: Settings, ach: Achievements, quiz: Quiz, intro: Intro, pay: Pay,
   lessons: Lessons, lesson: LessonView, balance: Balance, duel: Duel, finalLive: FinalLive, share: Share, cert: CertView,
   admin: Admin, report: Report, adminLogin: AdminLogin, super: Super, wqAnswer: WqAnswer, wqSubmit: WqSubmit, weekEnd: WeekEnd,
   topics: Topics, region: () => <AskRegion back />,
+  darsliklar: Darsliklar, darslik: DarslikView,
   px: Px, pxGame: PxGame, pxPay: PxPay, detective: Detective, sim: Sim,
   calendar: TaxCalendar, news: News, newsView: NewsView, calc: Calcs, testReport: TestReport, review: Review,
 };

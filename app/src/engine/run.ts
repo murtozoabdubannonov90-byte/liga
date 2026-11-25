@@ -6,7 +6,7 @@ import { addXP, addStageXP, award, dailyTick, saRec, saSettle, saBad, saLeft, ma
 import { buildReview, settleReview, clearErr } from "./errs";
 import { unlocked, isWeekend, stageOpen, today, STAGE_N } from "./time";
 
-export type Mode = "stage" | "daily" | "blitz" | "errs" | "gift" | "practice" | "topic" | "final" | "duel" | "test" | "review" | "doc" | "law";
+export type Mode = "stage" | "daily" | "blitz" | "errs" | "gift" | "practice" | "topic" | "final" | "duel" | "test" | "review" | "doc" | "law" | "lesson";
 export interface Q extends Task { k: number }
 export interface Run {
   mode: Mode; si: number | null; tp?: string; title: string; queue: Q[]; i: number; lives: number; maxLives: number;
@@ -18,6 +18,8 @@ export interface Run {
   qsec?: number; extraSec?: number; mastered?: number;
   /* qonun yangiligi testi: qaysi yangilik */
   newsId?: number;
+  /* «Darsliklar»: qaysi kun darsligi */
+  lessonDay?: string;
 }
 export const QSEC = 60;
 export const lang = () => S.lang || "uz";

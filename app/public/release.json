@@ -1,9 +1,11 @@
 {
-  "ver": "2026-11-19",
-  "title": "Blits qaytdi, Provodka poygasi — faqat provodka",
+  "ver": "2026-11-25",
+  "title": "Darsliklar — Asosiy oynada",
   "items": [
-    "⚡ Blits yana Asosiy oynada: 20 ta provodka, vaqt cheklovisiz — rekordingizni yangilang",
-    "Provodka poygasi (2–10 kishi): endi 20 ta savolning hammasi provodka"
+    "📚 Yangi «Darsliklar» bo'limi Asosiy oynada: o'tgan kunlarning hamma darsliklari (30 ta mavzu, takrorlanmaydi)",
+    "Darslikni oching: avval qoida, keyin shu mavzudagi provodkalarni ishlaysiz — vaqt cheklovisiz",
+    "Xato javob qaytib chiqmaydi — to'g'ri provodka va sababi ko'rsatiladi, xato «Xato daftari»ga yoziladi",
+    "«Boshidan boshlash» — darslikni noldan qayta ishlash. Ballar ligaga qo'shilmaydi"
   ],
   "note": "Fikr va takliflaringizni shu guruhda yozing!"
 }
