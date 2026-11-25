@@ -1146,6 +1146,17 @@ async function onUpdate0(u: any) {
     if (photo) return tg("sendPhoto", { chat_id: m.chat.id, photo, caption: ("👀 <b>Ko'rib chiqing:</b>\n\n" + body).slice(0, 1000), parse_mode: "HTML", reply_markup: kb });
     return reply("👀 <b>Ko'rib chiqing:</b>\n\n" + body, kb);
   }
+  if (priv && /^\/xabar(@\w+)?(\s|$)/i.test(String(m.text ?? "").trim())) {
+    // 25.11.2026: admin → muhokama guruhiga bot nomidan xabar, o'yinchini belgilab: /xabar @username matn
+    if (!(await isLigaAdmin(m.from?.id ?? 0))) return reply("⛔ Bu buyruq faqat liga administratori uchun.");
+    const raw = String(m.text ?? "").trim().replace(/^\/xabar(@\w+)?\s*/i, "");
+    const mm = raw.match(/^@(\w{3,})\s+([\s\S]+)$/);
+    if (!mm) return reply("✍️ Yozing: <b>/xabar @username matn</b>\nMasalan: <code>/xabar @Muncho1982 Siz kubokda qatnashyapsiz, duel 10:00 da</code>\n\nBot muhokama guruhiga shu o'yinchini belgilab yozadi.");
+    const { data: p } = await db.from("safari_players").select("first_name,last_name,tg_user_id").ilike("tg_username", mm[1]).not("tg_user_id", "is", null).maybeSingle();
+    if (!p) return reply(`❌ @${esc(mm[1])} ligada topilmadi (Telegram ulanmagan bo'lishi mumkin).`);
+    const r: any = await onCron("say_group", { tg: p.tg_user_id, name: `${p.first_name ?? ""} ${p.last_name ?? ""}`.trim() || "@" + mm[1], text: mm[2].trim() });
+    return reply(r?.ok ? `✅ Guruhga yuborildi: ${esc(`${p.first_name ?? ""} ${p.last_name ?? ""}`.trim())} belgilandi.` : `❌ Yuborilmadi: ${esc(String(r?.err ?? r?.why ?? "xato"))}`);
+  }
   if (priv && (m.photo || m.document)) return onReceipt(m);
   if (priv && ((cmd === "/start" && arg === "px") || cmd === "/musobaqa")) return pxJoin(m.chat.id, m.from?.id);
   if (priv && cmd === "/start" && /^pay_[0-9a-f]+$/i.test(arg)) {
